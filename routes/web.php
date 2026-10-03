@@ -5,6 +5,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Student\FeedbackController;
 use App\Http\Controllers\Student\GradeController as StudentGradeViewController;
 use App\Http\Controllers\StudentGradeController;
+use App\Http\Controllers\TesLevelController;
 use App\Http\Controllers\Tutor\GradeComponentController;
 use App\Http\Controllers\Tutor\StudentClassGradeController;
 use App\Http\Controllers\TutorClassController;
@@ -106,6 +107,19 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-});
+
+    // === Tes Level Kelas Routes ===
+    Route::prefix('tes-level')->name('tes-level.')->group(function () {
+        Route::get('/', [TesLevelController::class, 'index'])->name('index');
+        Route::post('/start', [TesLevelController::class, 'start'])->name('start');
+        Route::get('/take', [TesLevelController::class, 'takeTest'])->name('take');
+        Route::post('/auto-save', [TesLevelController::class, 'autoSave'])->name('auto-save');
+        Route::post('/toggle-tandai', [TesLevelController::class, 'toggleTandai'])->name('toggle-tandai');
+        Route::post('/submit', [TesLevelController::class, 'submit'])->name('submit');
+        Route::get('/result/{id}', [TesLevelController::class, 'result'])->name('result');
+    });
+    });
+
 
 require __DIR__.'/auth.php';
+
