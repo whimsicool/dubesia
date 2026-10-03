@@ -36,14 +36,14 @@ class RegisteredUserController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|lowercase|email|max:255|unique:'.User::class,
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
-            'role' => ['sometimes', Rule::in(['murid', 'guru'])],
+            'role' => ['sometimes', Rule::in(['student', 'tutor'])],
         ]);
 
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
-            'role' => $request->input('role', 'murid'),
+            'role' => $request->input('role', 'student'),
         ]);
 
         event(new Registered($user));
@@ -51,7 +51,7 @@ class RegisteredUserController extends Controller
         Auth::login($user);
 
         $redirect = match ($user->role) {
-            'guru' => route('guru.dashboard', absolute: false),
+            'tutor' => route('tutor.dashboard', absolute: false),
             default => route('dashboard', absolute: false),
         };
 

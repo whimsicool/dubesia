@@ -13,9 +13,9 @@ Route::get('/dashboard', function () {
     return Inertia::render('Dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
-Route::get('/guru/dashboard', function () {
+Route::get('/tutor/dashboard', function () {
     return Inertia::render('Dashboard');
-})->middleware(['auth', 'verified', 'role:guru,admin'])->name('guru.dashboard');
+})->middleware(['auth', 'verified', 'role:tutor,admin'])->name('tutor.dashboard');
 
 Route::get('/admin/dashboard', function () {
     return Inertia::render('Dashboard');

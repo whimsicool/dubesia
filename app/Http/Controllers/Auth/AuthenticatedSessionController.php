@@ -35,7 +35,7 @@ class AuthenticatedSessionController extends Controller
 
         $redirect = match ($role) {
             'admin' => route('admin.dashboard', absolute: false),
-            'guru' => route('guru.dashboard', absolute: false),
+            'tutor' => route('tutor.dashboard', absolute: false),
             default => route('dashboard', absolute: false),
         };
 
