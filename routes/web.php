@@ -10,6 +10,7 @@ use App\Http\Controllers\Tutor\GradeComponentController;
 use App\Http\Controllers\Tutor\StudentClassGradeController;
 use App\Http\Controllers\TutorClassController;
 use App\Http\Controllers\TutorClassStudentController;
+use App\Http\Controllers\RegistrasiController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -119,6 +120,11 @@ Route::middleware('auth')->group(function () {
         Route::get('/result/{id}', [TesLevelController::class, 'result'])->name('result');
     });
     });
+
+Route::middleware('guest')->group(function () {
+    Route::get('/registrasi', [RegistrasiController::class, 'create'])->name('registrasi.create');
+    Route::post('/registrasi', [RegistrasiController::class, 'store'])->name('registrasi.store');
+});
 
 
 require __DIR__.'/auth.php';
