@@ -1,3 +1,4 @@
+import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link, useForm } from '@inertiajs/react';
 
 export default function Create({ feedbackEntries, flash }) {
@@ -14,33 +15,32 @@ export default function Create({ feedbackEntries, flash }) {
     };
 
     return (
-        <>
+        <AuthenticatedLayout
+            header={
+                <div>
+                    <p className="text-xs font-bold uppercase tracking-[0.18em] text-red-700">Portal Murid</p>
+                    <h1 className="mt-1 text-2xl font-bold tracking-tight text-slate-950">Kritik &amp; Saran</h1>
+                </div>
+            }
+        >
             <Head title="Kritik dan Saran" />
 
             <main className="min-h-screen bg-slate-50 px-4 py-8 sm:px-6 lg:px-8">
                 <div className="mx-auto max-w-3xl">
                     <div className="flex flex-wrap items-center justify-between gap-3">
-                        <Link href={route('student.dashboard')} className="text-sm font-medium text-indigo-700 hover:text-indigo-900">
+                        <Link href={route('student.grades.index')} className="text-sm font-medium text-red-700 hover:text-red-900">
                             Kembali ke nilai saya
-                        </Link>
-                        <Link
-                            href={route('logout')}
-                            method="post"
-                            as="button"
-                            className="rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm hover:bg-slate-100"
-                        >
-                            Keluar
                         </Link>
                     </div>
 
                     <header className="mt-7">
-                        <p className="text-sm font-semibold uppercase tracking-[0.16em] text-indigo-600">Portal student</p>
+                        <p className="text-sm font-semibold uppercase tracking-[0.16em] text-red-700">Portal Murid</p>
                         <h1 className="mt-2 text-3xl font-bold tracking-tight text-slate-900">Kritik dan Saran</h1>
                         <p className="mt-2 text-slate-600">Bagikan masukan agar pengalaman belajar di Dubesia semakin baik.</p>
                     </header>
 
                     {flash?.success && (
-                        <div role="status" className="mt-6 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-800">
+                        <div role="status" className="mt-6 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-800">
                             {flash.success}
                         </div>
                     )}
@@ -54,7 +54,7 @@ export default function Create({ feedbackEntries, flash }) {
                                 value={data.subject}
                                 onChange={(event) => setData('subject', event.target.value)}
                                 maxLength={150}
-                                className="mt-2 block w-full rounded-xl border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                className="mt-2 block w-full rounded-xl border-slate-300 shadow-sm focus:border-red-500 focus:ring-red-500"
                                 placeholder="Contoh: Tampilan halaman nilai"
                             />
                             {errors.subject && <p className="mt-2 text-sm text-red-600">{errors.subject}</p>}
@@ -71,7 +71,7 @@ export default function Create({ feedbackEntries, flash }) {
                                 minLength={10}
                                 maxLength={5000}
                                 rows={6}
-                                className="mt-2 block w-full rounded-xl border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                className="mt-2 block w-full rounded-xl border-slate-300 shadow-sm focus:border-red-500 focus:ring-red-500"
                                 placeholder="Tuliskan masukan Anda (minimal 10 karakter)."
                             />
                             {errors.message && <p className="mt-2 text-sm text-red-600">{errors.message}</p>}
@@ -81,7 +81,7 @@ export default function Create({ feedbackEntries, flash }) {
                             <button
                                 type="submit"
                                 disabled={processing}
-                                className="rounded-xl bg-indigo-600 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-60"
+                                className="rounded-xl bg-red-700 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-red-800 disabled:cursor-not-allowed disabled:opacity-60"
                             >
                                 {processing ? 'Mengirimâ€¦' : 'Kirim masukan'}
                             </button>
@@ -106,6 +106,6 @@ export default function Create({ feedbackEntries, flash }) {
                     </section>
                 </div>
             </main>
-        </>
+        </AuthenticatedLayout>
     );
 }
