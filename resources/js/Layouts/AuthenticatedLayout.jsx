@@ -7,6 +7,7 @@ const navIcon = {
     grades: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true"><path d="m12 3 2.7 5.5 6.1.9-4.4 4.3 1 6.1-5.4-2.9-5.4 2.9 1-6.1-4.4-4.3 6.1-.9Z" /></svg>,
     feedback: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true"><path d="M20 11.5a7.5 7.5 0 0 1-7.5 7.5H6l-3 2v-9.5a7.5 7.5 0 1 1 17 0Z" /><path d="M8 10h8M8 14h5" /></svg>,
     schedule: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2" /><path d="M8 3v4M16 3v4M3 10h18" /></svg>,
+    users: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true"><path d="M16 19v-1.5a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4V19" /><circle cx="9.5" cy="7.5" r="3.5" /><path d="M21 19v-1.5a4 4 0 0 0-3-3.87M16.5 4.2a3.5 3.5 0 0 1 0 6.6" /></svg>,
 };
 
 export default function AuthenticatedLayout({ header, children }) {
@@ -45,6 +46,13 @@ export default function AuthenticatedLayout({ header, children }) {
                     href: route('admin.calon-murid.index'),
                     active: route().current('admin.calon-murid.*'),
                     icon: navIcon.dashboard,
+                },
+
+                {
+                    label: 'Data Pengguna',
+                    href: route('admin.data-pengguna.index'),
+                    active: route().current('admin.data-pengguna.*'),
+                    icon: navIcon.users,
                 },
 
                 {

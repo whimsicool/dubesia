@@ -13,7 +13,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-#[Fillable(['name', 'email', 'password','role','username','role','is_active',])]
+#[Fillable(['name', 'email', 'password', 'role', 'username', 'is_active', 'no_hp', 'nip', 'status_akun'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
@@ -25,9 +25,10 @@ class User extends Authenticatable
      *
      * @return array<string, string>
      */
-
     public const ROLE_ADMIN = 'admin';
+
     public const ROLE_TUTOR = 'tutor';
+
     public const ROLE_STUDENT = 'student';
 
     protected function casts(): array
@@ -108,5 +109,38 @@ class User extends Authenticatable
     public function canManageMaterials(): bool
     {
         return $this->isTutor();
+    }
+
+    /**
+     * Hasil tes milik user ini.
+     */
+    public function hasilTes(): HasMany
+    {
+        return $this->hasMany(HasilTes::class, 'id_murid', 'id');
+    }
+
+    /**
+     * Inisial nama untuk avatar.
+     */
+    public function getInitialsAttribute(): string
+    {
+        $words = explode(' ', trim($this->name));
+        $initials = '';
+
+        foreach (array_slice($words, 0, 2) as $word) {
+            $initials .= strtoupper(mb_substr($word, 0, 1));
+        }
+
+        return $initials;
+    }
+
+    /**
+     * Kata sandi default akun guru baru: dbs.{nama}.{tahun}.
+     */
+    public static function generateDefaultPassword(string $name): string
+    {
+        $cleanName = strtolower(preg_replace('/[^a-zA-Z]/', '', explode(' ', trim($name))[0]));
+
+        return 'dbs.'.$cleanName.'.'.date('Y');
     }
 }
