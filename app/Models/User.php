@@ -13,18 +13,25 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-#[Fillable(['name', 'email', 'password', 'role', 'username', 'is_active', 'no_hp', 'nip', 'status_akun'])]
+#[Fillable(['name', 'email', 'password', 'role', 'username', 'is_active', 'no_hp', 'nip', 'status_akun', 'class_level'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
+    public const CLASS_LEVELS = ['Beginner', 'Intermediate', 'Advance'];
+
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
+    public function classAttendancesAsStudent(): HasMany
+    {
+        return $this->hasMany(ClassAttendance::class, 'student_id');
+    }
+
+    public function classAttendancesAsTutor(): HasMany
+    {
+        return $this->hasMany(ClassAttendance::class, 'tutor_id');
+    }
+
     public const ROLE_ADMIN = 'admin';
 
     public const ROLE_TUTOR = 'tutor';

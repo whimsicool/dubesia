@@ -50,7 +50,7 @@ const NAV = {
             heading: 'Mengajar',
             items: [
                 { label: 'Jadwal Mengajar', icon: CalendarDays, route: 'tutor.schedules.index', active: 'tutor.schedules.*' },
-                { label: 'Presensi Kelas', icon: ClipboardCheck, route: 'tutor.attendances.index', active: 'tutor.attendances.*' },
+                { label: 'Presensi Kelas', icon: ClipboardCheck, route: 'tutor.attendance.index', active: 'tutor.attendance.*' },
                 { label: 'Kelola Materi', icon: Upload, route: 'tutor.materials.index', active: 'tutor.materials.*' },
             ],
         },

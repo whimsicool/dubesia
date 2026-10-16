@@ -9,6 +9,7 @@ use App\Http\Controllers\Student\FeedbackController;
 use App\Http\Controllers\Student\GradeController as StudentGradeViewController;
 use App\Http\Controllers\StudentGradeController;
 use App\Http\Controllers\TesLevelController;
+use App\Http\Controllers\Tutor\AttendanceController;
 use App\Http\Controllers\Tutor\GradeComponentController;
 use App\Http\Controllers\Tutor\StudentClassGradeController;
 use App\Http\Controllers\TutorClassController;
@@ -39,6 +40,12 @@ Route::get('/registrasi', [RegistrasiController::class, 'create'])->name('regist
 Route::get('/tutor/dashboard', [TutorClassController::class, 'index'])
     ->middleware(['auth', 'verified', 'role:tutor'])
     ->name('tutor.dashboard');
+
+Route::middleware(['auth', 'role:tutor'])->prefix('tutor')->name('tutor.')->group(function () {
+    Route::get('/presensi', [AttendanceController::class, 'index'])->name('attendance.index');
+    Route::post('/presensi', [AttendanceController::class, 'store'])->name('attendance.store');
+    Route::patch('/presensi/riwayat', [AttendanceController::class, 'updateHistory'])->name('attendance.history.update');
+});
 
 Route::get('/admin/dashboard', function () {
     return Inertia::render('Dashboard');

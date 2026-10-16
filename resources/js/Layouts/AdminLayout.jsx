@@ -128,7 +128,7 @@ function Sidebar({ open, onClose, pendingRegistrations, readOnly, user }) {
             heading: 'Kegiatan Mengajar',
             items: [
                 { label: 'Jadwal Mengajar', icon: CalendarDays, route: scheduleRoute, active: 'tutor.schedules.*' },
-                { label: 'Kelola Presensi', icon: ClipboardCheck, route: 'tutor.attendances.index', active: 'tutor.attendances.*' },
+                { label: 'Kelola Presensi', icon: ClipboardCheck, route: 'tutor.attendance.index', active: 'tutor.attendance.*' },
                 { label: 'Kelola Materi', icon: BookOpen, route: 'tutor.materials.index', active: 'tutor.materials.*' },
                 { label: 'Kelola Nilai', icon: Award, route: 'tutor.grades.index', active: 'tutor.grades.*' },
             ],

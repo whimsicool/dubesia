@@ -8,6 +8,7 @@ const navIcon = {
     feedback: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true"><path d="M20 11.5a7.5 7.5 0 0 1-7.5 7.5H6l-3 2v-9.5a7.5 7.5 0 1 1 17 0Z" /><path d="M8 10h8M8 14h5" /></svg>,
     schedule: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2" /><path d="M8 3v4M16 3v4M3 10h18" /></svg>,
     users: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true"><path d="M16 19v-1.5a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4V19" /><circle cx="9.5" cy="7.5" r="3.5" /><path d="M21 19v-1.5a4 4 0 0 0-3-3.87M16.5 4.2a3.5 3.5 0 0 1 0 6.6" /></svg>,
+    attendance: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true"><path d="M9 4h6a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z" /><path d="M9 3h6v3H9z" /><path d="m10 13 1.5 1.5L14.5 11" /></svg>,
 };
 
 export default function AuthenticatedLayout({ header, children }) {
@@ -30,6 +31,12 @@ export default function AuthenticatedLayout({ header, children }) {
                   href: route('tutor.schedules.index'),
                   active: route().current('tutor.schedules.*'),
                   icon: navIcon.schedule,
+              },
+              {
+                  label: 'Presensi Kelas',
+                  href: route('tutor.attendance.index'),
+                  active: route().current('tutor.attendance.*'),
+                  icon: navIcon.attendance,
               },
           ]
         : isAdmin
