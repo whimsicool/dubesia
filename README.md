@@ -114,7 +114,15 @@ npm install --legacy-peer-deps
 ```
 - Mengapa perlu --legacy-peer-deps?
   Flag ini sangat krusial digunakan untuk mengatasi bentrok ketergantungan versi (peer dependencies) antara Vite versi terbaru dengan plugin React (@vitejs/plugin-react). Ini memastikan folder node_modules terbuat sempurna tanpa error dibatalkan.
-
+```bash
+npm install -D @vitejs/plugin-react@^6
+```
+- @vitejs/plugin-react adalah plugin Vite untuk React.
+  
+```bash
+npm install lucide-react
+```
+- lucide-react menyediakan ikon untuk komponen React.
 ---
 
 ### Langkah 2.6: Membuat File bootstrap.js (Perbaikan Isu Impor Vite)
@@ -137,6 +145,20 @@ Pada beberapa versi installasi Laravel Breeze + React, Vite sering mengeluhkan h
    - Fungsi kode ini: Menyiapkan pustaka axios agar React frontend dapat mengirim request HTTP ke backend Laravel secara lancar.
 
 ---
+
+---
+
+### Langkah 2.7: Menyiapkan Database
+
+Sebelum menjalankan aplikasi, buat tabel database dan isi data awal (seeder).
+
+Pastikan konfigurasi database di file `.env` sudah sesuai, lalu jalankan dari folder project:
+
+```bash
+php artisan migrate --seed
+```
+- Mengapa langkah ini perlu?
+Laravel membutuhkan tabel database untuk menyimpan data aplikasi, seperti akun pengguna dan jadwal. Perintah `php artisan migrate` membuat tabel berdasarkan file migration. Opsi `--seed` menjalankan seeder untuk mengisi data awal yang dibutuhkan aplikasi, misalnya data contoh atau akun awal. Tanpa langkah ini, aplikasi bisa dibuka, tetapi fitur yang membutuhkan data mungkin tidak berjalan atau tampil kosong.
 
 ## 3. Cara Menjalankan Aplikasi (Development Server)
 
