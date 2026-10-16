@@ -99,12 +99,6 @@ class User extends Authenticatable
         return $this->role === self::ROLE_TUTOR;
     }
 
-    /** Alias kompatibilitas untuk akun dengan role lama `teacher`. */
-    public function isTeacher(): bool
-    {
-        return $this->role === 'teacher';
-    }
-
     public function isStudent(): bool
     {
         return $this->role === self::ROLE_STUDENT;
@@ -113,6 +107,6 @@ class User extends Authenticatable
     /** Guru dan admin boleh mengunggah / mengelola materi. */
     public function canManageMaterials(): bool
     {
-        return $this->isAdmin() || $this->isTutor() || $this->isTeacher();
+        return $this->isAdmin() || $this->isTutor();
     }
 }

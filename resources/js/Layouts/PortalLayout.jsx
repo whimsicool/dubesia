@@ -44,19 +44,19 @@ const NAV = {
         { heading: 'Evaluasi', items: [{ label: 'Laporan Nilai / Rapor', icon: FileText, route: 'student.reports.index', active: 'student.reports.*' }] },
         { heading: 'Dukungan', items: [{ label: 'Kotak Aspirasi / Feedback', icon: MessageSquare, route: 'student.feedback.index', active: 'student.feedback.*' }] },
     ],
-    teacher: [
-        { heading: 'Utama', items: [{ label: 'Dashboard Guru', icon: LayoutGrid, route: 'dashboard' }] },
+    tutor: [
+        { heading: 'Utama', items: [{ label: 'Dashboard Tutor', icon: LayoutGrid, route: 'dashboard' }] },
         {
             heading: 'Mengajar',
             items: [
-                { label: 'Jadwal Mengajar', icon: CalendarDays, route: 'teacher.schedules.index', active: 'teacher.schedules.*' },
-                { label: 'Presensi Kelas', icon: ClipboardCheck, route: 'teacher.attendances.index', active: 'teacher.attendances.*' },
+                { label: 'Jadwal Mengajar', icon: CalendarDays, route: 'tutor.schedules.index', active: 'tutor.schedules.*' },
+                { label: 'Presensi Kelas', icon: ClipboardCheck, route: 'tutor.attendances.index', active: 'tutor.attendances.*' },
+                { label: 'Kelola Materi', icon: Upload, route: 'tutor.materials.index', active: 'tutor.materials.*' },
             ],
         },
         {
             heading: 'Materi',
             items: [
-                { label: 'Kelola Materi', icon: Upload, route: 'manage.materials.index', active: 'manage.materials.*' },
                 { label: 'Pustaka Materi (Tampilan Murid)', icon: BookOpen, route: 'materials.index', active: 'materials.*' },
             ],
         },
@@ -92,14 +92,14 @@ function NavItem({ item }) {
 }
 
 function Sidebar({ role, open, onClose }) {
-    const portalRole = role === 'tutor' ? 'teacher' : role;
+    const portalRole = role === 'tutor' ? 'tutor' : role;
     const groups = (NAV[portalRole] ?? NAV.student).map((group) => ({
         ...group,
         items: group.items.map((item) => role === 'tutor' && item.route === 'manage.materials.index'
             ? { ...item, route: 'tutor.materials.index', active: 'tutor.materials.*' }
             : item),
     }));
-    const badge = portalRole === 'teacher' ? 'GURU' : 'SISWA';
+    const badge = portalRole === 'tutor' ? 'TUTOR' : 'SISWA';
 
     return (
         <>
@@ -119,7 +119,7 @@ function Sidebar({ role, open, onClose }) {
                             <span className="text-lg font-extrabold tracking-tight">DUBESIA</span>
                             <span className="rounded bg-red-700 px-1.5 py-0.5 text-[10px] font-bold">{badge}</span>
                         </div>
-                        <p className="truncate text-[11px] text-slate-400">{portalRole === 'teacher' ? 'Portal Pengajar' : 'Portal Pembelajaran Murid'}</p>
+                        <p className="truncate text-[11px] text-slate-400">{portalRole === 'tutor' ? 'Portal Tutor' : 'Portal Pembelajaran Murid'}</p>
                     </div>
                     <button type="button" onClick={onClose} className="ml-auto text-slate-400 lg:hidden" aria-label="Tutup menu">
                         <X className="h-5 w-5" />
@@ -190,7 +190,7 @@ function UserMenu({ user }) {
         return () => document.removeEventListener('mousedown', onClick);
     }, []);
 
-    const roleLabel = { teacher: 'Pengajar', tutor: 'Pengajar', student: 'Murid' }[user.role] ?? user.role;
+    const roleLabel = { tutor: 'Tutor', student: 'Murid' }[user.role] ?? user.role;
 
     return (
         <div className="relative" ref={ref}>

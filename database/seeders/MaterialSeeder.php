@@ -10,7 +10,7 @@ class MaterialSeeder extends Seeder
 {
     public function run(): void
     {
-        $teacher = User::updateOrCreate(
+        $tutor = User::updateOrCreate(
             ['email' => 'tutor@dubesia.test'],
             ['name' => 'Dr. Kevin Kusuma, M.A.', 'password' => 'password', 'role' => User::ROLE_TUTOR, 'email_verified_at' => now()],
         );
@@ -52,7 +52,7 @@ MD;
             Material::updateOrCreate(
                 ['title' => $title],
                 array_merge([
-                    'user_id' => $teacher->id,
+                    'user_id' => $tutor->id,
                     'type' => $type,
                     'description' => $desc,
                     'topic' => $topic,

@@ -24,7 +24,7 @@ function Tile({ icon: Icon, value, label }) {
 
 export default function Index({ materials, active, filters, stats, topics, types }) {
     const { auth } = usePage().props;
-    const canManage = auth.user.role === 'teacher' || auth.user.role === 'admin';
+    const canManage = auth.user.role === 'tutor' || auth.user.role === 'admin';
 
     const [search, setSearch] = useState(filters.q ?? '');
     const [layout, setLayout] = useState(filters.view === 'list' ? 'list' : 'grid');
