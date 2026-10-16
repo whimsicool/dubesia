@@ -7,6 +7,8 @@ use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
@@ -29,4 +31,30 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    public function teachingClasses(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            CourseClass::class,
+            'class_tutor',
+            'tutor_id',
+            'class_id'
+        );
+    }
+
+    public function enrolledClasses(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            CourseClass::class,
+            'class_student',
+            'student_id',
+            'class_id'
+        );
+    }
+
+    public function grades(): HasMany
+    {
+        return $this->hasMany(StudentGrade::class, 'student_id');
+    }
+
 }
