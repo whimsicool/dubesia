@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\StudentGradeController;
+use App\Http\Controllers\Student\GradeReportController;
 use App\Http\Controllers\Tutor\GradeComponentController;
 use App\Http\Controllers\Tutor\StudentClassGradeController;
 use App\Http\Controllers\TutorClassController;
@@ -38,10 +39,27 @@ Route::get('/admin/dashboard', function () {
     return Inertia::render('Dashboard');
 })->middleware(['auth', 'verified', 'role:admin'])->name('admin.dashboard');
 
-Route::get('/student/dashboard', function () {
-    return Inertia::render('Dashboard');
-})->middleware(['auth', 'verified', 'role:student'])->name('student.dashboard');
+// Student routes
+Route::middleware(['auth', 'verified', 'role:student'])
+    ->prefix('student')
+    ->name('student.')
+    ->group(function () {
+        Route::get('/dashboard', [GradeReportController::class, 'index'])
+            ->name('dashboard');
 
+
+        Route::get(
+            '/classes/{courseClass}/grades',
+            [GradeReportController::class, 'show']
+        )->name('grades.show');
+
+        Route::get(
+            '/classes/{courseClass}/grades/report',
+            [GradeReportController::class, 'download']
+        )->name('grades.download');
+    });
+
+// Tutor routes
 Route::middleware(['auth', 'verified', 'role:tutor,admin'])
     ->prefix('tutor')
     ->name('tutor.')
