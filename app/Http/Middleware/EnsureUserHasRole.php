@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * Pemakaian di route: ->middleware('role:admin')  atau  'role:admin,teacher'
+ * Pemakaian di route: ->middleware('role:admin') atau 'role:tutor,admin'
  */
 class EnsureUserHasRole
 {

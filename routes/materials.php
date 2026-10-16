@@ -17,7 +17,7 @@ Route::middleware(['auth', 'verified'])->prefix('materials')->name('materials.')
 });
 
 // Kelola materi: guru & admin (jalur lama) dan tutor pada URL portalnya.
-Route::middleware(['auth', 'verified', 'role:teacher,tutor,admin'])
+Route::middleware(['auth', 'verified', 'role:tutor,admin'])
     ->prefix('manage/materials')
     ->name('manage.materials.')
     ->controller(ManageMaterialController::class)
@@ -31,7 +31,7 @@ Route::middleware(['auth', 'verified', 'role:teacher,tutor,admin'])
         Route::delete('/{material}', 'destroy')->whereNumber('material')->name('destroy');
     });
 
-Route::middleware(['auth', 'verified', 'role:teacher,tutor,admin'])
+Route::middleware(['auth', 'verified', 'role:tutor,admin'])
     ->prefix('tutor/materials')
     ->name('tutor.materials.')
     ->controller(ManageMaterialController::class)

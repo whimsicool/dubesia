@@ -30,10 +30,10 @@ export default function AuthenticatedLayout({ header, children }) {
                                 >
                                     Dashboard
                                 </NavLink>
-                                {['tutor', 'teacher', 'student'].includes(user.role) && (
+                                {['tutor', 'student'].includes(user.role) && (
                                     <NavLink
-                                        href={route(['tutor', 'teacher'].includes(user.role) ? 'tutor.schedules.index' : 'schedules.index')}
-                                        active={route().current('schedules.*')}
+                                        href={route(user.role === 'tutor' ? 'tutor.schedules.index' : 'schedules.index')}
+                                        active={route().current(user.role === 'tutor' ? 'tutor.schedules.*' : 'schedules.*')}
                                     >
                                         Jadwal
                                     </NavLink>
@@ -142,10 +142,10 @@ export default function AuthenticatedLayout({ header, children }) {
                         >
                             Dashboard
                         </ResponsiveNavLink>
-                        {['tutor', 'teacher', 'student'].includes(user.role) && (
+                        {['tutor', 'student'].includes(user.role) && (
                             <ResponsiveNavLink
-                                href={route(['tutor', 'teacher'].includes(user.role) ? 'tutor.schedules.index' : 'schedules.index')}
-                                active={route().current('schedules.*')}
+                                href={route(user.role === 'tutor' ? 'tutor.schedules.index' : 'schedules.index')}
+                                active={route().current(user.role === 'tutor' ? 'tutor.schedules.*' : 'schedules.*')}
                             >
                                 Jadwal
                             </ResponsiveNavLink>

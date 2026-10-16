@@ -9,7 +9,7 @@ import { cleanParams, formatWeekRange } from '@/Components/Schedules/constants';
 
 export default function Index({ semester, week, filters, schedules, options, audience, routeName }) {
     const [view, setView] = useState('calendar');
-    const isTeacher = audience === 'teacher';
+    const isTutor = audience === 'tutor';
 
     const visit = (patch) => {
         const params = cleanParams({ week: week.start, ...filters, ...patch });
@@ -18,7 +18,7 @@ export default function Index({ semester, week, filters, schedules, options, aud
 
     return (
         <AdminLayout semesterName={semester?.name} readOnly>
-            <Head title={isTeacher ? 'Jadwal Mengajar' : 'Jadwal Belajar'} />
+            <Head title={isTutor ? 'Jadwal Tutor' : 'Jadwal Belajar'} />
 
             <div className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
                 <div>
@@ -27,10 +27,10 @@ export default function Index({ semester, week, filters, schedules, options, aud
                         <span>›</span>
                         <span>Akademik & Jadwal</span>
                         <span>›</span>
-                        <span className="text-red-700">{isTeacher ? 'Jadwal Mengajar' : 'Jadwal Belajar'}</span>
+                        <span className="text-red-700">{isTutor ? 'Jadwal Tutor' : 'Jadwal Belajar'}</span>
                     </nav>
                     <h1 className="mt-2 text-3xl font-extrabold tracking-tight text-slate-900">
-                        {isTeacher ? 'Jadwal Mengajar' : 'Jadwal Belajar'}
+                        {isTutor ? 'Jadwal Tutor' : 'Jadwal Belajar'}
                     </h1>
                     <p className="mt-2 max-w-2xl text-sm text-slate-600">
                         {semester

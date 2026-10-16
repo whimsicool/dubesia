@@ -31,7 +31,7 @@ class ScheduleViewController extends Controller
             $baseQuery = Schedule::query()
                 ->where('semester_id', $semester->id);
 
-            if (in_array($user->role, ['tutor', 'teacher'], true)) {
+            if ($user->isTutor()) {
                 $baseQuery->whereHas('instructor', fn ($instructor) => $instructor->where(function ($match) use ($user) {
                     $match->where('user_id', $user->id)->orWhere('email', $user->email);
                 }));
@@ -119,8 +119,8 @@ class ScheduleViewController extends Controller
             ],
             'filters' => $filters,
             'options' => $options,
-            'audience' => in_array($user->role, ['tutor', 'teacher'], true) ? 'teacher' : 'student',
-            'routeName' => in_array($user->role, ['tutor', 'teacher'], true) ? 'tutor.schedules.index' : 'schedules.index',
+            'audience' => $user->isTutor() ? 'tutor' : 'student',
+            'routeName' => $user->isTutor() ? 'tutor.schedules.index' : 'schedules.index',
         ]);
     }
 
