@@ -1,3 +1,20 @@
+/* Tailwind directives are processed by the build tool. */
+/* stylelint-disable at-rule-no-unknown */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+@layer components {
+    .field { @apply mt-1 w-full rounded-lg border-surface-container bg-white text-xs text-on-surface focus:border-secondary focus:ring-secondary; }
+}
+/* stylelint-enable at-rule-no-unknown */
+/* Cetak jadwal (tombol "Ekspor Jadwal > Cetak / Simpan PDF"): landscape, tanpa sidebar & topbar */
+@media print {
+    @page {
+        size: A4 landscape;
+        margin: 10mm;
+    }
+
+    body {
+        background: #fff !important;
+    }
+}

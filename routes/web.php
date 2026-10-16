@@ -126,3 +126,5 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::post('/calon-murid/{pendaftaran}/tolak', [CalonMuridController::class, 'tolak'])->name('calon-murid.tolak');
 });
 require __DIR__.'/auth.php';
+require __DIR__.'/schedules.php';
+require __DIR__.'/admin.php';
