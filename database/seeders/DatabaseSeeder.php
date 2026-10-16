@@ -30,6 +30,18 @@ class DatabaseSeeder extends Seeder
                 'role' => 'student',
             ],
         ];
+        User::updateOrCreate(
+            ['email' => 'admin@dubesia.test'],
+            [
+                'name' => 'Farhan Ardiansyah',
+                'password' => 'password',          // otomatis di-hash oleh cast "hashed"
+                'role' => User::ROLE_ADMIN,
+                'email_verified_at' => now(),
+            ],
+        );
+
+        $this->call(ScheduleSeeder::class);
+        $this->call(MaterialSeeder::class);
 
         foreach ($accounts as $account) {
             User::updateOrCreate(
