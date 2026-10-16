@@ -131,7 +131,7 @@ export default function Index({
             header={
                 <div>
                     <p className="text-sm text-gray-500">Menu Guru</p>
-                    <h1 className="mt-1 text-2xl font-bold text-gray-900">
+                    <h1 className="mt-1 text-2xl font-bold text-[#15243a]">
                         Kelola Presensi
                     </h1>
                 </div>
@@ -139,11 +139,11 @@ export default function Index({
         >
             <Head title="Kelola Presensi" />
 
-            <div className="min-h-[calc(100vh-9rem)] bg-slate-50 py-8">
+            <div className="min-h-[calc(100vh-9rem)] bg-[#f2f5fa] py-8">
                 <div className="mx-auto max-w-7xl space-y-6 px-4 sm:px-6 lg:px-8">
                     <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
                         <div>
-                            <p className="text-sm font-semibold uppercase tracking-wide text-indigo-700">
+                            <p className="text-sm font-semibold uppercase tracking-wide text-red-700">
                                 Dubesia · Area Guru
                             </p>
                             <p className="mt-1 max-w-2xl text-sm text-gray-600">
@@ -154,7 +154,7 @@ export default function Index({
                         <div className="flex gap-2">
                             <a
                                 href="#form-presensi"
-                                className="rounded-lg bg-indigo-700 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-800"
+                                className="rounded-lg bg-red-700 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-red-800"
                             >
                                 Isi presensi
                             </a>
@@ -203,7 +203,7 @@ export default function Index({
                                     onChange={(e) =>
                                         changeFilter(e.target.value, attendanceDate)
                                     }
-                                    className="block w-full rounded-lg border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                    className="block w-full rounded-lg border-gray-300 text-sm shadow-sm focus:border-red-500 focus:ring-red-500"
                                 >
                                     {levels.map((level) => (
                                         <option key={level} value={level}>
@@ -226,18 +226,18 @@ export default function Index({
                                     onChange={(e) =>
                                         changeFilter(selectedLevel, e.target.value)
                                     }
-                                    className="block w-full rounded-lg border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                    className="block w-full rounded-lg border-gray-300 text-sm shadow-sm focus:border-red-500 focus:ring-red-500"
                                 />
                             </div>
                             <div className="text-sm text-gray-600 lg:pb-2">
-                                <span className="font-semibold text-gray-900">
+                                <span className="font-semibold text-[#15243a]">
                                     {formatDate(attendanceDate)}
                                 </span>
                                 <span className="mt-1 block">Kelas {selectedLevel}</span>
                             </div>
                             <div className="lg:pb-2 lg:text-right">
-                                <span className="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-700">
-                                    <span className="h-2 w-2 rounded-full bg-emerald-500" />
+                                <span className="inline-flex items-center gap-2 rounded-full bg-[#eaf0fa] px-3 py-1.5 text-xs font-semibold text-[#1c3150]">
+                                    <span className="h-2 w-2 rounded-full bg-red-600" />
                                     Kelas terpilih
                                 </span>
                             </div>
@@ -246,7 +246,7 @@ export default function Index({
 
                     <section className="grid grid-cols-2 gap-3 lg:grid-cols-5">
                         {[
-                            ['Total murid', data.students.length, 'bg-indigo-50 text-indigo-700'],
+                            ['Total murid', data.students.length, 'bg-red-50 text-red-700'],
                             ['Hadir', counts.Hadir, 'bg-emerald-50 text-emerald-700'],
                             ['Izin', counts.Izin, 'bg-amber-50 text-amber-700'],
                             ['Sakit', counts.Sakit, 'bg-sky-50 text-sky-700'],
@@ -270,7 +270,7 @@ export default function Index({
                     >
                         <div className="flex flex-col justify-between gap-3 border-b border-gray-200 px-5 py-4 sm:flex-row sm:items-center">
                             <div>
-                                <h2 className="font-bold text-gray-900">
+                                <h2 className="font-bold text-[#15243a]">
                                     Daftar murid · {selectedLevel}
                                 </h2>
                                 <p className="mt-1 text-xs text-gray-500">
@@ -285,7 +285,7 @@ export default function Index({
                                         type="button"
                                         onClick={markEveryonePresent}
                                         disabled={data.students.length === 0}
-                                        className="rounded-lg border border-indigo-200 bg-indigo-50 px-3 py-2 text-sm font-semibold text-indigo-700 hover:bg-indigo-100 disabled:cursor-not-allowed disabled:opacity-50"
+                                        className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm font-semibold text-red-700 hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-50"
                                     >
                                         Tandai semua hadir
                                     </button>
@@ -301,10 +301,10 @@ export default function Index({
 
                         {data.students.length === 0 ? (
                             <div className="px-5 py-12 text-center">
-                                <div className="mx-auto grid h-12 w-12 place-items-center rounded-full bg-indigo-50 text-xl text-indigo-700">
+                                <div className="mx-auto grid h-12 w-12 place-items-center rounded-full bg-red-50 text-xl text-red-700">
                                     ♧
                                 </div>
-                                <h3 className="mt-3 font-semibold text-gray-900">
+                                <h3 className="mt-3 font-semibold text-[#15243a]">
                                     Belum ada murid di kelas {selectedLevel}
                                 </h3>
                                 <p className="mx-auto mt-1 max-w-lg text-sm text-gray-500">
@@ -316,7 +316,7 @@ export default function Index({
                             <form onSubmit={submit}>
                                 <div className="overflow-x-auto">
                                     <table className="min-w-full divide-y divide-gray-200">
-                                        <thead className="bg-slate-50">
+                                        <thead className="bg-[#f2f5fa]">
                                             <tr>
                                                 <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
                                                     Murid
@@ -331,10 +331,10 @@ export default function Index({
                                         </thead>
                                         <tbody className="divide-y divide-gray-100">
                                             {data.students.map((student, index) => (
-                                                <tr key={student.id} className="hover:bg-slate-50/70">
+                                                <tr key={student.id} className="hover:bg-[#f2f5fa]/70">
                                                     <td className="whitespace-nowrap px-5 py-3.5">
                                                         <div className="flex items-center gap-3">
-                                                            <span className="grid h-9 w-9 place-items-center rounded-full bg-indigo-50 text-xs font-bold text-indigo-700">
+                                                            <span className="grid h-9 w-9 place-items-center rounded-full bg-red-50 text-xs font-bold text-red-700">
                                                                 {student.name
                                                                     .split(' ')
                                                                     .slice(0, 2)
@@ -342,7 +342,7 @@ export default function Index({
                                                                     .join('')}
                                                             </span>
                                                             <div>
-                                                                <p className="text-sm font-semibold text-gray-900">
+                                                                <p className="text-sm font-semibold text-[#15243a]">
                                                                     {student.name}
                                                                 </p>
                                                                 <p className="text-xs text-gray-500">
@@ -359,7 +359,7 @@ export default function Index({
                                                             onChange={(e) =>
                                                                 updateStudent(index, 'status', e.target.value)
                                                             }
-                                                            className="block w-full rounded-lg border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                                            className="block w-full rounded-lg border-gray-300 text-sm shadow-sm focus:border-red-500 focus:ring-red-500"
                                                         >
                                                             <option value="">Pilih status</option>
                                                             {statuses.map((status) => (
@@ -385,7 +385,7 @@ export default function Index({
                                                             maxLength={500}
                                                             placeholder="Contoh: izin keluarga"
                                                             aria-label={`Catatan untuk ${student.name}`}
-                                                            className="block w-full rounded-lg border-gray-300 text-sm shadow-sm placeholder:text-gray-400 focus:border-indigo-500 focus:ring-indigo-500"
+                                                            className="block w-full rounded-lg border-gray-300 text-sm shadow-sm placeholder:text-gray-400 focus:border-red-500 focus:ring-red-500"
                                                         />
                                                     </td>
                                                 </tr>
@@ -394,7 +394,7 @@ export default function Index({
                                     </table>
                                 </div>
 
-                                <div className="flex flex-col justify-between gap-3 border-t border-gray-200 bg-slate-50 px-5 py-4 sm:flex-row sm:items-center">
+                                <div className="flex flex-col justify-between gap-3 border-t border-gray-200 bg-[#f2f5fa] px-5 py-4 sm:flex-row sm:items-center">
                                     {isLocked ? (
                                         <p className="text-sm text-gray-600">
                                             Mau mengubah data? Buka tanggalnya di riwayat, lalu pilih <strong>Ubah presensi</strong>.
@@ -402,7 +402,7 @@ export default function Index({
                                     ) : (
                                         <>
                                             <p className="text-sm text-gray-600">
-                                                <span className="font-semibold text-gray-900">
+                                                <span className="font-semibold text-[#15243a]">
                                                     {data.students.length - counts.empty} dari {data.students.length}
                                                 </span>{' '}
                                                 murid sudah diberi status
@@ -410,7 +410,7 @@ export default function Index({
                                             <button
                                                 type="submit"
                                                 disabled={processing || data.students.length === 0}
-                                                className="inline-flex justify-center rounded-lg bg-indigo-700 px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
+                                                className="inline-flex justify-center rounded-lg bg-red-700 px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-red-800 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
                                             >
                                                 {processing ? 'Menyimpan...' : 'Simpan presensi →'}
                                             </button>
@@ -427,7 +427,7 @@ export default function Index({
                     >
                         <div className="flex flex-col justify-between gap-2 sm:flex-row sm:items-end">
                             <div>
-                                <h2 className="font-bold text-gray-900">Riwayat presensi</h2>
+                                <h2 className="font-bold text-[#15243a]">Riwayat presensi</h2>
                                 <p className="mt-1 text-sm text-gray-500">
                                     Pilih tanggal untuk membuka daftar nama dan status murid. Presensi tersimpan terkunci sampai kamu memilih ubah.
                                 </p>
@@ -438,7 +438,7 @@ export default function Index({
                         </div>
 
                         {history.length === 0 ? (
-                            <p className="mt-5 rounded-lg bg-slate-50 px-4 py-5 text-sm text-gray-500">
+                            <p className="mt-5 rounded-lg bg-[#f2f5fa] px-4 py-5 text-sm text-gray-500">
                                 Belum ada presensi tersimpan untuk kelas ini.
                             </p>
                         ) : (
@@ -450,7 +450,7 @@ export default function Index({
                                     >
                                         <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
                                             <div>
-                                                <p className="text-sm font-semibold text-gray-900">
+                                                <p className="text-sm font-semibold text-[#15243a]">
                                                     {formatDate(record.date)}
                                                 </p>
                                                 <p className="mt-1 text-xs text-gray-500">
@@ -468,7 +468,7 @@ export default function Index({
                                             </button>
                                         </div>
                                         {expandedDate === record.date && (
-                                            <div className="mt-4 rounded-lg border border-gray-200 bg-slate-50 p-4">
+                                            <div className="mt-4 rounded-lg border border-gray-200 bg-[#f2f5fa] p-4">
                                                 <p className="mb-3 text-sm font-medium text-gray-700">
                                                     Ubah status atau catatan murid untuk {formatDate(record.date)} langsung di sini.
                                                 </p>
@@ -484,14 +484,14 @@ export default function Index({
                                                                 key={student.id}
                                                                 className="grid gap-3 py-3 first:pt-0 last:pb-0 md:grid-cols-[minmax(10rem,1fr)_12rem_minmax(12rem,1.5fr)] md:items-center"
                                                             >
-                                                                <p className="text-sm font-semibold text-gray-900">
+                                                                <p className="text-sm font-semibold text-[#15243a]">
                                                                     {student.name}
                                                                 </p>
                                                                 <select
                                                                     aria-label={`Status kehadiran ${student.name}`}
                                                                     value={student.status}
                                                                     onChange={(e) => updateHistoryStudent(index, 'status', e.target.value)}
-                                                                    className="block w-full rounded-lg border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                                                    className="block w-full rounded-lg border-gray-300 text-sm shadow-sm focus:border-red-500 focus:ring-red-500"
                                                                 >
                                                                     {statuses.map((status) => (
                                                                         <option key={status} value={status}>{status}</option>
@@ -504,7 +504,7 @@ export default function Index({
                                                                     maxLength={500}
                                                                     placeholder="Catatan (opsional)"
                                                                     aria-label={`Catatan untuk ${student.name}`}
-                                                                    className="block w-full rounded-lg border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                                                    className="block w-full rounded-lg border-gray-300 text-sm shadow-sm focus:border-red-500 focus:ring-red-500"
                                                                 />
                                                             </div>
                                                         ))}
@@ -513,7 +513,7 @@ export default function Index({
                                                         <button
                                                             type="submit"
                                                             disabled={savingHistory}
-                                                            className="rounded-lg bg-indigo-700 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-800 disabled:opacity-60"
+                                                            className="rounded-lg bg-red-700 px-4 py-2 text-sm font-semibold text-white hover:bg-red-800 disabled:opacity-60"
                                                         >
                                                             {savingHistory ? 'Menyimpan...' : 'Simpan perubahan'}
                                                         </button>
