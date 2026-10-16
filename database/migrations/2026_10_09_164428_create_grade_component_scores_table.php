@@ -24,10 +24,10 @@ return new class extends Migration
 
             $table->timestamps();
 
-            $table->unique([
-                'student_grade_id',
-                'grade_component_id',
-            ]);
+            $table->unique(
+                ['student_grade_id', 'grade_component_id'],
+                'student_grade_component_unique'
+            );
         });
     }
 
