@@ -22,11 +22,20 @@ class User extends Authenticatable
      *
      * @return array<string, string>
      */
+
+    public const ROLE_ADMIN = 'admin';
+    public const ROLE_TEACHER = 'teacher';
+    public const ROLE_STUDENT = 'student';
+
     protected function casts(): array
     {
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+     public function isAdmin(): bool
+    {
+        return $this->role === self::ROLE_ADMIN;
     }
 }

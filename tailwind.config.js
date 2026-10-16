@@ -1,3 +1,5 @@
+
+
 import defaultTheme from 'tailwindcss/defaultTheme';
 import forms from '@tailwindcss/forms';
 
@@ -10,6 +12,20 @@ export default {
         './resources/js/**/*.jsx',
     ],
 
+    theme: {
+        extend: {
+            fontFamily: {
+                sans: ['Inter', ...defaultTheme.fontFamily.sans],
+            },
+            colors: {
+                sidebar: '#0a1530',
+                ink: '#0b1220',
+            },
+        },
+    },
+
+    plugins: [forms],
+    
     theme: {
         extend: {
             fontFamily: {

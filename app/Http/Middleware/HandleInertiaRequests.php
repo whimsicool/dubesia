@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\Student;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -34,6 +35,14 @@ class HandleInertiaRequests extends Middleware
             'auth' => [
                 'user' => $request->user(),
             ],
+            'flash' => [
+            'success' => fn () => $request->session()->get('success'),
+        ],
+
+        // Badge merah di sidebar "Verifikasi Pendaftaran"
+        'pendingRegistrations' => fn () => $request->user()?->isAdmin()
+            ? Student::where('status', Student::STATUS_PENDING)->count()
+            : 0,
         ];
     }
 }
