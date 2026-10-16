@@ -32,6 +32,25 @@ class User extends Authenticatable
         ];
     }
 
+    /**
+     * Grades belonging to this student.
+     */
+    public function grades(): HasMany
+    {
+        return $this->hasMany(StudentGrade::class, 'student_id');
+    }
+
+    /**
+     * Feedback submitted by this student.
+     */
+    public function feedbackEntries(): HasMany
+    {
+        return $this->hasMany(StudentFeedback::class, 'student_id');
+    }
+
+    /**
+     * Classes taught by this tutor.
+     */
     public function teachingClasses(): BelongsToMany
     {
         return $this->belongsToMany(
@@ -39,9 +58,12 @@ class User extends Authenticatable
             'class_tutor',
             'tutor_id',
             'class_id'
-        );
+        )->withTimestamps();
     }
 
+    /**
+     * Classes in which this student is enrolled.
+     */
     public function enrolledClasses(): BelongsToMany
     {
         return $this->belongsToMany(
@@ -49,16 +71,6 @@ class User extends Authenticatable
             'class_student',
             'student_id',
             'class_id'
-        );
-    }
-
-    public function grades(): HasMany
-    {
-        return $this->hasMany(StudentGrade::class, 'student_id');
-    }
-
-    public function feedbackEntries(): HasMany
-    {
-        return $this->hasMany(StudentFeedback::class, 'student_id');
+        )->withTimestamps();
     }
 }
