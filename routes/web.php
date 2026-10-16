@@ -54,7 +54,8 @@ Route::middleware(['auth', 'verified', 'role:tutor,admin'])
             [TutorClassStudentController::class, 'index']
         )->name('classes.students.index');
 
-        Route::resource('student-grades', StudentGradeController::class);
+        Route::resource('student-grades', StudentGradeController::class)
+            ->except(['show']);
 
         Route::resource(
             'classes.grade-components',

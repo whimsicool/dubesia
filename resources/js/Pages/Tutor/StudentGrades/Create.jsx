@@ -1,8 +1,9 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link, useForm } from '@inertiajs/react';
 
-export default function Create({ students }) {
+export default function Create({ classes, students }) {
     const { data, setData, post, processing, errors } = useForm({
+        class_id: '',
         student_id: '',
         subject: '',
         score: '',
@@ -42,6 +43,47 @@ export default function Create({ students }) {
                             </div>
 
                             <form onSubmit={submit} className="space-y-6">
+                                {/* Class */}
+                                <div>
+                                    <label
+                                        htmlFor="class_id"
+                                        className="block text-sm font-medium text-gray-700"
+                                    >
+                                        Class
+                                    </label>
+
+                                    <select
+                                        id="class_id"
+                                        value={data.class_id}
+                                        onChange={(e) =>
+                                            setData(
+                                                'class_id',
+                                                e.target.value,
+                                            )
+                                        }
+                                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                    >
+                                        <option value="">
+                                            Select Class
+                                        </option>
+
+                                        {classes.map((courseClass) => (
+                                            <option
+                                                key={courseClass.id}
+                                                value={courseClass.id}
+                                            >
+                                                {courseClass.name}
+                                            </option>
+                                        ))}
+                                    </select>
+
+                                    {errors.class_id && (
+                                        <p className="mt-1 text-sm text-red-600">
+                                            {errors.class_id}
+                                        </p>
+                                    )}
+                                </div>
+
                                 {/* Student */}
                                 <div>
                                     <label
