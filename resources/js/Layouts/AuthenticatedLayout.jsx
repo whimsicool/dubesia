@@ -13,7 +13,8 @@ export default function AuthenticatedLayout({ header, children }) {
     const user = auth.user;
     const [sidebarOpen, setSidebarOpen] = useState(false);
 
-    const isTutor = ['tutor', 'admin'].includes(user.role);
+    const isTutor = user.role === 'tutor';
+    const isAdmin = user.role === 'admin';
     const navigation = isTutor
         ? [
               {
@@ -23,6 +24,15 @@ export default function AuthenticatedLayout({ header, children }) {
                   icon: navIcon.dashboard,
               },
           ]
+        : isAdmin
+          ? [
+                {
+                    label: 'Kritik & Saran Murid',
+                    href: route('admin.feedback.index'),
+                    active: route().current('admin.feedback.*'),
+                    icon: navIcon.feedback,
+                },
+            ]
         : [
               {
                   label: 'Dashboard',
@@ -60,7 +70,9 @@ export default function AuthenticatedLayout({ header, children }) {
                     <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-slate-950 text-xl font-bold text-white">D</div>
                     <div className="min-w-0 flex-1">
                         <p className="text-lg font-extrabold leading-tight tracking-tight text-slate-950">DUBESIA</p>
-                        <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-500">{isTutor ? 'Portal Guru' : 'Portal Murid'}</p>
+                        <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-500">
+                            {isAdmin ? 'Portal Admin' : isTutor ? 'Portal Guru' : 'Portal Murid'}
+                        </p>
                     </div>
                     <span className="rounded bg-red-100 px-2 py-1 text-[10px] font-bold text-red-900">v2.4</span>
                 </div>
@@ -68,12 +80,14 @@ export default function AuthenticatedLayout({ header, children }) {
                 <div className="px-4 pt-5">
                     <div className="flex items-center gap-2 rounded-lg bg-red-50 px-3 py-2.5 text-sm font-semibold text-slate-900">
                         <span className="text-red-600" aria-hidden="true">♢</span>
-                        Mode: {isTutor ? 'Guru / Pendidik' : 'Siswa'}
+                        Mode: {isAdmin ? 'Admin' : isTutor ? 'Guru / Pendidik' : 'Siswa'}
                     </div>
                 </div>
 
                 <nav className="flex-1 overflow-y-auto px-4 py-6">
-                    <p className="px-3 text-[11px] font-bold uppercase tracking-[0.16em] text-slate-400">{isTutor ? 'Utama' : 'Menu Murid'}</p>
+                    <p className="px-3 text-[11px] font-bold uppercase tracking-[0.16em] text-slate-400">
+                        {isAdmin ? 'Menu Admin' : isTutor ? 'Utama' : 'Menu Murid'}
+                    </p>
                     <div className="mt-3 flex flex-col gap-1.5">
                         {navigation.map((item) => (
                             <Link

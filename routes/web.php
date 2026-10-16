@@ -1,9 +1,9 @@
 <?php
 
+use App\Http\Controllers\Admin\FeedbackController as AdminFeedbackController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Student\FeedbackController;
 use App\Http\Controllers\Student\GradeController as StudentGradeViewController;
-use App\Http\Controllers\Admin\FeedbackController as AdminFeedbackController;
 use App\Http\Controllers\StudentGradeController;
 use App\Http\Controllers\Tutor\GradeComponentController;
 use App\Http\Controllers\Tutor\StudentClassGradeController;
@@ -34,7 +34,7 @@ Route::get('/dashboard', function () {
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::get('/tutor/dashboard', [TutorClassController::class, 'index'])
-    ->middleware(['auth', 'verified', 'role:tutor,admin'])
+    ->middleware(['auth', 'verified', 'role:tutor'])
     ->name('tutor.dashboard');
 
 Route::get('/admin/dashboard', function () {
@@ -61,7 +61,8 @@ Route::middleware(['auth', 'verified', 'role:student'])
         Route::post('/feedback', [FeedbackController::class, 'store'])
             ->name('feedback.store');
     });
-Route::middleware(['auth', 'verified', 'role:tutor,admin'])
+
+Route::middleware(['auth', 'verified', 'role:tutor'])
     ->prefix('tutor')
     ->name('tutor.')
     ->group(function () {
