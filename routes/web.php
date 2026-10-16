@@ -16,6 +16,7 @@ use App\Http\Controllers\TutorClassStudentController;
 use App\Models\Pendaftaran;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+use App\Http\Controllers\Admin\CalonMuridController;
 
 Route::patch(
     '/admin/pendaftaran/{pendaftaran}/verifikasi',
@@ -148,9 +149,15 @@ Route::middleware('auth')->group(function () {
         Route::get('/result/{id}', [TesLevelController::class, 'result'])->name('result');
     });
 });
-
 // Registrasi murid tetap boleh dikirim saat browser masih memiliki sesi
 // admin/tutor, supaya middleware guest tidak mengalihkan submit ke dashboard.
 Route::post('/registrasi', [RegistrasiController::class, 'store'])->name('registrasi.store');
+
+Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/calon-murid', [CalonMuridController::class, 'index'])->name('calon-murid.index');
+    Route::get('/calon-murid/{pendaftaran}', [CalonMuridController::class, 'show'])->name('calon-murid.show');
+    Route::post('/calon-murid/{pendaftaran}/verifikasi', [CalonMuridController::class, 'verifikasi'])->name('calon-murid.verifikasi');
+    Route::post('/calon-murid/{pendaftaran}/tolak', [CalonMuridController::class, 'tolak'])->name('calon-murid.tolak');
+});
 require __DIR__.'/auth.php';
 

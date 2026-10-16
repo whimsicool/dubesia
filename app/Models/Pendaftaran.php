@@ -4,14 +4,20 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Facades\Storage;
 
 class Pendaftaran extends Model
 {
     public const STATUS_MENUNGGU = 'menunggu_verifikasi';
 
     public const STATUS_TERVERIFIKASI = 'terverifikasi';
-
     public const STATUS_DITOLAK = 'ditolak';
+
+    public const STATUS_LABEL = [
+        self::STATUS_MENUNGGU => 'Menunggu Verifikasi',
+        self::STATUS_TERVERIFIKASI => 'Terverifikasi',
+        self::STATUS_DITOLAK => 'Ditolak',
+    ];
 
     public const PROGRAMS = [
         'reguler' => 'Reguler',
@@ -47,5 +53,19 @@ class Pendaftaran extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+    public function verifikator(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'verified_by');
+    }
+
+    public function getBuktiUrlAttribute(): string
+    {
+        return Storage::disk('public')->url($this->bukti_pembayaran);
+    }
+
+    public function getBuktiIsPdfAttribute(): bool
+    {
+        return strtolower(pathinfo($this->bukti_pembayaran, PATHINFO_EXTENSION)) === 'pdf';
     }
 }

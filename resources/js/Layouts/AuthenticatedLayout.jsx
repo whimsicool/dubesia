@@ -58,6 +58,13 @@ export default function AuthenticatedLayout({ header, children }) {
                   active: route().current('student.feedback.*'),
                   icon: navIcon.feedback,
               },
+              
+              {
+                    label: 'Calon Murid',
+                    href: route('admin.calon-murid.index'),
+                    active: route().current('admin.calon-murid.*'),
+                    icon: navIcon.dashboard,
+                },
           ];
 
     return (
