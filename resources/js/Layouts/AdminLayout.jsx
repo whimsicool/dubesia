@@ -111,7 +111,7 @@ function NavItem({ item, badgeCount }) {
 }
 
 function Sidebar({ open, onClose, pendingRegistrations, readOnly, user }) {
-    const scheduleRoute = ['tutor', 'teacher'].includes(user?.role) ? 'tutor.schedules.index' : 'schedules.index';
+    const scheduleRoute = user?.role === 'tutor' ? 'tutor.schedules.index' : 'schedules.index';
     const groups = readOnly
         ? [
               { heading: 'Utama', items: [{ label: 'Dashboard', icon: LayoutGrid, route: 'dashboard' }] },
@@ -145,7 +145,7 @@ function Sidebar({ open, onClose, pendingRegistrations, readOnly, user }) {
 
                 <div className="px-4">
                     <div className="rounded-lg bg-white/10 px-3 py-2 text-xs font-semibold text-slate-200">
-                        Mode: {readOnly ? (['tutor', 'teacher'].includes(user?.role) ? 'Pengajar' : 'Murid') : 'Admin Utama'}
+                        Mode: {readOnly ? (user?.role === 'tutor' ? 'Tutor' : 'Murid') : 'Admin Utama'}
                     </div>
                 </div>
 
@@ -219,7 +219,7 @@ function UserMenu({ user }) {
         .join('')
         .toUpperCase();
 
-    const roleLabel = { admin: 'Dubes Administrator', teacher: 'Pengajar', tutor: 'Pengajar', student: 'Murid' }[user.role] ?? user.role;
+    const roleLabel = { admin: 'Dubes Administrator', tutor: 'Tutor', student: 'Murid' }[user.role] ?? user.role;
 
     return (
         <div className="relative" ref={ref}>
@@ -258,7 +258,7 @@ function UserMenu({ user }) {
 export default function AdminLayout({ semesterName, readOnly = false, children }) {
     const { auth, pendingRegistrations = 0 } = usePage().props;
     const [sidebarOpen, setSidebarOpen] = useState(false);
-    const scheduleRoute = ['tutor', 'teacher'].includes(auth.user.role) ? 'tutor.schedules.index' : 'schedules.index';
+    const scheduleRoute = auth.user.role === 'tutor' ? 'tutor.schedules.index' : 'schedules.index';
 
     return (
         <div className="min-h-screen bg-slate-50 text-slate-900">

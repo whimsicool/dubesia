@@ -12,6 +12,7 @@ use App\Models\Semester;
 use App\Models\Student;
 use App\Models\User;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Collection;
 
 class ScheduleSeeder extends Seeder
 {
@@ -22,8 +23,20 @@ class ScheduleSeeder extends Seeder
             ['start_date' => '2026-08-03', 'end_date' => '2027-01-30', 'is_active' => true],
         );
 
-        // ---- Program ----------------------------------------------------
-        $programs = collect([
+        $programs = $this->seedPrograms();
+        $instructors = $this->seedInstructors();
+        $this->linkTutorInstructor($instructors);
+
+        $rooms = $this->seedRooms();
+        $demoStudentId = $this->seedStudents();
+        $activeIds = Student::where('status', Student::STATUS_ACTIVE)->orderBy('id')->pluck('id');
+
+        $this->seedSchedules($semester, $programs, $instructors, $rooms, $activeIds, $demoStudentId);
+    }
+
+    private function seedPrograms(): Collection
+    {
+        return collect([
             ['DSP', 'Diplomatic Speech', 'english'],
             ['PRT', 'Protocol & Etiquette', 'english'],
             ['EXE', 'Executive English', 'english'],
@@ -31,29 +44,48 @@ class ScheduleSeeder extends Seeder
             ['IELTS', 'IELTS Academic', 'exam'],
             ['TOEFL', 'TOEFL ITP', 'exam'],
             ['HSK', 'Mandarin HSK', 'mandarin'],
-        ])->mapWithKeys(fn ($p) => [
-            $p[0] => Program::updateOrCreate(['code' => $p[0]], ['name' => $p[1], 'category' => $p[2], 'is_active' => true]),
+        ])->mapWithKeys(fn (array $program): array => [
+            $program[0] => Program::updateOrCreate(['code' => $program[0]], [
+                'name' => $program[1],
+                'category' => $program[2],
+                'is_active' => true,
+            ]),
         ]);
+    }
 
-        // ---- Instruktur -------------------------------------------------
-        $instructors = collect([
-            'Dr. Kevin Kusuma', 'Siti Aisyah', 'Ahmad Rizky', 'Meilani Chen', 'Farhan Ardiansyah',
-            'Budi Santoso', 'Rina Wijaya', 'Michael Tan', 'Dewi Lestari',
-        ])->mapWithKeys(fn ($name) => [
+    private function seedInstructors(): Collection
+    {
+        return collect([
+            'Dr. Kevin Kusuma',
+            'Siti Aisyah',
+            'Ahmad Rizky',
+            'Meilani Chen',
+            'Farhan Ardiansyah',
+            'Budi Santoso',
+            'Rina Wijaya',
+            'Michael Tan',
+            'Dewi Lestari',
+        ])->mapWithKeys(fn (string $name): array => [
             $name => Instructor::updateOrCreate(['name' => $name], ['is_active' => true]),
         ]);
+    }
 
-        // Hubungkan akun contoh tutor agar jadwal instruktur dapat dilihat dari halaman tutor.
+    private function linkTutorInstructor(Collection $instructors): void
+    {
         $tutorUser = User::where('email', 'tutor@dubesia.id')->first();
-        if ($tutorUser) {
-            $instructors['Dr. Kevin Kusuma']->update([
-                'user_id' => $tutorUser->id,
-                'email' => $tutorUser->email,
-            ]);
+        if (! $tutorUser) {
+            return;
         }
 
-        // ---- Ruang (7 fisik + 3 online) ---------------------------------
-        $rooms = collect([
+        $instructors['Dr. Kevin Kusuma']?->update([
+            'user_id' => $tutorUser->id,
+            'email' => $tutorUser->email,
+        ]);
+    }
+
+    private function seedRooms(): Collection
+    {
+        return collect([
             ['Diplomatic Hall A', 'physical', null, 30],
             ['Diplomatic Hall B', 'physical', null, 30],
             ['Audiovisual Lab 2', 'lab', null, 20],
@@ -64,11 +96,18 @@ class ScheduleSeeder extends Seeder
             ['Zoom Room 01', 'online', 'Zoom', 100],
             ['Zoom Room 02', 'online', 'Zoom', 100],
             ['Zoom Room 03', 'online', 'Zoom', 100],
-        ])->mapWithKeys(fn ($r) => [
-            $r[0] => Room::updateOrCreate(['name' => $r[0]], ['type' => $r[1], 'platform' => $r[2], 'capacity' => $r[3], 'is_active' => true]),
+        ])->mapWithKeys(fn (array $room): array => [
+            $room[0] => Room::updateOrCreate(['name' => $room[0]], [
+                'type' => $room[1],
+                'platform' => $room[2],
+                'capacity' => $room[3],
+                'is_active' => true,
+            ]),
         ]);
+    }
 
-        // ---- Murid: 48 aktif + 12 menunggu penempatan -------------------
+    private function seedStudents(): ?int
+    {
         $firstNames = ['Aditya', 'Bella', 'Citra', 'Dimas', 'Eka', 'Fajar', 'Gita', 'Hana', 'Indra', 'Jasmine', 'Kirana', 'Lukman', 'Maya', 'Nadia', 'Oscar'];
         $lastNames = ['Pratama', 'Putri', 'Wibowo', 'Saputra'];
 
@@ -86,22 +125,28 @@ class ScheduleSeeder extends Seeder
             );
         }
 
-        // Akun demo Student Dubesia dipasangkan dengan murid contoh yang terdaftar di jadwal.
         $studentUser = User::where('email', 'student@dubesia.id')->first();
-        $demoStudentId = null;
-        if ($studentUser) {
-            Student::where('nisn', '20260001')->update([
-                'user_id' => $studentUser->id,
-                'name' => $studentUser->name,
-                'email' => $studentUser->email,
-            ]);
-            $demoStudentId = Student::where('user_id', $studentUser->id)->value('id');
+        if (! $studentUser) {
+            return null;
         }
 
-        $activeIds = Student::where('status', Student::STATUS_ACTIVE)->orderBy('id')->pluck('id');
+        Student::where('nisn', '20260001')->update([
+            'user_id' => $studentUser->id,
+            'name' => $studentUser->name,
+            'email' => $studentUser->email,
+        ]);
 
-        // ---- Jadwal mingguan --------------------------------------------
-        // [hari, mulai, selesai, program, judul sesi, kelas, instruktur, ruang, jumlah murid]
+        return Student::where('user_id', $studentUser->id)->value('id');
+    }
+
+    private function seedSchedules(
+        Semester $semester,
+        Collection $programs,
+        Collection $instructors,
+        Collection $rooms,
+        mixed $activeIds,
+        ?int $demoStudentId,
+    ): void {
         $rows = [
             [1, '08:30', '10:00', 'DSP', 'Diplomatic Speech & Rhetoric', 'Diplomatic Speech Batch #4', 'Dr. Kevin Kusuma', 'Diplomatic Hall A', 18],
             [1, '14:00', '15:30', 'PRT', 'Protocol & Diplomatic Etiquette', 'Protocol Batch #2', 'Farhan Ardiansyah', 'Ruang Garuda 3', 14],
@@ -126,30 +171,30 @@ class ScheduleSeeder extends Seeder
                 ],
             );
 
-            // Ambil irisan murid secara melingkar agar tiap kelas punya peserta berbeda.
             $schedule->students()->sync($activeIds->concat($activeIds)->slice($i * 6, $count)->values()->all());
 
-            // Contoh presensi untuk sesi yang jatuh pada hari ini.
-            if ($day === now()->dayOfWeekIso) {
-                $now = now();
-                $attendances = $schedule->students()->pluck('students.id')->values()->map(
-                    fn ($studentId, $n) => [
-                        'schedule_id' => $schedule->id,
-                        'student_id' => $studentId,
-                        'date' => $now->toDateString(),
-                        'status' => ($n % 10 === 9 ? AttendanceStatus::Absent : AttendanceStatus::Present)->value,
-                        'created_at' => $now,
-                        'updated_at' => $now,
-                    ]
-                )->all();
+            if ($day !== now()->dayOfWeekIso) {
+                continue;
+            }
 
-                if ($attendances !== []) {
-                    Attendance::upsert(
-                        $attendances,
-                        ['schedule_id', 'student_id', 'date'],
-                        ['status', 'updated_at'],
-                    );
-                }
+            $now = now();
+            $attendances = $schedule->students()->pluck('students.id')->values()->map(
+                fn ($studentId, $n) => [
+                    'schedule_id' => $schedule->id,
+                    'student_id' => $studentId,
+                    'date' => $now->toDateString(),
+                    'status' => ($n % 10 === 9 ? AttendanceStatus::Absent : AttendanceStatus::Present)->value,
+                    'created_at' => $now,
+                    'updated_at' => $now,
+                ]
+            )->all();
+
+            if ($attendances !== []) {
+                Attendance::upsert(
+                    $attendances,
+                    ['schedule_id', 'student_id', 'date'],
+                    ['status', 'updated_at'],
+                );
             }
         }
 
