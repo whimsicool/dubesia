@@ -8,7 +8,7 @@ const rupiah = (value) =>
 const inputClass =
   'w-full min-w-0 rounded-lg border border-slate-200 bg-white px-3.5 py-3 text-sm text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-dubesia-red focus:ring-2 focus:ring-dubesia-red/10';
 
-function Field({ label, required = false, hint, error, children }) {
+function Field({ label, required = false, hint, error, warning, children }) {
   return (
     <div className="min-w-0 space-y-1.5">
       <div className="flex flex-wrap items-baseline justify-between gap-1">
@@ -21,6 +21,12 @@ function Field({ label, required = false, hint, error, children }) {
       </div>
 
       {children}
+
+      {warning && (
+        <p className="rounded-md border border-rose-200 bg-rose-50 px-3 py-2 text-xs font-medium leading-5 text-rose-700" role="alert">
+          ⚠ Perlu diperbaiki: {warning}
+        </p>
+      )}
 
       {error && (
         <p className="text-xs text-rose-600" role="alert">
@@ -85,7 +91,7 @@ function Shell({ children }) {
               href="/bantuan-admisi"
               className="hidden text-slate-600 transition hover:text-dubesia-red md:inline"
             >
-              Bantuan Admisi
+              Bantuan
             </Link>
 
             <Link
@@ -152,26 +158,33 @@ export default function Create({
   programs = [],
   rekening = [],
   sukses,
+  isResubmission = false,
+  catatanVerifikasi = null,
+  bagianPerbaikan = [],
+  initialData = {},
 }) {
-  const { data, setData, post, processing, errors } = useForm({
-    nama_lengkap: '',
-    tanggal_lahir: '',
-    email: '',
-    no_whatsapp: '',
-    alamat: '',
-    username: '',
+  const { data, setData, post, patch, processing, errors } = useForm({
+    nama_lengkap: initialData.nama_lengkap ?? '',
+    tanggal_lahir: initialData.tanggal_lahir ?? '',
+    email: initialData.email ?? '',
+    no_whatsapp: initialData.no_whatsapp ?? '',
+    alamat: initialData.alamat ?? '',
+    username: initialData.username ?? '',
     password: '',
     password_confirmation: '',
-    pesan_motivasi: '',
-    program: programs[0]?.value ?? '',
+    pesan_motivasi: initialData.pesan_motivasi ?? '',
+    program: initialData.program ?? programs[0]?.value ?? '',
     bukti_pembayaran: null,
-    setuju: false,
+    setuju: isResubmission,
   });
 
   const programTerpilih = programs.find(
     (program) => program.value === data.program,
   );
   const biayaTerpilih = programTerpilih?.biaya ?? 0;
+  const warningFor = (field) => (
+    isResubmission && bagianPerbaikan.includes(field) ? catatanVerifikasi : null
+  );
 
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmation, setShowConfirmation] = useState(false);
@@ -215,8 +228,8 @@ export default function Create({
       return;
     }
 
-    if (file.size > 5 * 1024 * 1024) {
-      setFileError('Ukuran file maksimal 5 MB.');
+    if (file.size > 2 * 1024 * 1024) {
+      setFileError('Ukuran file maksimal 2 MB.');
       setData('bukti_pembayaran', null);
 
       if (fileInput.current) fileInput.current.value = '';
@@ -245,9 +258,11 @@ export default function Create({
   const submit = (event) => {
     event.preventDefault();
 
-    post('/registrasi', {
-      forceFormData: true,
-    });
+    if (isResubmission) {
+      patch(route('pendaftaran.perbaiki'), { forceFormData: true });
+    } else {
+      post('/registrasi', { forceFormData: true });
+    }
   };
 
   if (sukses) {
@@ -294,8 +309,9 @@ export default function Create({
         </h1>
 
         <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-100">
-          Lengkapi data diri Anda untuk menjadi bagian dari DUBESIA. Bersama
-          kami, wujudkan masa depan global Anda.
+          {isResubmission
+            ? 'Perbaiki bagian yang diberi catatan oleh admin, lalu kirim ulang formulir.'
+            : 'Isi data diri Anda untuk mendaftar sebagai murid DUBESIA. Pastikan semua informasi sudah benar.'}
         </p>
       </section>
 
@@ -321,7 +337,7 @@ export default function Create({
             />
 
             <div className="grid gap-4 sm:grid-cols-2">
-              <Field label="Nama Lengkap" required error={errors.nama_lengkap}>
+              <Field label="Nama Lengkap" required error={errors.nama_lengkap} warning={warningFor('nama_lengkap')}>
                 <input
                   required
                   autoComplete="name"
@@ -336,6 +352,7 @@ export default function Create({
                 label="Tanggal Lahir"
                 required
                 error={errors.tanggal_lahir}
+                warning={warningFor('tanggal_lahir')}
               >
                 <input
                   required
@@ -347,7 +364,7 @@ export default function Create({
                 />
               </Field>
 
-              <Field label="Email" required error={errors.email}>
+              <Field label="Email" required error={errors.email} warning={warningFor('email')}>
                 <input
                   required
                   type="email"
@@ -364,6 +381,7 @@ export default function Create({
                 required
                 hint="Gunakan nomor aktif"
                 error={errors.no_whatsapp}
+                warning={warningFor('no_whatsapp')}
               >
                 <div className="flex min-w-0 rounded-lg border border-slate-200 focus-within:border-dubesia-red focus-within:ring-2 focus-within:ring-dubesia-red/10">
                   <span className="flex items-center rounded-l-lg bg-slate-100 px-3 text-sm font-semibold text-slate-600">
@@ -383,7 +401,7 @@ export default function Create({
               </Field>
 
               <div className="sm:col-span-2">
-                <Field label="Alamat Lengkap" required error={errors.alamat}>
+                <Field label="Alamat Lengkap" required error={errors.alamat} warning={warningFor('alamat')}>
                   <textarea
                     required
                     rows={3}
@@ -409,6 +427,7 @@ export default function Create({
                 required
                 hint="Minimal 5 karakter"
                 error={errors.username}
+                warning={warningFor('username')}
               >
                 <input
                   required
@@ -423,13 +442,13 @@ export default function Create({
 
               <Field
                 label="Kata Sandi"
-                required
+                required={!isResubmission}
                 hint="Minimal 8 karakter"
                 error={errors.password}
               >
                 <div className="relative">
                   <input
-                    required
+                    required={!isResubmission}
                     minLength={8}
                     type={showPassword ? 'text' : 'password'}
                     autoComplete="new-password"
@@ -469,12 +488,12 @@ export default function Create({
               <div className="sm:col-span-2">
                 <Field
                   label="Konfirmasi Kata Sandi"
-                  required
+                  required={!isResubmission}
                   error={errors.password_confirmation}
                 >
                   <div className="relative">
                     <input
-                      required
+                      required={!isResubmission}
                       type={showConfirmation ? 'text' : 'password'}
                       autoComplete="new-password"
                       className={`${inputClass} pr-20`}
@@ -506,7 +525,7 @@ export default function Create({
               description="Pilih program yang ingin Anda ikuti."
             />
 
-            <Field label="Pilihan Program" required error={errors.program}>
+            <Field label="Pilihan Program" required error={errors.program} warning={warningFor('program')}>
               <div className="grid gap-3 sm:grid-cols-2">
                 {programs.map((program) => (
                   <label
@@ -562,13 +581,14 @@ export default function Create({
           <section className="mt-8 border-t border-slate-100 pt-6">
             <SectionTitle
               title="Bukti Pembayaran"
-              description="Format JPG, PNG, atau PDF dengan ukuran maksimal 5 MB."
+              description="Unggah bukti pembayaran dalam format JPG, PNG, atau PDF. Ukuran file maksimal 2 MB."
             />
 
             <Field
               label="Upload Bukti Pembayaran"
-              required
+              required={!isResubmission}
               error={fileError || errors.bukti_pembayaran}
+              warning={warningFor('bukti_pembayaran')}
             >
               <div
                 onDragOver={(event) => {
@@ -589,7 +609,7 @@ export default function Create({
               >
                 <input
                   ref={fileInput}
-                  required={!data.bukti_pembayaran}
+                  required={!isResubmission && !data.bukti_pembayaran}
                   type="file"
                   accept=".jpg,.jpeg,.png,.pdf,image/jpeg,image/png,application/pdf"
                   className="sr-only"
@@ -611,7 +631,9 @@ export default function Create({
                 )}
 
                 <p className="mt-1 text-xs text-slate-500">
-                  JPG, PNG, atau PDF · Maksimal 5 MB
+                  {isResubmission && !data.bukti_pembayaran
+                    ? 'Bukti pembayaran saat ini tetap digunakan. Pilih file baru jika ingin menggantinya.'
+                    : 'Format JPG, PNG, atau PDF · Maksimal 2 MB'}
                 </p>
 
                 <div className="mt-4 flex flex-wrap justify-center gap-2">
@@ -646,6 +668,7 @@ export default function Create({
               label="Pesan / Motivasi Belajar"
               hint="Opsional"
               error={errors.pesan_motivasi}
+              warning={warningFor('pesan_motivasi')}
             >
               <textarea
                 rows={3}
@@ -682,7 +705,9 @@ export default function Create({
               disabled={processing}
               className="mt-6 flex w-full items-center justify-center rounded-lg bg-dubesia-navy px-5 py-3.5 text-sm font-bold text-white transition hover:bg-dubesia-red disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {processing ? 'Mengirim pendaftaran...' : 'Daftar Sekarang'}
+              {processing
+                ? (isResubmission ? 'Mengirim perbaikan...' : 'Mengirim pendaftaran...')
+                : (isResubmission ? 'Kirim Ulang Pendaftaran' : 'Daftar Sekarang')}
             </button>
 
             <p className="mt-4 text-center text-sm text-slate-500">

@@ -2,14 +2,31 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link, router } from '@inertiajs/react';
 import { useState } from 'react';
 
+const bidangPerbaikan = [
+    ['nama_lengkap', 'Nama lengkap'],
+    ['tanggal_lahir', 'Tanggal lahir'],
+    ['email', 'Email'],
+    ['no_whatsapp', 'Nomor WhatsApp'],
+    ['alamat', 'Alamat'],
+    ['username', 'Username'],
+    ['program', 'Program kursus'],
+    ['bukti_pembayaran', 'Bukti pembayaran'],
+    ['pesan_motivasi', 'Pesan / motivasi'],
+];
+
 function PendaftaranCard({ pendaftaran }) {
     const [catatan, setCatatan] = useState(pendaftaran.catatan_verifikasi ?? '');
+    const [bagianDipilih, setBagianDipilih] = useState(pendaftaran.bagian_perbaikan ?? []);
     const [error, setError] = useState('');
     const [processing, setProcessing] = useState(false);
 
     function perbaruiStatus(status) {
         if (status === 'ditolak' && !catatan.trim()) {
-            setError('Isi catatan alasan penolakan terlebih dahulu.');
+            setError('Tuliskan alasan penolakan terlebih dahulu.');
+            return;
+        }
+        if (status === 'ditolak' && bagianDipilih.length === 0) {
+            setError('Pilih setidaknya satu bagian yang perlu diperbaiki.');
             return;
         }
 
@@ -19,6 +36,7 @@ function PendaftaranCard({ pendaftaran }) {
             {
                 status,
                 catatan_verifikasi: status === 'ditolak' ? catatan.trim() : '',
+                bagian_perbaikan: status === 'ditolak' ? bagianDipilih : null,
             },
             {
                 preserveScroll: true,
@@ -26,6 +44,7 @@ function PendaftaranCard({ pendaftaran }) {
                 onError: (errors) =>
                     setError(
                         errors.catatan_verifikasi ??
+                            errors.bagian_perbaikan ??
                             errors.status ??
                             'Status pendaftaran gagal diperbarui.',
                     ),
@@ -88,11 +107,33 @@ function PendaftaranCard({ pendaftaran }) {
 
             {!sudahDisetujui && (
                 <div className="mt-5 border-t border-slate-100 pt-5">
+                    <fieldset>
+                        <legend className="block text-sm font-semibold text-slate-700">
+                            Bagian yang perlu diperbaiki
+                        </legend>
+                        <div className="mt-2 grid gap-2 sm:grid-cols-2">
+                            {bidangPerbaikan.map(([value, label]) => (
+                                <label key={value} className="flex items-center gap-2 text-sm text-slate-600">
+                                    <input
+                                        type="checkbox"
+                                        checked={bagianDipilih.includes(value)}
+                                        onChange={(event) => setBagianDipilih((current) => (
+                                            event.target.checked
+                                                ? [...current, value]
+                                                : current.filter((item) => item !== value)
+                                        ))}
+                                        className="h-4 w-4 accent-dubesia-red"
+                                    />
+                                    {label}
+                                </label>
+                            ))}
+                        </div>
+                    </fieldset>
                     <label
                         htmlFor={`catatan-${pendaftaran.id}`}
                         className="block text-sm font-semibold text-slate-700"
                     >
-                        Catatan penolakan
+                        Alasan penolakan
                     </label>
                     <textarea
                         id={`catatan-${pendaftaran.id}`}
@@ -100,7 +141,7 @@ function PendaftaranCard({ pendaftaran }) {
                         onChange={(event) => setCatatan(event.target.value)}
                         rows={3}
                         maxLength={5000}
-                        placeholder="Wajib diisi jika pendaftaran ditolak"
+                        placeholder="Contoh: Bukti transfer tidak terbaca. Silakan unggah bukti pembayaran yang lebih jelas."
                         className="mt-2 w-full rounded-lg border border-slate-300 p-3 text-sm focus:border-dubesia-red focus:outline-none focus:ring-2 focus:ring-dubesia-red/10"
                     />
                     {error && (
@@ -150,7 +191,7 @@ export default function Index({ pendaftarans }) {
                             Pendaftaran siswa
                         </h1>
                         <p className="mt-1 text-sm text-slate-600">
-                            Periksa bukti pembayaran, lalu setujui atau tulis alasan penolakan.
+                            Periksa data dan bukti pembayaran. Jika menolak, pilih bagian yang salah dan tulis catatan untuk murid.
                         </p>
                     </div>
 

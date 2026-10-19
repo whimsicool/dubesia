@@ -35,11 +35,13 @@ class Pendaftaran extends Model
         'user_id', 'nama_lengkap', 'tanggal_lahir', 'email', 'no_whatsapp',
         'alamat', 'program', 'pesan_motivasi', 'bukti_pembayaran', 'biaya',
         'status', 'catatan_verifikasi', 'verified_by', 'verified_at',
+        'bagian_perbaikan',
     ];
 
     protected $casts = [
         'tanggal_lahir' => 'date',
         'verified_at' => 'datetime',
+        'bagian_perbaikan' => 'array',
     ];
 
     public function user(): BelongsTo

@@ -26,6 +26,7 @@ class StatusPendaftaranController extends Controller
                 'pendaftaran' => [
                     'status' => $pendaftaran->status,
                     'catatan_verifikasi' => $pendaftaran->catatan_verifikasi,
+                    'bagian_perbaikan' => $pendaftaran->bagian_perbaikan ?? [],
                     'program' => Pendaftaran::PROGRAMS[$pendaftaran->program] ?? $pendaftaran->program,
                     'created_at' => $pendaftaran->created_at?->format('d M Y, H:i'),
                 ],
@@ -34,9 +35,11 @@ class StatusPendaftaranController extends Controller
         }
 
         return Inertia::render('Registrasi/Status', [
+            'userName' => $request->user()->name,
             'pendaftaran' => [
                 'status' => $pendaftaran->status,
                 'catatan_verifikasi' => $pendaftaran->catatan_verifikasi,
+                'bagian_perbaikan' => $pendaftaran->bagian_perbaikan ?? [],
                 'program' => Pendaftaran::PROGRAMS[$pendaftaran->program] ?? $pendaftaran->program,
                 'created_at' => $pendaftaran->created_at?->format('d M Y, H:i'),
             ],
