@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { router } from '@inertiajs/react';
 import { TriangleAlert } from 'lucide-react';
 import Modal from '@/Components/Admin/Modal';
-import { DAY_NAMES } from './constants';
+import { DAY_NAMES, formatDate } from './constants';
 
 export default function DeleteScheduleModal({ schedule, onClose }) {
     const [processing, setProcessing] = useState(false);
@@ -46,7 +46,7 @@ export default function DeleteScheduleModal({ schedule, onClose }) {
                 <div className="space-y-3 text-sm text-slate-600">
                     <p>
                         Anda akan menghapus <strong className="text-slate-900">{schedule.title}</strong> ({schedule.class_name}) —{' '}
-                        {DAY_NAMES[schedule.day_of_week]}, {schedule.start_time}–{schedule.end_time}.
+                        {schedule.scheduled_date ? formatDate(schedule.scheduled_date) : `setiap ${DAY_NAMES[schedule.day_of_week]}`}, {schedule.start_time}–{schedule.end_time}.
                     </p>
                     <div className="flex gap-3 rounded-xl bg-red-50 p-3 text-red-800">
                         <TriangleAlert className="mt-0.5 h-5 w-5 shrink-0" />

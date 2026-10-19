@@ -2,15 +2,12 @@ import { useEffect, useMemo, useState } from 'react';
 import { useForm } from '@inertiajs/react';
 import { Search, TriangleAlert } from 'lucide-react';
 import Modal from '@/Components/Admin/Modal';
-import { DAYS } from './constants';
-
 const BLANK = {
     title: '',
-    class_name: '',
     program_id: '',
     instructor_id: '',
     room_id: '',
-    day_of_week: 1,
+    scheduled_date: '',
     start_time: '08:00',
     end_time: '09:30',
     notes: '',
@@ -97,7 +94,7 @@ function StudentPicker({ students, selected, onChange, capacity, error }) {
     );
 }
 
-export default function ScheduleFormModal({ open, onClose, schedule, options, defaultDay }) {
+export default function ScheduleFormModal({ open, onClose, schedule, options, defaultDate, semester }) {
     const isEdit = !!schedule;
     const { data, setData, post, put, processing, errors, clearErrors } = useForm(BLANK);
     const [liveConflicts, setLiveConflicts] = useState([]);
@@ -112,17 +109,17 @@ export default function ScheduleFormModal({ open, onClose, schedule, options, de
             schedule
                 ? {
                       title: schedule.title,
-                      class_name: schedule.class_name,
-                      program_id: schedule.program.id,
+                      class_name: schedule.title,
+                      program_id: schedule.program?.id ?? '',
                       instructor_id: schedule.instructor.id,
                       room_id: schedule.room.id,
-                      day_of_week: schedule.day_of_week,
+                      scheduled_date: schedule.scheduled_date ?? '',
                       start_time: schedule.start_time,
                       end_time: schedule.end_time,
                       notes: schedule.notes ?? '',
                       student_ids: schedule.student_ids,
                   }
-                : { ...BLANK, day_of_week: defaultDay || 1 },
+                : { ...BLANK, scheduled_date: defaultDate ?? '' },
         );
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [open, schedule?.id]);
@@ -131,7 +128,7 @@ export default function ScheduleFormModal({ open, onClose, schedule, options, de
     useEffect(() => {
         if (!open) return undefined;
 
-        const validTime = data.start_time && data.end_time && data.end_time > data.start_time;
+        const validTime = data.scheduled_date && data.start_time && data.end_time && data.end_time > data.start_time;
         const hasSubject = data.instructor_id || data.room_id || data.student_ids.length > 0;
 
         if (!validTime || !hasSubject) {
@@ -145,7 +142,7 @@ export default function ScheduleFormModal({ open, onClose, schedule, options, de
                 .post(
                     route('admin.schedules.check-conflict'),
                     {
-                        day_of_week: data.day_of_week,
+                        scheduled_date: data.scheduled_date,
                         start_time: data.start_time,
                         end_time: data.end_time,
                         instructor_id: data.instructor_id || null,
@@ -163,7 +160,7 @@ export default function ScheduleFormModal({ open, onClose, schedule, options, de
             clearTimeout(timer);
             controller.abort();
         };
-    }, [open, data.day_of_week, data.start_time, data.end_time, data.instructor_id, data.room_id, data.student_ids, schedule?.id]);
+    }, [open, data.scheduled_date, data.start_time, data.end_time, data.instructor_id, data.room_id, data.student_ids, schedule?.id]);
 
     const selectedRoom = options.rooms.find((r) => String(r.id) === String(data.room_id));
 
@@ -181,11 +178,13 @@ export default function ScheduleFormModal({ open, onClose, schedule, options, de
             onClose={onClose}
             size="xl"
             title={isEdit ? 'Ubah Jadwal Belajar' : 'Tambah Jadwal Baru'}
-            description="Jadwal berlaku mingguan selama semester aktif. Bentrok instruktur, ruang, dan murid dicek otomatis."
+            description={isEdit && !schedule.scheduled_date
+                ? 'Jadwal lama berulang mingguan. Isi tanggal untuk mengubahnya menjadi jadwal khusus tanggal.'
+                : 'Jadwal hanya berlaku pada tanggal yang dipilih. Bentrok instruktur, ruang, dan murid dicek otomatis.'}
         >
             <form onSubmit={submit} className="space-y-5">
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                    <Field label="Judul sesi" error={errors.title}>
+                    <Field label="Kelas" error={errors.title}>
                         <input
                             type="text"
                             value={data.title}
@@ -194,29 +193,9 @@ export default function ScheduleFormModal({ open, onClose, schedule, options, de
                             className={inputClass}
                         />
                     </Field>
-                    <Field label="Kelas / Batch" error={errors.class_name}>
-                        <input
-                            type="text"
-                            value={data.class_name}
-                            onChange={(e) => setData('class_name', e.target.value)}
-                            placeholder="Diplomatic Speech Batch #4"
-                            className={inputClass}
-                        />
-                    </Field>
-
-                    <Field label="Program studi" error={errors.program_id}>
-                        <select value={data.program_id} onChange={(e) => setData('program_id', e.target.value)} className={inputClass}>
-                            <option value="">Pilih program…</option>
-                            {options.programs.map((p) => (
-                                <option key={p.id} value={p.id}>
-                                    {p.name}
-                                </option>
-                            ))}
-                        </select>
-                    </Field>
-                    <Field label="Instruktur" error={errors.instructor_id}>
+                    <Field label="Tutor" error={errors.instructor_id}>
                         <select value={data.instructor_id} onChange={(e) => setData('instructor_id', e.target.value)} className={inputClass}>
-                            <option value="">Pilih instruktur…</option>
+                            <option value="">Pilih tutor…</option>
                             {options.instructors.map((i) => (
                                 <option key={i.id} value={i.id}>
                                     {i.name}
@@ -235,14 +214,16 @@ export default function ScheduleFormModal({ open, onClose, schedule, options, de
                             ))}
                         </select>
                     </Field>
-                    <Field label="Hari" error={errors.day_of_week}>
-                        <select value={data.day_of_week} onChange={(e) => setData('day_of_week', Number(e.target.value))} className={inputClass}>
-                            {DAYS.map((d) => (
-                                <option key={d.value} value={d.value}>
-                                    {d.label}
-                                </option>
-                            ))}
-                        </select>
+                    <Field label="Tanggal jadwal" error={errors.scheduled_date}>
+                        <input
+                            type="date"
+                            value={data.scheduled_date}
+                            min={semester?.start_date}
+                            max={semester?.end_date}
+                            required={!isEdit || !!schedule.scheduled_date}
+                            onChange={(e) => setData('scheduled_date', e.target.value)}
+                            className={inputClass}
+                        />
                     </Field>
 
                     <Field label="Jam mulai" error={errors.start_time}>

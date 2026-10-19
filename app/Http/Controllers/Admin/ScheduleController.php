@@ -2,12 +2,9 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Enums\AttendanceStatus;
-use App\Enums\RoomType;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\ScheduleRequest;
 use App\Http\Resources\ScheduleResource;
-use App\Models\Attendance;
 use App\Models\Instructor;
 use App\Models\Program;
 use App\Models\Room;
@@ -69,8 +66,6 @@ class ScheduleController extends Controller
                 'q' => trim((string) $request->query('q', '')) ?: null,
             ],
             'schedules' => ScheduleResource::collection($schedules)->resolve(),
-            'stats' => $this->stats($semester),
-            'conflicts' => $semester ? $this->conflicts->audit($semester->id)->values() : [],
             'options' => [
                 'programs' => Program::where('is_active', true)->orderBy('name')->get(['id', 'name', 'category'])
                     ->map(fn ($p) => ['id' => $p->id, 'name' => $p->name, 'category' => $p->category->value]),
@@ -139,7 +134,7 @@ class ScheduleController extends Controller
         abort_unless($request->user()?->isAdmin(), 403);
 
         $data = $request->validate([
-            'day_of_week' => ['required', 'integer', 'between:1,7'],
+            'scheduled_date' => ['required', 'date_format:Y-m-d'],
             'start_time' => ['required', 'date_format:H:i'],
             'end_time' => ['required', 'date_format:H:i'],
             'instructor_id' => ['nullable', 'integer'],
@@ -157,13 +152,14 @@ class ScheduleController extends Controller
 
         $conflicts = $this->conflicts->check(
             semesterId: $semester->id,
-            day: (int) $data['day_of_week'],
+            day: Carbon::createFromFormat('Y-m-d', $data['scheduled_date'])->dayOfWeekIso,
             start: $data['start_time'],
             end: $data['end_time'],
             instructorId: $data['instructor_id'] ?? null,
             roomId: $data['room_id'] ?? null,
             studentIds: $data['student_ids'] ?? [],
             ignoreId: $data['ignore_id'] ?? null,
+            scheduledDate: $data['scheduled_date'],
         );
 
         return response()->json(['conflicts' => $conflicts->values()]);
@@ -182,17 +178,18 @@ class ScheduleController extends Controller
             $out = fopen('php://output', 'w');
             fwrite($out, "\xEF\xBB\xBF"); // BOM agar Excel membaca UTF-8 dengan benar
 
-            fputcsv($out, ['Semester', 'Hari', 'Mulai', 'Selesai', 'Sesi', 'Kelas', 'Program', 'Instruktur', 'Ruang', 'Peserta']);
+            fputcsv($out, ['Semester', 'Tanggal', 'Hari', 'Mulai', 'Selesai', 'Sesi', 'Kelas', 'Program', 'Instruktur', 'Ruang', 'Peserta']);
 
             foreach ($rows as $s) {
                 fputcsv($out, [
                     $semester?->name,
+                    $s->scheduled_date?->toDateString() ?? 'Berulang mingguan',
                     $days[$s->day_of_week] ?? $s->day_of_week,
                     substr($s->start_time, 0, 5),
                     substr($s->end_time, 0, 5),
                     $s->title,
                     $s->class_name,
-                    $s->program->name,
+                    $s->program?->name ?? '',
                     $s->instructor->name,
                     $s->room->name,
                     $s->students->count(),
@@ -293,62 +290,4 @@ class ScheduleController extends Controller
         })->values()->all();
     }
 
-    /** @return array<string, mixed> */
-    private function stats(?Semester $semester): array
-    {
-        $rooms = Room::where('is_active', true)->get(['id', 'type']);
-        $physical = $rooms->filter(fn ($r) => $r->type !== RoomType::Online)->count();
-        $online = $rooms->count() - $physical;
-
-        $empty = [
-            'sessions' => 0, 'programs' => 0, 'instructors' => 0,
-            'occupancy' => 0, 'rooms_physical' => $physical, 'rooms_online' => $online,
-            'enrolled' => 0, 'pending' => Student::where('status', Student::STATUS_PENDING)->count(),
-            'attendance_rate' => null, 'sessions_today' => 0, 'sessions_recorded_today' => 0,
-        ];
-
-        if (! $semester) {
-            return $empty;
-        }
-
-        $schedules = Schedule::where('semester_id', $semester->id)
-            ->get(['id', 'program_id', 'instructor_id', 'day_of_week', 'start_time', 'end_time']);
-
-        // Okupansi = total menit terpakai per minggu / (jumlah ruang × hari belajar × jam operasional)
-        $open = $this->toMinutes(config('dubesia.operating_hours.start'));
-        $close = $this->toMinutes(config('dubesia.operating_hours.end'));
-        $capacityMinutes = max(1, $rooms->count()) * count(config('dubesia.days')) * max(1, $close - $open);
-        $bookedMinutes = $schedules->sum(fn ($s) => max(0, $this->toMinutes($s->end_time) - $this->toMinutes($s->start_time)));
-
-        $enrolled = DB::table('schedule_student')
-            ->join('schedules', 'schedules.id', '=', 'schedule_student.schedule_id')
-            ->where('schedules.semester_id', $semester->id)
-            ->distinct()
-            ->count('schedule_student.student_id');
-
-        $attendanceToday = Attendance::query()
-            ->whereDate('date', now()->toDateString())
-            ->whereHas('schedule', fn ($q) => $q->where('semester_id', $semester->id));
-
-        $totalAttendance = (clone $attendanceToday)->count();
-        $present = (clone $attendanceToday)->where('status', AttendanceStatus::Present->value)->count();
-
-        return array_merge($empty, [
-            'sessions' => $schedules->count(),
-            'programs' => $schedules->pluck('program_id')->unique()->count(),
-            'instructors' => $schedules->pluck('instructor_id')->unique()->count(),
-            'occupancy' => min(100, (int) round($bookedMinutes / $capacityMinutes * 100)),
-            'enrolled' => $enrolled,
-            'attendance_rate' => $totalAttendance > 0 ? round($present / $totalAttendance * 100, 1) : null,
-            'sessions_today' => $schedules->where('day_of_week', now()->dayOfWeekIso)->count(),
-            'sessions_recorded_today' => (clone $attendanceToday)->distinct()->count('schedule_id'),
-        ]);
-    }
-
-    private function toMinutes(string $time): int
-    {
-        [$h, $m] = array_map('intval', explode(':', $time)) + [0, 0];
-
-        return $h * 60 + $m;
-    }
 }

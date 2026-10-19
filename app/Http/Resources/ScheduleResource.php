@@ -15,14 +15,15 @@ class ScheduleResource extends JsonResource
             'title' => $this->title,
             'class_name' => $this->class_name,
             'day_of_week' => (int) $this->day_of_week,
+            'scheduled_date' => $this->scheduled_date?->toDateString(),
             'start_time' => substr($this->start_time, 0, 5),
             'end_time' => substr($this->end_time, 0, 5),
             'notes' => $this->notes,
-            'program' => [
+            'program' => $this->program ? [
                 'id' => $this->program->id,
                 'name' => $this->program->name,
                 'category' => $this->program->category->value,
-            ],
+            ] : null,
             'instructor' => [
                 'id' => $this->instructor->id,
                 'name' => $this->instructor->name,

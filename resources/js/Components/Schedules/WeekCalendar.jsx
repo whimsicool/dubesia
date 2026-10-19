@@ -1,9 +1,9 @@
-import { ChevronLeft, ChevronRight, Trash2 } from 'lucide-react';
+import { CalendarDays, ChevronLeft, ChevronRight, Trash2 } from 'lucide-react';
 import RoomIcon from './RoomIcon';
 import { CATEGORY_STYLES, formatDate, formatWeekRange } from './constants';
 
 function SessionCard({ schedule, onEdit, onDelete, readOnly }) {
-    const style = CATEGORY_STYLES[schedule.program.category] ?? CATEGORY_STYLES.english;
+    const style = CATEGORY_STYLES[schedule.program?.category] ?? CATEGORY_STYLES.english;
 
     const content = (
         <>
@@ -58,7 +58,7 @@ export default function WeekCalendar({ week, schedules, dayFilter, onNavigate, o
 
     return (
         <div className="rounded-2xl border border-slate-100 bg-white shadow-sm">
-            {/* Navigasi minggu + legenda */}
+            {/* Navigasi minggu */}
             <div className="flex flex-wrap items-center gap-x-5 gap-y-3 p-4 print:hidden">
                 <div className="flex items-center rounded-lg border border-slate-200">
                     <button
@@ -69,14 +69,17 @@ export default function WeekCalendar({ week, schedules, dayFilter, onNavigate, o
                     >
                         <ChevronLeft className="h-4 w-4" />
                     </button>
-                    <button
-                        type="button"
-                        onClick={() => onNavigate(null)}
-                        disabled={week.is_current}
-                        className="border-x border-slate-200 px-3 py-1.5 text-sm font-semibold text-slate-800 hover:bg-slate-50 disabled:cursor-default disabled:hover:bg-white"
-                    >
-                        Minggu Ini
-                    </button>
+                    <label className="relative flex h-9 min-w-[132px] items-center justify-center gap-2 border-x border-slate-200 px-3 text-sm font-semibold text-slate-800 hover:bg-slate-50">
+                        <CalendarDays className="h-4 w-4 text-red-700" />
+                        <span>{formatDate(week.start, { day: 'numeric', month: 'short', year: 'numeric' })}</span>
+                        <input
+                            type="date"
+                            value={week.start}
+                            onChange={(event) => event.target.value && onNavigate(event.target.value)}
+                            className="absolute inset-0 cursor-pointer opacity-0"
+                            aria-label="Pilih tanggal pekan jadwal"
+                        />
+                    </label>
                     <button
                         type="button"
                         onClick={() => onNavigate(week.next)}
@@ -89,14 +92,6 @@ export default function WeekCalendar({ week, schedules, dayFilter, onNavigate, o
 
                 <h2 className="text-base font-bold text-slate-900 sm:text-lg">{formatWeekRange(week.start, week.end)}</h2>
 
-                <div className="ml-auto flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-600">
-                    {Object.values(CATEGORY_STYLES).map((c) => (
-                        <span key={c.label} className="flex items-center gap-1.5">
-                            <span className={`h-2.5 w-2.5 rounded-full ${c.dot}`} />
-                            {c.label}
-                        </span>
-                    ))}
-                </div>
             </div>
 
             {/* Grid hari */}
@@ -104,7 +99,7 @@ export default function WeekCalendar({ week, schedules, dayFilter, onNavigate, o
                 <div className="grid min-w-[960px] divide-x divide-slate-100 border-t border-slate-100" style={{ gridTemplateColumns: `repeat(${days.length}, minmax(0, 1fr))` }}>
                     {days.map((d) => {
                         const isToday = d.date === week.today;
-                        const items = schedules.filter((s) => s.day_of_week === d.day);
+                        const items = schedules.filter((s) => s.scheduled_date ? s.scheduled_date === d.date : s.day_of_week === d.day);
 
                         return (
                             <div key={d.day} className="min-h-[360px]">
@@ -118,7 +113,7 @@ export default function WeekCalendar({ week, schedules, dayFilter, onNavigate, o
                                 <div className="space-y-3 p-2.5">
                                     {!d.in_semester ? (
                                         <p className="rounded-lg border border-dashed border-slate-200 px-2 py-6 text-center text-xs text-slate-400">
-                                            Di luar rentang semester
+                                            Di luar periode jadwal
                                         </p>
                                     ) : items.length === 0 ? (
                                         <p className="rounded-lg border border-dashed border-slate-200 px-2 py-6 text-center text-xs text-slate-400">

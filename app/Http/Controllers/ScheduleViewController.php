@@ -110,6 +110,7 @@ class ScheduleViewController extends Controller
             'title' => $schedule->title,
             'class_name' => $schedule->class_name,
             'day_of_week' => (int) $schedule->day_of_week,
+            'scheduled_date' => $schedule->scheduled_date ? Carbon::parse($schedule->scheduled_date)->toDateString() : null,
             'day_name' => config('dubesia.days')[$schedule->day_of_week] ?? 'Hari tidak diketahui',
             'start_time' => substr($schedule->start_time, 0, 5),
             'end_time' => substr($schedule->end_time, 0, 5),

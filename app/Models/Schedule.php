@@ -12,12 +12,12 @@ class Schedule extends Model
 {
     protected $fillable = [
         'semester_id', 'program_id', 'instructor_id', 'room_id',
-        'title', 'class_name', 'day_of_week', 'start_time', 'end_time', 'notes',
+        'title', 'class_name', 'day_of_week', 'scheduled_date', 'start_time', 'end_time', 'notes',
     ];
 
     protected function casts(): array
     {
-        return ['day_of_week' => 'integer'];
+        return ['day_of_week' => 'integer', 'scheduled_date' => 'date:Y-m-d'];
     }
 
     public function semester(): BelongsTo
