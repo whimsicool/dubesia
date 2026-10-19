@@ -53,6 +53,7 @@ export default function Show({ pendaftaran: p, flash }) {
         </div>
 
         {flash?.error && <div className="mt-4 rounded-lg bg-red-50 p-3 text-sm font-medium text-red-700">{flash.error}</div>}
+        {p.perbaikan_baru && <div className="mt-4 rounded-lg border border-sky-200 bg-sky-50 p-3 text-sm font-semibold text-sky-800">Perbaikan baru dikirim{p.dikirim_ulang_pada ? ` pada ${p.dikirim_ulang_pada}` : ''}. Pendaftaran ini menunggu verifikasi ulang.</div>}
 
         <div className="mt-6 grid gap-5 lg:grid-cols-2">
           {/* data pendaftaran */}
@@ -95,8 +96,9 @@ export default function Show({ pendaftaran: p, flash }) {
         </div>
 
         {/* aksi */}
-        {p.bisa_diproses ? (
-          <div className="mt-6 flex flex-wrap gap-3">
+        <div className="mt-6 flex flex-wrap items-center gap-3">
+          {p.bisa_diproses && (
+            <>
             <button onClick={() => setShowVerif(true)}
               className="flex items-center gap-2 rounded-lg bg-[#0f1b2d] px-6 py-3 text-sm font-bold text-white hover:bg-[#16263d]">
               <BadgeCheck className="h-4 w-4" /> Verifikasi
@@ -105,10 +107,10 @@ export default function Show({ pendaftaran: p, flash }) {
               className="flex items-center gap-2 rounded-lg bg-[#b91c1c] px-6 py-3 text-sm font-bold text-white hover:bg-[#991b1b]">
               <XCircle className="h-4 w-4" /> Tolak
             </button>
-          </div>
-        ) : (
-          <p className="mt-6 rounded-lg bg-[#eef3fd] p-3 text-sm text-slate-600">Pendaftaran ini sudah diproses.</p>
-        )}
+            </>
+          )}
+          {!p.bisa_diproses && <p className="rounded-lg bg-[#eef3fd] p-3 text-sm text-slate-600">Pendaftaran ini sudah diproses.</p>}
+        </div>
       </div>
 
       {/* modal konfirmasi verifikasi */}
@@ -151,6 +153,7 @@ export default function Show({ pendaftaran: p, flash }) {
           </form>
         </div>
       )}
+
     </AuthenticatedLayout>
   );
 }

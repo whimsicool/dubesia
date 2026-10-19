@@ -6,9 +6,9 @@ const rupiah = (value) =>
   `Rp ${Number(value ?? 0).toLocaleString('id-ID')}`;
 
 const inputClass =
-  'w-full min-w-0 rounded-lg border border-slate-200 bg-white px-3.5 py-3 text-sm text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-dubesia-red focus:ring-2 focus:ring-dubesia-red/10';
+  'w-full min-w-0 rounded-lg border border-slate-200 bg-white px-3.5 py-3 text-sm text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100';
 
-function Field({ label, required = false, hint, error, warning, children }) {
+function Field({ label, required = false, hint, error, children }) {
   return (
     <div className="min-w-0 space-y-1.5">
       <div className="flex flex-wrap items-baseline justify-between gap-1">
@@ -21,12 +21,6 @@ function Field({ label, required = false, hint, error, warning, children }) {
       </div>
 
       {children}
-
-      {warning && (
-        <p className="rounded-md border border-rose-200 bg-rose-50 px-3 py-2 text-xs font-medium leading-5 text-rose-700" role="alert">
-          ⚠ Perlu diperbaiki: {warning}
-        </p>
-      )}
 
       {error && (
         <p className="text-xs text-rose-600" role="alert">
@@ -51,10 +45,10 @@ function SectionTitle({ title, description }) {
   );
 }
 
-function Shell({ children }) {
+function Shell({ children, editMode = false }) {
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800">
-      <Head title="Registrasi Calon Murid | DUBESIA">
+      <Head title={`${editMode ? 'Perbaikan Pendaftaran' : 'Registrasi Calon Murid'} | DUBESIA`}>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link
@@ -72,11 +66,9 @@ function Shell({ children }) {
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-8">
           {/* Logo DUBESIA hanya tampilan, tidak bisa diklik */}
           <div className="flex min-w-0 items-center gap-3" aria-label="DUBESIA">
-            <img
-              src="/images/dubesia-logo.png"
-              alt="Logo DUBESIA"
-              className="h-11 w-11 shrink-0 rounded-full object-contain"
-            />
+            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-slate-900 text-lg font-extrabold text-white">
+              D
+            </span>
 
             <span className="min-w-0 leading-tight">
               <span className="block text-lg font-extrabold tracking-tight text-slate-900">
@@ -91,24 +83,30 @@ function Shell({ children }) {
           <nav className="flex items-center gap-2 text-sm sm:gap-5">
             <Link
               href="/bantuan-admisi"
-              className="hidden text-slate-600 transition hover:text-dubesia-red md:inline"
+              className="hidden text-slate-600 transition hover:text-blue-700 md:inline"
             >
-              Bantuan
+              Bantuan Admisi
             </Link>
 
             <Link
               href="/panduan-pendaftaran"
-              className="hidden text-slate-600 transition hover:text-dubesia-red md:inline"
+              className="hidden text-slate-600 transition hover:text-blue-700 md:inline"
             >
               Panduan Pendaftaran
             </Link>
 
-            <Link
-              href="/login"
-              className="rounded-lg bg-dubesia-navy px-3 py-2 text-center text-xs font-semibold text-white transition hover:bg-dubesia-red sm:px-4 sm:text-sm"
-            >
-              Masuk
-            </Link>
+            {editMode ? (
+              <Link href={route('logout')} method="post" as="button" className="rounded-lg bg-blue-50 px-3 py-2 text-center text-xs font-semibold text-blue-900 transition hover:bg-blue-100 sm:px-4 sm:text-sm">
+                Keluar
+              </Link>
+            ) : (
+              <Link
+                href="/login"
+                className="rounded-lg bg-blue-50 px-3 py-2 text-center text-xs font-semibold text-blue-900 transition hover:bg-blue-100 sm:px-4 sm:text-sm"
+              >
+                Masuk
+              </Link>
+            )}
           </nav>
         </div>
       </header>
@@ -136,12 +134,12 @@ function Shell({ children }) {
           <div className="flex flex-wrap gap-4 text-xs font-semibold text-slate-600">
             <Link
               href="/panduan-pendaftaran"
-              className="hover:text-dubesia-red"
+              className="hover:text-blue-700"
             >
               Panduan Pendaftaran
             </Link>
 
-            <Link href="/bantuan-admisi" className="hover:text-dubesia-red">
+            <Link href="/bantuan-admisi" className="hover:text-blue-700">
               Bantuan Admisi
             </Link>
           </div>
@@ -158,35 +156,26 @@ function Shell({ children }) {
 
 export default function Create({
   programs = [],
+  biaya = 250000,
   rekening = [],
   sukses,
-  isResubmission = false,
-  catatanVerifikasi = null,
-  bagianPerbaikan = [],
-  initialData = {},
+  editMode = false,
+  pendaftaran = null,
 }) {
-  const { data, setData, post, patch, processing, errors } = useForm({
-    nama_lengkap: initialData.nama_lengkap ?? '',
-    tanggal_lahir: initialData.tanggal_lahir ?? '',
-    email: initialData.email ?? '',
-    no_whatsapp: initialData.no_whatsapp ?? '',
-    alamat: initialData.alamat ?? '',
-    username: initialData.username ?? '',
+  const { data, setData, post, put, processing, errors } = useForm({
+    nama_lengkap: pendaftaran?.nama_lengkap ?? '',
+    tanggal_lahir: pendaftaran?.tanggal_lahir ?? '',
+    email: pendaftaran?.email ?? '',
+    no_whatsapp: pendaftaran?.no_whatsapp ?? '',
+    alamat: pendaftaran?.alamat ?? '',
+    username: pendaftaran?.username ?? '',
     password: '',
     password_confirmation: '',
-    pesan_motivasi: initialData.pesan_motivasi ?? '',
-    program: initialData.program ?? programs[0]?.value ?? '',
+    pesan_motivasi: pendaftaran?.pesan_motivasi ?? '',
+    program: pendaftaran?.program ?? programs[0]?.value ?? '',
     bukti_pembayaran: null,
-    setuju: isResubmission,
+    setuju: editMode,
   });
-
-  const programTerpilih = programs.find(
-    (program) => program.value === data.program,
-  );
-  const biayaTerpilih = programTerpilih?.biaya ?? 0;
-  const warningFor = (field) => (
-    isResubmission && bagianPerbaikan.includes(field) ? catatanVerifikasi : null
-  );
 
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmation, setShowConfirmation] = useState(false);
@@ -230,8 +219,8 @@ export default function Create({
       return;
     }
 
-    if (file.size > 2 * 1024 * 1024) {
-      setFileError('Ukuran file maksimal 2 MB.');
+    if (file.size > 5 * 1024 * 1024) {
+      setFileError('Ukuran file maksimal 5 MB.');
       setData('bukti_pembayaran', null);
 
       if (fileInput.current) fileInput.current.value = '';
@@ -260,11 +249,14 @@ export default function Create({
   const submit = (event) => {
     event.preventDefault();
 
-    if (isResubmission) {
-      patch(route('pendaftaran.perbaiki'), { forceFormData: true });
-    } else {
-      post('/registrasi', { forceFormData: true });
+    if (editMode) {
+      put(route('registrasi.update'), { forceFormData: true });
+      return;
     }
+
+    post('/registrasi', {
+      forceFormData: true,
+    });
   };
 
   if (sukses) {
@@ -290,9 +282,9 @@ export default function Create({
 
           <Link
             href="/login"
-            className="mt-6 inline-flex rounded-lg bg-dubesia-navy px-5 py-3 text-sm font-semibold text-white transition hover:bg-dubesia-red"
+            className="mt-6 inline-flex rounded-lg bg-blue-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-blue-700"
           >
-            LOGIN
+            Kembali ke halaman masuk
           </Link>
         </section>
       </Shell>
@@ -300,20 +292,20 @@ export default function Create({
   }
 
   return (
-    <Shell>
-      <section className="mb-6 overflow-hidden rounded-2xl bg-gradient-to-r from-dubesia-navy via-dubesia-navy to-dubesia-red px-5 py-7 text-white shadow-sm sm:px-8 sm:py-9">
-        <p className="text-xs font-bold uppercase tracking-[0.18em] text-dubesia-gold-light">
-          Pendaftaran Calon Murid
+    <Shell editMode={editMode}>
+      <section className="mb-6 overflow-hidden rounded-2xl bg-gradient-to-r from-slate-950 to-blue-900 px-5 py-7 text-white shadow-sm sm:px-8 sm:py-9">
+        <p className="text-xs font-bold uppercase tracking-[0.18em] text-blue-200">
+          {editMode ? 'Perbaikan Pendaftaran' : 'Pendaftaran Calon Murid'}
         </p>
 
         <h1 className="mt-2 text-2xl font-extrabold tracking-tight sm:text-3xl">
-          Formulir Registrasi Calon Murid
+          {editMode ? 'Perbaiki Data Pendaftaran' : 'Formulir Registrasi Calon Murid'}
         </h1>
 
-        <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-100">
-          {isResubmission
-            ? 'Perbaiki bagian yang diberi catatan oleh admin, lalu kirim ulang formulir.'
-            : 'Isi data diri Anda untuk mendaftar sebagai murid DUBESIA. Pastikan semua informasi sudah benar.'}
+        <p className="mt-3 max-w-2xl text-sm leading-6 text-blue-100">
+          {editMode
+            ? 'Periksa catatan admin, perbaiki bagian yang diperlukan, lalu kirim kembali untuk diverifikasi.'
+            : 'Lengkapi data diri Anda untuk menjadi bagian dari DUBESIA. Bersama kami, wujudkan masa depan global Anda.'}
         </p>
       </section>
 
@@ -323,6 +315,13 @@ export default function Create({
           onSubmit={submit}
           className="min-w-0 rounded-2xl border border-slate-100 bg-white p-5 shadow-sm sm:p-7"
         >
+          {editMode && pendaftaran?.catatan_verifikasi && (
+            <div className="mb-6 rounded-xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-800 sm:p-5">
+              <h2 className="font-bold">Catatan perbaikan dari admin</h2>
+              <p className="mt-2 whitespace-pre-wrap leading-6">{pendaftaran.catatan_verifikasi}</p>
+            </div>
+          )}
+
           {errors.umum && (
             <div
               role="alert"
@@ -339,7 +338,7 @@ export default function Create({
             />
 
             <div className="grid gap-4 sm:grid-cols-2">
-              <Field label="Nama Lengkap" required error={errors.nama_lengkap} warning={warningFor('nama_lengkap')}>
+              <Field label="Nama Lengkap" required error={errors.nama_lengkap}>
                 <input
                   required
                   autoComplete="name"
@@ -354,7 +353,6 @@ export default function Create({
                 label="Tanggal Lahir"
                 required
                 error={errors.tanggal_lahir}
-                warning={warningFor('tanggal_lahir')}
               >
                 <input
                   required
@@ -366,7 +364,7 @@ export default function Create({
                 />
               </Field>
 
-              <Field label="Email" required error={errors.email} warning={warningFor('email')}>
+              <Field label="Email" required error={errors.email}>
                 <input
                   required
                   type="email"
@@ -383,9 +381,8 @@ export default function Create({
                 required
                 hint="Gunakan nomor aktif"
                 error={errors.no_whatsapp}
-                warning={warningFor('no_whatsapp')}
               >
-                <div className="flex min-w-0 rounded-lg border border-slate-200 focus-within:border-dubesia-red focus-within:ring-2 focus-within:ring-dubesia-red/10">
+                <div className="flex min-w-0 rounded-lg border border-slate-200 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-100">
                   <span className="flex items-center rounded-l-lg bg-slate-100 px-3 text-sm font-semibold text-slate-600">
                     +62
                   </span>
@@ -403,7 +400,7 @@ export default function Create({
               </Field>
 
               <div className="sm:col-span-2">
-                <Field label="Alamat Lengkap" required error={errors.alamat} warning={warningFor('alamat')}>
+                <Field label="Alamat Lengkap" required error={errors.alamat}>
                   <textarea
                     required
                     rows={3}
@@ -429,7 +426,6 @@ export default function Create({
                 required
                 hint="Minimal 5 karakter"
                 error={errors.username}
-                warning={warningFor('username')}
               >
                 <input
                   required
@@ -442,15 +438,17 @@ export default function Create({
                 />
               </Field>
 
+              {!editMode && (
+              <>
               <Field
                 label="Kata Sandi"
-                required={!isResubmission}
+                required
                 hint="Minimal 8 karakter"
                 error={errors.password}
               >
                 <div className="relative">
                   <input
-                    required={!isResubmission}
+                    required
                     minLength={8}
                     type={showPassword ? 'text' : 'password'}
                     autoComplete="new-password"
@@ -463,7 +461,7 @@ export default function Create({
                   <button
                     type="button"
                     onClick={() => setShowPassword((value) => !value)}
-                      className="absolute inset-y-0 right-3 text-xs font-semibold text-dubesia-red"
+                    className="absolute inset-y-0 right-3 text-xs font-semibold text-blue-700"
                   >
                     {showPassword ? 'Sembunyikan' : 'Lihat'}
                   </button>
@@ -490,12 +488,12 @@ export default function Create({
               <div className="sm:col-span-2">
                 <Field
                   label="Konfirmasi Kata Sandi"
-                  required={!isResubmission}
+                  required
                   error={errors.password_confirmation}
                 >
                   <div className="relative">
                     <input
-                      required={!isResubmission}
+                      required
                       type={showConfirmation ? 'text' : 'password'}
                       autoComplete="new-password"
                       className={`${inputClass} pr-20`}
@@ -511,13 +509,15 @@ export default function Create({
                       onClick={() =>
                         setShowConfirmation((value) => !value)
                       }
-                    className="absolute inset-y-0 right-3 text-xs font-semibold text-dubesia-red"
+                      className="absolute inset-y-0 right-3 text-xs font-semibold text-blue-700"
                     >
                       {showConfirmation ? 'Sembunyikan' : 'Lihat'}
                     </button>
                   </div>
                 </Field>
               </div>
+              </>
+              )}
             </div>
           </section>
 
@@ -527,15 +527,15 @@ export default function Create({
               description="Pilih program yang ingin Anda ikuti."
             />
 
-            <Field label="Pilihan Program" required error={errors.program} warning={warningFor('program')}>
+            <Field label="Pilihan Program" required error={errors.program}>
               <div className="grid gap-3 sm:grid-cols-2">
                 {programs.map((program) => (
                   <label
                     key={program.value}
                     className={`flex cursor-pointer gap-3 rounded-xl border p-4 transition ${
                       data.program === program.value
-                        ? 'border-dubesia-red bg-dubesia-red-soft ring-1 ring-dubesia-red/20'
-                        : 'border-slate-200 hover:border-dubesia-gold'
+                        ? 'border-blue-500 bg-blue-50 ring-1 ring-blue-200'
+                        : 'border-slate-200 hover:border-blue-200'
                     }`}
                   >
                     <input
@@ -545,7 +545,7 @@ export default function Create({
                       value={program.value}
                       checked={data.program === program.value}
                       onChange={() => setData('program', program.value)}
-                      className="mt-1 accent-dubesia-red"
+                      className="mt-1 accent-blue-600"
                     />
 
                     <span>
@@ -555,16 +555,13 @@ export default function Create({
                       <span className="mt-1 block text-xs leading-5 text-slate-500">
                         {program.deskripsi}
                       </span>
-                      <span className="mt-2 block text-sm font-semibold text-dubesia-navy">
-                        {rupiah(program.biaya)}
-                      </span>
                     </span>
                   </label>
                 ))}
               </div>
             </Field>
 
-            <div className="mt-4 rounded-xl border-l-4 border-dubesia-gold bg-dubesia-navy-soft p-4 sm:flex sm:items-center sm:justify-between">
+            <div className="mt-4 rounded-xl bg-blue-50 p-4 sm:flex sm:items-center sm:justify-between">
               <div>
                 <p className="text-sm font-semibold text-slate-700">
                   Biaya Pendaftaran
@@ -574,8 +571,8 @@ export default function Create({
                 </p>
               </div>
 
-              <p className="mt-2 text-2xl font-extrabold text-dubesia-navy sm:mt-0">
-                {rupiah(biayaTerpilih)}
+              <p className="mt-2 text-2xl font-extrabold text-blue-800 sm:mt-0">
+                {rupiah(biaya)}
               </p>
             </div>
           </section>
@@ -583,14 +580,13 @@ export default function Create({
           <section className="mt-8 border-t border-slate-100 pt-6">
             <SectionTitle
               title="Bukti Pembayaran"
-              description="Unggah bukti pembayaran dalam format JPG, PNG, atau PDF. Ukuran file maksimal 2 MB."
+              description="Format JPG, PNG, atau PDF dengan ukuran maksimal 5 MB."
             />
 
             <Field
               label="Upload Bukti Pembayaran"
-              required={!isResubmission}
+              required
               error={fileError || errors.bukti_pembayaran}
-              warning={warningFor('bukti_pembayaran')}
             >
               <div
                 onDragOver={(event) => {
@@ -605,13 +601,13 @@ export default function Create({
                 }}
                 className={`rounded-xl border-2 border-dashed p-6 text-center transition sm:p-8 ${
                   dragging
-                    ? 'border-dubesia-red bg-dubesia-red-soft'
-                    : 'border-slate-200 bg-slate-50 hover:border-dubesia-gold'
+                    ? 'border-blue-500 bg-blue-50'
+                    : 'border-slate-200 bg-slate-50 hover:border-blue-300'
                 }`}
               >
                 <input
                   ref={fileInput}
-                  required={!isResubmission && !data.bukti_pembayaran}
+                  required={!editMode && !data.bukti_pembayaran}
                   type="file"
                   accept=".jpg,.jpeg,.png,.pdf,image/jpeg,image/png,application/pdf"
                   className="sr-only"
@@ -620,12 +616,19 @@ export default function Create({
                   }
                 />
 
-                <div className="text-3xl text-dubesia-red">↑</div>
+                <div className="text-3xl text-blue-600">↑</div>
 
                 {data.bukti_pembayaran ? (
                   <p className="mt-2 break-all text-sm font-semibold text-slate-800">
                     {data.bukti_pembayaran.name}
                   </p>
+                ) : editMode && pendaftaran?.bukti_url ? (
+                  <div className="mt-2 space-y-1">
+                    <p className="text-sm font-semibold text-slate-800">Bukti pembayaran saat ini tetap digunakan</p>
+                    <a href={pendaftaran.bukti_url} target="_blank" rel="noreferrer" className="text-xs font-semibold text-blue-700 underline">
+                      Lihat bukti yang tersimpan{pendaftaran.bukti_is_pdf ? ' (PDF)' : ''}
+                    </a>
+                  </div>
                 ) : (
                   <p className="mt-2 text-sm font-semibold text-slate-800">
                     Seret file ke sini atau pilih dari perangkat
@@ -633,16 +636,14 @@ export default function Create({
                 )}
 
                 <p className="mt-1 text-xs text-slate-500">
-                  {isResubmission && !data.bukti_pembayaran
-                    ? 'Bukti pembayaran saat ini tetap digunakan. Pilih file baru jika ingin menggantinya.'
-                    : 'Format JPG, PNG, atau PDF · Maksimal 2 MB'}
+                  JPG, PNG, atau PDF · Maksimal 5 MB
                 </p>
 
                 <div className="mt-4 flex flex-wrap justify-center gap-2">
                   <button
                     type="button"
                     onClick={() => fileInput.current?.click()}
-                    className="rounded-lg bg-dubesia-navy px-4 py-2 text-sm font-semibold text-white transition hover:bg-dubesia-red"
+                    className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-700"
                   >
                     Pilih File
                   </button>
@@ -670,7 +671,6 @@ export default function Create({
               label="Pesan / Motivasi Belajar"
               hint="Opsional"
               error={errors.pesan_motivasi}
-              warning={warningFor('pesan_motivasi')}
             >
               <textarea
                 rows={3}
@@ -688,7 +688,7 @@ export default function Create({
                   type="checkbox"
                   checked={data.setuju}
                   onChange={(e) => setData('setuju', e.target.checked)}
-                  className="mt-1 h-4 w-4 shrink-0 accent-dubesia-red"
+                  className="mt-1 h-4 w-4 shrink-0 accent-blue-600"
                 />
 
                 <span>
@@ -705,38 +705,40 @@ export default function Create({
             <button
               type="submit"
               disabled={processing}
-              className="mt-6 flex w-full items-center justify-center rounded-lg bg-dubesia-navy px-5 py-3.5 text-sm font-bold text-white transition hover:bg-dubesia-red disabled:cursor-not-allowed disabled:opacity-60"
+              className="mt-6 flex w-full items-center justify-center rounded-lg bg-blue-600 px-5 py-3.5 text-sm font-bold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
             >
               {processing
-                ? (isResubmission ? 'Mengirim perbaikan...' : 'Mengirim pendaftaran...')
-                : (isResubmission ? 'Kirim Ulang Pendaftaran' : 'Daftar Sekarang')}
+                ? (editMode ? 'Mengirim perbaikan...' : 'Mengirim pendaftaran...')
+                : (editMode ? 'Kirim Ulang untuk Verifikasi' : 'Daftar Sekarang')}
             </button>
 
-            <p className="mt-4 text-center text-sm text-slate-500">
+            {!editMode && <p className="mt-4 text-center text-sm text-slate-500">
               Sudah memiliki akun?{' '}
-              <Link href="/login" className="font-semibold text-dubesia-red hover:underline">
+              <Link href="/login" className="font-semibold text-blue-700 hover:underline">
                 Masuk di sini
               </Link>
-            </p>
+            </p>}
           </section>
         </form>
 
         <aside className="space-y-5 lg:sticky lg:top-24">
           <section className="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm sm:p-6">
             <h2 className="text-base font-bold text-slate-900">
-              Informasi Pembayaran
+              {editMode ? 'Informasi Perbaikan' : 'Informasi Pembayaran'}
             </h2>
 
             <p className="mt-1 text-sm leading-6 text-slate-500">
-              Transfer biaya pendaftaran ke salah satu rekening resmi berikut.
+              {editMode
+                ? 'Tidak perlu membayar ulang. Bukti pembayaran lama tetap digunakan kecuali Anda mengganti file yang diminta admin.'
+                : 'Transfer biaya pendaftaran ke salah satu rekening resmi berikut.'}
             </p>
 
-            <p className="mt-4 text-2xl font-extrabold text-dubesia-navy">
-              {rupiah(biayaTerpilih)}
-            </p>
+            {!editMode && (
+              <>
+                <p className="mt-4 text-2xl font-extrabold text-blue-800">{rupiah(biaya)}</p>
 
-            <div className="mt-4 space-y-3">
-              {rekening.map((account) => (
+                <div className="mt-4 space-y-3">
+                  {rekening.map((account) => (
                 <div
                   key={`${account.bank}-${account.nomor}`}
                   className="rounded-xl border border-slate-200 p-4"
@@ -753,7 +755,7 @@ export default function Create({
                     <button
                       type="button"
                       onClick={() => copyAccount(account.nomor)}
-                      className="shrink-0 rounded-md border border-slate-200 px-2.5 py-1.5 text-xs font-semibold text-dubesia-navy hover:border-dubesia-gold hover:bg-dubesia-gold-soft"
+                      className="shrink-0 rounded-md border border-slate-200 px-2.5 py-1.5 text-xs font-semibold text-blue-700 hover:bg-blue-50"
                     >
                       {copied === account.nomor ? 'Tersalin' : 'Salin'}
                     </button>
@@ -763,54 +765,52 @@ export default function Create({
                     a.n. {account.atas_nama}
                   </p>
                 </div>
-              ))}
-            </div>
+                  ))}
+                </div>
+              </>
+            )}
           </section>
 
-          <section className="rounded-2xl border border-dubesia-gold/40 bg-dubesia-gold-soft p-5 sm:p-6">
-            <h2 className="font-bold text-dubesia-navy">Data Anda Aman</h2>
-            <p className="mt-2 text-sm leading-6 text-slate-700">
+          <section className="rounded-2xl border border-emerald-100 bg-emerald-50 p-5 sm:p-6">
+            <h2 className="font-bold text-emerald-900">Data Anda Aman</h2>
+            <p className="mt-2 text-sm leading-6 text-emerald-800">
               Data pendaftaran digunakan untuk proses administrasi dan
               verifikasi oleh DUBESIA.
             </p>
           </section>
 
           <section className="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm sm:p-6">
-            <h2 className="font-bold text-slate-900">Tahapan Pendaftaran</h2>
+            <h2 className="font-bold text-slate-900">{editMode ? 'Tahapan Perbaikan' : 'Tahapan Pendaftaran'}</h2>
 
             <ol className="mt-4 space-y-4 text-sm text-slate-600">
               <li className="flex gap-3">
-                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-dubesia-navy-soft font-bold text-dubesia-navy">
+                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-blue-50 font-bold text-blue-700">
                   1
                 </span>
                 <span>
-                  <strong className="text-slate-800">Isi formulir</strong>
+                  <strong className="text-slate-800">{editMode ? 'Perbaiki data' : 'Isi formulir'}</strong>
                   <br />
-                  Lengkapi data diri dan akun.
+                  {editMode ? 'Perbarui bagian yang dijelaskan admin.' : 'Lengkapi data diri dan akun.'}
                 </span>
               </li>
 
               <li className="flex gap-3">
-                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-dubesia-navy-soft font-bold text-dubesia-navy">
+                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-blue-50 font-bold text-blue-700">
                   2
                 </span>
                 <span>
-                  <strong className="text-slate-800">
-                    Kirim bukti pembayaran
-                  </strong>
+                  <strong className="text-slate-800">{editMode ? 'Kirim ulang formulir' : 'Kirim bukti pembayaran'}</strong>
                   <br />
-                  Unggah file sesuai format.
+                  {editMode ? 'Data Anda dikirim kembali untuk diperiksa.' : 'Unggah file sesuai format.'}
                 </span>
               </li>
 
               <li className="flex gap-3">
-                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-dubesia-navy-soft font-bold text-dubesia-navy">
+                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-blue-50 font-bold text-blue-700">
                   3
                 </span>
                 <span>
-                  <strong className="text-slate-800">
-                    Tunggu verifikasi admin
-                  </strong>
+                  <strong className="text-slate-800">{editMode ? 'Menunggu verifikasi ulang' : 'Tunggu verifikasi admin'}</strong>
                   <br />
                   Akun diproses sesuai hasil pemeriksaan.
                 </span>

@@ -131,12 +131,11 @@ Route::middleware(['auth', 'verified', 'role:tutor'])
     });
 
 Route::middleware('auth')->group(function () {
-    Route::patch('/pendaftaran/perbaiki', [RegistrasiController::class, 'updateRejected'])
-        ->middleware('role:student')
-        ->name('pendaftaran.perbaiki');
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    Route::get('/pendaftaran/perbaiki', [RegistrasiController::class, 'edit'])->name('registrasi.edit');
+    Route::put('/pendaftaran/perbaiki', [RegistrasiController::class, 'update'])->name('registrasi.update');
 
     // === Tes Level Kelas Routes ===
     Route::prefix('tes-level')->name('tes-level.')->group(function () {

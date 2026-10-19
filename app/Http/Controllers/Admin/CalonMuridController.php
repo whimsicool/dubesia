@@ -29,7 +29,8 @@ class CalonMuridController extends Controller
                     ->where('nama_lengkap', 'like', "%{$term}%")
                     ->orWhere('email', 'like', "%{$term}%"));
             })
-            ->latest()
+            ->orderByRaw('COALESCE(resubmitted_at, created_at) DESC')
+            ->orderByDesc('created_at')
             ->paginate(10)
             ->withQueryString()
             ->through(fn ($p) => [
@@ -40,6 +41,7 @@ class CalonMuridController extends Controller
                 'tanggal_daftar' => $p->created_at->format('d M Y, H:i'),
                 'status'         => $p->status,
                 'status_label'   => Pendaftaran::STATUS_LABEL[$p->status] ?? $p->status,
+                'perbaikan_baru' => $p->status === Pendaftaran::STATUS_MENUNGGU && $p->resubmitted_at !== null,
             ]);
 
         $ringkasan = Pendaftaran::selectRaw('status, count(*) as total')
@@ -78,6 +80,8 @@ class CalonMuridController extends Controller
                 'tanggal_daftar'     => $pendaftaran->created_at->format('d M Y, H:i'),
                 'status'             => $pendaftaran->status,
                 'status_label'       => Pendaftaran::STATUS_LABEL[$pendaftaran->status] ?? $pendaftaran->status,
+                'perbaikan_baru'     => $pendaftaran->status === Pendaftaran::STATUS_MENUNGGU && $pendaftaran->resubmitted_at !== null,
+                'dikirim_ulang_pada' => $pendaftaran->resubmitted_at?->format('d M Y, H:i'),
                 'bukti_url'          => $pendaftaran->bukti_url,
                 'bukti_is_pdf'       => $pendaftaran->bukti_is_pdf,
                 'catatan_verifikasi' => $pendaftaran->catatan_verifikasi,
@@ -156,4 +160,5 @@ class CalonMuridController extends Controller
         return redirect()->route('admin.calon-murid.index')
             ->with('sukses', 'Penolakan berhasil. Catatan perbaikan telah dikirim ke email calon murid.');
     }
+
 }

@@ -85,7 +85,12 @@ export default function Index({ pendaftarans, filters, statuses, ringkasan, flas
                   </td>
                   <td className="px-4 py-3 text-slate-700">{p.program}</td>
                   <td className="whitespace-nowrap px-4 py-3 text-slate-700">{p.tanggal_daftar}</td>
-                  <td className="px-4 py-3"><StatusBadge status={p.status} label={p.status_label} /></td>
+                  <td className="px-4 py-3">
+                    <div className="flex flex-col items-start gap-1.5">
+                      <StatusBadge status={p.status} label={p.status_label} />
+                      {p.perbaikan_baru && <span className="rounded-full bg-sky-100 px-2.5 py-1 text-[11px] font-bold text-sky-800">Perbaikan Baru</span>}
+                    </div>
+                  </td>
                   <td className="px-4 py-3 text-right">
                     <Link href={route('admin.calon-murid.show', p.id)} className="text-sm font-bold text-[#b91c1c] hover:underline">
                       Lihat Detail
