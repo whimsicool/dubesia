@@ -18,15 +18,22 @@ export default function Dashboard({ auth }) {
                         <div className="p-6 text-gray-900">
                             You're logged in!
                             {auth?.user?.role === 'admin' && (
-                                <div className="mt-4">
+                                <div className="mt-4 space-y-2">
                                     <Link
                                         href={route('admin.feedback.index')}
                                         className="inline-flex rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700"
                                     >
                                         Lihat kritik dan saran murid
                                     </Link>
+                                    <Link
+                                        href={route('admin.pendaftaran.index')}
+                                        className="inline-flex rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800"
+                                    >
+                                        Buka verifikasi pendaftaran
+                                    </Link>
                                 </div>
                             )}
+                            
                         </div>
                     </div>
                 </div>

@@ -18,17 +18,17 @@ class RegistrasiController extends Controller
         return Inertia::render('Registrasi/Create', [
             'programs' => collect(Pendaftaran::PROGRAMS)
                 ->map(fn ($label, $value) => [
-                    'value'     => $value,
-                    'label'     => $label,
+                    'value' => $value,
+                    'label' => $label,
                     'deskripsi' => Pendaftaran::PROGRAM_DESKRIPSI[$value] ?? '',
+                    'biaya' => Pendaftaran::BIAYA_PER_PROGRAM[$value],
                 ])
                 ->values(),
-            'biaya'    => Pendaftaran::BIAYA,
             'rekening' => [
                 ['bank' => 'Bank Mandiri',            'nomor' => '137-00-1982736-4', 'atas_nama' => 'Yayasan Duta Bahasa Edukasi'],
                 ['bank' => 'Bank Central Asia (BCA)', 'nomor' => '542-098-1120',     'atas_nama' => 'Yayasan Duta Bahasa Edukasi'],
             ],
-            'sukses'   => session('sukses'),
+            'sukses' => session('sukses'),
         ]);
     }
 
@@ -40,26 +40,26 @@ class RegistrasiController extends Controller
         try {
             DB::transaction(function () use ($data, $path) {
                 $user = User::create([
-                    'name'      => $data['nama_lengkap'],
-                    'username'  => $data['username'],
-                    'email'     => $data['email'],
-                    'password'  => Hash::make($data['password']),
-                    'role'      => 'student',
+                    'name' => $data['nama_lengkap'],
+                    'username' => $data['username'],
+                    'email' => $data['email'],
+                    'password' => Hash::make($data['password']),
+                    'role' => 'student',
                     'is_active' => false, // aktif setelah diverifikasi Admin
                 ]);
 
                 Pendaftaran::create([
-                    'user_id'          => $user->id,
-                    'nama_lengkap'     => $data['nama_lengkap'],
-                    'tanggal_lahir'    => $data['tanggal_lahir'],
-                    'email'            => $data['email'],
-                    'no_whatsapp'      => '62'.$data['no_whatsapp'],
-                    'alamat'           => $data['alamat'],
-                    'program'          => $data['program'],
-                    'pesan_motivasi'   => $data['pesan_motivasi'] ?? null,
+                    'user_id' => $user->id,
+                    'nama_lengkap' => $data['nama_lengkap'],
+                    'tanggal_lahir' => $data['tanggal_lahir'],
+                    'email' => $data['email'],
+                    'no_whatsapp' => '62'.$data['no_whatsapp'],
+                    'alamat' => $data['alamat'],
+                    'program' => $data['program'],
+                    'pesan_motivasi' => $data['pesan_motivasi'] ?? null,
                     'bukti_pembayaran' => $path,
-                    'biaya'            => Pendaftaran::BIAYA,
-                    'status'           => Pendaftaran::STATUS_MENUNGGU,
+                    'biaya' => Pendaftaran::BIAYA_PER_PROGRAM[$data['program']],
+                    'status' => Pendaftaran::STATUS_MENUNGGU,
                 ]);
             });
         } catch (Throwable $e) {
@@ -72,6 +72,6 @@ class RegistrasiController extends Controller
         }
 
         return redirect('/registrasi')
-            ->with('sukses', 'Bukti pembayaran berhasil dikirim, menunggu verifikasi Admin.');
+            ->with('sukses', 'Pendaftaran berhasil dikirim. Masuk ke akun Anda untuk melihat status verifikasi.');
     }
 }

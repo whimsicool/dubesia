@@ -6,7 +6,7 @@ const rupiah = (value) =>
   `Rp ${Number(value ?? 0).toLocaleString('id-ID')}`;
 
 const inputClass =
-  'w-full min-w-0 rounded-lg border border-slate-200 bg-white px-3.5 py-3 text-sm text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100';
+  'w-full min-w-0 rounded-lg border border-slate-200 bg-white px-3.5 py-3 text-sm text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-dubesia-red focus:ring-2 focus:ring-dubesia-red/10';
 
 function Field({ label, required = false, hint, error, children }) {
   return (
@@ -83,21 +83,21 @@ function Shell({ children }) {
           <nav className="flex items-center gap-2 text-sm sm:gap-5">
             <Link
               href="/bantuan-admisi"
-              className="hidden text-slate-600 transition hover:text-blue-700 md:inline"
+              className="hidden text-slate-600 transition hover:text-dubesia-red md:inline"
             >
               Bantuan Admisi
             </Link>
 
             <Link
               href="/panduan-pendaftaran"
-              className="hidden text-slate-600 transition hover:text-blue-700 md:inline"
+              className="hidden text-slate-600 transition hover:text-dubesia-red md:inline"
             >
               Panduan Pendaftaran
             </Link>
 
             <Link
               href="/login"
-              className="rounded-lg bg-blue-50 px-3 py-2 text-center text-xs font-semibold text-blue-900 transition hover:bg-blue-100 sm:px-4 sm:text-sm"
+              className="rounded-lg bg-dubesia-navy px-3 py-2 text-center text-xs font-semibold text-white transition hover:bg-dubesia-red sm:px-4 sm:text-sm"
             >
               Masuk
             </Link>
@@ -128,12 +128,12 @@ function Shell({ children }) {
           <div className="flex flex-wrap gap-4 text-xs font-semibold text-slate-600">
             <Link
               href="/panduan-pendaftaran"
-              className="hover:text-blue-700"
+              className="hover:text-dubesia-red"
             >
               Panduan Pendaftaran
             </Link>
 
-            <Link href="/bantuan-admisi" className="hover:text-blue-700">
+            <Link href="/bantuan-admisi" className="hover:text-dubesia-red">
               Bantuan Admisi
             </Link>
           </div>
@@ -150,7 +150,6 @@ function Shell({ children }) {
 
 export default function Create({
   programs = [],
-  biaya = 250000,
   rekening = [],
   sukses,
 }) {
@@ -168,6 +167,11 @@ export default function Create({
     bukti_pembayaran: null,
     setuju: false,
   });
+
+  const programTerpilih = programs.find(
+    (program) => program.value === data.program,
+  );
+  const biayaTerpilih = programTerpilih?.biaya ?? 0;
 
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmation, setShowConfirmation] = useState(false);
@@ -269,7 +273,7 @@ export default function Create({
 
           <Link
             href="/login"
-            className="mt-6 inline-flex rounded-lg bg-blue-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-blue-700"
+            className="mt-6 inline-flex rounded-lg bg-dubesia-navy px-5 py-3 text-sm font-semibold text-white transition hover:bg-dubesia-red"
           >
             Kembali ke halaman masuk
           </Link>
@@ -280,8 +284,8 @@ export default function Create({
 
   return (
     <Shell>
-      <section className="mb-6 overflow-hidden rounded-2xl bg-gradient-to-r from-slate-950 to-blue-900 px-5 py-7 text-white shadow-sm sm:px-8 sm:py-9">
-        <p className="text-xs font-bold uppercase tracking-[0.18em] text-blue-200">
+      <section className="mb-6 overflow-hidden rounded-2xl bg-gradient-to-r from-dubesia-navy via-dubesia-navy to-dubesia-red px-5 py-7 text-white shadow-sm sm:px-8 sm:py-9">
+        <p className="text-xs font-bold uppercase tracking-[0.18em] text-dubesia-gold-light">
           Pendaftaran Calon Murid
         </p>
 
@@ -289,7 +293,7 @@ export default function Create({
           Formulir Registrasi Calon Murid
         </h1>
 
-        <p className="mt-3 max-w-2xl text-sm leading-6 text-blue-100">
+        <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-100">
           Lengkapi data diri Anda untuk menjadi bagian dari DUBESIA. Bersama
           kami, wujudkan masa depan global Anda.
         </p>
@@ -361,7 +365,7 @@ export default function Create({
                 hint="Gunakan nomor aktif"
                 error={errors.no_whatsapp}
               >
-                <div className="flex min-w-0 rounded-lg border border-slate-200 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-100">
+                <div className="flex min-w-0 rounded-lg border border-slate-200 focus-within:border-dubesia-red focus-within:ring-2 focus-within:ring-dubesia-red/10">
                   <span className="flex items-center rounded-l-lg bg-slate-100 px-3 text-sm font-semibold text-slate-600">
                     +62
                   </span>
@@ -438,7 +442,7 @@ export default function Create({
                   <button
                     type="button"
                     onClick={() => setShowPassword((value) => !value)}
-                    className="absolute inset-y-0 right-3 text-xs font-semibold text-blue-700"
+                      className="absolute inset-y-0 right-3 text-xs font-semibold text-dubesia-red"
                   >
                     {showPassword ? 'Sembunyikan' : 'Lihat'}
                   </button>
@@ -486,7 +490,7 @@ export default function Create({
                       onClick={() =>
                         setShowConfirmation((value) => !value)
                       }
-                      className="absolute inset-y-0 right-3 text-xs font-semibold text-blue-700"
+                    className="absolute inset-y-0 right-3 text-xs font-semibold text-dubesia-red"
                     >
                       {showConfirmation ? 'Sembunyikan' : 'Lihat'}
                     </button>
@@ -509,8 +513,8 @@ export default function Create({
                     key={program.value}
                     className={`flex cursor-pointer gap-3 rounded-xl border p-4 transition ${
                       data.program === program.value
-                        ? 'border-blue-500 bg-blue-50 ring-1 ring-blue-200'
-                        : 'border-slate-200 hover:border-blue-200'
+                        ? 'border-dubesia-red bg-dubesia-red-soft ring-1 ring-dubesia-red/20'
+                        : 'border-slate-200 hover:border-dubesia-gold'
                     }`}
                   >
                     <input
@@ -520,7 +524,7 @@ export default function Create({
                       value={program.value}
                       checked={data.program === program.value}
                       onChange={() => setData('program', program.value)}
-                      className="mt-1 accent-blue-600"
+                      className="mt-1 accent-dubesia-red"
                     />
 
                     <span>
@@ -530,13 +534,16 @@ export default function Create({
                       <span className="mt-1 block text-xs leading-5 text-slate-500">
                         {program.deskripsi}
                       </span>
+                      <span className="mt-2 block text-sm font-semibold text-dubesia-navy">
+                        {rupiah(program.biaya)}
+                      </span>
                     </span>
                   </label>
                 ))}
               </div>
             </Field>
 
-            <div className="mt-4 rounded-xl bg-blue-50 p-4 sm:flex sm:items-center sm:justify-between">
+            <div className="mt-4 rounded-xl border-l-4 border-dubesia-gold bg-dubesia-navy-soft p-4 sm:flex sm:items-center sm:justify-between">
               <div>
                 <p className="text-sm font-semibold text-slate-700">
                   Biaya Pendaftaran
@@ -546,8 +553,8 @@ export default function Create({
                 </p>
               </div>
 
-              <p className="mt-2 text-2xl font-extrabold text-blue-800 sm:mt-0">
-                {rupiah(biaya)}
+              <p className="mt-2 text-2xl font-extrabold text-dubesia-navy sm:mt-0">
+                {rupiah(biayaTerpilih)}
               </p>
             </div>
           </section>
@@ -576,8 +583,8 @@ export default function Create({
                 }}
                 className={`rounded-xl border-2 border-dashed p-6 text-center transition sm:p-8 ${
                   dragging
-                    ? 'border-blue-500 bg-blue-50'
-                    : 'border-slate-200 bg-slate-50 hover:border-blue-300'
+                    ? 'border-dubesia-red bg-dubesia-red-soft'
+                    : 'border-slate-200 bg-slate-50 hover:border-dubesia-gold'
                 }`}
               >
                 <input
@@ -591,7 +598,7 @@ export default function Create({
                   }
                 />
 
-                <div className="text-3xl text-blue-600">↑</div>
+                <div className="text-3xl text-dubesia-red">↑</div>
 
                 {data.bukti_pembayaran ? (
                   <p className="mt-2 break-all text-sm font-semibold text-slate-800">
@@ -611,7 +618,7 @@ export default function Create({
                   <button
                     type="button"
                     onClick={() => fileInput.current?.click()}
-                    className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-700"
+                    className="rounded-lg bg-dubesia-navy px-4 py-2 text-sm font-semibold text-white transition hover:bg-dubesia-red"
                   >
                     Pilih File
                   </button>
@@ -656,7 +663,7 @@ export default function Create({
                   type="checkbox"
                   checked={data.setuju}
                   onChange={(e) => setData('setuju', e.target.checked)}
-                  className="mt-1 h-4 w-4 shrink-0 accent-blue-600"
+                  className="mt-1 h-4 w-4 shrink-0 accent-dubesia-red"
                 />
 
                 <span>
@@ -673,14 +680,14 @@ export default function Create({
             <button
               type="submit"
               disabled={processing}
-              className="mt-6 flex w-full items-center justify-center rounded-lg bg-blue-600 px-5 py-3.5 text-sm font-bold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
+              className="mt-6 flex w-full items-center justify-center rounded-lg bg-dubesia-navy px-5 py-3.5 text-sm font-bold text-white transition hover:bg-dubesia-red disabled:cursor-not-allowed disabled:opacity-60"
             >
               {processing ? 'Mengirim pendaftaran...' : 'Daftar Sekarang'}
             </button>
 
             <p className="mt-4 text-center text-sm text-slate-500">
               Sudah memiliki akun?{' '}
-              <Link href="/login" className="font-semibold text-blue-700 hover:underline">
+              <Link href="/login" className="font-semibold text-dubesia-red hover:underline">
                 Masuk di sini
               </Link>
             </p>
@@ -697,8 +704,8 @@ export default function Create({
               Transfer biaya pendaftaran ke salah satu rekening resmi berikut.
             </p>
 
-            <p className="mt-4 text-2xl font-extrabold text-blue-800">
-              {rupiah(biaya)}
+            <p className="mt-4 text-2xl font-extrabold text-dubesia-navy">
+              {rupiah(biayaTerpilih)}
             </p>
 
             <div className="mt-4 space-y-3">
@@ -719,7 +726,7 @@ export default function Create({
                     <button
                       type="button"
                       onClick={() => copyAccount(account.nomor)}
-                      className="shrink-0 rounded-md border border-slate-200 px-2.5 py-1.5 text-xs font-semibold text-blue-700 hover:bg-blue-50"
+                      className="shrink-0 rounded-md border border-slate-200 px-2.5 py-1.5 text-xs font-semibold text-dubesia-navy hover:border-dubesia-gold hover:bg-dubesia-gold-soft"
                     >
                       {copied === account.nomor ? 'Tersalin' : 'Salin'}
                     </button>
@@ -733,9 +740,9 @@ export default function Create({
             </div>
           </section>
 
-          <section className="rounded-2xl border border-emerald-100 bg-emerald-50 p-5 sm:p-6">
-            <h2 className="font-bold text-emerald-900">Data Anda Aman</h2>
-            <p className="mt-2 text-sm leading-6 text-emerald-800">
+          <section className="rounded-2xl border border-dubesia-gold/40 bg-dubesia-gold-soft p-5 sm:p-6">
+            <h2 className="font-bold text-dubesia-navy">Data Anda Aman</h2>
+            <p className="mt-2 text-sm leading-6 text-slate-700">
               Data pendaftaran digunakan untuk proses administrasi dan
               verifikasi oleh DUBESIA.
             </p>
@@ -746,7 +753,7 @@ export default function Create({
 
             <ol className="mt-4 space-y-4 text-sm text-slate-600">
               <li className="flex gap-3">
-                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-blue-50 font-bold text-blue-700">
+                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-dubesia-navy-soft font-bold text-dubesia-navy">
                   1
                 </span>
                 <span>
@@ -757,7 +764,7 @@ export default function Create({
               </li>
 
               <li className="flex gap-3">
-                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-blue-50 font-bold text-blue-700">
+                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-dubesia-navy-soft font-bold text-dubesia-navy">
                   2
                 </span>
                 <span>
@@ -770,7 +777,7 @@ export default function Create({
               </li>
 
               <li className="flex gap-3">
-                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-blue-50 font-bold text-blue-700">
+                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-dubesia-navy-soft font-bold text-dubesia-navy">
                   3
                 </span>
                 <span>

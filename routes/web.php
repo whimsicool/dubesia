@@ -1,7 +1,10 @@
 <?php
 
 use App\Http\Controllers\Admin\FeedbackController as AdminFeedbackController;
+use App\Http\Controllers\Admin\VerifikasiPendaftaranController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\RegistrasiController;
+use App\Http\Controllers\StatusPendaftaranController;
 use App\Http\Controllers\Student\FeedbackController;
 use App\Http\Controllers\Student\GradeController as StudentGradeViewController;
 use App\Http\Controllers\StudentGradeController;
@@ -10,9 +13,19 @@ use App\Http\Controllers\Tutor\GradeComponentController;
 use App\Http\Controllers\Tutor\StudentClassGradeController;
 use App\Http\Controllers\TutorClassController;
 use App\Http\Controllers\TutorClassStudentController;
-use App\Http\Controllers\RegistrasiController;
+use App\Models\Pendaftaran;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+
+Route::patch(
+    '/admin/pendaftaran/{pendaftaran}/verifikasi',
+    [VerifikasiPendaftaranController::class, 'update']
+)->middleware(['auth', 'verified', 'role:admin'])
+    ->name('admin.pendaftaran.verifikasi');
+
+Route::get('/admin/pendaftaran', [VerifikasiPendaftaranController::class, 'index'])
+    ->middleware(['auth', 'verified', 'role:admin'])
+    ->name('admin.pendaftaran.index');
 
 Route::get('/', function () {
     return auth()->check()
@@ -21,6 +34,12 @@ Route::get('/', function () {
 });
 
 Route::get('/dashboard', function () {
+    $pendaftaran = auth()->user()?->pendaftaran;
+
+    if ($pendaftaran && $pendaftaran->status !== Pendaftaran::STATUS_TERVERIFIKASI) {
+        return redirect()->route('pendaftaran.status');
+    }
+
     $dashboardRoute = match (auth()->user()?->role) {
         'student' => 'student.dashboard',
         'tutor' => 'tutor.dashboard',
@@ -34,6 +53,10 @@ Route::get('/dashboard', function () {
 
     return Inertia::render('Dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
+
+Route::get('/pendaftaran/status', StatusPendaftaranController::class)
+    ->middleware(['auth', 'verified', 'role:student'])
+    ->name('pendaftaran.status');
 
 Route::get('/tutor/dashboard', [TutorClassController::class, 'index'])
     ->middleware(['auth', 'verified', 'role:tutor'])
@@ -122,7 +145,6 @@ Route::middleware('auth')->group(function () {
     });
 
 Route::middleware('guest')->group(function () {
-    Route::get('/registrasi', [RegistrasiController::class, 'create'])->name('registrasi.create');
     Route::post('/registrasi', [RegistrasiController::class, 'store'])->name('registrasi.store');
 });
 
