@@ -7,22 +7,22 @@ use App\Models\User;
 
 class MaterialPolicy
 {
-    /** Guru & admin boleh membuat materi. */
+    /** Hanya tutor yang boleh membuat materi. */
     public function create(User $user): bool
     {
         return $user->canManageMaterials();
     }
 
-    /** Murid hanya melihat materi terbit; pemilik / admin boleh melihat draft (pratinjau). */
+    /** Murid melihat materi terbit; tutor dapat mengelola semua materi. */
     public function view(User $user, Material $material): bool
     {
-        return $material->isPublished() || $this->update($user, $material);
+        return ($user->isStudent() && $material->isPublished()) || $this->update($user, $material);
     }
 
-    /** Guru hanya boleh mengubah materi miliknya sendiri; admin boleh semuanya. */
+    /** Pengelolaan materi tersedia untuk semua akun tutor. */
     public function update(User $user, Material $material): bool
     {
-        return $user->isAdmin() || ($user->canManageMaterials() && $material->user_id === $user->id);
+        return $user->isTutor();
     }
 
     public function delete(User $user, Material $material): bool

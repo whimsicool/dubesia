@@ -23,6 +23,7 @@ class MaterialResource extends JsonResource
     public function toArray(Request $request): array
     {
         $progress = $this->resource->relationLoaded('progresses') ? $this->progresses->first() : null;
+        $fileRoutePrefix = $request->user()?->isTutor() ? 'tutor.materials' : 'materials';
 
         return [
             'id' => $this->id,
@@ -48,8 +49,8 @@ class MaterialResource extends JsonResource
                 'size_label' => Number::fileSize((int) $this->file_size, 1),
                 'mime' => $this->file_mime,
                 'is_pdf' => $this->isPdf(),
-                'url' => route('materials.file', $this->id),
-                'download_url' => route('materials.download', $this->id),
+                'url' => route($fileRoutePrefix.'.file', $this->id),
+                'download_url' => route($fileRoutePrefix.'.download', $this->id),
             ] : null,
 
             'duration_minutes' => $this->duration_minutes,

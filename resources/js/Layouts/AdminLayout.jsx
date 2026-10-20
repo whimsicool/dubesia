@@ -49,10 +49,7 @@ const NAV = [
     },
     {
         heading: 'Pembelajaran & Ujian',
-        items: [
-            { label: 'Materi Belajar', icon: BookOpen, route: 'manage.materials.index', active: 'manage.materials.*' },
-            { label: 'Tes Level Kelas', icon: ListChecks, route: 'admin.placement-tests.index', active: 'admin.placement-tests.*' },
-        ],
+        items: [{ label: 'Tes Level Kelas', icon: ListChecks, route: 'admin.placement-tests.index', active: 'admin.placement-tests.*' }],
     },
     {
         heading: 'Penilaian & Rapor',

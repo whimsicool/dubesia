@@ -20,7 +20,7 @@ function Field({ label, hint, error, children, className = '' }) {
     );
 }
 
-export default function Form({ material, options, routePrefix = 'manage.materials' }) {
+export default function Form({ material, options, routePrefix = 'tutor.materials' }) {
     const isEdit = !!material;
     const [preview, setPreview] = useState(false);
 

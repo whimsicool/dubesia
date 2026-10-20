@@ -30,72 +30,7 @@ class ScheduleViewController extends Controller
         ];
 
         if ($semester) {
-<<<<<<< HEAD
             [$schedules, $options] = $this->loadScheduleData($semester, $user, $filters);
-=======
-            $baseQuery = Schedule::query()
-                ->where('semester_id', $semester->id);
-
-            if ($user->isTutor()) {
-                $baseQuery->whereHas('instructor', fn ($instructor) => $instructor->where(function ($match) use ($user) {
-                    $match->where('user_id', $user->id)->orWhere('email', $user->email);
-                }));
-            } else {
-                $baseQuery->whereHas('students', fn ($student) => $student->where(function ($match) use ($user) {
-                    $match->where('user_id', $user->id)->orWhere('email', $user->email);
-                }));
-            }
-
-            $available = (clone $baseQuery)->with(['program:id,name,category', 'instructor:id,name', 'room:id,name'])->get();
-            $options = [
-                'programs' => $available->pluck('program')->unique('id')->sortBy('name')->values()->map(fn ($program) => [
-                    'id' => $program->id, 'name' => $program->name,
-                ]),
-                'instructors' => $available->pluck('instructor')->unique('id')->sortBy('name')->values()->map(fn ($instructor) => [
-                    'id' => $instructor->id, 'name' => $instructor->name,
-                ]),
-                'rooms' => $available->pluck('room')->unique('id')->sortBy('name')->values()->map(fn ($room) => [
-                    'id' => $room->id, 'name' => $room->name,
-                ]),
-            ];
-
-            $query = clone $baseQuery;
-            foreach (['day' => 'day_of_week', 'program_id' => 'program_id', 'instructor_id' => 'instructor_id', 'room_id' => 'room_id'] as $filter => $column) {
-                if ($filters[$filter]) {
-                    $query->where($column, $filters[$filter]);
-                }
-            }
-            if ($filters['q']) {
-                $like = '%'.addcslashes($filters['q'], '%_\\').'%';
-                $query->where(fn ($search) => $search
-                    ->where('title', 'like', $like)
-                    ->orWhere('class_name', 'like', $like)
-                    ->orWhereHas('program', fn ($program) => $program->where('name', 'like', $like))
-                    ->orWhereHas('instructor', fn ($instructor) => $instructor->where('name', 'like', $like))
-                    ->orWhereHas('room', fn ($room) => $room->where('name', 'like', $like)));
-            }
-
-            $schedules = $query->with(['program:id,name,category', 'instructor:id,name', 'room:id,name,type,platform,capacity', 'students:id'])
-                ->orderBy('day_of_week')->orderBy('start_time')->get()
-                ->map(fn (Schedule $schedule) => [
-                    'id' => $schedule->id,
-                    'title' => $schedule->title,
-                    'class_name' => $schedule->class_name,
-                    'day_of_week' => (int) $schedule->day_of_week,
-                    'day_name' => config('dubesia.days')[$schedule->day_of_week] ?? 'Hari tidak diketahui',
-                    'start_time' => substr($schedule->start_time, 0, 5),
-                    'end_time' => substr($schedule->end_time, 0, 5),
-                    'program' => ['name' => $schedule->program->name, 'category' => $schedule->program->category->value],
-                    'instructor' => ['name' => $schedule->instructor->name, 'initials' => $schedule->instructor->initials],
-                    'room' => [
-                        'name' => $schedule->room->name,
-                        'type' => $schedule->room->type->value,
-                        'platform' => $schedule->room->platform,
-                        'capacity' => $schedule->room->capacity,
-                    ],
-                    'participants' => $schedule->students->count(),
-                ])->values();
->>>>>>> cf5258e (update tutor)
         }
 
         return Inertia::render('Schedules/Index', [
