@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Manage;
 
 use App\Enums\MaterialType;
+use App\Http\Controllers\MaterialController as StudentMaterialController;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Manage\MaterialRequest;
 use App\Http\Resources\MaterialResource;
@@ -11,13 +12,14 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
 use Inertia\Response;
 
 /**
- * Kelola materi (guru & admin). Materi bersifat umum: tidak terikat kelas / jadwal.
+ * Kelola materi oleh tutor. Materi bersifat umum: tidak terikat kelas / jadwal.
  */
 class MaterialController extends Controller
 {
@@ -31,6 +33,7 @@ class MaterialController extends Controller
         $status = in_array($request->query('status'), [Material::STATUS_DRAFT, Material::STATUS_PUBLISHED], true)
             ? $request->query('status') : null;
         $scope = $request->query('scope') === 'mine' ? 'mine' : 'all';
+        $view = in_array($request->query('view'), ['list', 'grid'], true) ? $request->query('view') : 'list';
 
         $materials = Material::query()
             ->with('uploader:id,name')
@@ -53,28 +56,20 @@ class MaterialController extends Controller
             ->withQueryString()
             ->through(fn (Material $m) => MaterialResource::make($m)->resolve());
 
-        $counts = Material::query()->selectRaw('status, count(*) as total')->groupBy('status')->pluck('total', 'status');
-
         return Inertia::render('Manage/Materials/Index', [
-            'routePrefix' => $request->routeIs('tutor.materials.*') ? 'tutor.materials' : 'manage.materials',
+            'routePrefix' => 'tutor.materials',
             'materials' => $materials,
-            'filters' => ['q' => $q ?: null, 'type' => $type?->value, 'status' => $status, 'scope' => $scope],
-            'stats' => [
-                'total' => (int) $counts->sum(),
-                'published' => (int) ($counts[Material::STATUS_PUBLISHED] ?? 0),
-                'draft' => (int) ($counts[Material::STATUS_DRAFT] ?? 0),
-                'mine' => Material::where('user_id', $user->id)->count(),
-            ],
+            'filters' => ['q' => $q ?: null, 'type' => $type?->value, 'status' => $status, 'scope' => $scope, 'view' => $view],
             'types' => $this->typeOptions(),
         ]);
     }
 
-    public function create(Request $request): Response
+    public function create(): Response
     {
         Gate::authorize('create', Material::class);
 
         return Inertia::render('Manage/Materials/Form', [
-            'routePrefix' => $request->routeIs('tutor.materials.*') ? 'tutor.materials' : 'manage.materials',
+            'routePrefix' => 'tutor.materials',
             'material' => null,
             'options' => $this->formOptions(),
         ]);
@@ -84,7 +79,7 @@ class MaterialController extends Controller
     {
         $material = $this->persist(new Material(['user_id' => $request->user()->id]), $request);
 
-        return redirect()->route($this->routePrefix($request).'.index')->with('success', [
+        return redirect()->route('tutor.materials.index')->with('success', [
             'title' => $material->isPublished() ? 'Materi Diterbitkan' : 'Draft Tersimpan',
             'message' => $material->isPublished()
                 ? sprintf('"%s" sekarang tersedia untuk seluruh murid.', $material->title)
@@ -92,22 +87,41 @@ class MaterialController extends Controller
         ]);
     }
 
-    public function edit(Request $request, Material $material): Response
+    public function edit(Material $material): Response
     {
         Gate::authorize('update', $material);
 
         return Inertia::render('Manage/Materials/Form', [
-            'routePrefix' => $request->routeIs('tutor.materials.*') ? 'tutor.materials' : 'manage.materials',
+            'routePrefix' => 'tutor.materials',
             'material' => MaterialResource::make($material->load('uploader:id,name'))->withBody()->resolve(),
             'options' => $this->formOptions(),
         ]);
+    }
+
+    public function preview(Material $material): Response
+    {
+        Gate::authorize('view', $material);
+
+        return Inertia::render('Tutor/Materials/Preview', [
+            'material' => MaterialResource::make($material->load('uploader:id,name'))->withBody()->resolve(),
+        ]);
+    }
+
+    public function file(StudentMaterialController $materials, Material $material): BinaryFileResponse
+    {
+        return $materials->file($material);
+    }
+
+    public function download(StudentMaterialController $materials, Material $material): BinaryFileResponse
+    {
+        return $materials->download($material);
     }
 
     public function update(MaterialRequest $request, Material $material): RedirectResponse
     {
         $this->persist($material, $request);
 
-        return redirect()->route($this->routePrefix($request).'.index')->with('success', [
+        return redirect()->route('tutor.materials.index')->with('success', [
             'title' => 'Materi Diperbarui',
             'message' => sprintf('Perubahan pada "%s" berhasil disimpan.', $material->title),
         ]);
@@ -199,11 +213,6 @@ class MaterialController extends Controller
         });
 
         return $material;
-    }
-
-    private function routePrefix(Request $request): string
-    {
-        return $request->routeIs('tutor.materials.*') ? 'tutor.materials' : 'manage.materials';
     }
 
     /** @return array<int, array{value: string, label: string}> */

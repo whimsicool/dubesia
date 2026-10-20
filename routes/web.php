@@ -11,12 +11,20 @@ Route::get('/', function () {
 });
 
 Route::get('/dashboard', function () {
+    if (auth()->user()?->role === 'tutor') {
+        return redirect()->route('tutor.dashboard');
+    }
+
+    if (auth()->user()?->role === 'admin') {
+        return redirect()->route('admin.dashboard');
+    }
+
     return Inertia::render('Dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::get('/tutor/dashboard', function () {
-    return Inertia::render('Dashboard');
-})->middleware(['auth', 'verified', 'role:tutor,admin'])->name('tutor.dashboard');
+    return Inertia::render('Tutor/Dashboard');
+})->middleware(['auth', 'verified', 'role:tutor'])->name('tutor.dashboard');
 
 Route::get('/admin/dashboard', function () {
     return Inertia::render('Dashboard');

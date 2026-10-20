@@ -1,21 +1,19 @@
 import { useEffect, useRef, useState } from 'react';
-import { Link, router, usePage } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
 import {
-    Bell,
+    Award,
     BookOpen,
     CalendarDays,
     ChevronDown,
     ClipboardCheck,
     FileText,
-    GraduationCap,
     LayoutGrid,
     ListChecks,
     Menu,
     MessageSquare,
     Printer,
-    Search,
-    Star,
     UserCheck,
+    UserRound,
     Users,
     X,
 } from 'lucide-react';
@@ -27,7 +25,7 @@ import {
 const NAV = [
     {
         heading: 'Utama',
-        items: [{ label: 'Dashboard Ringkasan', icon: LayoutGrid, route: 'dashboard' }],
+        items: [{ label: 'Dashboard', icon: LayoutGrid, route: 'admin.dashboard', active: 'admin.dashboard' }],
     },
     {
         heading: 'Pengguna & Verifikasi',
@@ -51,15 +49,11 @@ const NAV = [
     },
     {
         heading: 'Pembelajaran & Ujian',
-        items: [
-            { label: 'Materi Belajar', icon: BookOpen, route: 'manage.materials.index', active: 'manage.materials.*' },
-            { label: 'Tes Level Kelas', icon: ListChecks, route: 'admin.placement-tests.index', active: 'admin.placement-tests.*' },
-        ],
+        items: [{ label: 'Tes Level Kelas', icon: ListChecks, route: 'admin.placement-tests.index', active: 'admin.placement-tests.*' }],
     },
     {
         heading: 'Penilaian & Rapor',
         items: [
-            { label: 'Pengelolaan Nilai', icon: Star, route: 'admin.grades.index', active: 'admin.grades.*' },
             { label: 'Laporan & Rapor', icon: FileText, route: 'admin.reports.index', active: 'admin.reports.*' },
         ],
     },
@@ -103,7 +97,7 @@ function NavItem({ item, badgeCount }) {
     return (
         <Link
             href={route(item.route)}
-            className={`${base} ${active ? 'bg-white/10 text-white' : 'text-slate-300 hover:bg-white/5 hover:text-white'}`}
+            className={`${base} border-l-4 ${active ? 'border-red-500 bg-white text-slate-950 shadow-sm' : 'border-transparent text-slate-200 hover:bg-white/10 hover:text-white'}`}
         >
             {content}
         </Link>
@@ -112,33 +106,53 @@ function NavItem({ item, badgeCount }) {
 
 function Sidebar({ open, onClose, pendingRegistrations, readOnly, user }) {
     const scheduleRoute = user?.role === 'tutor' ? 'tutor.schedules.index' : 'schedules.index';
-    const isTutor = user?.role === 'tutor';
-    const groups = readOnly
-        ? [
-              { heading: 'Utama', items: [{ label: 'Dashboard', icon: LayoutGrid, route: 'dashboard' }] },
-              { heading: 'Akademik & Jadwal', items: [{ label: 'Jadwal Belajar', icon: CalendarDays, route: scheduleRoute }] },
-              ...(isTutor
-                  ? [{ heading: 'Pembelajaran', items: [{ label: 'Kelola Materi', icon: BookOpen, route: 'tutor.materials.index', active: 'tutor.materials.*' }] }]
-                  : []),
-          ]
-        : NAV;
+    const studentGroups = [
+        {
+            heading: 'Menu Murid',
+            items: [
+                { label: 'Dashboard', icon: LayoutGrid, route: 'dashboard', active: 'dashboard' },
+                { label: 'Profil', icon: UserRound, route: 'profile.edit', active: 'profile.*' },
+                { label: 'Jadwal', icon: CalendarDays, route: 'schedules.index', active: 'schedules.*' },
+                { label: 'Materi', icon: BookOpen, route: 'materials.index', active: 'materials.*' },
+                { label: 'Nilai', icon: Award, route: 'student.grades.index', active: 'student.grades.*' },
+                { label: 'Isi Kritik & Saran', icon: MessageSquare, route: 'student.feedback.create', active: 'student.feedback.*' },
+            ],
+        },
+    ];
+    const tutorGroups = [
+        {
+            heading: 'Utama',
+            items: [{ label: 'Dashboard', icon: LayoutGrid, route: 'tutor.dashboard', active: 'tutor.dashboard' }],
+        },
+        {
+            heading: 'Kegiatan Mengajar',
+            items: [
+                { label: 'Jadwal Mengajar', icon: CalendarDays, route: scheduleRoute, active: 'tutor.schedules.*' },
+                { label: 'Kelola Presensi', icon: ClipboardCheck, route: 'tutor.attendances.index', active: 'tutor.attendances.*' },
+                { label: 'Kelola Materi', icon: BookOpen, route: 'tutor.materials.index', active: 'tutor.materials.*' },
+                { label: 'Kelola Nilai', icon: Award, route: 'tutor.grades.index', active: 'tutor.grades.*' },
+            ],
+        },
+    ];
+    const groups = !readOnly ? NAV : user?.role === 'student' ? studentGroups : tutorGroups;
     return (
         <>
             {open && <div className="fixed inset-0 z-30 bg-slate-900/50 lg:hidden print:hidden" onClick={onClose} />}
 
             <aside
-                className={`fixed inset-y-0 left-0 z-40 flex w-64 flex-col bg-sidebar text-white transition-transform print:hidden lg:translate-x-0 ${
+                className={`fixed inset-y-0 left-0 z-40 flex w-64 flex-col bg-[#0a1530] text-white transition-transform print:hidden lg:translate-x-0 ${
                     open ? 'translate-x-0' : '-translate-x-full'
                 }`}
             >
                 <div className="flex items-center gap-3 px-5 py-5">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white text-red-700">
-                        <GraduationCap className="h-6 w-6" />
-                    </div>
+                    <img
+                        src="/images/dubesia-logo.png"
+                        alt="Logo Dubesia"
+                        className="h-10 w-10 shrink-0 rounded-full bg-white object-contain"
+                    />
                     <div className="min-w-0">
                         <div className="flex items-center gap-2">
-                            <span className="text-lg font-extrabold tracking-tight">DUBESIA</span>
-                            <span className="rounded bg-red-700 px-1.5 py-0.5 text-[10px] font-bold">V2.4</span>
+                            <span className="text-lg font-extrabold tracking-tight text-white">DUBESIA</span>
                         </div>
                         <p className="truncate text-[11px] text-slate-400">Duta Bahasa Edukasi Semesta</p>
                     </div>
@@ -154,11 +168,13 @@ function Sidebar({ open, onClose, pendingRegistrations, readOnly, user }) {
                 </div>
 
                 <nav className="mt-4 flex-1 space-y-5 overflow-y-auto border-t border-white/10 px-4 py-5">
-                    {groups.map((group) => (
+                    {groups.filter((group) => group.items.length > 0).map((group) => (
                         <div key={group.heading}>
-                            <p className="mb-2 px-3 text-[11px] font-semibold uppercase tracking-wider text-slate-500">
-                                {group.heading}
-                            </p>
+                            {group.heading === 'Layanan Aspirasi' && (
+                                <p className="mb-2 px-3 text-[11px] font-semibold uppercase tracking-wider text-slate-400">
+                                    {group.heading}
+                                </p>
+                            )}
                             <div className="space-y-0.5">
                                 {group.items.map((item) => (
                                     <NavItem key={item.label} item={item} badgeCount={pendingRegistrations} />
@@ -176,33 +192,6 @@ function Sidebar({ open, onClose, pendingRegistrations, readOnly, user }) {
                 </div>
             </aside>
         </>
-    );
-}
-
-function GlobalSearch({ routeName = 'admin.schedules.index', readOnly = false }) {
-    const { filters } = usePage().props;
-    const [value, setValue] = useState(filters?.q ?? '');
-
-    useEffect(() => setValue(filters?.q ?? ''), [filters?.q]);
-
-    const submit = (e) => {
-        e.preventDefault();
-        router.get(route(routeName), value.trim() ? { q: value.trim() } : {}, {
-            preserveScroll: true,
-        });
-    };
-
-    return (
-        <form onSubmit={submit} className="relative hidden min-w-0 max-w-xl flex-1 md:block">
-            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-            <input
-                type="search"
-                value={value}
-                onChange={(e) => setValue(e.target.value)}
-                placeholder={readOnly ? 'Cari jadwal, kelas, program, atau ruang...' : 'Cari jadwal, NISN, nama murid, pengajar, atau ruang...'}
-                className="w-full rounded-lg border-0 bg-slate-100 py-2.5 pl-9 pr-3 text-sm text-slate-700 placeholder:text-slate-400 focus:ring-2 focus:ring-slate-900"
-            />
-        </form>
     );
 }
 
@@ -259,11 +248,9 @@ function UserMenu({ user }) {
     );
 }
 
-export default function AdminLayout({ semesterName, readOnly = false, children }) {
+export default function AdminLayout({ readOnly = false, children }) {
     const { auth, pendingRegistrations = 0 } = usePage().props;
     const [sidebarOpen, setSidebarOpen] = useState(false);
-    const scheduleRoute = auth.user.role === 'tutor' ? 'tutor.schedules.index' : 'schedules.index';
-
     return (
         <div className="min-h-screen bg-slate-50 text-slate-900">
             <Sidebar
@@ -285,29 +272,20 @@ export default function AdminLayout({ semesterName, readOnly = false, children }
                         <Menu className="h-5 w-5" />
                     </button>
 
-                    {semesterName && (
-                        <span className="flex min-w-0 shrink items-center gap-2 truncate rounded-lg bg-slate-100 px-3 py-2 text-xs font-semibold text-slate-700">
-                            <CalendarDays className="h-4 w-4 text-red-700" />
-                            Sem. {semesterName}
-                        </span>
-                    )}
-
-                    <GlobalSearch routeName={readOnly ? scheduleRoute : 'admin.schedules.index'} readOnly={readOnly} />
-
                     <div className="ml-auto flex items-center gap-2 sm:gap-4">
-                        <button
-                            type="button"
-                            onClick={() => window.print()}
-                            className="hidden rounded-lg p-2 text-slate-600 hover:bg-slate-100 sm:block"
-                            aria-label="Cetak halaman"
-                        >
-                            <Printer className="h-5 w-5" />
-                        </button>
-                        <button type="button" className="relative rounded-lg p-2 text-slate-600 hover:bg-slate-100" aria-label="Notifikasi">
-                            <Bell className="h-5 w-5" />
-                            <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-red-600" />
-                        </button>
-                        <span className="hidden h-8 w-px bg-slate-200 sm:block" />
+                        {!readOnly && (
+                            <>
+                                <button
+                                    type="button"
+                                    onClick={() => window.print()}
+                                    className="hidden rounded-lg p-2 text-slate-600 hover:bg-slate-100 sm:block"
+                                    aria-label="Cetak halaman"
+                                >
+                                    <Printer className="h-5 w-5" />
+                                </button>
+                                <span className="hidden h-8 w-px bg-slate-200 sm:block" />
+                            </>
+                        )}
                         <UserMenu user={auth.user} />
                     </div>
                 </header>

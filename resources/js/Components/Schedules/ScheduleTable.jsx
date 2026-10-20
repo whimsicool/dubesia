@@ -1,6 +1,6 @@
 import { Pencil, Trash2 } from 'lucide-react';
 import RoomIcon from './RoomIcon';
-import { CATEGORY_STYLES, DAY_NAMES } from './constants';
+import { CATEGORY_STYLES, DAY_NAMES, formatDate } from './constants';
 
 export default function ScheduleTable({ schedules, onEdit, onDelete, readOnly = false }) {
     if (schedules.length === 0) {
@@ -27,12 +27,12 @@ export default function ScheduleTable({ schedules, onEdit, onDelete, readOnly = 
                 </thead>
                 <tbody className="divide-y divide-slate-100">
                     {schedules.map((s) => {
-                        const style = CATEGORY_STYLES[s.program.category] ?? CATEGORY_STYLES.english;
+                        const style = CATEGORY_STYLES[s.program?.category] ?? CATEGORY_STYLES.english;
 
                         return (
                             <tr key={s.id} className="hover:bg-slate-50/60">
                                 <td className="whitespace-nowrap px-4 py-3">
-                                    <p className="font-semibold text-slate-900">{DAY_NAMES[s.day_of_week]}</p>
+                                    <p className="font-semibold text-slate-900">{s.scheduled_date ? formatDate(s.scheduled_date) : `Setiap ${DAY_NAMES[s.day_of_week]}`}</p>
                                     <span className={`mt-1 inline-block rounded px-1.5 py-0.5 text-[11px] font-bold ${style.chip}`}>
                                         {s.start_time} - {s.end_time}
                                     </span>
@@ -42,7 +42,7 @@ export default function ScheduleTable({ schedules, onEdit, onDelete, readOnly = 
                                     <p className="text-xs text-slate-500">{s.class_name}</p>
                                 </td>
                                 <td className="px-4 py-3">
-                                    <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${style.badge}`}>{s.program.name}</span>
+                                    <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${style.badge}`}>{s.program?.name ?? '—'}</span>
                                 </td>
                                 <td className="px-4 py-3">
                                     <span className="flex items-center gap-2">

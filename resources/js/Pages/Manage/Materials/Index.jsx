@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Head, Link, router, usePage } from '@inertiajs/react';
-import { Eye, EyeOff, ExternalLink, Pencil, Plus, Search, Star, Trash2, TriangleAlert } from 'lucide-react';
+import { CalendarDays, CheckCircle2, ExternalLink, Grid2X2, List, Pencil, Plus, Search, Star, Trash2, TriangleAlert, Upload, UserRound, Users } from 'lucide-react';
 import PortalLayout from '@/Layouts/PortalLayout';
 import Modal from '@/Components/Admin/Modal';
 import Pagination from '@/Components/Common/Pagination';
@@ -8,16 +8,52 @@ import FlashBanner from '@/Components/Schedules/FlashBanner';
 import { TYPE_META, formatDate, metaLine } from '@/Components/Materials/constants';
 import { cleanParams } from '@/Components/Schedules/constants';
 
-function StatBox({ label, value }) {
+function MaterialActions({ material, routePrefix, onTogglePublish, onDelete }) {
     return (
-        <div className="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm">
-            <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">{label}</p>
-            <p className="mt-2 text-3xl font-extrabold text-slate-900">{value}</p>
+        <div className="flex items-center justify-end gap-0.5">
+            <Link
+                href={route(`${routePrefix}.preview`, material.id)}
+                className="inline-flex rounded-lg p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-900"
+                aria-label={`Pratinjau ${material.title}`}
+                title="Pratinjau materi"
+            >
+                <ExternalLink className="h-4 w-4" />
+            </Link>
+            {material.can_edit && (
+                <>
+                    <button
+                        type="button"
+                        onClick={() => onTogglePublish(material)}
+                        className={`rounded-lg p-2 transition-colors ${material.status === 'published' ? 'text-emerald-600 hover:bg-emerald-50 hover:text-emerald-700' : 'text-amber-600 hover:bg-amber-50 hover:text-amber-700'}`}
+                        aria-label={material.status === 'published' ? `${material.title} sudah tersedia untuk murid. Klik untuk menariknya menjadi draft.` : `${material.title} masih draft. Klik untuk menerbitkannya kepada murid.`}
+                        title={material.status === 'published' ? 'Sudah terbit untuk murid — klik untuk tarik ke draft' : 'Masih draft — klik untuk terbitkan kepada murid'}
+                    >
+                        {material.status === 'published' ? <CheckCircle2 className="h-4 w-4" /> : <Upload className="h-4 w-4" />}
+                    </button>
+                    <Link
+                        href={route(`${routePrefix}.edit`, material.id)}
+                        className="inline-flex rounded-lg p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-900"
+                        aria-label={`Ubah ${material.title}`}
+                        title="Edit materi"
+                    >
+                        <Pencil className="h-4 w-4" />
+                    </Link>
+                    <button
+                        type="button"
+                        onClick={() => onDelete(material)}
+                        className="rounded-lg p-2 text-slate-500 hover:bg-red-50 hover:text-red-700"
+                        aria-label={`Hapus ${material.title}`}
+                        title="Hapus materi"
+                    >
+                        <Trash2 className="h-4 w-4" />
+                    </button>
+                </>
+            )}
         </div>
     );
 }
 
-export default function Index({ materials, filters, stats, types, routePrefix = 'manage.materials' }) {
+export default function Index({ materials, filters, types, routePrefix = 'tutor.materials' }) {
     const { flash } = usePage().props;
     const [deleting, setDeleting] = useState(null);
     const [processing, setProcessing] = useState(false);
@@ -65,13 +101,6 @@ export default function Index({ materials, filters, stats, types, routePrefix = 
                 </Link>
             </div>
 
-            <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-                <StatBox label="Total materi" value={stats.total} />
-                <StatBox label="Terbit" value={stats.published} />
-                <StatBox label="Draft" value={stats.draft} />
-                <StatBox label="Materi saya" value={stats.mine} />
-            </div>
-
             <div className="mt-5 flex flex-col gap-3 rounded-2xl border border-slate-100 bg-white p-4 shadow-sm lg:flex-row lg:items-center">
                 <form
                     className="relative flex-1"
@@ -106,11 +135,68 @@ export default function Index({ materials, filters, stats, types, routePrefix = 
                     <option value="all">Semua Guru</option>
                     <option value="mine">Milik Saya</option>
                 </select>
+                <div className="flex shrink-0 items-center gap-1 rounded-lg bg-slate-100 p-1" aria-label="Tampilan materi">
+                    {[
+                        { value: 'list', label: 'Daftar', icon: List },
+                        { value: 'grid', label: 'Kartu', icon: Grid2X2 },
+                    ].map(({ value, label, icon: Icon }) => (
+                        <button
+                            key={value}
+                            type="button"
+                            onClick={() => visit({ view: value })}
+                            aria-pressed={(filters.view ?? 'list') === value}
+                            className={`inline-flex items-center gap-1.5 rounded-md px-2.5 py-2 text-xs font-semibold transition-colors ${(filters.view ?? 'list') === value ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-900'}`}
+                        >
+                            <Icon className="h-4 w-4" /> {label}
+                        </button>
+                    ))}
+                </div>
             </div>
 
-            <div className="mt-5 overflow-x-auto rounded-2xl border border-slate-100 bg-white shadow-sm">
+            <div className={`mt-5 ${filters.view === 'grid' ? '' : 'overflow-x-auto'} rounded-2xl border border-slate-100 bg-white shadow-sm`}>
                 {materials.data.length === 0 ? (
                     <p className="p-12 text-center text-sm text-slate-500">Belum ada materi. Klik “Tambah Materi” untuk mengunggah yang pertama.</p>
+                ) : filters.view === 'grid' ? (
+                    <div className="grid gap-5 p-4 sm:grid-cols-2 xl:grid-cols-3">
+                        {materials.data.map((m) => {
+                            const meta = TYPE_META[m.type] ?? TYPE_META.document;
+                            const Icon = meta.icon;
+
+                            return (
+                                <article key={m.id} className={`flex min-h-[340px] flex-col rounded-2xl border border-x-slate-200 border-b-slate-200 border-t-4 bg-white p-5 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md ${meta.bar}`}>
+                                    <div className="flex flex-wrap items-center gap-2">
+                                        <span className={`rounded px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide ${meta.chip}`}>{m.topic || meta.label}</span>
+                                        {m.level && <span className="rounded bg-slate-100 px-2 py-1 text-[10px] font-bold uppercase tracking-wide text-slate-600">{m.level}</span>}
+                                        <span className={`ml-auto rounded px-2 py-1 text-[10px] font-bold ${m.status === 'published' ? 'bg-emerald-50 text-emerald-700' : 'bg-slate-100 text-slate-600'}`}>
+                                            {m.status === 'published' ? 'Terbit' : 'Draft'}
+                                        </span>
+                                    </div>
+                                    <h2 className="mt-4 flex items-start gap-2 text-lg font-bold leading-snug text-slate-900">
+                                        {m.title}
+                                        {m.is_featured && <Star className="mt-0.5 h-4 w-4 shrink-0 fill-amber-400 text-amber-400" aria-label="Rekomendasi" />}
+                                    </h2>
+                                    <p className="mt-2 line-clamp-3 min-h-[60px] text-sm leading-relaxed text-slate-600">
+                                        {m.description || 'Belum ada deskripsi untuk materi ini.'}
+                                    </p>
+                                    <ul className="mt-4 space-y-2 text-xs text-slate-600">
+                                        <li className="flex items-center gap-2"><Icon className={`h-4 w-4 ${meta.text}`} /> {metaLine(m)}</li>
+                                        <li className="flex items-center gap-2"><UserRound className="h-4 w-4 text-slate-400" /> {m.uploader?.name ?? '—'}</li>
+                                        <li className="flex items-center gap-2"><CalendarDays className="h-4 w-4 text-slate-400" /> Diunggah: {formatDate(m.created_at)}</li>
+                                    </ul>
+                                    <div className="mt-auto pt-5">
+                                        <div className="mb-3 flex items-center gap-2 text-xs font-semibold text-slate-500">
+                                            <Users className="h-4 w-4 text-slate-400" />
+                                            <span>{m.opened_count ?? 0} membuka · {m.completed_count ?? 0} selesai</span>
+                                        </div>
+                                        <div className="flex items-center justify-between gap-2 border-t border-slate-100 pt-3">
+                                            <span className="text-[11px] text-slate-400">Aksi materi</span>
+                                            <MaterialActions material={m} routePrefix={routePrefix} onTogglePublish={togglePublish} onDelete={setDeleting} />
+                                        </div>
+                                    </div>
+                                </article>
+                            );
+                        })}
+                    </div>
                 ) : (
                     <table className="min-w-full divide-y divide-slate-100 text-sm">
                         <thead className="bg-slate-50 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-500">
@@ -164,42 +250,7 @@ export default function Index({ materials, filters, stats, types, routePrefix = 
                                             <span className="block text-xs text-slate-400">{formatDate(m.created_at)}</span>
                                         </td>
                                         <td className="whitespace-nowrap px-4 py-3 text-right">
-                                            <Link
-                                                href={route('materials.index', { material: m.id })}
-                                                className="inline-flex rounded-lg p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-900"
-                                                aria-label={`Pratinjau ${m.title}`}
-                                                title="Pratinjau (tampilan murid)"
-                                            >
-                                                <ExternalLink className="h-4 w-4" />
-                                            </Link>
-                                            {m.can_edit && (
-                                                <>
-                                                    <button
-                                                        type="button"
-                                                        onClick={() => togglePublish(m)}
-                                                        className="rounded-lg p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-900"
-                                                        aria-label={m.status === 'published' ? `Tarik ${m.title} ke draft` : `Terbitkan ${m.title}`}
-                                                        title={m.status === 'published' ? 'Tarik ke draft' : 'Terbitkan'}
-                                                    >
-                                                        {m.status === 'published' ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                                                    </button>
-                                                    <Link
-                                                        href={route(`${routePrefix}.edit`, m.id)}
-                                                        className="inline-flex rounded-lg p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-900"
-                                                        aria-label={`Ubah ${m.title}`}
-                                                    >
-                                                        <Pencil className="h-4 w-4" />
-                                                    </Link>
-                                                    <button
-                                                        type="button"
-                                                        onClick={() => setDeleting(m)}
-                                                        className="rounded-lg p-2 text-slate-500 hover:bg-red-50 hover:text-red-700"
-                                                        aria-label={`Hapus ${m.title}`}
-                                                    >
-                                                        <Trash2 className="h-4 w-4" />
-                                                    </button>
-                                                </>
-                                            )}
+                                            <MaterialActions material={m} routePrefix={routePrefix} onTogglePublish={togglePublish} onDelete={setDeleting} />
                                         </td>
                                     </tr>
                                 );

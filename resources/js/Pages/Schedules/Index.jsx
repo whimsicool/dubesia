@@ -4,6 +4,7 @@ import { Printer } from 'lucide-react';
 import AdminLayout from '@/Layouts/AdminLayout';
 import ScheduleFilters from '@/Components/Schedules/ScheduleFilters';
 import WeekCalendar from '@/Components/Schedules/WeekCalendar';
+import MonthCalendar from '@/Components/Schedules/MonthCalendar';
 import ScheduleTable from '@/Components/Schedules/ScheduleTable';
 import { cleanParams, formatWeekRange } from '@/Components/Schedules/constants';
 
@@ -17,15 +18,13 @@ export default function Index({ semester, week, filters, schedules, options, aud
     };
 
     return (
-        <AdminLayout semesterName={semester?.name} readOnly>
+        <AdminLayout readOnly>
             <Head title={isTutor ? 'Jadwal Tutor' : 'Jadwal Belajar'} />
 
             <div className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
                 <div>
                     <nav className="flex flex-wrap items-center gap-2 text-[11px] font-semibold uppercase tracking-wider text-slate-500 print:hidden">
-                        <Link href={route('dashboard')} className="hover:text-slate-900">Dashboard</Link>
-                        <span>›</span>
-                        <span>Akademik & Jadwal</span>
+                        <Link href={route(isTutor ? 'tutor.dashboard' : 'dashboard')} className="hover:text-slate-900">Dashboard</Link>
                         <span>›</span>
                         <span className="text-red-700">{isTutor ? 'Jadwal Tutor' : 'Jadwal Belajar'}</span>
                     </nav>
@@ -33,9 +32,7 @@ export default function Index({ semester, week, filters, schedules, options, aud
                         {isTutor ? 'Jadwal Tutor' : 'Jadwal Belajar'}
                     </h1>
                     <p className="mt-2 max-w-2xl text-sm text-slate-600">
-                        {semester
-                            ? `Jadwal kelas Anda untuk Semester ${semester.name}.`
-                            : 'Jadwal kelas untuk semester aktif akan ditampilkan di halaman ini.'}
+                        Jadwal kelas Anda untuk periode belajar aktif.
                     </p>
                     {week && <p className="mt-1 hidden text-sm font-semibold text-slate-700 print:block">Pekan {formatWeekRange(week.start, week.end)}</p>}
                 </div>
@@ -52,8 +49,8 @@ export default function Index({ semester, week, filters, schedules, options, aud
 
             {!semester ? (
                 <div className="rounded-2xl border border-amber-200 bg-amber-50 p-6 text-sm text-amber-900">
-                    <p className="font-semibold">Belum ada semester aktif.</p>
-                    <p className="mt-1">Hubungi admin untuk mengaktifkan semester.</p>
+                    <p className="font-semibold">Belum ada periode jadwal aktif.</p>
+                    <p className="mt-1">Hubungi admin untuk mengaktifkan periode jadwal.</p>
                 </div>
             ) : (
                 <div className="space-y-5">
@@ -68,6 +65,15 @@ export default function Index({ semester, week, filters, schedules, options, aud
                     {view === 'calendar' ? (
                         <WeekCalendar
                             week={week}
+                            schedules={schedules}
+                            dayFilter={filters.day}
+                            onNavigate={(date) => visit({ week: date })}
+                            readOnly
+                        />
+                    ) : view === 'month' ? (
+                        <MonthCalendar
+                            week={week}
+                            semester={semester}
                             schedules={schedules}
                             dayFilter={filters.day}
                             onNavigate={(date) => visit({ week: date })}

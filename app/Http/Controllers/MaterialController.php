@@ -18,7 +18,7 @@ use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 
 /**
- * Pustaka materi untuk murid (dan pratinjau untuk guru/admin).
+ * Pustaka materi untuk murid.
  * Semua materi TERBIT tampil untuk semua murid — tidak bergantung kelas atau jadwal.
  */
 class MaterialController extends Controller

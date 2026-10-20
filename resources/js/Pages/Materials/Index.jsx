@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
-import { Head, Link, router, usePage } from '@inertiajs/react';
-import { BookOpen, Film, FileText, Filter, LayoutGrid, List, Newspaper, Search, Upload } from 'lucide-react';
+import { Head, router, usePage } from '@inertiajs/react';
+import { BookOpen, Film, FileText, Filter, LayoutGrid, List, Newspaper, Search } from 'lucide-react';
 import PortalLayout from '@/Layouts/PortalLayout';
 import MaterialCard from '@/Components/Materials/MaterialCard';
 import MaterialViewer from '@/Components/Materials/MaterialViewer';
@@ -24,7 +24,6 @@ function Tile({ icon: Icon, value, label }) {
 
 export default function Index({ materials, active, filters, stats, topics, types }) {
     const { auth } = usePage().props;
-    const canManage = auth.user.role === 'tutor' || auth.user.role === 'admin';
 
     const [search, setSearch] = useState(filters.q ?? '');
     const [layout, setLayout] = useState(filters.view === 'list' ? 'list' : 'grid');
@@ -103,14 +102,6 @@ export default function Index({ materials, active, filters, stats, topics, types
                             Kumpulan dokumen, video, slide, dan artikel dari para pengajar Dubes Communications. Semua materi terbuka untuk seluruh
                             murid dan tidak terikat pada kelas atau jadwal tertentu.
                         </p>
-                        {canManage && (
-                            <Link
-                                href={route('manage.materials.index')}
-                                className="mt-4 inline-flex items-center gap-2 rounded-lg bg-white/10 px-4 py-2 text-sm font-semibold hover:bg-white/20"
-                            >
-                                <Upload className="h-4 w-4" /> Kelola & Unggah Materi
-                            </Link>
-                        )}
                     </div>
 
                     {auth.user.role === 'student' && (

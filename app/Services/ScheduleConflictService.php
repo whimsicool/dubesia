@@ -28,6 +28,7 @@ class ScheduleConflictService
         ?int $roomId = null,
         array $studentIds = [],
         ?int $ignoreId = null,
+        ?string $scheduledDate = null,
     ): Collection {
         $start = $this->normalize($start);
         $end = $this->normalize($end);
@@ -42,6 +43,9 @@ class ScheduleConflictService
             ->with(['instructor:id,name', 'room:id,name', 'students:id'])
             ->where('semester_id', $semesterId)
             ->where('day_of_week', $day)
+            ->when($scheduledDate, fn ($query) => $query->where(fn ($dates) => $dates
+                ->whereNull('scheduled_date')
+                ->orWhereDate('scheduled_date', $scheduledDate)))
             ->overlapping($start, $end)
             ->when($ignoreId, fn ($q) => $q->whereKeyNot($ignoreId))
             ->orderBy('start_time')
@@ -76,6 +80,7 @@ class ScheduleConflictService
         $schedules = Schedule::query()
             ->with(['program:id,name,category', 'instructor:id,name', 'room:id,name,type,platform,capacity', 'students:id'])
             ->where('semester_id', $semesterId)
+            ->orderBy('scheduled_date')
             ->orderBy('day_of_week')
             ->orderBy('start_time')
             ->get();
@@ -89,6 +94,10 @@ class ScheduleConflictService
                 for ($j = $i + 1; $j < $items->count(); $j++) {
                     $a = $items[$i];
                     $b = $items[$j];
+
+                    if ($a->scheduled_date && $b->scheduled_date && ! $a->scheduled_date->isSameDay($b->scheduled_date)) {
+                        continue;
+                    }
 
                     // Terurut berdasarkan jam mulai: jika B mulai setelah A selesai, sisanya pasti tidak beririsan.
                     if ($b->start_time >= $a->end_time) {
@@ -107,7 +116,7 @@ class ScheduleConflictService
                     }
 
                     $pairs->push([
-                        'day_of_week' => (int) $day,
+                        'day_of_week' => (int) $a->day_of_week,
                         'reasons' => collect($reasons)->map(fn ($detail, $type) => match ($type) {
                             'instructor' => "Instruktur sama: {$detail}",
                             'room' => "Ruang sama: {$detail}",

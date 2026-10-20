@@ -8,6 +8,8 @@ use App\Models\Semester;
 use App\Services\ScheduleConflictService;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Carbon;
+use Throwable;
 
 class ScheduleRequest extends FormRequest
 {
@@ -21,9 +23,22 @@ class ScheduleRequest extends FormRequest
     {
         /** @var Schedule|null $existing */
         $existing = $this->route('schedule');
+        $day = $existing?->day_of_week;
+
+        if ($this->filled('scheduled_date')) {
+            try {
+                $day = Carbon::createFromFormat('Y-m-d', $this->input('scheduled_date'))->dayOfWeekIso;
+            } catch (Throwable) {
+                // Biarkan validasi format tanggal menangani masukan yang tidak valid.
+            }
+        }
 
         $this->merge([
             'semester_id' => $existing?->semester_id ?? Semester::active()->value('id'),
+            'day_of_week' => $day,
+            // Field kelas/batch tidak lagi ditampilkan; judul jadwal menjadi nama kelas.
+            'class_name' => $this->input('title'),
+            'program_id' => $this->filled('program_id') ? $this->input('program_id') : null,
         ]);
     }
 
@@ -33,11 +48,12 @@ class ScheduleRequest extends FormRequest
 
         return [
             'semester_id' => ['required', 'exists:semesters,id'],
-            'program_id' => ['required', 'exists:programs,id'],
+            'program_id' => ['nullable', 'exists:programs,id'],
             'instructor_id' => ['required', 'exists:instructors,id'],
             'room_id' => ['required', 'exists:rooms,id'],
             'title' => ['required', 'string', 'max:150'],
             'class_name' => ['required', 'string', 'max:120'],
+            'scheduled_date' => [$this->route('schedule') && ! $this->route('schedule')->scheduled_date ? 'nullable' : 'required', 'date_format:Y-m-d'],
             'day_of_week' => ['required', 'integer', 'in:'.implode(',', $days)],
             'start_time' => ['required', 'date_format:H:i'],
             'end_time' => ['required', 'date_format:H:i', 'after:start_time'],
@@ -51,12 +67,13 @@ class ScheduleRequest extends FormRequest
     {
         return [
             'semester_id.required' => 'Belum ada semester aktif. Aktifkan satu semester terlebih dahulu.',
-            'program_id.required' => 'Pilih program studi.',
             'instructor_id.required' => 'Pilih instruktur.',
             'room_id.required' => 'Pilih ruang / platform.',
             'title.required' => 'Judul sesi wajib diisi.',
             'class_name.required' => 'Nama kelas / batch wajib diisi.',
-            'day_of_week.required' => 'Pilih hari.',
+            'scheduled_date.required' => 'Pilih tanggal jadwal.',
+            'scheduled_date.date_format' => 'Format tanggal jadwal tidak valid.',
+            'day_of_week.in' => 'Jadwal hanya dapat dibuat pada hari Senin sampai Sabtu.',
             'start_time.required' => 'Jam mulai wajib diisi.',
             'start_time.date_format' => 'Format jam mulai tidak valid (HH:MM).',
             'end_time.required' => 'Jam selesai wajib diisi.',
@@ -77,6 +94,16 @@ class ScheduleRequest extends FormRequest
                 $data = $validator->validated();
                 $studentIds = array_map('intval', $data['student_ids'] ?? []);
 
+                if (! empty($data['scheduled_date'])) {
+                    $semester = Semester::find($data['semester_id']);
+                    $date = Carbon::createFromFormat('Y-m-d', $data['scheduled_date']);
+
+                    if ($semester && ($date->lt($semester->start_date) || $date->gt($semester->end_date))) {
+                        $validator->errors()->add('scheduled_date', 'Tanggal jadwal harus berada dalam periode aktif.');
+                        return;
+                    }
+                }
+
                 $room = Room::find($data['room_id']);
                 if ($room && count($studentIds) > $room->capacity) {
                     $validator->errors()->add(
@@ -94,6 +121,7 @@ class ScheduleRequest extends FormRequest
                     roomId: (int) $data['room_id'],
                     studentIds: $studentIds,
                     ignoreId: $this->route('schedule')?->id,
+                    scheduledDate: $data['scheduled_date'] ?? null,
                 );
 
                 $fieldFor = ['instructor' => 'instructor_id', 'room' => 'room_id', 'students' => 'student_ids'];

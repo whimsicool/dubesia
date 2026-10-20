@@ -1,4 +1,4 @@
-import { Columns3, Table2 } from 'lucide-react';
+import { CalendarRange, Columns3, Table2 } from 'lucide-react';
 import { DAYS } from './constants';
 
 function Select({ label, value, onChange, children }) {
@@ -19,6 +19,7 @@ function Select({ label, value, onChange, children }) {
 export default function ScheduleFilters({ filters, options, view, onViewChange, onChange }) {
     const tabs = [
         { key: 'calendar', label: 'Kalender Mingguan', short: 'Kalender', icon: Columns3 },
+        { key: 'month', label: 'Kalender Bulanan', short: 'Bulanan', icon: CalendarRange },
         { key: 'table', label: 'Daftar Rinci (Tabel)', short: 'Tabel', icon: Table2 },
     ];
 

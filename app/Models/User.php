@@ -50,9 +50,9 @@ class User extends Authenticatable
         return $this->role === self::ROLE_STUDENT;
     }
 
-    /** Guru dan admin boleh mengunggah / mengelola materi. */
+    /** Tutor dapat mengunggah / mengelola materi. */
     public function canManageMaterials(): bool
     {
-        return $this->isAdmin() || $this->isTutor();
+        return $this->isTutor();
     }
 }

@@ -30,7 +30,7 @@ const NAV = {
         {
             heading: 'Akademik Saya',
             items: [
-                { label: 'Jadwal Belajar', icon: CalendarDays, route: 'student.schedules.index', active: 'student.schedules.*' },
+                { label: 'Jadwal Belajar', icon: CalendarDays, route: 'schedules.index', active: 'schedules.*' },
                 { label: 'Presensi Kelas', icon: ClipboardCheck, route: 'student.attendances.index', active: 'student.attendances.*' },
             ],
         },
@@ -45,7 +45,7 @@ const NAV = {
         { heading: 'Dukungan', items: [{ label: 'Kotak Aspirasi / Feedback', icon: MessageSquare, route: 'student.feedback.index', active: 'student.feedback.*' }] },
     ],
     tutor: [
-        { heading: 'Utama', items: [{ label: 'Dashboard Tutor', icon: LayoutGrid, route: 'dashboard' }] },
+        { heading: 'Utama', items: [{ label: 'Dashboard Tutor', icon: LayoutGrid, route: 'tutor.dashboard', active: 'tutor.dashboard' }] },
         {
             heading: 'Mengajar',
             items: [
@@ -93,12 +93,7 @@ function NavItem({ item }) {
 
 function Sidebar({ role, open, onClose }) {
     const portalRole = role === 'tutor' ? 'tutor' : role;
-    const groups = (NAV[portalRole] ?? NAV.student).map((group) => ({
-        ...group,
-        items: group.items.map((item) => role === 'tutor' && item.route === 'manage.materials.index'
-            ? { ...item, route: 'tutor.materials.index', active: 'tutor.materials.*' }
-            : item),
-    }));
+    const groups = NAV[portalRole] ?? NAV.student;
     const badge = portalRole === 'tutor' ? 'TUTOR' : 'SISWA';
 
     return (
@@ -233,6 +228,14 @@ export default function PortalLayout({ children }) {
 
     if (user.role === 'admin') {
         return <AdminLayout>{children}</AdminLayout>;
+    }
+
+    if (user.role === 'tutor') {
+        return <AdminLayout readOnly>{children}</AdminLayout>;
+    }
+
+    if (user.role === 'student') {
+        return <AdminLayout readOnly>{children}</AdminLayout>;
     }
 
     return (

@@ -86,7 +86,7 @@ function Body({ m }) {
  * Panel viewer materi (header gelap + isi + info pengampu).
  * Mendukung PDF/video/audio dari file unggahan, embed YouTube/Vimeo/Google Slides/Drive, dan artikel teks.
  */
-export default function MaterialViewer({ material: m, onClose, onToggleComplete, busy }) {
+export default function MaterialViewer({ material: m, onClose, onToggleComplete, busy, readOnly = false }) {
     const meta = TYPE_META[m.type] ?? TYPE_META.document;
     const Icon = meta.icon;
     const completed = m.progress_status === 'completed';
@@ -119,17 +119,19 @@ export default function MaterialViewer({ material: m, onClose, onToggleComplete,
                             <Download className="h-4 w-4" /> Unduh
                         </a>
                     )}
-                    <button
-                        type="button"
-                        onClick={onToggleComplete}
-                        disabled={busy}
-                        className={`flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-bold disabled:opacity-60 ${
-                            completed ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-red-700 hover:bg-red-800'
-                        }`}
-                    >
-                        {completed ? <Undo2 className="h-4 w-4" /> : <CircleCheck className="h-4 w-4" />}
-                        {completed ? 'Selesai — Batalkan' : 'Tandai Selesai Belajar'}
-                    </button>
+                    {!readOnly && (
+                        <button
+                            type="button"
+                            onClick={onToggleComplete}
+                            disabled={busy}
+                            className={`flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-bold disabled:opacity-60 ${
+                                completed ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-red-700 hover:bg-red-800'
+                            }`}
+                        >
+                            {completed ? <Undo2 className="h-4 w-4" /> : <CircleCheck className="h-4 w-4" />}
+                            {completed ? 'Selesai — Batalkan' : 'Tandai Selesai Belajar'}
+                        </button>
+                    )}
                     <button type="button" onClick={onClose} className="rounded-lg p-2 text-slate-300 hover:bg-white/10" aria-label="Tutup viewer">
                         <X className="h-5 w-5" />
                     </button>
