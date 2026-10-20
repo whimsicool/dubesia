@@ -38,7 +38,7 @@ export default function PanduanPendaftaran() {
                 <header className="border-b border-slate-200 bg-white">
                     <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4 sm:px-6">
                         <div className="flex items-center gap-3">
-                            <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-900 text-lg font-extrabold text-white">D</span>
+                            <img src="/images/dubesia-logo.png" alt="Logo DUBESIA" className="h-10 w-10 rounded-full object-contain" />
                             <div>
                                 <p className="font-bold text-slate-900">DUBESIA</p>
                                 <p className="text-xs text-slate-500">Panduan Pendaftaran</p>
@@ -51,7 +51,7 @@ export default function PanduanPendaftaran() {
                 </header>
 
                 <main className="mx-auto max-w-4xl px-4 py-10 sm:px-6 sm:py-14">
-                    <section className="rounded-3xl bg-slate-900 px-6 py-10 text-white sm:px-10">
+                    <section className="rounded-3xl bg-gradient-to-r from-dubesia-red via-dubesia-red to-dubesia-navy px-6 py-10 text-white sm:px-10">
                         <p className="text-sm font-semibold uppercase tracking-widest text-slate-300">Informasi Calon Murid</p>
                         <h1 className="mt-3 text-3xl font-extrabold sm:text-4xl">Panduan Pendaftaran</h1>
                         <p className="mt-4 max-w-2xl leading-7 text-slate-300">
@@ -64,7 +64,7 @@ export default function PanduanPendaftaran() {
                         <div className="mt-6 space-y-4">
                             {steps.map((step) => (
                                 <div key={step.number} className="flex gap-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:gap-6 sm:p-6">
-                                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-slate-900 font-bold text-white">
+                                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-dubesia-red font-bold text-white">
                                         {step.number}
                                     </div>
                                     <div>
@@ -87,7 +87,7 @@ export default function PanduanPendaftaran() {
                     </section>
 
                     <div className="mt-8 flex flex-wrap gap-3">
-                        <Link href="/registrasi" className="rounded-lg bg-slate-900 px-5 py-3 text-sm font-semibold text-white hover:bg-slate-700">
+                        <Link href="/registrasi" className="rounded-lg bg-dubesia-red px-5 py-3 text-sm font-semibold text-white hover:bg-dubesia-navy">
                             Mulai Pendaftaran
                         </Link>
                         <Link href="/bantuan-admisi" className="rounded-lg border border-slate-300 bg-white px-5 py-3 text-sm font-semibold hover:bg-slate-100">

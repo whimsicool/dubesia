@@ -58,6 +58,8 @@ Route::get('/pendaftaran/status', StatusPendaftaranController::class)
     ->middleware(['auth', 'verified', 'role:student'])
     ->name('pendaftaran.status');
 
+Route::get('/registrasi', [RegistrasiController::class, 'create'])->name('registrasi.create');
+
 Route::get('/tutor/dashboard', [TutorClassController::class, 'index'])
     ->middleware(['auth', 'verified', 'role:tutor'])
     ->name('tutor.dashboard');
@@ -145,12 +147,10 @@ Route::middleware('auth')->group(function () {
         Route::post('/submit', [TesLevelController::class, 'submit'])->name('submit');
         Route::get('/result/{id}', [TesLevelController::class, 'result'])->name('result');
     });
-    });
-
-Route::middleware('guest')->group(function () {
-    Route::post('/registrasi', [RegistrasiController::class, 'store'])->name('registrasi.store');
 });
 
-
+// Registrasi murid tetap boleh dikirim saat browser masih memiliki sesi
+// admin/tutor, supaya middleware guest tidak mengalihkan submit ke dashboard.
+Route::post('/registrasi', [RegistrasiController::class, 'store'])->name('registrasi.store');
 require __DIR__.'/auth.php';
 

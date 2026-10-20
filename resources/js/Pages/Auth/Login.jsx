@@ -39,9 +39,11 @@ export default function Login({ status }) {
                 <header className="fixed left-0 top-0 z-50 w-full bg-surface/90 shadow-[0_1px_8px_rgba(11,28,48,0.04)] backdrop-blur-xl">
                     <div className="mx-auto flex h-20 max-w-7xl items-center justify-between gap-4 px-6 lg:px-12">
                         <Link href="/" className="group flex items-center gap-3">
-                            <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-surface-container-low font-headline-sm text-headline-sm font-bold tracking-tight text-primary shadow-sm">
-                                D
-                            </span>
+                            <img
+                                src="/images/dubesia-logo.png"
+                                alt="Logo DUBESIA"
+                                className="h-10 w-10 rounded-full object-contain"
+                            />
                             <span className="flex flex-col">
                                 <span className="font-headline-sm text-headline-sm font-bold tracking-tight text-on-surface">
                                     DUBESIA
@@ -76,7 +78,7 @@ export default function Login({ status }) {
                                 {/* Core Auth Card Container */}
                                 <div className="w-full overflow-hidden rounded-xl bg-surface-container-lowest shadow-[0_10px_25px_-5px_rgba(11,28,48,0.06),0_4px_10px_-2px_rgba(11,28,48,0.03)]">
                                     {/* Institutional Top Color Trim (Crimson & Navy gradient stripe) */}
-                                    <div className="h-1.5 w-full bg-gradient-to-r from-primary-container via-secondary to-primary-container"></div>
+                                    <div className="h-1.5 w-full bg-gradient-to-r from-secondary via-secondary to-primary-container"></div>
                                     <div className="flex flex-col items-center p-6 sm:p-10">
                                         {/* DUBESIA Emblem Image Showcase */}
                                         <div className="group relative mb-5">
@@ -84,7 +86,7 @@ export default function Login({ status }) {
                                                 <img
                                                     alt="Emblem Lambang Duta Bahasa Edukasi Semesta (DUBESIA)"
                                                     className="h-full w-full object-contain"
-                                                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuDHHFUslMBUM9dMmhOMwE80ixHAr9PfqPFtoRibpfgFba_YyYrd3Gvy63o0HmhdIXo5BF2qMhPkYg6LFX3-R1VZ_btbcTTRPgdtn9t4JD6d6klH9zLzYe-Y63iTM8acIRP_r0NYwiYST6c4Fis3wMBfmSl2YJczdqPg9ytoZ4V-jpCC4Ivqp3Qa4OM9hb8951pgtuyMBG_PNSNG3IbYliidvmXa_SJWHZe_4skOrzmTW5-QgiMxwDTdXMIGmHO_Wb4-nA"
+                                                    src="/images/dubesia-logo.png"
                                                 />
                                             </div>
                                         </div>
@@ -129,7 +131,7 @@ export default function Login({ status }) {
                                                         badge
                                                     </span>
                                                     <input
-                                                        className="h-11 w-full rounded-lg bg-surface-container-lowest pl-11 pr-4 font-body-md text-body-md text-on-surface shadow-sm transition-all placeholder:text-outline focus:outline-none focus:ring-2 focus:ring-primary-container"
+                                                        className="h-11 w-full rounded-lg bg-surface-container-lowest pl-11 pr-4 font-body-md text-body-md text-on-surface shadow-sm transition-all placeholder:text-outline focus:outline-none focus:ring-2 focus:ring-secondary"
                                                         id="email"
                                                         name="email"
                                                         type="email"
@@ -171,7 +173,7 @@ export default function Login({ status }) {
                                                         lock
                                                     </span>
                                                     <input
-                                                        className="h-11 w-full rounded-lg bg-surface-container-lowest pl-11 pr-12 font-body-md text-body-md text-on-surface shadow-sm transition-all placeholder:text-outline focus:outline-none focus:ring-2 focus:ring-primary-container"
+                                                        className="h-11 w-full rounded-lg bg-surface-container-lowest pl-11 pr-12 font-body-md text-body-md text-on-surface shadow-sm transition-all placeholder:text-outline focus:outline-none focus:ring-2 focus:ring-secondary"
                                                         id="password"
                                                         name="password"
                                                         type={
@@ -216,7 +218,7 @@ export default function Login({ status }) {
 
                                             {/* Primary Action Button */}
                                             <button
-                                                className="mt-2 flex h-12 w-full transform cursor-pointer items-center justify-center gap-2 rounded-lg bg-primary-container font-label-lg text-label-lg font-semibold text-on-primary shadow-md transition-all hover:bg-on-surface active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-80"
+                                                className="mt-2 flex h-12 w-full transform cursor-pointer items-center justify-center gap-2 rounded-lg bg-secondary font-label-lg text-label-lg font-semibold text-on-primary shadow-md transition-all hover:bg-primary-container active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-80"
                                                 type="submit"
                                                 disabled={processing}
                                             >
