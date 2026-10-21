@@ -6,7 +6,7 @@ const styles = {
 
 export default function StatusBadge({ status, label }) {
   return (
-    <span className={`inline-block whitespace-nowrap rounded-full px-2.5 py-1 text-[11px] font-bold ${styles[status] ?? 'bg-slate-100 text-slate-700'}`}>
+    <span className={`inline-block whitespace-nowrap rounded-full px-3.5 py-2 text-sm font-bold ${styles[status] ?? 'bg-slate-100 text-slate-700'}`}>
       {label}
     </span>
   );

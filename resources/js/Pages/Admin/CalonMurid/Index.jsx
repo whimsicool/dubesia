@@ -19,14 +19,13 @@ export default function Index({ pendaftarans, filters, statuses, ringkasan, flas
 
   return (
     <AuthenticatedLayout
-      header={<h2 className="text-xl font-semibold leading-tight text-[#0f1b2d]">Calon Murid</h2>}
+      header={<h2 className="text-xl font-semibold leading-tight text-[#0f1b2d]">Verifikasi Pendaftaran</h2>}
     >
-      <Head title="Calon Murid" />
-      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-        <p className="text-sm text-slate-600">Daftar pendaftaran beserta status verifikasinya.</p>
+      <Head title="Verifikasi Pendaftaran" />
+      <div className="mx-auto max-w-7xl px-4 py-5 sm:px-6 lg:px-8">
 
-        {flash?.sukses && <div className="mt-4 rounded-lg bg-emerald-50 p-3 text-sm font-medium text-emerald-800">{flash.sukses}</div>}
-        {flash?.peringatan && <div className="mt-4 rounded-lg bg-amber-50 p-3 text-sm font-medium text-amber-800">{flash.peringatan}</div>}
+        {flash?.sukses && <div className={`mt-2 rounded-lg p-3 text-sm font-medium ${flash.sukses.startsWith('Pendaftaran ditolak') ? 'bg-red-50 text-red-800' : 'bg-emerald-50 text-emerald-800'}`}>{flash.sukses}</div>}
+        {flash?.peringatan && <div className="mt-2 rounded-lg bg-amber-50 p-3 text-sm font-medium text-amber-800">{flash.peringatan}</div>}
 
         {/* ringkasan status, bisa diklik untuk memfilter */}
         <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-3">
@@ -83,7 +82,7 @@ export default function Index({ pendaftarans, filters, statuses, ringkasan, flas
                     <p className="font-semibold text-[#0f1b2d]">{p.nama_lengkap}</p>
                     <p className="text-xs text-slate-500">{p.email}</p>
                   </td>
-                  <td className="px-4 py-3 text-slate-700">{p.program}</td>
+                  <td className="px-4 py-3 capitalize text-slate-700">{p.program}</td>
                   <td className="whitespace-nowrap px-4 py-3 text-slate-700">{p.tanggal_daftar}</td>
                   <td className="px-4 py-3">
                     <div className="flex flex-col items-start gap-1.5">

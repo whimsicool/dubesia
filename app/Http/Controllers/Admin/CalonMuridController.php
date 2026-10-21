@@ -158,7 +158,7 @@ class CalonMuridController extends Controller
         }
 
         return redirect()->route('admin.calon-murid.index')
-            ->with('sukses', 'Penolakan berhasil. Catatan perbaikan telah dikirim ke email calon murid.');
+            ->with('sukses', 'Pendaftaran ditolak. Catatan perbaikan telah dikirim ke email calon murid.');
     }
 
 }

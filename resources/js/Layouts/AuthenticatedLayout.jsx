@@ -32,6 +32,13 @@ export default function AuthenticatedLayout({ header, children }) {
                     active: route().current('admin.feedback.*'),
                     icon: navIcon.feedback,
                 },
+
+                {
+                    label: 'Calon Murid',
+                    href: route('admin.calon-murid.index'),
+                    active: route().current('admin.calon-murid.*'),
+                    icon: navIcon.dashboard,
+                },
             ]
         : [
               {
@@ -59,12 +66,7 @@ export default function AuthenticatedLayout({ header, children }) {
                   icon: navIcon.feedback,
               },
               
-              {
-                    label: 'Calon Murid',
-                    href: route('admin.calon-murid.index'),
-                    active: route().current('admin.calon-murid.*'),
-                    icon: navIcon.dashboard,
-                },
+              
           ];
 
     return (
@@ -173,6 +175,7 @@ export default function AuthenticatedLayout({ header, children }) {
                         <div className="mx-auto max-w-[1600px]">{header}</div>
                     </header>
                 )}
+
 
                 <main>{children}</main>
             </div>

@@ -44,7 +44,7 @@ export default function Show({ pendaftaran: p, flash }) {
       <Head title={`Detail Pendaftaran - ${p.nama_lengkap}`} />
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         <Link href={route('admin.calon-murid.index')} className="inline-flex items-center gap-1.5 text-sm font-semibold text-slate-600 hover:text-[#0f1b2d]">
-          <ArrowLeft className="h-4 w-4" /> Kembali ke daftar
+          <ArrowLeft className="h-4 w-4" /> Kembali
         </Link>
 
         <div className="mt-3 flex flex-wrap items-center gap-3">
@@ -65,7 +65,7 @@ export default function Show({ pendaftaran: p, flash }) {
               <Row label="WhatsApp">{p.no_whatsapp}</Row>
               <Row label="Alamat">{p.alamat}</Row>
               <Row label="Username">{p.username}</Row>
-              <Row label="Program">{p.program}</Row>
+              <Row label="Program"><span className="capitalize">{p.program}</span></Row>
               <Row label="Motivasi">{p.pesan_motivasi}</Row>
               <Row label="Tanggal Daftar">{p.tanggal_daftar}</Row>
               {p.diverifikasi_oleh && <Row label="Diproses oleh">{p.diverifikasi_oleh} · {p.diverifikasi_pada}</Row>}
@@ -136,7 +136,7 @@ export default function Show({ pendaftaran: p, flash }) {
           <form onSubmit={tolak} className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
             <h3 className="text-lg font-bold text-[#0f1b2d]">Tolak pendaftaran</h3>
             <p className="mt-2 text-sm text-slate-600">
-              Tuliskan catatan perbaikan sesuai kondisi yang perlu diperbaiki. Catatan ini dikirim ke email calon murid.
+              Tuliskan catatan perbaikan sesuai kondisi yang perlu diperbaiki.
             </p>
             <textarea rows={5} value={data.catatan_verifikasi}
               onChange={(e) => setData('catatan_verifikasi', e.target.value)}

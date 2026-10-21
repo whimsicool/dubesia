@@ -66,9 +66,11 @@ function Shell({ children, editMode = false }) {
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-8">
           {/* Logo DUBESIA hanya tampilan, tidak bisa diklik */}
           <div className="flex min-w-0 items-center gap-3" aria-label="DUBESIA">
-            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-slate-900 text-lg font-extrabold text-white">
-              D
-            </span>
+            <img
+              src="/images/dubesia-logo.png"
+              alt="Logo DUBESIA"
+              className="h-11 w-11 shrink-0 rounded-full object-contain"
+            />
 
             <span className="min-w-0 leading-tight">
               <span className="block text-lg font-extrabold tracking-tight text-slate-900">
