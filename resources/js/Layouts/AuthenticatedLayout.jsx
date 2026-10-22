@@ -47,6 +47,12 @@ export default function AuthenticatedLayout({ header, children }) {
                   icon: navIcon.grades,
               },
               {
+                  label: 'Tes Level',
+                  href: route('tes-level.index'),
+                  active: route().current('tes-level.*'),
+                  icon: navIcon.grades,
+              },
+              {
                   label: 'Kritik & Saran',
                   href: route('student.feedback.create'),
                   active: route().current('student.feedback.*'),

@@ -6,7 +6,7 @@ export default function Dashboard({ auth }) {
         <AuthenticatedLayout
             header={
                 <h2 className="text-xl font-semibold leading-tight text-gray-800">
-                    Dashboard
+                    Dashboard Portal Murid
                 </h2>
             }
         >
