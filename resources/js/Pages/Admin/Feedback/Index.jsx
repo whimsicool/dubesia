@@ -1,54 +1,61 @@
+import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link } from '@inertiajs/react';
 
 export default function Index({ feedbackEntries }) {
     return (
-        <>
-            <Head title="Kritik dan Saran Student" />
+        <AuthenticatedLayout
+            header={
+                <div>
+                    <p className="text-xs font-bold uppercase tracking-[0.18em] text-red-700">Portal Admin</p>
+                    <h1 className="mt-1 text-2xl font-bold tracking-tight text-slate-950">Kritik &amp; Saran Murid</h1>
+                </div>
+            }
+        >
+            <Head title="Kritik dan Saran Murid" />
 
-            <main className="min-h-screen bg-slate-50 px-4 py-8 sm:px-6 lg:px-8">
+            <main className="min-h-[calc(100vh-9rem)] bg-slate-100 px-4 py-7 sm:px-6 lg:px-8">
                 <div className="mx-auto max-w-5xl">
-                    <div className="flex flex-wrap items-center justify-between gap-3">
-                        <Link href={route('admin.dashboard')} className="text-sm font-medium text-indigo-700 hover:text-indigo-900">
-                            Kembali ke dashboard
-                        </Link>
-                        <Link
-                            href={route('logout')}
-                            method="post"
-                            as="button"
-                            className="rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm hover:bg-slate-100"
-                        >
-                            Keluar
-                        </Link>
-                    </div>
-
-                    <header className="mt-7">
-                        <p className="text-sm font-semibold uppercase tracking-[0.16em] text-indigo-600">Portal admin</p>
-                        <h1 className="mt-2 text-3xl font-bold tracking-tight text-slate-900">Kritik dan Saran Student</h1>
-                        <p className="mt-2 text-slate-600">Tinjau masukan yang dikirim oleh student.</p>
-                    </header>
+                    <section className="mb-6 flex flex-col gap-5 rounded-2xl bg-red-800 p-6 text-white shadow-sm sm:flex-row sm:items-center sm:justify-between">
+                        <div>
+                            <p className="text-sm font-semibold text-red-100">Masukan dari murid</p>
+                            <h2 className="mt-1 text-xl font-bold">Dengarkan dan tinjau setiap masukan</h2>
+                            <p className="mt-1 text-sm text-red-100">Semua kritik dan saran yang masuk ditampilkan di halaman ini.</p>
+                        </div>
+                        <div className="w-fit rounded-xl bg-white/10 px-5 py-3">
+                            <p className="text-xs font-semibold uppercase tracking-wide text-red-100">Total masukan</p>
+                            <p className="mt-1 text-2xl font-extrabold tabular-nums">{feedbackEntries.total}</p>
+                        </div>
+                    </section>
 
                     {feedbackEntries.data.length === 0 ? (
-                        <section className="mt-7 rounded-2xl border border-slate-200 bg-white px-6 py-12 text-center shadow-sm">
-                            <h2 className="font-semibold text-slate-900">Belum ada masukan</h2>
-                            <p className="mt-1 text-sm text-slate-500">Masukan student akan muncul di halaman ini.</p>
+                        <section className="rounded-2xl border border-slate-200 bg-white px-6 py-14 text-center shadow-sm">
+                            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-red-50 text-red-800">
+                                <svg className="h-7 w-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
+                                    <path d="M20 11.5a7.5 7.5 0 0 1-7.5 7.5H6l-3 2v-9.5a7.5 7.5 0 1 1 17 0Z" />
+                                    <path d="M8 10h8M8 14h5" />
+                                </svg>
+                            </div>
+                            <h2 className="mt-4 font-semibold text-slate-900">Belum ada masukan</h2>
+                            <p className="mt-1 text-sm text-slate-500">Masukan murid akan muncul di sini setelah dikirim.</p>
                         </section>
                     ) : (
-                        <section className="mt-7 space-y-4">
+                        <section className="space-y-4">
                             {feedbackEntries.data.map((entry) => (
-                                <article key={entry.id} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
-                                    <div className="flex flex-wrap items-start justify-between gap-3">
+                                <article key={entry.id} className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+                                    <div className="flex flex-col gap-3 border-b border-slate-100 px-5 py-5 sm:flex-row sm:items-start sm:justify-between sm:px-6">
                                         <div>
-                                            <h2 className="text-lg font-bold text-slate-900">{entry.subject || 'Tanpa topik'}</h2>
+                                            <p className="text-xs font-bold uppercase tracking-wide text-red-700">Masukan murid</p>
+                                            <h2 className="mt-1 text-lg font-bold text-slate-950">{entry.subject || 'Tanpa topik'}</h2>
                                             <p className="mt-1 text-sm text-slate-600">
-                                                {entry.student?.name ?? 'Student dihapus'}
+                                                {entry.student?.name ?? 'Murid dihapus'}
                                                 {entry.student?.email ? ` · ${entry.student.email}` : ''}
                                             </p>
                                         </div>
-                                        <time dateTime={entry.created_at} className="text-sm text-slate-500">
+                                        <time dateTime={entry.created_at} className="shrink-0 text-sm text-slate-500">
                                             {new Date(entry.created_at).toLocaleString('id-ID')}
                                         </time>
                                     </div>
-                                    <p className="mt-4 whitespace-pre-line text-sm leading-6 text-slate-700">{entry.message}</p>
+                                    <p className="whitespace-pre-line px-5 py-5 text-sm leading-6 text-slate-700 sm:px-6">{entry.message}</p>
                                 </article>
                             ))}
                         </section>
@@ -64,8 +71,8 @@ export default function Index({ feedbackEntries }) {
                                     dangerouslySetInnerHTML={{ __html: link.label }}
                                     className={`rounded-lg border px-3 py-2 text-sm ${
                                         link.active
-                                            ? 'border-indigo-600 bg-indigo-600 text-white'
-                                            : 'border-slate-300 bg-white text-slate-700 hover:bg-slate-100'
+                                            ? 'border-red-800 bg-red-800 text-white'
+                                            : 'border-slate-300 bg-white text-slate-700 hover:bg-red-50 hover:text-red-900'
                                     } ${!link.url ? 'pointer-events-none opacity-50' : ''}`}
                                 />
                             ))}
@@ -73,6 +80,6 @@ export default function Index({ feedbackEntries }) {
                     )}
                 </div>
             </main>
-        </>
+        </AuthenticatedLayout>
     );
 }
