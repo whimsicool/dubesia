@@ -1,7 +1,7 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head } from '@inertiajs/react';
+import { Head, Link } from '@inertiajs/react';
 
-export default function Dashboard() {
+export default function Dashboard({ auth }) {
     return (
         <AuthenticatedLayout
             header={
@@ -17,6 +17,16 @@ export default function Dashboard() {
                     <div className="overflow-hidden bg-white shadow-sm sm:rounded-lg">
                         <div className="p-6 text-gray-900">
                             You're logged in!
+                            {auth?.user?.role === 'admin' && (
+                                <div className="mt-4">
+                                    <Link
+                                        href={route('admin.feedback.index')}
+                                        className="inline-flex rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700"
+                                    >
+                                        Lihat kritik dan saran murid
+                                    </Link>
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>

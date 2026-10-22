@@ -1,6 +1,9 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\Student\FeedbackController;
+use App\Http\Controllers\Student\GradeController as StudentGradeViewController;
+use App\Http\Controllers\Admin\FeedbackController as AdminFeedbackController;
 use App\Http\Controllers\StudentGradeController;
 use App\Http\Controllers\Tutor\GradeComponentController;
 use App\Http\Controllers\Tutor\StudentClassGradeController;
@@ -42,6 +45,22 @@ Route::get('/student/dashboard', function () {
     return Inertia::render('Dashboard');
 })->middleware(['auth', 'verified', 'role:student'])->name('student.dashboard');
 
+Route::get('/admin/feedback', [AdminFeedbackController::class, 'index'])
+    ->middleware(['auth', 'verified', 'role:admin'])
+    ->name('admin.feedback.index');
+// Student feedback routes
+Route::middleware(['auth', 'verified', 'role:student'])
+    ->prefix('student')
+    ->name('student.')
+    ->group(function () {
+        Route::get('/grades', [StudentGradeViewController::class, 'index'])
+            ->name('grades.index');
+
+        Route::get('/feedback', [FeedbackController::class, 'create'])
+            ->name('feedback.create');
+        Route::post('/feedback', [FeedbackController::class, 'store'])
+            ->name('feedback.store');
+    });
 Route::middleware(['auth', 'verified', 'role:tutor,admin'])
     ->prefix('tutor')
     ->name('tutor.')
@@ -53,6 +72,11 @@ Route::middleware(['auth', 'verified', 'role:tutor,admin'])
             '/classes/{courseClass}/students',
             [TutorClassStudentController::class, 'index']
         )->name('classes.students.index');
+
+        Route::put(
+            '/classes/{courseClass}/grades',
+            [TutorClassStudentController::class, 'updateGrades']
+        )->name('classes.grades.update');
 
         Route::resource('student-grades', StudentGradeController::class)
             ->except(['show']);
