@@ -25,6 +25,11 @@ class User extends Authenticatable
      *
      * @return array<string, string>
      */
+
+    public const ROLE_ADMIN = 'admin';
+    public const ROLE_TUTOR = 'tutor';
+    public const ROLE_STUDENT = 'student';
+
     protected function casts(): array
     {
         return [
@@ -32,6 +37,11 @@ class User extends Authenticatable
             'password' => 'hashed',
             'is_active' => 'boolean',
         ];
+    }
+
+    public function isAdmin(): bool
+    {
+        return $this->role === self::ROLE_ADMIN;
     }
 
     /**
@@ -82,5 +92,15 @@ class User extends Authenticatable
             'student_id',
             'class_id'
         )->withTimestamps();
+    }
+
+    public function isTutor(): bool
+    {
+        return $this->role === self::ROLE_TUTOR;
+    }
+
+    public function isStudent(): bool
+    {
+        return $this->role === self::ROLE_STUDENT;
     }
 }

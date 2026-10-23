@@ -1,3 +1,5 @@
+
+
 import defaultTheme from 'tailwindcss/defaultTheme';
 import forms from '@tailwindcss/forms';
 
@@ -13,7 +15,7 @@ export default {
     theme: {
         extend: {
             fontFamily: {
-                sans: ['Figtree', ...defaultTheme.fontFamily.sans],
+                sans: ['Inter', ...defaultTheme.fontFamily.sans],
                 // DUBESIA portal type scale (used as `font-{name}` utilities).
                 'label-md': ['Inter'],
                 'headline-md': ['Plus Jakarta Sans'],
@@ -146,6 +148,8 @@ export default {
                 ],
             },
             colors: {
+                sidebar: '#0a1530',
+                ink: '#0b1220',
                 dubesia: {
                     navy: '#101e3b',
                     red: '#c8102e',
