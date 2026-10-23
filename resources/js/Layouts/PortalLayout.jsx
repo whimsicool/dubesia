@@ -57,7 +57,6 @@ const NAV = {
         {
             heading: 'Materi',
             items: [
-                { label: 'Pustaka Materi (Tampilan Murid)', icon: BookOpen, route: 'materials.index', active: 'materials.*' },
             ],
         },
     ],

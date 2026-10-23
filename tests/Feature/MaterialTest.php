@@ -56,16 +56,16 @@ class MaterialTest extends TestCase
     public function test_guest_is_redirected(): void
     {
         $this->get(route('materials.index'))->assertRedirect('/login');
-        $this->get(route('manage.materials.index'))->assertRedirect('/login');
+        $this->get(route('tutor.materials.index'))->assertRedirect('/login');
     }
 
     public function test_student_cannot_access_manage_pages(): void
     {
         $student = $this->user('student');
 
-        $this->actingAs($student)->get(route('manage.materials.index'))->assertForbidden();
-        $this->actingAs($student)->get(route('manage.materials.create'))->assertForbidden();
-        $this->actingAs($student)->post(route('manage.materials.store'), $this->payload())->assertForbidden();
+        $this->actingAs($student)->get(route('tutor.materials.index'))->assertForbidden();
+        $this->actingAs($student)->get(route('tutor.materials.create'))->assertForbidden();
+        $this->actingAs($student)->post(route('tutor.materials.store'), $this->payload())->assertForbidden();
     }
 
     public function test_tutor_can_open_manage_page(): void
@@ -73,9 +73,9 @@ class MaterialTest extends TestCase
         $tutor = $this->user('tutor');
         $this->material($tutor);
 
-        $this->actingAs($tutor)->get(route('manage.materials.index'))
+        $this->actingAs($tutor)->get(route('tutor.materials.index'))
             ->assertOk()
-            ->assertInertia(fn (Assert $page) => $page->component('Manage/Materials/Index')->has('materials.data', 1)->where('stats.total', 1));
+            ->assertInertia(fn (Assert $page) => $page->component('Manage/Materials/Index')->has('materials.data', 1));
     }
 
     /* ----------------------------- membuat ----------------------------- */
@@ -84,9 +84,9 @@ class MaterialTest extends TestCase
     {
         $tutor = $this->user('tutor');
 
-        $this->actingAs($tutor)->post(route('manage.materials.store'), $this->payload())
+        $this->actingAs($tutor)->post(route('tutor.materials.store'), $this->payload())
             ->assertSessionHasNoErrors()
-            ->assertRedirect(route('manage.materials.index'));
+            ->assertRedirect(route('tutor.materials.index'));
 
         $material = Material::firstOrFail();
         $this->assertSame($tutor->id, $material->user_id);
@@ -98,7 +98,7 @@ class MaterialTest extends TestCase
     {
         $tutor = $this->user('tutor');
 
-        $this->actingAs($tutor)->post(route('manage.materials.store'), $this->payload([
+        $this->actingAs($tutor)->post(route('tutor.materials.store'), $this->payload([
             'type' => 'document',
             'body' => null,
             'file' => UploadedFile::fake()->create('modul.pdf', 200, 'application/pdf'),
@@ -113,14 +113,14 @@ class MaterialTest extends TestCase
     public function test_file_type_requires_file_or_url(): void
     {
         $this->actingAs($this->user('tutor'))
-            ->post(route('manage.materials.store'), $this->payload(['type' => 'video', 'body' => null]))
+            ->post(route('tutor.materials.store'), $this->payload(['type' => 'video', 'body' => null]))
             ->assertSessionHasErrors('file');
     }
 
     public function test_video_can_use_external_url_instead_of_file(): void
     {
         $this->actingAs($this->user('tutor'))
-            ->post(route('manage.materials.store'), $this->payload([
+            ->post(route('tutor.materials.store'), $this->payload([
                 'type' => 'video', 'body' => null, 'external_url' => 'https://youtu.be/aqz-KE-bpKQ', 'duration_minutes' => 10,
             ]))->assertSessionHasNoErrors();
 
@@ -130,7 +130,7 @@ class MaterialTest extends TestCase
     public function test_disallowed_file_format_is_rejected(): void
     {
         $this->actingAs($this->user('tutor'))
-            ->post(route('manage.materials.store'), $this->payload([
+            ->post(route('tutor.materials.store'), $this->payload([
                 'type' => 'document', 'body' => null,
                 'file' => UploadedFile::fake()->create('virus.exe', 10, 'application/x-msdownload'),
             ]))->assertSessionHasErrors('file');
@@ -142,45 +142,42 @@ class MaterialTest extends TestCase
     {
         $tutor = $this->user('tutor');
 
-        $this->actingAs($tutor)->post(route('manage.materials.store'), $this->payload(['body' => '']))->assertSessionHasErrors('body');
-        $this->actingAs($tutor)->post(route('manage.materials.store'), $this->payload(['type' => 'link', 'body' => null, 'external_url' => 'javascript:alert(1)']))
+        $this->actingAs($tutor)->post(route('tutor.materials.store'), $this->payload(['body' => '']))->assertSessionHasErrors('body');
+        $this->actingAs($tutor)->post(route('tutor.materials.store'), $this->payload(['type' => 'link', 'body' => null, 'external_url' => 'javascript:alert(1)']))
             ->assertSessionHasErrors('external_url');
     }
 
     /* ----------------------------- otorisasi ubah / hapus ----------------------------- */
 
-    public function test_tutor_cannot_edit_or_delete_other_tutors_material(): void
+    public function test_tutors_share_one_material_library(): void
     {
         $owner = $this->user('tutor');
-        $other = $this->user('tutor');
+        $colleague = $this->user('tutor');
         $material = $this->material($owner);
 
-        $this->actingAs($other)->get(route('manage.materials.edit', $material))->assertForbidden();
-        $this->actingAs($other)->put(route('manage.materials.update', $material), $this->payload())->assertForbidden();
-        $this->actingAs($other)->delete(route('manage.materials.destroy', $material))->assertForbidden();
-    }
-
-    public function test_admin_can_edit_any_material(): void
-    {
-        $material = $this->material($this->user('tutor'));
-
-        $this->actingAs($this->user('admin'))
-            ->put(route('manage.materials.update', $material), $this->payload(['title' => 'Diubah Admin']))
+        $this->actingAs($colleague)->get(route('tutor.materials.edit', $material))->assertOk();
+        $this->actingAs($colleague)
+            ->put(route('tutor.materials.update', $material), $this->payload(['title' => 'Diubah Rekan Tutor']))
             ->assertSessionHasNoErrors();
 
-        $this->assertSame('Diubah Admin', $material->fresh()->title);
+        $this->assertSame('Diubah Rekan Tutor', $material->fresh()->title);
+    }
+
+    public function test_admin_cannot_manage_materials(): void
+    {
+        $this->actingAs($this->user('admin'))->get(route('tutor.materials.index'))->assertForbidden();
     }
 
     public function test_changing_type_to_article_removes_old_file(): void
     {
         $tutor = $this->user('tutor');
-        $this->actingAs($tutor)->post(route('manage.materials.store'), $this->payload([
+        $this->actingAs($tutor)->post(route('tutor.materials.store'), $this->payload([
             'type' => 'document', 'body' => null, 'file' => UploadedFile::fake()->create('a.pdf', 10, 'application/pdf'),
         ]));
         $material = Material::firstOrFail();
         $path = $material->file_path;
 
-        $this->actingAs($tutor)->put(route('manage.materials.update', $material), $this->payload(['type' => 'article']))->assertSessionHasNoErrors();
+        $this->actingAs($tutor)->put(route('tutor.materials.update', $material), $this->payload(['type' => 'article']))->assertSessionHasNoErrors();
 
         Storage::disk(config('dubesia.materials.disk'))->assertMissing($path);
         $this->assertNull($material->fresh()->file_path);
@@ -189,13 +186,13 @@ class MaterialTest extends TestCase
     public function test_replacing_file_deletes_old_file(): void
     {
         $tutor = $this->user('tutor');
-        $this->actingAs($tutor)->post(route('manage.materials.store'), $this->payload([
+        $this->actingAs($tutor)->post(route('tutor.materials.store'), $this->payload([
             'type' => 'document', 'body' => null, 'file' => UploadedFile::fake()->create('a.pdf', 10, 'application/pdf'),
         ]));
         $material = Material::firstOrFail();
         $old = $material->file_path;
 
-        $this->actingAs($tutor)->put(route('manage.materials.update', $material), $this->payload([
+        $this->actingAs($tutor)->put(route('tutor.materials.update', $material), $this->payload([
             'type' => 'document', 'body' => null, 'file' => UploadedFile::fake()->create('b.pdf', 10, 'application/pdf'),
         ]))->assertSessionHasNoErrors();
 
@@ -210,13 +207,13 @@ class MaterialTest extends TestCase
         $tutor = $this->user('tutor');
         $student = $this->user('student');
 
-        $this->actingAs($tutor)->post(route('manage.materials.store'), $this->payload([
+        $this->actingAs($tutor)->post(route('tutor.materials.store'), $this->payload([
             'type' => 'document', 'body' => null, 'file' => UploadedFile::fake()->create('a.pdf', 10, 'application/pdf'),
         ]));
         $material = Material::firstOrFail();
         MaterialProgress::create(['material_id' => $material->id, 'user_id' => $student->id, 'status' => 'opened']);
 
-        $this->actingAs($tutor)->delete(route('manage.materials.destroy', $material))->assertSessionHas('success');
+        $this->actingAs($tutor)->delete(route('tutor.materials.destroy', $material))->assertSessionHas('success');
 
         $this->assertDatabaseCount('materials', 0);
         $this->assertDatabaseCount('material_progress', 0);
@@ -228,11 +225,11 @@ class MaterialTest extends TestCase
         $tutor = $this->user('tutor');
         $material = $this->material($tutor, ['status' => 'draft', 'published_at' => null]);
 
-        $this->actingAs($tutor)->patch(route('manage.materials.publish', $material));
+        $this->actingAs($tutor)->patch(route('tutor.materials.publish', $material));
         $this->assertSame('published', $material->fresh()->status);
         $this->assertNotNull($material->fresh()->published_at);
 
-        $this->actingAs($tutor)->patch(route('manage.materials.publish', $material));
+        $this->actingAs($tutor)->patch(route('tutor.materials.publish', $material));
         $this->assertSame('draft', $material->fresh()->status);
     }
 
@@ -282,7 +279,7 @@ class MaterialTest extends TestCase
             ->assertInertia(fn (Assert $page) => $page->where('active.id', $material->id)->where('active.body', 'Isi'));
         $this->assertDatabaseHas('material_progress', ['material_id' => $material->id, 'user_id' => $student->id, 'status' => 'opened']);
 
-        $this->actingAs($tutor)->get(route('materials.index', ['material' => $material->id]));
+        $this->actingAs($tutor)->get(route('materials.index', ['material' => $material->id]))->assertForbidden();
         $this->assertDatabaseCount('material_progress', 1);
     }
 
@@ -310,7 +307,7 @@ class MaterialTest extends TestCase
 
     private function materialWithFile(User $owner, array $override = []): Material
     {
-        $this->actingAs($owner)->post(route('manage.materials.store'), $this->payload(array_merge([
+        $this->actingAs($owner)->post(route('tutor.materials.store'), $this->payload(array_merge([
             'type' => 'document', 'body' => null, 'file' => UploadedFile::fake()->create('modul.pdf', 10, 'application/pdf'),
         ], $override)));
 
@@ -340,7 +337,7 @@ class MaterialTest extends TestCase
     public function test_guest_cannot_fetch_file(): void
     {
         $material = $this->materialWithFile($this->user('tutor'));
-        $this->app["auth"]->forgetGuards();
+        $this->app['auth']->forgetGuards();
 
         $this->get(route('materials.file', $material))->assertRedirect('/login');
     }
