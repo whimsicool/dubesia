@@ -65,8 +65,6 @@ export default function AuthenticatedLayout({ header, children }) {
                   active: route().current('student.feedback.*'),
                   icon: navIcon.feedback,
               },
-              
-              
           ];
 
     return (
@@ -175,7 +173,6 @@ export default function AuthenticatedLayout({ header, children }) {
                         <div className="mx-auto max-w-[1600px]">{header}</div>
                     </header>
                 )}
-
 
                 <main>{children}</main>
             </div>
