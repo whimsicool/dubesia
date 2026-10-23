@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\CalonMuridController;
 use App\Http\Controllers\Admin\FeedbackController as AdminFeedbackController;
+use App\Http\Controllers\AdminUserController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RegistrasiController;
 use App\Http\Controllers\Student\FeedbackController;
@@ -132,6 +133,14 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::get('/calon-murid/{pendaftaran}', [CalonMuridController::class, 'show'])->name('calon-murid.show');
     Route::post('/calon-murid/{pendaftaran}/verifikasi', [CalonMuridController::class, 'verifikasi'])->name('calon-murid.verifikasi');
     Route::post('/calon-murid/{pendaftaran}/tolak', [CalonMuridController::class, 'tolak'])->name('calon-murid.tolak');
+
+    Route::prefix('data-pengguna')->name('data-pengguna.')->group(function () {
+        Route::get('/', [AdminUserController::class, 'index'])->name('index');
+        Route::post('/', [AdminUserController::class, 'store'])->name('store');
+        Route::get('/{user}', [AdminUserController::class, 'show'])->name('show');
+        Route::put('/{user}', [AdminUserController::class, 'update'])->name('update');
+        Route::delete('/{user}', [AdminUserController::class, 'destroy'])->name('destroy');
+    });
 });
 require __DIR__.'/auth.php';
 require __DIR__.'/schedules.php';

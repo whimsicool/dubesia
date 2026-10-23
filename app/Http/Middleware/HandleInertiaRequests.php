@@ -38,11 +38,11 @@ class HandleInertiaRequests extends Middleware
             ],
 
             'flash' => [
-                'success' => fn() => $request->session()->get('success'),
-                'error' => fn() => $request->session()->get('error'),
+                'success' => fn () => $request->session()->get('success'),
+                'error' => fn () => $request->session()->get('error'),
             ],
 
-            'pendingRegistrations' => fn() => $request->user()?->isAdmin()
+            'pendingRegistrations' => fn () => $request->user()?->isAdmin()
                 ? Pendaftaran::where('status', Pendaftaran::STATUS_MENUNGGU)->count()
                 : 0,
         ];

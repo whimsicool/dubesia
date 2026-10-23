@@ -30,7 +30,7 @@ const NAV = [
     {
         heading: 'Pengguna & Verifikasi',
         items: [
-            { label: 'Data Murid & Guru', icon: Users, route: 'admin.users.index', active: 'admin.users.*' },
+            { label: 'Data Murid & Guru', icon: Users, route: 'admin.data-pengguna.index', active: 'admin.data-pengguna.*' },
             {
                 label: 'Verifikasi Pendaftaran',
                 icon: UserCheck,
