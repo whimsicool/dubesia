@@ -18,8 +18,11 @@ class ScheduleManagementTest extends TestCase
     use RefreshDatabase;
 
     private Semester $semester;
+
     private Program $program;
+
     private Instructor $instructor;
+
     private Room $room;
 
     protected function setUp(): void
@@ -42,6 +45,11 @@ class ScheduleManagementTest extends TestCase
         return User::factory()->create(['role' => User::ROLE_ADMIN]);
     }
 
+    private function scheduledDate(): string
+    {
+        return now()->next('Monday')->toDateString();
+    }
+
     private function payload(array $override = []): array
     {
         return array_merge([
@@ -50,7 +58,7 @@ class ScheduleManagementTest extends TestCase
             'program_id' => $this->program->id,
             'instructor_id' => $this->instructor->id,
             'room_id' => $this->room->id,
-            'day_of_week' => 1,
+            'scheduled_date' => $this->scheduledDate(),
             'start_time' => '08:30',
             'end_time' => '10:00',
             'student_ids' => [],
@@ -100,8 +108,8 @@ class ScheduleManagementTest extends TestCase
             ->assertInertia(fn (Assert $page) => $page
                 ->component('Admin/Schedules/Index')
                 ->has('schedules', 1)
-                ->where('stats.sessions', 1)
                 ->has('week.days', 6)
+                ->where('week.days.0.date', fn ($date) => is_string($date))
             );
     }
 
@@ -217,24 +225,13 @@ class ScheduleManagementTest extends TestCase
         $this->assertDatabaseHas('students', ['id' => $student->id]); // murid tidak ikut terhapus
     }
 
-    public function test_conflict_audit_lists_overlapping_pairs(): void
-    {
-        $this->makeSchedule();
-        $otherRoom = Room::create(['name' => 'Hall B', 'type' => 'physical', 'capacity' => 20]);
-        $this->makeSchedule(['class_name' => 'Batch Lain', 'room_id' => $otherRoom->id, 'start_time' => '09:00', 'end_time' => '10:30']);
-
-        $this->actingAs($this->admin())
-            ->get(route('admin.schedules.index'))
-            ->assertInertia(fn (Assert $page) => $page->has('conflicts', 1)->where('conflicts.0.reasons.0', 'Instruktur sama: Dr. Kevin Kusuma'));
-    }
-
     public function test_check_conflict_endpoint_returns_json(): void
     {
         $this->makeSchedule();
 
         $this->actingAs($this->admin())
             ->postJson(route('admin.schedules.check-conflict'), [
-                'day_of_week' => 1, 'start_time' => '09:00', 'end_time' => '10:00',
+                'scheduled_date' => $this->scheduledDate(), 'start_time' => '09:00', 'end_time' => '10:00',
                 'instructor_id' => $this->instructor->id, 'room_id' => $this->room->id,
             ])
             ->assertOk()

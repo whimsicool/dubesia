@@ -2,7 +2,6 @@
 
 namespace App\Services;
 
-use App\Http\Resources\ScheduleResource;
 use App\Models\Schedule;
 use Illuminate\Support\Collection;
 
@@ -68,68 +67,6 @@ class ScheduleConflictService
         }
 
         return $conflicts;
-    }
-
-    /**
-     * Audit seluruh jadwal pada satu semester. Mengembalikan pasangan sesi yang bentrok.
-     *
-     * @return Collection<int, array<string, mixed>>
-     */
-    public function audit(int $semesterId): Collection
-    {
-        $schedules = Schedule::query()
-            ->with(['program:id,name,category', 'instructor:id,name', 'room:id,name,type,platform,capacity', 'students:id'])
-            ->where('semester_id', $semesterId)
-            ->orderBy('scheduled_date')
-            ->orderBy('day_of_week')
-            ->orderBy('start_time')
-            ->get();
-
-        $pairs = collect();
-
-        foreach ($schedules->groupBy('day_of_week') as $day => $items) {
-            $items = $items->values();
-
-            for ($i = 0; $i < $items->count(); $i++) {
-                for ($j = $i + 1; $j < $items->count(); $j++) {
-                    $a = $items[$i];
-                    $b = $items[$j];
-
-                    if ($a->scheduled_date && $b->scheduled_date && ! $a->scheduled_date->isSameDay($b->scheduled_date)) {
-                        continue;
-                    }
-
-                    // Terurut berdasarkan jam mulai: jika B mulai setelah A selesai, sisanya pasti tidak beririsan.
-                    if ($b->start_time >= $a->end_time) {
-                        break;
-                    }
-
-                    $reasons = $this->reasons(
-                        (int) $a->instructor_id,
-                        (int) $a->room_id,
-                        $a->students->pluck('id')->map(fn ($id) => (int) $id),
-                        $b,
-                    );
-
-                    if (empty($reasons)) {
-                        continue;
-                    }
-
-                    $pairs->push([
-                        'day_of_week' => (int) $a->day_of_week,
-                        'reasons' => collect($reasons)->map(fn ($detail, $type) => match ($type) {
-                            'instructor' => "Instruktur sama: {$detail}",
-                            'room' => "Ruang sama: {$detail}",
-                            'students' => "{$detail} murid sama",
-                        })->values()->all(),
-                        'a' => ScheduleResource::make($a)->resolve(),
-                        'b' => ScheduleResource::make($b)->resolve(),
-                    ]);
-                }
-            }
-        }
-
-        return $pairs;
     }
 
     /**
