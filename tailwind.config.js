@@ -146,6 +146,16 @@ export default {
                 ],
             },
             colors: {
+                dubesia: {
+                    navy: '#101e3b',
+                    red: '#c8102e',
+                    gold: '#c6a447',
+                    'gold-light': '#e8cd75',
+                    'gold-dark': '#80651b',
+                    'navy-soft': '#f0f3f8',
+                    'red-soft': '#fff1f2',
+                    'gold-soft': '#fbf7ea',
+                },
                 // DUBESIA portal palette (used as `bg-{name}` / `text-{name}`).
                 'on-tertiary-fixed-variant': '#6e3900',
                 'on-surface': '#0b1c30',
