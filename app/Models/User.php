@@ -103,4 +103,10 @@ class User extends Authenticatable
     {
         return $this->role === self::ROLE_STUDENT;
     }
+
+    /** Tutor dapat mengunggah / mengelola materi. */
+    public function canManageMaterials(): bool
+    {
+        return $this->isTutor();
+    }
 }

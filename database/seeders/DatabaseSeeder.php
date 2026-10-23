@@ -30,7 +30,6 @@ class DatabaseSeeder extends Seeder
                 'role' => 'student',
             ],
         ];
-
         foreach ($accounts as $account) {
             User::updateOrCreate(
                 ['email' => $account['email']],
@@ -43,6 +42,8 @@ class DatabaseSeeder extends Seeder
             );
         }
 
+        $this->call(ScheduleSeeder::class);
+        $this->call(MaterialSeeder::class);
         $this->call(SoalTesSeeder::class);
     }
 }

@@ -20,3 +20,6 @@ Route::middleware(['auth', 'verified', 'role:admin'])
             Route::delete('/{schedule}', 'destroy')->whereNumber('schedule')->name('destroy');
         });
     });
+
+// Fitur materi belajar (guru: kelola, semua user: pustaka)
+require __DIR__.'/materials.php';
