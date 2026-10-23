@@ -31,6 +31,10 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
+        if ($request->user()->pendaftaran?->status === 'ditolak') {
+            return redirect()->route('registrasi.edit');
+        }
+
         $role = $request->user()->role;
 
         $redirect = match ($role) {

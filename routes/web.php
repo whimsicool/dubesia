@@ -1,10 +1,9 @@
 <?php
 
+use App\Http\Controllers\Admin\CalonMuridController;
 use App\Http\Controllers\Admin\FeedbackController as AdminFeedbackController;
-use App\Http\Controllers\Admin\VerifikasiPendaftaranController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RegistrasiController;
-use App\Http\Controllers\StatusPendaftaranController;
 use App\Http\Controllers\Student\FeedbackController;
 use App\Http\Controllers\Student\GradeController as StudentGradeViewController;
 use App\Http\Controllers\StudentGradeController;
@@ -13,19 +12,8 @@ use App\Http\Controllers\Tutor\GradeComponentController;
 use App\Http\Controllers\Tutor\StudentClassGradeController;
 use App\Http\Controllers\TutorClassController;
 use App\Http\Controllers\TutorClassStudentController;
-use App\Models\Pendaftaran;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
-
-Route::patch(
-    '/admin/pendaftaran/{pendaftaran}/verifikasi',
-    [VerifikasiPendaftaranController::class, 'update']
-)->middleware(['auth', 'verified', 'role:admin'])
-    ->name('admin.pendaftaran.verifikasi');
-
-Route::get('/admin/pendaftaran', [VerifikasiPendaftaranController::class, 'index'])
-    ->middleware(['auth', 'verified', 'role:admin'])
-    ->name('admin.pendaftaran.index');
 
 Route::get('/', function () {
     return auth()->check()
@@ -34,29 +22,8 @@ Route::get('/', function () {
 });
 
 Route::get('/dashboard', function () {
-    $pendaftaran = auth()->user()?->pendaftaran;
-
-    if ($pendaftaran && $pendaftaran->status !== Pendaftaran::STATUS_TERVERIFIKASI) {
-        return redirect()->route('pendaftaran.status');
-    }
-
-    $dashboardRoute = match (auth()->user()?->role) {
-        'student' => 'student.dashboard',
-        'tutor' => 'tutor.dashboard',
-        'admin' => 'admin.dashboard',
-        default => null,
-    };
-
-    if ($dashboardRoute) {
-        return redirect()->route($dashboardRoute);
-    }
-
     return Inertia::render('Dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
-
-Route::get('/pendaftaran/status', StatusPendaftaranController::class)
-    ->middleware(['auth', 'verified', 'role:student'])
-    ->name('pendaftaran.status');
 
 Route::get('/registrasi', [RegistrasiController::class, 'create'])->name('registrasi.create');
 
@@ -75,6 +42,7 @@ Route::get('/student/dashboard', function () {
 Route::get('/admin/feedback', [AdminFeedbackController::class, 'index'])
     ->middleware(['auth', 'verified', 'role:admin'])
     ->name('admin.feedback.index');
+
 // Student feedback routes
 Route::middleware(['auth', 'verified', 'role:student'])
     ->prefix('student')
@@ -130,12 +98,11 @@ Route::middleware(['auth', 'verified', 'role:tutor'])
     });
 
 Route::middleware('auth')->group(function () {
-    Route::patch('/pendaftaran/perbaiki', [RegistrasiController::class, 'updateRejected'])
-        ->middleware('role:student')
-        ->name('pendaftaran.perbaiki');
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    Route::get('/pendaftaran/perbaiki', [RegistrasiController::class, 'edit'])->name('registrasi.edit');
+    Route::put('/pendaftaran/perbaiki', [RegistrasiController::class, 'update'])->name('registrasi.update');
 
     // === Tes Level Kelas Routes ===
     Route::prefix('tes-level')->name('tes-level.')->group(function () {
@@ -148,9 +115,14 @@ Route::middleware('auth')->group(function () {
         Route::get('/result/{id}', [TesLevelController::class, 'result'])->name('result');
     });
 });
-
 // Registrasi murid tetap boleh dikirim saat browser masih memiliki sesi
 // admin/tutor, supaya middleware guest tidak mengalihkan submit ke dashboard.
 Route::post('/registrasi', [RegistrasiController::class, 'store'])->name('registrasi.store');
-require __DIR__.'/auth.php';
 
+Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/calon-murid', [CalonMuridController::class, 'index'])->name('calon-murid.index');
+    Route::get('/calon-murid/{pendaftaran}', [CalonMuridController::class, 'show'])->name('calon-murid.show');
+    Route::post('/calon-murid/{pendaftaran}/verifikasi', [CalonMuridController::class, 'verifikasi'])->name('calon-murid.verifikasi');
+    Route::post('/calon-murid/{pendaftaran}/tolak', [CalonMuridController::class, 'tolak'])->name('calon-murid.tolak');
+});
+require __DIR__.'/auth.php';

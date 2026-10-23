@@ -49,7 +49,14 @@ class LoginRequest extends FormRequest
                 'email' => trans('auth.failed'),
             ]);
         }
+        $user = Auth::user();
+        if (! $user->is_active && $user->pendaftaran?->status !== 'ditolak') {
+            Auth::logout();
 
+            throw ValidationException::withMessages([
+                'email' => 'Akun Anda belum aktif. Menunggu verifikasi pendaftaran oleh Admin.',
+            ]);
+        }
         RateLimiter::clear($this->throttleKey());
     }
 

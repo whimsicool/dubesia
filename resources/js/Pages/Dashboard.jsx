@@ -25,15 +25,8 @@ export default function Dashboard({ auth }) {
                                     >
                                         Lihat kritik dan saran murid
                                     </Link>
-                                    <Link
-                                        href={route('admin.pendaftaran.index')}
-                                        className="inline-flex rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800"
-                                    >
-                                        Buka verifikasi pendaftaran
-                                    </Link>
                                 </div>
                             )}
-                            
                         </div>
                     </div>
                 </div>
