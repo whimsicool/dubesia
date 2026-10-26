@@ -1,4 +1,4 @@
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import AdminLayout from '@/Layouts/AdminLayout';
 import { Head, router } from '@inertiajs/react';
 import axios from 'axios';
 import { useEffect, useMemo, useState } from 'react';
@@ -168,11 +168,11 @@ export default function TakeTest({ soalList, jawabanTersimpan = {}, sisaDetik: i
     ];
 
     return (
-        <AuthenticatedLayout>
+        <AdminLayout>
             <Head title={`Tes Level - Soal No. ${currentIndex + 1}`} />
 
-            <div className="min-h-screen bg-slate-50 pb-16 pt-4">
-                <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div className="pb-16 pt-4">
+                <div className="mx-auto max-w-7xl">
                     {/* Top Sticky Test Bar */}
                     <div className="sticky top-2 z-20 mb-6 rounded-2xl bg-white p-4 shadow-sm border border-slate-200/80 backdrop-blur-md">
                         <div className="flex flex-wrap items-center justify-between gap-4">
@@ -568,6 +568,6 @@ export default function TakeTest({ soalList, jawabanTersimpan = {}, sisaDetik: i
                     </div>
                 </div>
             )}
-        </AuthenticatedLayout>
+        </AdminLayout>
     );
 }

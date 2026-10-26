@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Head, router, usePage } from '@inertiajs/react';
 import { BookOpen, Film, FileText, Filter, LayoutGrid, List, Newspaper, Search } from 'lucide-react';
-import PortalLayout from '@/Layouts/PortalLayout';
+import AdminLayout from '@/Layouts/AdminLayout';
 import MaterialCard from '@/Components/Materials/MaterialCard';
 import MaterialViewer from '@/Components/Materials/MaterialViewer';
 import Pagination from '@/Components/Common/Pagination';
@@ -76,7 +76,7 @@ export default function Index({ materials, active, filters, stats, topics, types
     const hasFilter = filters.q || filters.type || filters.status || filters.topic;
 
     return (
-        <PortalLayout>
+        <AdminLayout>
             <Head title="Materi Belajar" />
 
             <nav className="mb-4 flex flex-wrap items-center gap-2 text-[11px] font-semibold uppercase tracking-wider text-slate-500">
@@ -252,6 +252,6 @@ export default function Index({ materials, active, filters, stats, topics, types
                     <Pagination paginator={materials} onPage={goToPage} noun="materi" />
                 </div>
             </section>
-        </PortalLayout>
+        </AdminLayout>
     );
 }

@@ -1,4 +1,4 @@
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import AdminLayout from '@/Layouts/AdminLayout';
 import { Head, Link, useForm, usePage } from '@inertiajs/react';
 import { useMemo, useState } from 'react';
 
@@ -145,18 +145,12 @@ export default function Students({ courseClass, students, components }) {
     );
 
     return (
-        <AuthenticatedLayout
-            header={
-                <div>
-                    <p className="text-xs font-bold uppercase tracking-[0.18em] text-red-700">Penilaian &amp; Evaluasi</p>
-                    <h1 className="mt-1 text-2xl font-bold tracking-tight text-slate-950">Kelola Nilai</h1>
-                </div>
-            }
+        <AdminLayout title="Kelola Nilai" subtitle={courseClass.name}
         >
             <Head title={`Kelola Nilai - ${courseClass.name}`} />
 
-            <div className="min-h-screen bg-slate-100 pb-36">
-                <main className="mx-auto max-w-[1600px] px-4 py-6 sm:px-6 lg:px-8">
+            <div className="pb-36">
+                <main className="pb-4">
                     <div className="mb-5 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
                         <div>
                             <Link
@@ -387,6 +381,6 @@ export default function Students({ courseClass, students, components }) {
                     </form>
                 </main>
             </div>
-        </AuthenticatedLayout>
+        </AdminLayout>
     );
 }

@@ -1,4 +1,4 @@
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import AdminLayout from '@/Layouts/AdminLayout';
 import { Head, router, useForm, usePage } from '@inertiajs/react';
 import { useEffect, useState } from 'react';
 
@@ -127,26 +127,14 @@ export default function Index({
     }
 
     return (
-        <AuthenticatedLayout
-            header={
-                <div>
-                    <p className="text-sm text-gray-500">Menu Guru</p>
-                    <h1 className="mt-1 text-2xl font-bold text-[#15243a]">
-                        Kelola Presensi
-                    </h1>
-                </div>
-            }
+        <AdminLayout title="Presensi Kelas"
         >
             <Head title="Kelola Presensi" />
 
-            <div className="min-h-[calc(100vh-9rem)] bg-[#f2f5fa] py-8">
-                <div className="mx-auto max-w-7xl space-y-6 px-4 sm:px-6 lg:px-8">
+            <div className="space-y-6">
                     <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
                         <div>
-                            <p className="text-sm font-semibold uppercase tracking-wide text-red-700">
-                                Dubesia · Area Guru
-                            </p>
-                            <p className="mt-1 max-w-2xl text-sm text-gray-600">
+                            <p className="max-w-2xl text-sm text-gray-600">
                                 Pilih kelas dan tanggal, lalu isi status kehadiran
                                 setiap murid.
                             </p>
@@ -526,8 +514,7 @@ export default function Index({
                             </div>
                         )}
                     </section>
-                </div>
             </div>
-        </AuthenticatedLayout>
+        </AdminLayout>
     );
 }
