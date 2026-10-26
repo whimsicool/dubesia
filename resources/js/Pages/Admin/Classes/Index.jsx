@@ -85,13 +85,12 @@ export default function Index({ classes, filters, stats, options }) {
             />
 
             <div className="mb-5 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-                <StatCard label="Total Kelas" value={stats.total} caption="Seluruh kelas terdaftar" icon={Users} />
-                <StatCard label="Kelas Aktif" value={stats.active} caption="Dapat dijadwalkan" icon={Power} />
-                <StatCard label="Kelas Nonaktif" value={stats.inactive} caption="Arsip / batch selesai" icon={EyeOff} />
+                <StatCard label="Total Kelas" value={stats.total} icon={Users} />
+                <StatCard label="Kelas Aktif" value={stats.active} icon={Power} />
+                <StatCard label="Kelas Nonaktif" value={stats.inactive} icon={EyeOff} />
                 <StatCard
                     label="Murid Tergabung"
                     value={stats.students}
-                    caption="Di kelas aktif (unik)"
                     icon={UserPlus}
                 />
             </div>

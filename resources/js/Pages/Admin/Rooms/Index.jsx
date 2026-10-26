@@ -80,10 +80,10 @@ export default function Index({ rooms, filters, stats, options }) {
             />
 
             <div className="mb-5 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-                <StatCard label="Total Ruangan" value={stats.total} caption="Seluruh ruang & platform" icon={LayoutGrid} />
-                <StatCard label="Fisik & Lab Aktif" value={stats.physical_lab} caption="Ruang kelas + laboratorium" icon={Building2} />
-                <StatCard label="Online Aktif" value={stats.online} caption="Saluran cloud / virtual" icon={Video} />
-                <StatCard label="Nonaktif" value={stats.inactive} caption="Tidak muncul di jadwal" icon={EyeOff} />
+                <StatCard label="Total Ruangan" value={stats.total} icon={LayoutGrid} />
+                <StatCard label="Fisik & Lab Aktif" value={stats.physical_lab} icon={Building2} />
+                <StatCard label="Online Aktif" value={stats.online} icon={Video} />
+                <StatCard label="Nonaktif" value={stats.inactive} icon={EyeOff} />
             </div>
 
             <div className="mb-5 flex flex-wrap items-center gap-3 rounded-2xl border border-slate-100 bg-white p-4 shadow-sm">
