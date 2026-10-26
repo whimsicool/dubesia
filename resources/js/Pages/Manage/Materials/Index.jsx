@@ -4,7 +4,7 @@ import { CalendarDays, CheckCircle2, ExternalLink, Grid2X2, List, Pencil, Plus, 
 import AdminLayout from '@/Layouts/AdminLayout';
 import Modal from '@/Components/Admin/Modal';
 import Pagination from '@/Components/Common/Pagination';
-import FlashBanner from '@/Components/Schedules/FlashBanner';
+import FlashBanner from '@/Components/Common/FlashBanner';
 import { TYPE_META, formatDate, metaLine } from '@/Components/Materials/constants';
 import { cleanParams } from '@/Components/Schedules/constants';
 

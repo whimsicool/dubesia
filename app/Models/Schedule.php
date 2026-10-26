@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Schedule extends Model
 {
     protected $fillable = [
-        'semester_id', 'program_id', 'instructor_id', 'room_id',
+        'semester_id', 'program_id', 'class_id', 'instructor_id', 'room_id',
         'title', 'class_name', 'day_of_week', 'scheduled_date', 'start_time', 'end_time', 'notes',
     ];
 

@@ -2,13 +2,18 @@
 
 namespace App\Http\Requests\Admin;
 
+use App\Models\CourseClass;
+use App\Models\Instructor;
 use App\Models\Room;
 use App\Models\Schedule;
 use App\Models\Semester;
+use App\Models\Student;
+use App\Models\User;
 use App\Services\ScheduleConflictService;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Carbon;
+use Illuminate\Validation\Rule;
 use Throwable;
 
 class ScheduleRequest extends FormRequest
@@ -36,8 +41,6 @@ class ScheduleRequest extends FormRequest
         $this->merge([
             'semester_id' => $existing?->semester_id ?? Semester::active()->value('id'),
             'day_of_week' => $day,
-            // Field kelas/batch tidak lagi ditampilkan; judul jadwal menjadi nama kelas.
-            'class_name' => $this->input('title'),
             'program_id' => $this->filled('program_id') ? $this->input('program_id') : null,
         ]);
     }
@@ -49,17 +52,17 @@ class ScheduleRequest extends FormRequest
         return [
             'semester_id' => ['required', 'exists:semesters,id'],
             'program_id' => ['nullable', 'exists:programs,id'],
-            'instructor_id' => ['required', 'exists:instructors,id'],
+            // Kelas, tutor, dan murid dipilih dari data yang dikelola di Kelola Kelas dan Data Murid & Guru.
+            'class_id' => ['required', 'integer', 'exists:classes,id'],
+            'tutor_id' => ['required', 'integer', Rule::exists('users', 'id')->where('role', User::ROLE_TUTOR)],
             'room_id' => ['required', 'exists:rooms,id'],
-            'title' => ['required', 'string', 'max:150'],
-            'class_name' => ['required', 'string', 'max:120'],
             'scheduled_date' => [$this->route('schedule') && ! $this->route('schedule')->scheduled_date ? 'nullable' : 'required', 'date_format:Y-m-d'],
             'day_of_week' => ['required', 'integer', 'in:'.implode(',', $days)],
             'start_time' => ['required', 'date_format:H:i'],
             'end_time' => ['required', 'date_format:H:i', 'after:start_time'],
             'notes' => ['nullable', 'string', 'max:1000'],
             'student_ids' => ['nullable', 'array'],
-            'student_ids.*' => ['integer', 'distinct', 'exists:students,id'],
+            'student_ids.*' => ['integer', 'distinct', Rule::exists('users', 'id')->where('role', User::ROLE_STUDENT)],
         ];
     }
 
@@ -67,10 +70,11 @@ class ScheduleRequest extends FormRequest
     {
         return [
             'semester_id.required' => 'Belum ada semester aktif. Aktifkan satu semester terlebih dahulu.',
-            'instructor_id.required' => 'Pilih instruktur.',
+            'class_id.required' => 'Pilih kelas.',
+            'class_id.exists' => 'Kelas yang dipilih tidak ditemukan.',
+            'tutor_id.required' => 'Pilih tutor.',
+            'tutor_id.exists' => 'Tutor yang dipilih tidak ditemukan.',
             'room_id.required' => 'Pilih ruang / platform.',
-            'title.required' => 'Judul sesi wajib diisi.',
-            'class_name.required' => 'Nama kelas / batch wajib diisi.',
             'scheduled_date.required' => 'Pilih tanggal jadwal.',
             'scheduled_date.date_format' => 'Format tanggal jadwal tidak valid.',
             'day_of_week.in' => 'Jadwal hanya dapat dibuat pada hari Senin sampai Sabtu.',
@@ -79,10 +83,11 @@ class ScheduleRequest extends FormRequest
             'end_time.required' => 'Jam selesai wajib diisi.',
             'end_time.date_format' => 'Format jam selesai tidak valid (HH:MM).',
             'end_time.after' => 'Jam selesai harus setelah jam mulai.',
+            'student_ids.*.exists' => 'Murid yang dipilih tidak ditemukan.',
         ];
     }
 
-    /** Validasi lanjutan: kapasitas ruang dan deteksi bentrok (instruktur / ruang / murid). */
+    /** Validasi lanjutan: kapasitas ruang dan deteksi bentrok (tutor / ruang / murid). */
     public function after(): array
     {
         return [
@@ -92,7 +97,7 @@ class ScheduleRequest extends FormRequest
                 }
 
                 $data = $validator->validated();
-                $studentIds = array_map('intval', $data['student_ids'] ?? []);
+                $studentUserIds = array_map('intval', $data['student_ids'] ?? []);
 
                 if (! empty($data['scheduled_date'])) {
                     $semester = Semester::find($data['semester_id']);
@@ -100,15 +105,25 @@ class ScheduleRequest extends FormRequest
 
                     if ($semester && ($date->lt($semester->start_date) || $date->gt($semester->end_date))) {
                         $validator->errors()->add('scheduled_date', 'Tanggal jadwal harus berada dalam periode aktif.');
+
                         return;
                     }
                 }
 
-                $room = Room::find($data['room_id']);
-                if ($room && count($studentIds) > $room->capacity) {
+                $class = CourseClass::find($data['class_id']);
+
+                if ($class && $class->capacity !== null && count($studentUserIds) > $class->capacity) {
                     $validator->errors()->add(
                         'student_ids',
-                        sprintf('Jumlah peserta (%d) melebihi kapasitas %s (%d).', count($studentIds), $room->name, $room->capacity)
+                        sprintf('Jumlah murid (%d) melebihi kapasitas kelas %s (%d).', count($studentUserIds), $class->name, $class->capacity)
+                    );
+                }
+
+                $room = Room::find($data['room_id']);
+                if ($room && count($studentUserIds) > $room->capacity) {
+                    $validator->errors()->add(
+                        'student_ids',
+                        sprintf('Jumlah peserta (%d) melebihi kapasitas %s (%d).', count($studentUserIds), $room->name, $room->capacity)
                     );
                 }
 
@@ -117,19 +132,36 @@ class ScheduleRequest extends FormRequest
                     day: (int) $data['day_of_week'],
                     start: $data['start_time'],
                     end: $data['end_time'],
-                    instructorId: (int) $data['instructor_id'],
+                    // Tutor pilihan pengguna dipetakan ke baris instruktur yang dipakai jadwal.
+                    instructorId: Instructor::where('user_id', $data['tutor_id'])->value('id'),
                     roomId: (int) $data['room_id'],
-                    studentIds: $studentIds,
+                    studentIds: $this->parallelStudentIds($studentUserIds),
                     ignoreId: $this->route('schedule')?->id,
                     scheduledDate: $data['scheduled_date'] ?? null,
                 );
 
-                $fieldFor = ['instructor' => 'instructor_id', 'room' => 'room_id', 'students' => 'student_ids'];
+                $fieldFor = ['instructor' => 'tutor_id', 'room' => 'room_id', 'students' => 'student_ids'];
 
                 foreach ($conflicts->groupBy('type') as $type => $items) {
                     $validator->errors()->add($fieldFor[$type], $items->pluck('message')->implode(' '));
                 }
             },
         ];
+    }
+
+    /**
+     * Id baris `students` yang sudah tertaut ke murid terpilih. Murid belum punya baris
+     * students sampai jadwal pertama disimpan, jadi mereka tidak dapat bentrok lebih dulu.
+     *
+     * @param  array<int, int>  $userIds
+     * @return array<int, int>
+     */
+    private function parallelStudentIds(array $userIds): array
+    {
+        if ($userIds === []) {
+            return [];
+        }
+
+        return Student::whereIn('user_id', $userIds)->pluck('id')->map(fn ($id) => (int) $id)->all();
     }
 }
