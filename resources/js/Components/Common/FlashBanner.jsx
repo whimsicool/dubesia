@@ -1,9 +1,27 @@
 import { useEffect, useState } from 'react';
-import { CircleCheck, X } from 'lucide-react';
+import { CircleCheck, TriangleAlert, X } from 'lucide-react';
 
-/** Banner sukses di atas halaman, hilang otomatis setelah 7 detik. `flash` = { title, message } | null */
-export default function FlashBanner({ flash }) {
+const TONES = {
+    success: {
+        icon: CircleCheck,
+        frame: 'border-slate-100 bg-white',
+        badge: 'bg-red-50 text-red-700',
+    },
+    error: {
+        icon: TriangleAlert,
+        frame: 'border-red-100 bg-white',
+        badge: 'bg-red-50 text-red-700',
+    },
+};
+
+/**
+ * Banner di atas halaman, hilang otomatis setelah 7 detik.
+ * `flash` = { title, message } | null, `tone` = 'success' | 'error'.
+ */
+export default function FlashBanner({ flash, tone = 'success' }) {
     const [visible, setVisible] = useState(false);
+    const style = TONES[tone] ?? TONES.success;
+    const Icon = style.icon;
 
     useEffect(() => {
         if (!flash) {
@@ -20,11 +38,11 @@ export default function FlashBanner({ flash }) {
 
     return (
         <div
-            className="mb-5 flex items-center gap-4 rounded-2xl border border-slate-100 bg-white p-4 shadow-sm print:hidden"
+            className={`mb-5 flex items-center gap-4 rounded-2xl border p-4 shadow-sm print:hidden ${style.frame}`}
             role="status"
         >
-            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-red-50 text-red-700">
-                <CircleCheck className="h-6 w-6" />
+            <span className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${style.badge}`}>
+                <Icon className="h-6 w-6" />
             </span>
             <div className="min-w-0 flex-1">
                 <p className="font-bold text-slate-900">{flash.title}</p>

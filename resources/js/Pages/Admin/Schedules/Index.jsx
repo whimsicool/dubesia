@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import { ChevronDown, CirclePlus, Download, FileSpreadsheet, Printer } from 'lucide-react';
 import AdminLayout from '@/Layouts/AdminLayout';
-import FlashBanner from '@/Components/Schedules/FlashBanner';
+import FlashBanner from '@/Components/Common/FlashBanner';
 import ScheduleFilters from '@/Components/Schedules/ScheduleFilters';
 import WeekCalendar from '@/Components/Schedules/WeekCalendar';
 import MonthCalendar from '@/Components/Schedules/MonthCalendar';

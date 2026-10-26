@@ -3,9 +3,11 @@ import { Link, usePage } from '@inertiajs/react';
 import {
     Award,
     BookOpen,
+    Building2,
     CalendarDays,
     ChevronDown,
     ClipboardCheck,
+    GraduationCap,
     LayoutGrid,
     ListChecks,
     Menu,
@@ -45,7 +47,11 @@ const NAV = {
         },
         {
             heading: 'Akademik & Jadwal',
-            items: [{ label: 'Jadwal Belajar', icon: CalendarDays, route: 'admin.schedules.index', active: 'admin.schedules.*' }],
+            items: [
+                { label: 'Jadwal Belajar', icon: CalendarDays, route: 'admin.schedules.index', active: 'admin.schedules.*' },
+                { label: 'Kelola Kelas', icon: GraduationCap, route: 'admin.classes.index', active: 'admin.classes.*' },
+                { label: 'Kelola Ruangan', icon: Building2, route: 'admin.rooms.index', active: 'admin.rooms.*' },
+            ],
         },
         {
             heading: 'Layanan Aspirasi',

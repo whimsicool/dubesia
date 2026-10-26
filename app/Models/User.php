@@ -127,18 +127,17 @@ class User extends Authenticatable
     }
 
     /**
-     * Inisial nama untuk avatar.
+     * Inisial nama untuk avatar. Gelar (Dr., Prof., Ir.) diabaikan: "Dr. Kevin Kusuma, M.A." => "KK".
      */
     public function getInitialsAttribute(): string
     {
-        $words = explode(' ', trim($this->name));
-        $initials = '';
+        $name = preg_replace('/^(dr|prof|ir|drs)\.?\s+/i', '', trim($this->name));
+        $words = preg_split('/\s+/', $name, -1, PREG_SPLIT_NO_EMPTY) ?: [];
 
-        foreach (array_slice($words, 0, 2) as $word) {
-            $initials .= strtoupper(mb_substr($word, 0, 1));
-        }
-
-        return $initials;
+        return collect($words)
+            ->take(2)
+            ->map(fn (string $word): string => mb_strtoupper(mb_substr($word, 0, 1)))
+            ->implode('');
     }
 
     /**

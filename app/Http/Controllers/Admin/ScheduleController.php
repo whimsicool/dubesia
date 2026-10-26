@@ -5,12 +5,14 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\ScheduleRequest;
 use App\Http\Resources\ScheduleResource;
+use App\Models\CourseClass;
 use App\Models\Instructor;
 use App\Models\Program;
 use App\Models\Room;
 use App\Models\Schedule;
 use App\Models\Semester;
 use App\Models\Student;
+use App\Models\User;
 use App\Services\ScheduleConflictService;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
@@ -25,9 +27,7 @@ use Throwable;
 
 class ScheduleController extends Controller
 {
-    public function __construct(private readonly ScheduleConflictService $conflicts)
-    {
-    }
+    public function __construct(private readonly ScheduleConflictService $conflicts) {}
 
     /* ---------------------------------------------------------------------
      |  Halaman utama: kalender mingguan + tabel
@@ -70,13 +70,24 @@ class ScheduleController extends Controller
                 'programs' => Program::where('is_active', true)->orderBy('name')->get(['id', 'name', 'category'])
                     ->map(fn ($p) => ['id' => $p->id, 'name' => $p->name, 'category' => $p->category->value]),
                 'instructors' => Instructor::where('is_active', true)->orderBy('name')->get(['id', 'name']),
-                'rooms' => Room::where('is_active', true)->orderBy('name')->get(['id', 'name', 'type', 'platform', 'capacity'])
+                'classes' => CourseClass::where('is_active', true)->with(['tutors:id,name', 'students:id'])->orderBy('name')->get()
+                    ->map(fn (CourseClass $class) => [
+                        'id' => $class->id,
+                        'name' => $class->name,
+                        'level' => $class->level?->value,
+                        'tutor' => $class->tutors->first() ? [
+                            'id' => $class->tutors->first()->id,
+                            'name' => $class->tutors->first()->name,
+                        ] : null,
+                        'student_ids' => $class->students->pluck('id')->values(),
+                    ]),
+                'tutors' => User::where('role', User::ROLE_TUTOR)->where('status_akun', 'aktif')->orderBy('name')->get(['id', 'name']),
+                'rooms' => Room::where('is_active', true)->orderBy('name')->get(['id', 'name', 'type', 'platform', 'location', 'capacity'])
                     ->map(fn ($r) => [
                         'id' => $r->id, 'name' => $r->name, 'type' => $r->type->value,
-                        'platform' => $r->platform, 'capacity' => $r->capacity,
+                        'platform' => $r->platform, 'location' => $r->location, 'capacity' => $r->capacity,
                     ]),
-                'students' => Student::whereIn('status', [Student::STATUS_ACTIVE, Student::STATUS_PENDING])
-                    ->orderBy('name')->get(['id', 'nisn', 'name', 'status']),
+                'students' => User::where('role', User::ROLE_STUDENT)->orderBy('name')->get(['id', 'name', 'email', 'nip']),
             ],
         ]);
     }
@@ -86,10 +97,10 @@ class ScheduleController extends Controller
      | ------------------------------------------------------------------- */
     public function store(ScheduleRequest $request): RedirectResponse
     {
-        $schedule = DB::transaction(fn () => $this->persist(new Schedule(), $request->validated()));
+        $schedule = DB::transaction(fn () => $this->persist(new Schedule, $request->validated()));
 
         return back()->with('success', [
-            'title' => 'Pembaruan Jadwal Tersimpan',
+            'title' => 'Jadwal Tersimpan',
             'message' => sprintf(
                 'Jadwal "%s" berhasil ditambahkan untuk kelas %s dengan %d murid terdaftar.',
                 $schedule->title, $schedule->class_name, $schedule->students()->count()
@@ -137,7 +148,7 @@ class ScheduleController extends Controller
             'scheduled_date' => ['required', 'date_format:Y-m-d'],
             'start_time' => ['required', 'date_format:H:i'],
             'end_time' => ['required', 'date_format:H:i'],
-            'instructor_id' => ['nullable', 'integer'],
+            'tutor_id' => ['nullable', 'integer'],
             'room_id' => ['nullable', 'integer'],
             'student_ids' => ['nullable', 'array'],
             'student_ids.*' => ['integer'],
@@ -155,9 +166,10 @@ class ScheduleController extends Controller
             day: Carbon::createFromFormat('Y-m-d', $data['scheduled_date'])->dayOfWeekIso,
             start: $data['start_time'],
             end: $data['end_time'],
-            instructorId: $data['instructor_id'] ?? null,
+            // Formulir mengirim tutor & murid (user); mesin bentrok bekerja dengan id instruktur & students.
+            instructorId: empty($data['tutor_id']) ? null : Instructor::where('user_id', $data['tutor_id'])->value('id'),
             roomId: $data['room_id'] ?? null,
-            studentIds: $data['student_ids'] ?? [],
+            studentIds: empty($data['student_ids']) ? [] : Student::whereIn('user_id', $data['student_ids'])->pluck('id')->map(fn ($id) => (int) $id)->all(),
             ignoreId: $data['ignore_id'] ?? null,
             scheduledDate: $data['scheduled_date'],
         );
@@ -203,20 +215,88 @@ class ScheduleController extends Controller
     /* ---------------------------------------------------------------------
      |  Helpers
      | ------------------------------------------------------------------- */
+    /**
+     * Simpan jadwal. Kelas menentukan judul & nama kelas; tutor dan murid dipetakan ke
+     * baris `instructors` / `students` yang sudah dipakai kalender, presensi, dan ekspor.
+     */
     private function persist(Schedule $schedule, array $data): Schedule
     {
-        $studentIds = $data['student_ids'] ?? [];
+        $studentUserIds = array_map('intval', $data['student_ids'] ?? []);
         unset($data['student_ids']);
+
+        $class = CourseClass::findOrFail($data['class_id']);
+        $tutor = User::findOrFail($data['tutor_id']);
+        unset($data['tutor_id']);
+
+        $data['title'] = $class->name;
+        $data['class_name'] = $class->name;
+        $data['instructor_id'] = $this->instructorFor($tutor);
+
+        $studentIds = $this->studentsFor($studentUserIds);
 
         $schedule->fill($data)->save();
         $schedule->students()->sync($studentIds);
 
-        // Murid yang baru ditempatkan ke kelas otomatis berstatus aktif.
+        // Murid yang baru ditempatkan ke jadwal otomatis berstatus aktif.
         Student::whereIn('id', $studentIds)
             ->where('status', Student::STATUS_PENDING)
             ->update(['status' => Student::STATUS_ACTIVE]);
 
         return $schedule;
+    }
+
+    /** Baris instruktur adalah pasangan tutor (user) pada jadwal; dibuat saat tutor pertama kali dipakai. */
+    private function instructorFor(User $tutor): int
+    {
+        $instructor = Instructor::firstOrCreate(
+            ['user_id' => $tutor->id],
+            ['name' => $tutor->name, 'is_active' => true],
+        );
+
+        if ($instructor->name !== $tutor->name) {
+            $instructor->update(['name' => $tutor->name]);
+        }
+
+        return $instructor->id;
+    }
+
+    /**
+     * Petakan murid (user) ke baris `students` yang dipakai pivot jadwal dan presensi.
+     *
+     * @param  array<int, int>  $userIds
+     * @return array<int, int>
+     */
+    private function studentsFor(array $userIds): array
+    {
+        if ($userIds === []) {
+            return [];
+        }
+
+        return User::whereIn('id', $userIds)->get(['id', 'name', 'email', 'nip'])
+            ->map(function (User $user): int {
+                $student = Student::firstOrCreate(
+                    ['user_id' => $user->id],
+                    [
+                        'nisn' => $this->nisnFor($user),
+                        'name' => $user->name,
+                        'email' => $user->email,
+                        'status' => Student::STATUS_ACTIVE,
+                    ],
+                );
+
+                return $student->id;
+            })
+            ->all();
+    }
+
+    /** NISN diambil dari NIP murid; bila kosong atau sudah dipakai, pakai penanda unik akun. */
+    private function nisnFor(User $user): string
+    {
+        if ($user->nip && ! Student::where('nisn', $user->nip)->exists()) {
+            return $user->nip;
+        }
+
+        return 'USR-'.$user->id;
     }
 
     private function filteredQuery(Request $request, Semester $semester): Builder
@@ -289,5 +369,4 @@ class ScheduleController extends Controller
             ];
         })->values()->all();
     }
-
 }
