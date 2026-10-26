@@ -14,6 +14,11 @@ class Student extends Model
 
     protected $fillable = ['user_id', 'nisn', 'name', 'email', 'status'];
 
+    public function classGroups(): BelongsToMany
+    {
+        return $this->belongsToMany(ClassGroup::class, 'class_group_student')->withTimestamps();
+    }
+
     public function schedules(): BelongsToMany
     {
         return $this->belongsToMany(Schedule::class)->withTimestamps();

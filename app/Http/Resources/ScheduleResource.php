@@ -14,6 +14,7 @@ class ScheduleResource extends JsonResource
             'id' => $this->id,
             'title' => $this->title,
             'class_name' => $this->class_name,
+            'class_group' => $this->classGroup ? ['id' => $this->classGroup->id, 'name' => $this->classGroup->name, 'level' => $this->classGroup->level] : null,
             'day_of_week' => (int) $this->day_of_week,
             'scheduled_date' => $this->scheduled_date?->toDateString(),
             'start_time' => substr($this->start_time, 0, 5),

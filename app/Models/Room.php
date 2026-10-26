@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Room extends Model
 {
-    protected $fillable = ['name', 'type', 'platform', 'capacity', 'is_active'];
+    protected $fillable = ['name', 'type', 'location', 'platform', 'capacity', 'is_active'];
 
     protected function casts(): array
     {
@@ -17,6 +17,11 @@ class Room extends Model
             'capacity' => 'integer',
             'is_active' => 'boolean',
         ];
+    }
+
+    public function isOnline(): bool
+    {
+        return $this->type === RoomType::Online;
     }
 
     public function schedules(): HasMany

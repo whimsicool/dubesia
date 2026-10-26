@@ -51,6 +51,7 @@ class ScheduleRequest extends FormRequest
             'program_id' => ['nullable', 'exists:programs,id'],
             'instructor_id' => ['required', 'exists:instructors,id'],
             'room_id' => ['required', 'exists:rooms,id'],
+            'class_group_id' => ['nullable', 'integer', 'exists:class_groups,id'],
             'title' => ['required', 'string', 'max:150'],
             'class_name' => ['required', 'string', 'max:120'],
             'scheduled_date' => [$this->route('schedule') && ! $this->route('schedule')->scheduled_date ? 'nullable' : 'required', 'date_format:Y-m-d'],
@@ -67,7 +68,8 @@ class ScheduleRequest extends FormRequest
     {
         return [
             'semester_id.required' => 'Belum ada semester aktif. Aktifkan satu semester terlebih dahulu.',
-            'instructor_id.required' => 'Pilih instruktur.',
+            'instructor_id.required' => 'Pilih tutor.',
+            'class_group_id.exists' => 'Kelas yang dipilih tidak ditemukan.',
             'room_id.required' => 'Pilih ruang / platform.',
             'title.required' => 'Judul sesi wajib diisi.',
             'class_name.required' => 'Nama kelas / batch wajib diisi.',

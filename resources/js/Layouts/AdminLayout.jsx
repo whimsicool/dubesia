@@ -4,6 +4,7 @@ import {
     Award,
     BookOpen,
     CalendarDays,
+    DoorOpen,
     ChevronDown,
     ClipboardCheck,
     FileText,
@@ -44,6 +45,8 @@ const NAV = [
         heading: 'Akademik & Jadwal',
         items: [
             { label: 'Jadwal Belajar', icon: CalendarDays, route: 'admin.schedules.index', active: 'admin.schedules.*' },
+            { label: 'Kelola Kelas', icon: Users, route: 'admin.classes.index', active: 'admin.classes.*' },
+            { label: 'Kelola Ruangan', icon: DoorOpen, route: 'admin.rooms.index', active: 'admin.rooms.*' },
             { label: 'Presensi Kelas', icon: ClipboardCheck, route: 'admin.attendances.index', active: 'admin.attendances.*' },
         ],
     },

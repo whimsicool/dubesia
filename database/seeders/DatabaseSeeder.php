@@ -41,6 +41,8 @@ class DatabaseSeeder extends Seeder
         );
 
         $this->call(ScheduleSeeder::class);
+        $this->call(RoomSeeder::class);
+        $this->call(ClassGroupSeeder::class);
         $this->call(MaterialSeeder::class);
 
         foreach ($accounts as $account) {

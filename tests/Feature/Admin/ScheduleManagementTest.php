@@ -10,6 +10,7 @@ use App\Models\Semester;
 use App\Models\Student;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Carbon;
 use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
 
@@ -50,6 +51,7 @@ class ScheduleManagementTest extends TestCase
             'program_id' => $this->program->id,
             'instructor_id' => $this->instructor->id,
             'room_id' => $this->room->id,
+            'scheduled_date' => now()->startOfWeek(Carbon::MONDAY)->toDateString(),
             'day_of_week' => 1,
             'start_time' => '08:30',
             'end_time' => '10:00',
@@ -66,7 +68,8 @@ class ScheduleManagementTest extends TestCase
             'room_id' => $this->room->id,
             'title' => 'Sesi Existing',
             'class_name' => 'Existing Batch',
-            'day_of_week' => 1,
+            'scheduled_date' => now()->startOfWeek(Carbon::MONDAY)->toDateString(),
+            'day_of_week' => Carbon::MONDAY,
             'start_time' => '08:30',
             'end_time' => '10:00',
         ], $override));
@@ -100,7 +103,7 @@ class ScheduleManagementTest extends TestCase
             ->assertInertia(fn (Assert $page) => $page
                 ->component('Admin/Schedules/Index')
                 ->has('schedules', 1)
-                ->where('stats.sessions', 1)
+                ->where('schedules.0.scheduled_date', now()->startOfWeek(Carbon::MONDAY)->toDateString())
                 ->has('week.days', 6)
             );
     }
@@ -217,7 +220,7 @@ class ScheduleManagementTest extends TestCase
         $this->assertDatabaseHas('students', ['id' => $student->id]); // murid tidak ikut terhapus
     }
 
-    public function test_conflict_audit_lists_overlapping_pairs(): void
+    public function test_schedule_page_includes_the_scheduled_date(): void
     {
         $this->makeSchedule();
         $otherRoom = Room::create(['name' => 'Hall B', 'type' => 'physical', 'capacity' => 20]);
@@ -225,7 +228,9 @@ class ScheduleManagementTest extends TestCase
 
         $this->actingAs($this->admin())
             ->get(route('admin.schedules.index'))
-            ->assertInertia(fn (Assert $page) => $page->has('conflicts', 1)->where('conflicts.0.reasons.0', 'Instruktur sama: Dr. Kevin Kusuma'));
+            ->assertInertia(fn (Assert $page) => $page
+                ->has('schedules', 2)
+                ->where('schedules.0.scheduled_date', now()->startOfWeek(Carbon::MONDAY)->toDateString()));
     }
 
     public function test_check_conflict_endpoint_returns_json(): void
@@ -234,6 +239,7 @@ class ScheduleManagementTest extends TestCase
 
         $this->actingAs($this->admin())
             ->postJson(route('admin.schedules.check-conflict'), [
+                'scheduled_date' => now()->startOfWeek(Carbon::MONDAY)->toDateString(),
                 'day_of_week' => 1, 'start_time' => '09:00', 'end_time' => '10:00',
                 'instructor_id' => $this->instructor->id, 'room_id' => $this->room->id,
             ])

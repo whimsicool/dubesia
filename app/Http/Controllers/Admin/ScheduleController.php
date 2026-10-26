@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\ScheduleRequest;
 use App\Http\Resources\ScheduleResource;
 use App\Models\Instructor;
+use App\Models\ClassGroup;
 use App\Models\Program;
 use App\Models\Room;
 use App\Models\Schedule;
@@ -77,6 +78,7 @@ class ScheduleController extends Controller
                     ]),
                 'students' => Student::whereIn('status', [Student::STATUS_ACTIVE, Student::STATUS_PENDING])
                     ->orderBy('name')->get(['id', 'nisn', 'name', 'status']),
+                'classes' => ClassGroup::where('is_active', true)->orderBy('name')->get(['id', 'name', 'level']),
             ],
         ]);
     }
@@ -225,7 +227,7 @@ class ScheduleController extends Controller
         $like = '%'.addcslashes($q, '%_\\').'%';
 
         $query = Schedule::query();
-        $query->with(['program', 'instructor', 'room', 'students:id']);
+        $query->with(['program', 'instructor', 'room', 'students:id', 'classGroup']);
         $query->where('semester_id', $semester->getKey());
 
         foreach ([

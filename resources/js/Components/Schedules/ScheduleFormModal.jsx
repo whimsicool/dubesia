@@ -7,6 +7,7 @@ const BLANK = {
     program_id: '',
     instructor_id: '',
     room_id: '',
+    class_group_id: '',
     scheduled_date: '',
     start_time: '08:00',
     end_time: '09:30',
@@ -113,6 +114,7 @@ export default function ScheduleFormModal({ open, onClose, schedule, options, de
                       program_id: schedule.program?.id ?? '',
                       instructor_id: schedule.instructor.id,
                       room_id: schedule.room.id,
+                      class_group_id: schedule.class_group?.id ?? '',
                       scheduled_date: schedule.scheduled_date ?? '',
                       start_time: schedule.start_time,
                       end_time: schedule.end_time,
@@ -200,6 +202,15 @@ export default function ScheduleFormModal({ open, onClose, schedule, options, de
                                 <option key={i.id} value={i.id}>
                                     {i.name}
                                 </option>
+                            ))}
+                        </select>
+                    </Field>
+
+                    <Field label="Kelas terdaftar (opsional)" error={errors.class_group_id}>
+                        <select value={data.class_group_id} onChange={(e) => setData('class_group_id', e.target.value)} className={inputClass}>
+                            <option value="">Tanpa kelas terdaftar</option>
+                            {(options.classes ?? []).map((group) => (
+                                <option key={group.id} value={group.id}>{group.name} — {group.level}</option>
                             ))}
                         </select>
                     </Field>

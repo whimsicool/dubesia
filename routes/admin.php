@@ -23,3 +23,9 @@ Route::middleware(['auth', 'verified', 'role:admin'])
 
 // Fitur materi belajar (guru: kelola, semua user: pustaka)
 require __DIR__.'/materials.php';
+
+// Fitur pengelolaan kelas belajar.
+require __DIR__.'/classes.php';
+
+// Fitur kelola ruangan (admin).
+require __DIR__.'/rooms.php';
