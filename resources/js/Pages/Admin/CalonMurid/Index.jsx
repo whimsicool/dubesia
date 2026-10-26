@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Head, Link, router } from '@inertiajs/react';
 import { Search, Clock, BadgeCheck, XCircle } from '@/Components/Icons';
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import AdminLayout from '@/Layouts/AdminLayout';
 import StatusBadge from '@/Components/StatusBadge';
 
 const kartu = [
@@ -18,11 +18,10 @@ export default function Index({ pendaftarans, filters, statuses, ringkasan, flas
     router.get(route('admin.calon-murid.index'), params, { preserveState: true, replace: true });
 
   return (
-    <AuthenticatedLayout
-      header={<h2 className="text-xl font-semibold leading-tight text-[#0f1b2d]">Verifikasi Pendaftaran</h2>}
+    <AdminLayout title="Verifikasi Pendaftaran"
     >
       <Head title="Verifikasi Pendaftaran" />
-      <div className="mx-auto max-w-7xl px-4 py-5 sm:px-6 lg:px-8">
+      <div>
 
         {flash?.sukses && <div className={`mt-2 rounded-lg p-3 text-sm font-medium ${flash.sukses.startsWith('Pendaftaran ditolak') ? 'bg-red-50 text-red-800' : 'bg-emerald-50 text-emerald-800'}`}>{flash.sukses}</div>}
         {flash?.peringatan && <div className="mt-2 rounded-lg bg-amber-50 p-3 text-sm font-medium text-amber-800">{flash.peringatan}</div>}
@@ -114,6 +113,6 @@ export default function Index({ pendaftarans, filters, statuses, ringkasan, flas
           </div>
         )}
       </div>
-    </AuthenticatedLayout>
+    </AdminLayout>
   );
 }

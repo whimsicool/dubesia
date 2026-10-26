@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Head, Link, useForm } from '@inertiajs/react';
 import { ArrowLeft } from 'lucide-react';
-import PortalLayout from '@/Layouts/PortalLayout';
+import AdminLayout from '@/Layouts/AdminLayout';
 import FileDropzone from '@/Components/Materials/FileDropzone';
 import SimpleMarkdown from '@/Components/Materials/SimpleMarkdown';
 import { TYPE_META } from '@/Components/Materials/constants';
@@ -68,7 +68,7 @@ export default function Form({ material, options, routePrefix = 'tutor.materials
     const publishLabel = isEdit && material.status === 'published' ? 'Simpan Perubahan' : 'Terbitkan';
 
     return (
-        <PortalLayout>
+        <AdminLayout>
             <Head title={isEdit ? 'Ubah Materi' : 'Tambah Materi'} />
 
             <Link href={route(`${routePrefix}.index`)} className="mb-4 inline-flex items-center gap-2 text-sm font-semibold text-slate-600 hover:text-slate-900">
@@ -244,6 +244,6 @@ export default function Form({ material, options, routePrefix = 'tutor.materials
                     </button>
                 </div>
             </form>
-        </PortalLayout>
+        </AdminLayout>
     );
 }

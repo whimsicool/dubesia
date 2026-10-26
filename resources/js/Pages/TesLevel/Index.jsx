@@ -1,4 +1,4 @@
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import AdminLayout from '@/Layouts/AdminLayout';
 import { Head, Link, useForm } from '@inertiajs/react';
 import { useState } from 'react';
 
@@ -15,17 +15,12 @@ export default function Index({ totalSoal, durasiMenit, hasilTes, tesAktif }) {
     };
 
     return (
-        <AuthenticatedLayout
-            header={
-                <h2 className="text-xl font-semibold leading-tight text-gray-800">
-                    Tes Level Kelas
-                </h2>
-            }
+        <AdminLayout title="Tes Level Kelas"
         >
             <Head title="Tes Level Kelas" />
 
             <div className="py-8">
-                <div className="mx-auto max-w-5xl sm:px-6 lg:px-8">
+                <div className="mx-auto max-w-5xl">
                     {/* Header Banner */}
                     <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary-container via-on-surface to-primary-container p-8 text-white shadow-xl mb-8">
                         <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/5"></div>
@@ -228,6 +223,6 @@ export default function Index({ totalSoal, durasiMenit, hasilTes, tesAktif }) {
                     to { opacity: 1; transform: scale(1); }
                 }
             `}</style>
-        </AuthenticatedLayout>
+        </AdminLayout>
     );
 }

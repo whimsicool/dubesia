@@ -1,4 +1,4 @@
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import AdminLayout from '@/Layouts/AdminLayout';
 import { Head, Link, useForm } from '@inertiajs/react';
 
 const formatNumber = (value, digits = 0) =>
@@ -62,18 +62,11 @@ export default function Edit({
         : 0;
 
     return (
-        <AuthenticatedLayout
-            header={
-                <div>
-                    <p className="text-xs font-bold uppercase tracking-[0.18em] text-red-700">Penilaian &amp; Evaluasi</p>
-                    <h1 className="mt-1 text-2xl font-bold tracking-tight text-slate-950">Kelola Nilai</h1>
-                    <p className="mt-1 text-sm text-slate-600">{courseClass.name}</p>
-                </div>
-            }
+        <AdminLayout title="Kelola Nilai" subtitle={courseClass.name}
         >
             <Head title={`Kelola Nilai - ${student.name}`} />
 
-            <main className="min-h-[calc(100vh-9rem)] bg-slate-100 px-4 py-6 sm:px-6 lg:px-8">
+            <main>
                 <div className="mx-auto max-w-6xl">
                     <Link
                         href={route('tutor.classes.students.index', {
@@ -259,6 +252,6 @@ export default function Edit({
                     </form>
                 </div>
             </main>
-        </AuthenticatedLayout>
+        </AdminLayout>
     );
 }

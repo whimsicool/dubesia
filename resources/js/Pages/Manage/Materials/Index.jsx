@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import { CalendarDays, CheckCircle2, ExternalLink, Grid2X2, List, Pencil, Plus, Search, Star, Trash2, TriangleAlert, Upload, UserRound, Users } from 'lucide-react';
-import PortalLayout from '@/Layouts/PortalLayout';
+import AdminLayout from '@/Layouts/AdminLayout';
 import Modal from '@/Components/Admin/Modal';
 import Pagination from '@/Components/Common/Pagination';
 import FlashBanner from '@/Components/Schedules/FlashBanner';
@@ -80,7 +80,7 @@ export default function Index({ materials, filters, types, routePrefix = 'tutor.
     const select = 'rounded-lg border-slate-200 bg-slate-50 py-2 pl-3 pr-8 text-sm text-slate-800 focus:border-slate-900 focus:ring-slate-900';
 
     return (
-        <PortalLayout>
+        <AdminLayout>
             <Head title="Kelola Materi" />
 
             <FlashBanner flash={flash?.success} />
@@ -297,6 +297,6 @@ export default function Index({ materials, filters, types, routePrefix = 'tutor.
                     </div>
                 )}
             </Modal>
-        </PortalLayout>
+        </AdminLayout>
     );
 }

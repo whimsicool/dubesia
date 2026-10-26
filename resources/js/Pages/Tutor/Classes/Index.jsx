@@ -1,36 +1,14 @@
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import AdminLayout from '@/Layouts/AdminLayout';
 import { Head, Link } from '@inertiajs/react';
 
 export default function Index({ classes }) {
     return (
-        <AuthenticatedLayout
-            header={
-                <div>
-                    <p className="text-xs font-bold uppercase tracking-[0.18em] text-red-700">Portal Guru</p>
-                    <h1 className="mt-1 text-2xl font-bold tracking-tight text-slate-950">Daftar Kelas</h1>
-                </div>
-            }
+        <AdminLayout title="Kelas Saya"
         >
             <Head title="Kelas Saya" />
 
-            <main className="min-h-screen bg-slate-100 px-4 py-8 sm:px-6 lg:px-8">
+            <main className="px-4 py-8 sm:px-6 lg:px-8">
                 <div className="mx-auto max-w-7xl">
-                    <header className="mb-7 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-                        <div>
-                            <p className="text-xs font-bold uppercase tracking-[0.18em] text-red-700">Portal Guru</p>
-                            <h1 className="mt-1 text-3xl font-bold tracking-tight text-slate-950">Kelas Saya</h1>
-                            <p className="mt-2 text-slate-600">Pilih kelas untuk mengelola nilai dan melihat daftar murid.</p>
-                        </div>
-                        <Link
-                            href={route('logout')}
-                            method="post"
-                            as="button"
-                            className="inline-flex w-fit rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50"
-                        >
-                            Keluar
-                        </Link>
-                    </header>
-
                     {classes.length === 0 ? (
                         <section className="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
                             <h2 className="font-semibold text-slate-900">Belum ada kelas yang ditugaskan</h2>
@@ -71,6 +49,6 @@ export default function Index({ classes }) {
                     )}
                 </div>
             </main>
-        </AuthenticatedLayout>
+        </AdminLayout>
     );
 }

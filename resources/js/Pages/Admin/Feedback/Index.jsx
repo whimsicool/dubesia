@@ -1,32 +1,13 @@
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import AdminLayout from '@/Layouts/AdminLayout';
 import { Head, Link } from '@inertiajs/react';
 
 export default function Index({ feedbackEntries }) {
     return (
-        <AuthenticatedLayout
-            header={
-                <div>
-                    <p className="text-xs font-bold uppercase tracking-[0.18em] text-red-700">Portal Admin</p>
-                    <h1 className="mt-1 text-2xl font-bold tracking-tight text-slate-950">Kritik &amp; Saran Murid</h1>
-                </div>
-            }
+        <AdminLayout title="Kritik & Saran Murid"
         >
             <Head title="Kritik dan Saran Murid" />
 
-            <main className="min-h-[calc(100vh-9rem)] bg-slate-100 px-4 py-7 sm:px-6 lg:px-8">
-                <div className="mx-auto max-w-5xl">
-                    <section className="mb-6 flex flex-col gap-5 rounded-2xl bg-red-800 p-6 text-white shadow-sm sm:flex-row sm:items-center sm:justify-between">
-                        <div>
-                            <p className="text-sm font-semibold text-red-100">Masukan dari murid</p>
-                            <h2 className="mt-1 text-xl font-bold">Dengarkan dan tinjau setiap masukan</h2>
-                            <p className="mt-1 text-sm text-red-100">Semua kritik dan saran yang masuk ditampilkan di halaman ini.</p>
-                        </div>
-                        <div className="w-fit rounded-xl bg-white/10 px-5 py-3">
-                            <p className="text-xs font-semibold uppercase tracking-wide text-red-100">Total masukan</p>
-                            <p className="mt-1 text-2xl font-extrabold tabular-nums">{feedbackEntries.total}</p>
-                        </div>
-                    </section>
-
+            <div>
                     {feedbackEntries.data.length === 0 ? (
                         <section className="rounded-2xl border border-slate-200 bg-white px-6 py-14 text-center shadow-sm">
                             <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-red-50 text-red-800">
@@ -78,8 +59,7 @@ export default function Index({ feedbackEntries }) {
                             ))}
                         </nav>
                     )}
-                </div>
-            </main>
-        </AuthenticatedLayout>
+            </div>
+        </AdminLayout>
     );
 }

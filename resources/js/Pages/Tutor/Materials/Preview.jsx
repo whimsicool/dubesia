@@ -1,13 +1,13 @@
 import { Head, router } from '@inertiajs/react';
 import { ArrowLeft } from 'lucide-react';
-import PortalLayout from '@/Layouts/PortalLayout';
+import AdminLayout from '@/Layouts/AdminLayout';
 import MaterialViewer from '@/Components/Materials/MaterialViewer';
 
 export default function Preview({ material }) {
     const backToMaterials = () => router.visit(route('tutor.materials.index'));
 
     return (
-        <PortalLayout>
+        <AdminLayout>
             <Head title={`Pratinjau: ${material.title}`} />
 
             <button
@@ -19,6 +19,6 @@ export default function Preview({ material }) {
             </button>
 
             <MaterialViewer material={material} readOnly onClose={backToMaterials} />
-        </PortalLayout>
+        </AdminLayout>
     );
 }

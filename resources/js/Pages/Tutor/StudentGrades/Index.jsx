@@ -1,4 +1,4 @@
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import AdminLayout from '@/Layouts/AdminLayout';
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import { useMemo, useState } from 'react';
 
@@ -84,21 +84,11 @@ export default function Index({ grades }) {
     );
 
     return (
-        <AuthenticatedLayout
-            header={
-                <div className="flex flex-col gap-1">
-                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-red-600">
-                        Penilaian &amp; Evaluasi
-                    </p>
-                    <h1 className="text-2xl font-bold tracking-tight text-slate-900">
-                        Kelola Nilai
-                    </h1>
-                </div>
-            }
+        <AdminLayout title="Kelola Nilai"
         >
             <Head title="Kelola Nilai" />
 
-            <div className="min-h-[calc(100vh-9rem)] bg-slate-100 px-4 py-6 sm:px-6 lg:px-8">
+            <div>
                 <div className="mx-auto max-w-[1500px]">
                     {flash?.success && (
                         <div className="mb-5 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-800" role="status">
@@ -296,6 +286,6 @@ export default function Index({ grades }) {
                     </section>
                 </div>
             </div>
-        </AuthenticatedLayout>
+        </AdminLayout>
     );
 }

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Head, Link, router, useForm } from '@inertiajs/react';
 import { ArrowLeft, BadgeCheck, XCircle, ExternalLink } from '@/Components/Icons';
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import AdminLayout from '@/Layouts/AdminLayout';
 import StatusBadge from '@/Components/StatusBadge';
 
 const rupiah = (n) => 'Rp ' + Number(n).toLocaleString('id-ID');
@@ -38,11 +38,10 @@ export default function Show({ pendaftaran: p, flash }) {
   const tutupTolak = () => { setShowTolak(false); reset(); clearErrors(); };
 
   return (
-    <AuthenticatedLayout
-      header={<h2 className="text-xl font-semibold leading-tight text-[#0f1b2d]">Detail Pendaftaran</h2>}
+    <AdminLayout title="Detail Pendaftaran"
     >
       <Head title={`Detail Pendaftaran - ${p.nama_lengkap}`} />
-      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+      <div>
         <Link href={route('admin.calon-murid.index')} className="inline-flex items-center gap-1.5 text-sm font-semibold text-slate-600 hover:text-[#0f1b2d]">
           <ArrowLeft className="h-4 w-4" /> Kembali
         </Link>
@@ -154,6 +153,6 @@ export default function Show({ pendaftaran: p, flash }) {
         </div>
       )}
 
-    </AuthenticatedLayout>
+    </AdminLayout>
   );
 }

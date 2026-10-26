@@ -1,4 +1,4 @@
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import AdminLayout from '@/Layouts/AdminLayout';
 import { Head, Link } from '@inertiajs/react';
 
 export default function Result({ hasilTes, totalSoal }) {
@@ -71,11 +71,11 @@ export default function Result({ hasilTes, totalSoal }) {
     const akurasi = totalSoal > 0 ? Math.round((hasilTes.jumlah_benar / totalSoal) * 100) : 0;
 
     return (
-        <AuthenticatedLayout>
+        <AdminLayout>
             <Head title={`Hasil Tes Level - ${hasilTes.nama_murid}`} />
 
-            <div className="min-h-screen bg-slate-50 py-10 print:bg-white print:py-0">
-                <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
+            <div className="py-10 print:bg-white print:py-0">
+                <div className="mx-auto max-w-4xl">
                     {/* Action Bar (Print & Back) - Hidden in Print */}
                     <div className="flex items-center justify-between gap-4 mb-6 print:hidden">
                         <Link
@@ -264,6 +264,6 @@ export default function Result({ hasilTes, totalSoal }) {
                     </div>
                 </div>
             </div>
-        </AuthenticatedLayout>
+        </AdminLayout>
     );
 }
