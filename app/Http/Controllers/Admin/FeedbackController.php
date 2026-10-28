@@ -13,7 +13,8 @@ class FeedbackController extends Controller
     {
         return Inertia::render('Admin/Feedback/Index', [
             'feedbackEntries' => StudentFeedback::query()
-                ->with('student:id,name,email')
+                // Kolom pengirim tidak diambil agar masukan tetap anonim.
+                ->select(['id', 'subject', 'message', 'created_at'])
                 ->latest()
                 ->paginate(15)
                 ->withQueryString(),

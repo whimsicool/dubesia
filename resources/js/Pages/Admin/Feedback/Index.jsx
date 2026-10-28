@@ -27,10 +27,7 @@ export default function Index({ feedbackEntries }) {
                                         <div>
                                             <p className="text-xs font-bold uppercase tracking-wide text-red-700">Masukan murid</p>
                                             <h2 className="mt-1 text-lg font-bold text-slate-950">{entry.subject || 'Tanpa topik'}</h2>
-                                            <p className="mt-1 text-sm text-slate-600">
-                                                {entry.student?.name ?? 'Murid dihapus'}
-                                                {entry.student?.email ? ` · ${entry.student.email}` : ''}
-                                            </p>
+                                            <p className="mt-1 text-sm text-slate-600">Dikirim anonim</p>
                                         </div>
                                         <time dateTime={entry.created_at} className="shrink-0 text-sm text-slate-500">
                                             {new Date(entry.created_at).toLocaleString('id-ID')}
