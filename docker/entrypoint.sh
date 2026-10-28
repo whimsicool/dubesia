@@ -30,5 +30,6 @@ mkdir -p storage/framework/cache storage/framework/sessions storage/framework/vi
 chmod -R 775 storage bootstrap/cache || true
 touch "$DB_FILE"
 php artisan key:generate --force --no-interaction || true
+php artisan storage:link --force || true
 php artisan migrate --force
 exec php artisan serve --host=0.0.0.0 --port=8000
