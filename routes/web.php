@@ -37,6 +37,14 @@ Route::get('/dashboard', function () {
 
 Route::get('/registrasi', [RegistrasiController::class, 'create'])->name('registrasi.create');
 
+Route::get('/panduan-pendaftaran', function () {
+    return Inertia::render('Registrasi/PanduanPendaftaran');
+})->name('panduan-pendaftaran');
+
+Route::get('/bantuan-admisi', function () {
+    return Inertia::render('Registrasi/BantuanAdmisi');
+})->name('bantuan-admisi');
+
 Route::get('/tutor/dashboard', [TutorClassController::class, 'index'])
     ->middleware(['auth', 'verified', 'role:tutor'])
     ->name('tutor.dashboard');
