@@ -11,7 +11,7 @@ use Inertia\Inertia;
 class AdminUserController extends Controller
 {
     /**
-     * Menampilkan daftar data pengguna (murid & guru) dengan statistik.
+     * Menampilkan daftar data pengguna (murid & tutor) dengan statistik.
      * Sequence Diagram: 1. BukaHalaman("DataPengguna") → 1.1 GetDataPengguna()
      */
     public function index(Request $request)
@@ -72,7 +72,7 @@ class AdminUserController extends Controller
     }
 
     /**
-     * Menyimpan data guru baru (Tambah Akun).
+     * Menyimpan data tutor baru (Tambah Akun).
      * Sequence Diagram:
      *   2. KlikButton("TambahAkun")
      *   3. InputDataPengguna()
@@ -95,14 +95,14 @@ class AdminUserController extends Controller
             'name' => $validated['name'],
             'email' => $validated['email'],
             'password' => Hash::make($defaultPassword),
-            'role' => 'tutor', // Hanya guru yang bisa ditambahkan
+            'role' => 'tutor', // Hanya tutor yang bisa ditambahkan
             'no_hp' => $validated['no_hp'] ?? null,
             'nip' => $validated['nip'] ?? null,
             'status_akun' => 'aktif',
             'email_verified_at' => now(),
         ]);
 
-        return redirect()->route('admin.data-pengguna.index')->with('success', "Akun guru \"{$user->name}\" berhasil ditambahkan. Password default: {$defaultPassword}");
+        return redirect()->route('admin.data-pengguna.index')->with('success', "Akun tutor \"{$user->name}\" berhasil ditambahkan. Password default: {$defaultPassword}");
     }
 
     /**

@@ -5,7 +5,7 @@ import { Award, BookOpen, CalendarDays, ClipboardCheck, LayoutGrid, ListChecks, 
 const cards = {
     admin: [
         { label: 'Verifikasi Pendaftaran', description: 'Periksa calon murid yang menunggu verifikasi.', href: 'admin.calon-murid.index', icon: UserCheck, badge: 'pendingRegistrations' },
-        { label: 'Data Murid & Guru', description: 'Kelola akun murid dan guru.', href: 'admin.data-pengguna.index', icon: Users },
+        { label: 'Data Murid & Tutor', description: 'Kelola akun murid dan tutor.', href: 'admin.data-pengguna.index', icon: Users },
         { label: 'Jadwal Belajar', description: 'Atur jadwal kelas dan cek bentrok.', href: 'admin.schedules.index', icon: CalendarDays },
         { label: 'Kotak Aspirasi', description: 'Baca kritik dan saran murid.', href: 'admin.feedback.index', icon: MessageSquare },
     ],

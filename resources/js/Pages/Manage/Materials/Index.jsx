@@ -132,7 +132,7 @@ export default function Index({ materials, filters, types, routePrefix = 'tutor.
                     <option value="draft">Draft</option>
                 </select>
                 <select aria-label="Kepemilikan" value={filters.scope} onChange={(e) => visit({ scope: e.target.value })} className={select}>
-                    <option value="all">Semua Guru</option>
+                    <option value="all">Semua Tutor</option>
                     <option value="mine">Milik Saya</option>
                 </select>
                 <div className="flex shrink-0 items-center gap-1 rounded-lg bg-slate-100 p-1" aria-label="Tampilan materi">
