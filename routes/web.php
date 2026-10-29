@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\CalonMuridController;
 use App\Http\Controllers\Admin\FeedbackController as AdminFeedbackController;
 use App\Http\Controllers\AdminUserController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RegistrasiController;
 use App\Http\Controllers\Student\FeedbackController;
@@ -23,17 +24,10 @@ Route::get('/', function () {
         : redirect()->route('login');
 });
 
-Route::get('/dashboard', function () {
-    if (auth()->user()?->role === 'tutor') {
-        return redirect()->route('tutor.dashboard');
-    }
-
-    if (auth()->user()?->role === 'admin') {
-        return redirect()->route('admin.dashboard');
-    }
-
-    return Inertia::render('Dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+// Satu dashboard universal; isinya mengikuti role user yang sedang login.
+Route::get('/dashboard', [DashboardController::class, 'index'])
+    ->middleware(['auth', 'verified'])
+    ->name('dashboard');
 
 Route::get('/registrasi', [RegistrasiController::class, 'create'])->name('registrasi.create');
 
@@ -45,7 +39,7 @@ Route::get('/bantuan-admisi', function () {
     return Inertia::render('Registrasi/BantuanAdmisi');
 })->name('bantuan-admisi');
 
-Route::get('/tutor/dashboard', [TutorClassController::class, 'index'])
+Route::get('/tutor/dashboard', [DashboardController::class, 'index'])
     ->middleware(['auth', 'verified', 'role:tutor'])
     ->name('tutor.dashboard');
 
@@ -55,13 +49,9 @@ Route::middleware(['auth', 'role:tutor'])->prefix('tutor')->name('tutor.')->grou
     Route::patch('/presensi/riwayat', [AttendanceController::class, 'updateHistory'])->name('attendance.history.update');
 });
 
-Route::get('/admin/dashboard', function () {
-    return Inertia::render('Dashboard');
-})->middleware(['auth', 'verified', 'role:admin'])->name('admin.dashboard');
-
-Route::get('/student/dashboard', function () {
-    return Inertia::render('Dashboard');
-})->middleware(['auth', 'verified', 'role:student'])->name('student.dashboard');
+Route::get('/admin/dashboard', [DashboardController::class, 'index'])
+    ->middleware(['auth', 'verified', 'role:admin'])
+    ->name('admin.dashboard');
 
 Route::get('/admin/feedback', [AdminFeedbackController::class, 'index'])
     ->middleware(['auth', 'verified', 'role:admin'])
