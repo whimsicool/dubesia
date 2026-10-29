@@ -161,7 +161,7 @@ export default function Index({ users, filters, stats }) {
 
     // ── Role labels ──
     const roleLabel = (role) => {
-        if (role === 'tutor') return 'Guru / Mentor';
+        if (role === 'tutor') return 'Tutor / Mentor';
         if (role === 'admin') return 'Admin';
         return 'Murid';
     };
@@ -185,7 +185,7 @@ export default function Index({ users, filters, stats }) {
             {/* ── Page Header ── */}
             <div className="kdp-header">
                 <div>
-                    <h1 className="kdp-header__title">Kelola Data Pengguna (Murid & Guru)</h1>
+                    <h1 className="kdp-header__title">Kelola Data Pengguna (Murid & Tutor)</h1>
                     <p className="kdp-header__desc">
                         Kelola basis data akun, penerbitan kredensial akses, hak peran pengajar dan siswa di portal akademik DUBESIA.
                     </p>
@@ -201,7 +201,7 @@ export default function Index({ users, filters, stats }) {
                         <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                             <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
                         </svg>
-                        Tambah Akun Guru
+                        Tambah Akun Tutor
                     </button>
                 </div>
             </div>
@@ -238,7 +238,7 @@ export default function Index({ users, filters, stats }) {
 
                 <div className="kdp-stat-card">
                     <div className="kdp-stat-card__top">
-                        <span className="kdp-stat-card__label">Guru & Mentor</span>
+                        <span className="kdp-stat-card__label">Tutor & Mentor</span>
                         <div className="kdp-stat-card__icon kdp-stat-card__icon--amber">
                             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
@@ -273,7 +273,7 @@ export default function Index({ users, filters, stats }) {
                         {[
                             { key: '', label: 'Semua Pengguna' },
                             { key: 'student', label: 'Data Murid' },
-                            { key: 'tutor', label: 'Data Guru' },
+                            { key: 'tutor', label: 'Data Tutor' },
                         ].map((tab) => (
                             <button
                                 key={tab.key}
@@ -289,7 +289,7 @@ export default function Index({ users, filters, stats }) {
                         <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                             <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
                         </svg>
-                        Tambah Akun Guru
+                        Tambah Akun Tutor
                     </button>
                 </div>
 
@@ -547,7 +547,7 @@ export default function Index({ users, filters, stats }) {
                                                         : ''
                                                 }`}
                                             >
-                                                {r === 'tutor' ? '👨‍🏫 Guru / Mentor' : '🎓 Murid'}
+                                                {r === 'tutor' ? '👨‍🏫 Tutor / Mentor' : '🎓 Murid'}
                                             </button>
                                         ))}
                                     </div>
@@ -557,8 +557,8 @@ export default function Index({ users, filters, stats }) {
                                 <div className="kdp-role-locked">
                                     <span className="kdp-role-locked__emoji">👨‍🏫</span>
                                     <div>
-                                        <p className="kdp-role-locked__text-title">Guru / Mentor</p>
-                                        <p className="kdp-role-locked__text-desc">Peran terkunci — Hanya akun guru yang dapat ditambahkan.</p>
+                                        <p className="kdp-role-locked__text-title">Tutor / Mentor</p>
+                                        <p className="kdp-role-locked__text-desc">Peran terkunci — Hanya akun tutor yang dapat ditambahkan.</p>
                                     </div>
                                 </div>
                             )}
@@ -609,7 +609,7 @@ export default function Index({ users, filters, stats }) {
                             {/* NIP (Opsional) */}
                             <div className="kdp-field">
                                 <label className="kdp-field__label">
-                                    NIP {editingUser && form.data.role === 'student' ? '/ NISN' : 'Guru'} (Opsional)
+                                    NIP {editingUser && form.data.role === 'student' ? '/ NISN' : 'Tutor'} (Opsional)
                                 </label>
                                 <input
                                     type="text"
@@ -662,7 +662,7 @@ export default function Index({ users, filters, stats }) {
                                 {form.processing ? (
                                     'Memproses...'
                                 ) : (
-                                    editingUser ? 'Simpan Perubahan' : 'Simpan & Daftarkan Guru'
+                                    editingUser ? 'Simpan Perubahan' : 'Simpan & Daftarkan Tutor'
                                 )}
                             </button>
                         </div>

@@ -35,7 +35,7 @@ export default function BantuanAdmisi() {
                                 <p className="text-xs text-slate-500">Pusat Bantuan Admisi</p>
                             </div>
                         </div>
-                        <Link href="/registrasi" className="rounded-lg bg-dubesia-red px-4 py-2 text-sm font-semibold text-white hover:bg-dubesia-navy">
+                        <Link href={route('registrasi.create')} className="rounded-lg bg-dubesia-red px-4 py-2 text-sm font-semibold text-white hover:bg-dubesia-navy">
                             Daftar Sekarang
                         </Link>
                     </div>
@@ -74,10 +74,10 @@ export default function BantuanAdmisi() {
                             Informasi kontak admin perlu ditambahkan sesuai kontak resmi yang digunakan DUBESIA.
                         </p>
                         <div className="mt-6 flex flex-wrap gap-3">
-                            <Link href="/registrasi" className="rounded-lg bg-dubesia-red px-5 py-3 text-sm font-semibold text-white hover:bg-dubesia-navy">
+                            <Link href={route('registrasi.create')} className="rounded-lg bg-dubesia-red px-5 py-3 text-sm font-semibold text-white hover:bg-dubesia-navy">
                                 Kembali ke Registrasi
                             </Link>
-                            <Link href="/panduan-pendaftaran" className="rounded-lg border border-slate-300 px-5 py-3 text-sm font-semibold hover:bg-slate-50">
+                            <Link href={route('panduan-pendaftaran')} className="rounded-lg border border-slate-300 px-5 py-3 text-sm font-semibold hover:bg-slate-50">
                                 Lihat Panduan Pendaftaran
                             </Link>
                         </div>

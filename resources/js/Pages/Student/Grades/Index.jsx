@@ -31,7 +31,7 @@ export default function Index({ grades }) {
                                 </svg>
                             </div>
                             <h3 className="mt-4 font-semibold text-slate-900">Nilai belum tersedia</h3>
-                            <p className="mx-auto mt-1 max-w-md text-sm text-slate-600">Nilai akan muncul di sini setelah guru menginput dan menyimpannya.</p>
+                            <p className="mx-auto mt-1 max-w-md text-sm text-slate-600">Nilai akan muncul di sini setelah tutor menginput dan menyimpannya.</p>
                         </section>
                     ) : (
                         <div className="space-y-4">
@@ -71,7 +71,7 @@ export default function Index({ grades }) {
 
                                     {grade.feedback && (
                                         <div className="border-t border-slate-100 px-5 py-4 sm:px-6">
-                                            <p className="text-xs font-bold uppercase tracking-wide text-slate-500">Catatan guru</p>
+                                            <p className="text-xs font-bold uppercase tracking-wide text-slate-500">Catatan tutor</p>
                                             <p className="mt-1 whitespace-pre-line text-sm leading-6 text-slate-700">{grade.feedback}</p>
                                         </div>
                                     )}

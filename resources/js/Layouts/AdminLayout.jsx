@@ -35,7 +35,7 @@ const NAV = {
         {
             heading: 'Pengguna & Verifikasi',
             items: [
-                { label: 'Data Murid & Guru', icon: Users, route: 'admin.data-pengguna.index', active: 'admin.data-pengguna.*' },
+                { label: 'Data Murid & Tutor', icon: Users, route: 'admin.data-pengguna.index', active: 'admin.data-pengguna.*' },
                 {
                     label: 'Calon Murid',
                     icon: UserCheck,
