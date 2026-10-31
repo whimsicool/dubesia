@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
@@ -166,6 +167,29 @@ class AdminUserController extends Controller
      *     → 8.1.1 DeleteDataUser() → 8.1.2 ReturnStatus(hapus)
      *   8.2 DisplayInfoAkunBerhasilDihapus()
      */
+    public function bulkDestroy(Request $request)
+    {
+        $validated = $request->validate([
+            'ids' => ['required', 'array', 'min:1'],
+            'ids.*' => ['required', 'integer', 'distinct', 'exists:users,id'],
+        ]);
+
+        $selectedIds = collect($validated['ids'])->map(fn ($id) => (int) $id)->unique();
+        $users = $this->visibleUsersQuery()->whereIn('id', $selectedIds)->get();
+
+        // Pastikan seluruh akun terpilih memang termasuk data yang boleh dikelola admin.
+        if ($users->count() !== $selectedIds->count()) {
+            return back()->with('error', 'Sebagian akun tidak dapat dihapus. Muat ulang halaman lalu pilih akun yang tersedia.');
+        }
+
+        DB::transaction(function () use ($users) {
+            $users->each(fn (User $user) => $user->delete());
+        });
+
+        return redirect()->route('admin.data-pengguna.index')
+            ->with('success', $users->count().' akun berhasil dihapus.');
+    }
+
     public function destroy(User $user)
     {
         // Jangan izinkan menghapus akun admin

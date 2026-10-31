@@ -145,6 +145,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::prefix('data-pengguna')->name('data-pengguna.')->group(function () {
         Route::get('/', [AdminUserController::class, 'index'])->name('index');
         Route::post('/', [AdminUserController::class, 'store'])->name('store');
+        Route::post('/bulk-delete', [AdminUserController::class, 'bulkDestroy'])->name('bulk-destroy');
         Route::get('/{user}', [AdminUserController::class, 'show'])->name('show');
         Route::put('/{user}', [AdminUserController::class, 'update'])->name('update');
         Route::delete('/{user}', [AdminUserController::class, 'destroy'])->name('destroy');

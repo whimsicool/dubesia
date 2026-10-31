@@ -27,6 +27,8 @@ export default function Index({ users, filters, stats }) {
 
     // ── Delete confirmation ──
     const [deleteTarget, setDeleteTarget] = useState(null);
+    const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
+    const [bulkDeleting, setBulkDeleting] = useState(false);
 
     // ── Flash message ──
     const [flashMsg, setFlashMsg] = useState(flash.success || flash.error || '');
@@ -134,17 +136,31 @@ export default function Index({ users, filters, stats }) {
         });
     };
 
+    const handleBulkDelete = () => {
+        if (selectedRows.length === 0) return;
+        setBulkDeleting(true);
+        router.post(route('admin.data-pengguna.bulk-destroy'), { ids: selectedRows }, {
+            preserveScroll: true,
+            onSuccess: (page) => {
+                setSelectedRows([]);
+                setBulkDeleteOpen(false);
+                setFlashMsg(page.props.flash?.success || page.props.flash?.error || '');
+            },
+            onFinish: () => setBulkDeleting(false),
+        });
+    };
+
     // ── Checkbox ──
     const toggleRow = (id) => {
         setSelectedRows(prev => prev.includes(id) ? prev.filter(r => r !== id) : [...prev, id]);
     };
     const toggleAllRows = () => {
         if (!users.data) return;
-        if (selectedRows.length === users.data.length) {
-            setSelectedRows([]);
-        } else {
-            setSelectedRows(users.data.map(u => u.id));
-        }
+        const visibleIds = users.data.map((user) => user.id);
+        const allVisibleSelected = visibleIds.length > 0 && visibleIds.every((id) => selectedRows.includes(id));
+        setSelectedRows((current) => allVisibleSelected
+            ? current.filter((id) => !visibleIds.includes(id))
+            : [...new Set([...current, ...visibleIds])]);
     };
 
     // ── Initials helper ──
@@ -333,6 +349,15 @@ export default function Index({ users, filters, stats }) {
                     </button>
                 </div>
 
+                {selectedRows.length > 0 && (
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', padding: '12px 20px', borderTop: '1px solid #e2e8f0', background: '#fff7f7' }}>
+                        <span style={{ fontSize: '13px', fontWeight: 600, color: '#475569' }}>{selectedRows.length} akun dipilih</span>
+                        <button type="button" onClick={() => setBulkDeleteOpen(true)} className="btn-cancel" style={{ color: '#b91c1c', borderColor: '#fecaca' }}>
+                            Hapus yang dipilih
+                        </button>
+                    </div>
+                )}
+
                 {/* Data Table */}
                 <div style={{ overflowX: 'auto' }}>
                     <table className="kdp-table">
@@ -342,7 +367,7 @@ export default function Index({ users, filters, stats }) {
                                     <input
                                         type="checkbox"
                                         className="kdp-checkbox"
-                                        checked={users.data && users.data.length > 0 && selectedRows.length === users.data.length}
+                                        checked={Boolean(users.data?.length) && users.data.every((user) => selectedRows.includes(user.id))}
                                         onChange={toggleAllRows}
                                     />
                                 </th>
@@ -710,6 +735,26 @@ export default function Index({ users, filters, stats }) {
                                         <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                     </svg>
                                     Ya, Hapus
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* ═══════ MODAL: Konfirmasi Hapus Massal ═══════ */}
+            {bulkDeleteOpen && (
+                <div className="kdp-modal-overlay">
+                    <div className="kdp-modal kdp-modal--sm">
+                        <div style={{ padding: '24px' }}>
+                            <h3 style={{ fontSize: '15px', fontWeight: 700, color: '#0f172a' }}>Hapus akun yang dipilih?</h3>
+                            <p style={{ fontSize: '13px', color: '#64748b', marginTop: '8px' }}>
+                                Anda akan menghapus <strong>{selectedRows.length} akun</strong>. Tindakan ini tidak dapat dibatalkan.
+                            </p>
+                            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '22px' }}>
+                                <button type="button" disabled={bulkDeleting} onClick={() => setBulkDeleteOpen(false)} className="btn-cancel">Batal</button>
+                                <button type="button" disabled={bulkDeleting} onClick={handleBulkDelete} style={{ padding: '9px 18px', borderRadius: '10px', border: 'none', background: '#ef4444', color: 'white', fontSize: '13px', fontWeight: 700, cursor: bulkDeleting ? 'wait' : 'pointer', opacity: bulkDeleting ? 0.65 : 1 }}>
+                                    {bulkDeleting ? 'Menghapus...' : `Ya, Hapus ${selectedRows.length} Akun`}
                                 </button>
                             </div>
                         </div>
