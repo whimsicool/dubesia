@@ -10,6 +10,7 @@ use App\Models\Pendaftaran;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
@@ -66,7 +67,7 @@ class CalonMuridController extends Controller
     // Sequence 2: tampilkan detail pendaftaran dan bukti pembayaran
     public function show(Pendaftaran $pendaftaran)
     {
-        $pendaftaran->load('verifikator:id,name', 'user:id,username');
+        $pendaftaran->load('verifikator:id,name');
 
         return Inertia::render('Admin/CalonMurid/Show', [
             'pendaftaran' => [
@@ -76,7 +77,7 @@ class CalonMuridController extends Controller
                 'email'              => $pendaftaran->email,
                 'no_whatsapp'        => '+'.$pendaftaran->no_whatsapp,
                 'alamat'             => $pendaftaran->alamat,
-                'username'           => $pendaftaran->user?->username,
+                'asal_institusi'     => $pendaftaran->asal_institusi,
                 'program'            => Pendaftaran::PROGRAMS[$pendaftaran->program] ?? $pendaftaran->program,
                 'pesan_motivasi'     => $pendaftaran->pesan_motivasi,
                 'biaya'              => $pendaftaran->biaya,
@@ -85,7 +86,7 @@ class CalonMuridController extends Controller
                 'status_label'       => Pendaftaran::STATUS_LABEL[$pendaftaran->status] ?? $pendaftaran->status,
                 'perbaikan_baru'     => $pendaftaran->status === Pendaftaran::STATUS_MENUNGGU && $pendaftaran->resubmitted_at !== null,
                 'dikirim_ulang_pada' => $pendaftaran->resubmitted_at?->format('d M Y, H:i'),
-                'bukti_url'          => $pendaftaran->bukti_url,
+                'bukti_url'          => route('admin.calon-murid.bukti', $pendaftaran),
                 'bukti_is_pdf'       => $pendaftaran->bukti_is_pdf,
                 'catatan_verifikasi' => $pendaftaran->catatan_verifikasi,
                 'diverifikasi_oleh'  => $pendaftaran->verifikator?->name,
@@ -94,6 +95,15 @@ class CalonMuridController extends Controller
             ],
             'flash' => ['error' => session('error')],
         ]);
+    }
+
+    // Berkas bukti pembayaran disajikan lewat route terproteksi admin.
+    public function buktiPembayaran(Pendaftaran $pendaftaran)
+    {
+        $disk = Storage::disk('public');
+        abort_unless($disk->exists($pendaftaran->bukti_pembayaran), 404, 'Bukti pembayaran tidak ditemukan.');
+
+        return $disk->response($pendaftaran->bukti_pembayaran, basename($pendaftaran->bukti_pembayaran), [], 'inline');
     }
 
     // Sequence 3: setujui pendaftaran, aktifkan akun, lalu kirim kredensial sementara.

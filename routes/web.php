@@ -137,6 +137,7 @@ Route::post('/registrasi', [RegistrasiController::class, 'store'])->name('regist
 
 Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/calon-murid', [CalonMuridController::class, 'index'])->name('calon-murid.index');
+    Route::get('/calon-murid/{pendaftaran}/bukti-pembayaran', [CalonMuridController::class, 'buktiPembayaran'])->name('calon-murid.bukti');
     Route::get('/calon-murid/{pendaftaran}', [CalonMuridController::class, 'show'])->name('calon-murid.show');
     Route::post('/calon-murid/{pendaftaran}/verifikasi', [CalonMuridController::class, 'verifikasi'])->name('calon-murid.verifikasi');
     Route::post('/calon-murid/{pendaftaran}/tolak', [CalonMuridController::class, 'tolak'])->name('calon-murid.tolak');

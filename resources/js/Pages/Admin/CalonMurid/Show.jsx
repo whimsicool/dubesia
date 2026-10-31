@@ -63,7 +63,7 @@ export default function Show({ pendaftaran: p, flash }) {
               <Row label="Email">{p.email}</Row>
               <Row label="WhatsApp">{p.no_whatsapp}</Row>
               <Row label="Alamat">{p.alamat}</Row>
-              <Row label="Username">{p.username}</Row>
+              <Row label="Asal Institusi">{p.asal_institusi}</Row>
               <Row label="Program"><span className="capitalize">{p.program}</span></Row>
               <Row label="Motivasi">{p.pesan_motivasi}</Row>
               <Row label="Tanggal Daftar">{p.tanggal_daftar}</Row>
