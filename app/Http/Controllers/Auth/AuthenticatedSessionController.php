@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
+use App\Models\HasilTes;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -36,6 +37,12 @@ class AuthenticatedSessionController extends Controller
         }
 
         $role = $request->user()->role;
+
+        if ($role === 'student'
+            && $request->user()->pendaftaran?->status === 'terverifikasi'
+            && ! HasilTes::where('id_murid', $request->user()->id)->where('status_hasil', 'completed')->exists()) {
+            return redirect()->route('tes-level.index');
+        }
 
         $redirect = match ($role) {
             'admin' => route('admin.dashboard', absolute: false),

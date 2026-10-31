@@ -33,7 +33,7 @@ Route::get('/dashboard', function () {
     }
 
     return Inertia::render('Dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+})->middleware(['auth', 'verified', 'placement.test'])->name('dashboard');
 
 Route::get('/registrasi', [RegistrasiController::class, 'create'])->name('registrasi.create');
 
@@ -53,14 +53,14 @@ Route::get('/admin/dashboard', function () {
 
 Route::get('/student/dashboard', function () {
     return Inertia::render('Dashboard');
-})->middleware(['auth', 'verified', 'role:student'])->name('student.dashboard');
+})->middleware(['auth', 'verified', 'role:student', 'placement.test'])->name('student.dashboard');
 
 Route::get('/admin/feedback', [AdminFeedbackController::class, 'index'])
     ->middleware(['auth', 'verified', 'role:admin'])
     ->name('admin.feedback.index');
 
 // Student feedback routes
-Route::middleware(['auth', 'verified', 'role:student'])
+Route::middleware(['auth', 'verified', 'role:student', 'placement.test'])
     ->prefix('student')
     ->name('student.')
     ->group(function () {
@@ -120,14 +120,20 @@ Route::middleware('auth')->group(function () {
     Route::get('/pendaftaran/perbaiki', [RegistrasiController::class, 'edit'])->name('registrasi.edit');
     Route::put('/pendaftaran/perbaiki', [RegistrasiController::class, 'update'])->name('registrasi.update');
 
+    // Hasil tes pribadi untuk item navigasi murid.
+    Route::get('/student/hasil-tes-level', [TesLevelController::class, 'myResult'])
+        ->middleware(['verified', 'role:student', 'placement.test'])
+        ->name('student.placement-result');
+
     // === Tes Level Kelas Routes ===
-    Route::prefix('tes-level')->name('tes-level.')->group(function () {
+    Route::prefix('tes-level')->name('tes-level.')->middleware(['verified', 'role:student', 'placement.test'])->group(function () {
         Route::get('/', [TesLevelController::class, 'index'])->name('index');
         Route::post('/start', [TesLevelController::class, 'start'])->name('start');
         Route::get('/take', [TesLevelController::class, 'takeTest'])->name('take');
         Route::post('/auto-save', [TesLevelController::class, 'autoSave'])->name('auto-save');
         Route::post('/toggle-tandai', [TesLevelController::class, 'toggleTandai'])->name('toggle-tandai');
         Route::post('/submit', [TesLevelController::class, 'submit'])->name('submit');
+        Route::get('/onboarding-result/{id}', [TesLevelController::class, 'onboardingResult'])->name('onboarding-result');
         Route::get('/result/{id}', [TesLevelController::class, 'result'])->name('result');
     });
 });

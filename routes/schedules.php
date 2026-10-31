@@ -8,5 +8,5 @@ Route::get('/tutor/schedules', [ScheduleViewController::class, 'index'])
     ->name('tutor.schedules.index');
 
 Route::get('/schedules', [ScheduleViewController::class, 'index'])
-    ->middleware(['auth', 'role:student'])
+    ->middleware(['auth', 'verified', 'role:student', 'placement.test'])
     ->name('schedules.index');
