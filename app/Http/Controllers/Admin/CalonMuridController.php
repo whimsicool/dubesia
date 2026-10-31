@@ -4,11 +4,14 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\TolakPendaftaranRequest;
+use App\Mail\KirimEmail;
 use App\Mail\PendaftaranDitolakMail;
 use App\Models\Pendaftaran;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Throwable;
 
@@ -93,72 +96,92 @@ class CalonMuridController extends Controller
         ]);
     }
 
-    // Sequence 3: klik "Verifikasi" -> status Terverifikasi + akun murid aktif
+    // Sequence 3: setujui pendaftaran, aktifkan akun, lalu kirim kredensial sementara.
     public function verifikasi(Request $request, Pendaftaran $pendaftaran)
     {
-        $berhasil = DB::transaction(function () use ($request, $pendaftaran) {
-            $p = Pendaftaran::whereKey($pendaftaran->id)->lockForUpdate()->first();
+        try {
+            $berhasil = DB::transaction(function () use ($request, $pendaftaran) {
+                $p = Pendaftaran::whereKey($pendaftaran->id)->lockForUpdate()->firstOrFail();
 
-            if ($p->status !== Pendaftaran::STATUS_MENUNGGU) {
-                return false;
-            }
+                if ($p->status !== Pendaftaran::STATUS_MENUNGGU) {
+                    return false;
+                }
 
-            $p->update([
-                'status'             => Pendaftaran::STATUS_TERVERIFIKASI,
-                'catatan_verifikasi' => null,
-                'verified_by'        => $request->user()->id,
-                'verified_at'        => now(),
-            ]);
-            $p->user->update(['is_active' => true]);
+                $temporaryPassword = Str::random(16);
+                $user = $p->user;
 
-            return true;
-        });
+                if (! $user) {
+                    throw new \RuntimeException('Akun calon murid tidak ditemukan.');
+                }
+
+                $p->update([
+                    'status'             => Pendaftaran::STATUS_TERVERIFIKASI,
+                    'catatan_verifikasi' => null,
+                    'verified_by'        => $request->user()->id,
+                    'verified_at'        => now(),
+                ]);
+                $user->update([
+                    'password'  => $temporaryPassword,
+                    'is_active' => true,
+                    'no_hp'     => '+'.$p->no_whatsapp,
+                ]);
+
+                Log::info('Dispatching registration approval email.', ['registration_id' => $p->id]);
+                Mail::to($p->email)->send(new KirimEmail($p, $temporaryPassword));
+                Log::info('Registration approval email accepted by the configured mail transport.', ['registration_id' => $p->id]);
+
+                return true;
+            });
+        } catch (Throwable $e) {
+            report($e);
+
+            return back()->with('error', 'Persetujuan dan email gagal diproses. Tidak ada perubahan yang disimpan; periksa konfigurasi email lalu coba lagi.');
+        }
 
         if (! $berhasil) {
             return back()->with('error', 'Pendaftaran ini sudah diproses sebelumnya.');
         }
 
         return redirect()->route('admin.calon-murid.index')
-            ->with('sukses', 'Verifikasi berhasil. Akun murid telah diaktifkan.');
+            ->with('sukses', 'Pendaftaran disetujui. Akun diaktifkan dan kredensial sementara telah dikirim ke email murid.');
     }
 
-    // Alternate flow: klik "Tolak" -> simpan catatan, ubah status, kirim email
+    // Alternate flow: simpan alasan penolakan dan kirimkan kepada calon murid.
     public function tolak(TolakPendaftaranRequest $request, Pendaftaran $pendaftaran)
     {
-        $berhasil = DB::transaction(function () use ($request, $pendaftaran) {
-            $p = Pendaftaran::whereKey($pendaftaran->id)->lockForUpdate()->first();
-
-            if ($p->status !== Pendaftaran::STATUS_MENUNGGU) {
-                return false;
-            }
-
-            $p->update([
-                'status'             => Pendaftaran::STATUS_DITOLAK,
-                'catatan_verifikasi' => $request->validated('catatan_verifikasi'),
-                'verified_by'        => $request->user()->id,
-                'verified_at'        => now(),
-            ]);
-
-            return true;
-        });
-
-        if (! $berhasil) {
-            return back()->with('error', 'Pendaftaran ini sudah diproses sebelumnya.');
-        }
-
-        $pendaftaran->refresh();
-
         try {
-            Mail::to($pendaftaran->email)->send(new PendaftaranDitolakMail($pendaftaran));
+            $berhasil = DB::transaction(function () use ($request, $pendaftaran) {
+                $p = Pendaftaran::whereKey($pendaftaran->id)->lockForUpdate()->firstOrFail();
+
+                if ($p->status !== Pendaftaran::STATUS_MENUNGGU) {
+                    return false;
+                }
+
+                $p->update([
+                    'status'             => Pendaftaran::STATUS_DITOLAK,
+                    'catatan_verifikasi' => $request->validated('catatan_verifikasi'),
+                    'verified_by'        => $request->user()->id,
+                    'verified_at'        => now(),
+                ]);
+
+                Log::info('Dispatching registration rejection email.', ['registration_id' => $p->id]);
+                Mail::to($p->email)->send(new PendaftaranDitolakMail($p));
+                Log::info('Registration rejection email accepted by the configured mail transport.', ['registration_id' => $p->id]);
+
+                return true;
+            });
         } catch (Throwable $e) {
             report($e);
 
             return redirect()->route('admin.calon-murid.index')
-                ->with('peringatan', 'Catatan tersimpan, tetapi email gagal dikirim. Periksa konfigurasi email.');
+                ->with('peringatan', 'Penolakan dan email gagal diproses. Tidak ada perubahan yang disimpan; periksa konfigurasi email lalu coba lagi.');
+        }
+
+        if (! $berhasil) {
+            return back()->with('error', 'Pendaftaran ini sudah diproses sebelumnya.');
         }
 
         return redirect()->route('admin.calon-murid.index')
             ->with('sukses', 'Pendaftaran ditolak. Catatan perbaikan telah dikirim ke email calon murid.');
     }
-
 }

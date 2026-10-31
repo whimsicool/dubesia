@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use App\Models\Pendaftaran;
+use App\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -23,13 +24,26 @@ class StoreRegistrasiRequest extends FormRequest
 
     public function rules(): array
     {
+        // Pengajuan yang ditolak dapat diajukan ulang memakai identitas yang sama.
+        $rejectedUserId = User::query()
+            ->where('email', $this->input('email'))
+            ->whereHas('pendaftaran', fn ($query) => $query->where('status', Pendaftaran::STATUS_DITOLAK))
+            ->value('id');
+
+        $uniqueEmail = Rule::unique('users', 'email');
+        $uniqueUsername = Rule::unique('users', 'username');
+        if ($rejectedUserId) {
+            $uniqueEmail->ignore($rejectedUserId);
+            $uniqueUsername->ignore($rejectedUserId);
+        }
+
         return [
             'nama_lengkap' => ['required', 'string', 'max:255'],
             'tanggal_lahir' => ['required', 'date', 'before:today'],
-            'email' => ['required', 'email:rfc', 'max:255', 'unique:users,email'],
+            'email' => ['required', 'email:rfc', 'max:255', $uniqueEmail],
             'no_whatsapp' => ['required', 'regex:/^[0-9]{9,13}$/'],
             'alamat' => ['required', 'string', 'max:1000'],
-            'username' => ['required', 'string', 'min:5', 'max:30', 'alpha_dash', 'unique:users,username'],
+            'username' => ['required', 'string', 'min:5', 'max:30', 'alpha_dash', $uniqueUsername],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
             'pesan_motivasi' => ['nullable', 'string', 'max:1000'],
             'program' => ['required', Rule::in(array_keys(Pendaftaran::PROGRAMS))],

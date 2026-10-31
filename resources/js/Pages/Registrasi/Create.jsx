@@ -381,7 +381,6 @@ export default function Create({
               <Field
                 label="Nomor WhatsApp"
                 required
-                hint="Gunakan nomor aktif"
                 error={errors.no_whatsapp}
               >
                 <div className="flex min-w-0 rounded-lg border border-slate-200 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-100">

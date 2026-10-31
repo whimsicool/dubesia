@@ -68,6 +68,7 @@ class RegistrasiController extends Controller
                     'name' => $data['nama_lengkap'],
                     'email' => $data['email'],
                     'username' => $data['username'],
+                    'no_hp' => '+62'.$data['no_whatsapp'],
                 ]);
 
                 $pendaftaran->update([
@@ -133,14 +134,54 @@ class RegistrasiController extends Controller
     {
         $data = $request->validated();
         $path = $request->file('bukti_pembayaran')->store('bukti-pembayaran', 'public');
+        $oldPath = null;
 
         try {
-            DB::transaction(function () use ($data, $path) {
+            $isResubmission = DB::transaction(function () use ($data, $path, &$oldPath) {
+                $rejectedUser = User::query()
+                    ->where('email', $data['email'])
+                    ->whereHas('pendaftaran', fn ($query) => $query->where('status', Pendaftaran::STATUS_DITOLAK))
+                    ->with('pendaftaran')
+                    ->first();
+
+                if ($rejectedUser) {
+                    $pendaftaran = $rejectedUser->pendaftaran;
+                    $oldPath = $pendaftaran->bukti_pembayaran;
+
+                    $rejectedUser->update([
+                        'name' => $data['nama_lengkap'],
+                        'email' => $data['email'],
+                        'username' => $data['username'],
+                        'password' => Hash::make($data['password']),
+                        'no_hp' => '+62'.$data['no_whatsapp'],
+                        'is_active' => false,
+                    ]);
+
+                    $pendaftaran->update([
+                        'nama_lengkap' => $data['nama_lengkap'],
+                        'tanggal_lahir' => $data['tanggal_lahir'],
+                        'email' => $data['email'],
+                        'no_whatsapp' => '62'.$data['no_whatsapp'],
+                        'alamat' => $data['alamat'],
+                        'program' => $data['program'],
+                        'pesan_motivasi' => $data['pesan_motivasi'] ?? null,
+                        'bukti_pembayaran' => $path,
+                        'biaya' => Pendaftaran::BIAYA,
+                        'status' => Pendaftaran::STATUS_MENUNGGU,
+                        'catatan_verifikasi' => null,
+                        'verified_by' => null,
+                        'verified_at' => null,
+                        'resubmitted_at' => now(),
+                    ]);
+
+                    return true;
+                }
                 $user = User::create([
                     'name'      => $data['nama_lengkap'],
                     'username'  => $data['username'],
                     'email'     => $data['email'],
                     'password'  => Hash::make($data['password']),
+                    'no_hp'     => '+62'.$data['no_whatsapp'],
                     'role'      => 'student',
                     'is_active' => false, // aktif setelah diverifikasi Admin
                 ]);
@@ -158,6 +199,8 @@ class RegistrasiController extends Controller
                     'biaya'            => Pendaftaran::BIAYA,
                     'status'           => Pendaftaran::STATUS_MENUNGGU,
                 ]);
+
+                return false;
             });
         } catch (Throwable $e) {
             Storage::disk('public')->delete($path);
@@ -168,7 +211,13 @@ class RegistrasiController extends Controller
             ]);
         }
 
+        if ($oldPath) {
+            Storage::disk('public')->delete($oldPath);
+        }
+
         return redirect('/registrasi')
-            ->with('sukses', 'Bukti pembayaran berhasil dikirim, menunggu verifikasi Admin.');
+            ->with('sukses', $isResubmission
+                ? 'Pendaftaran ulang berhasil dikirim dan menunggu verifikasi Admin.'
+                : 'Bukti pembayaran berhasil dikirim, menunggu verifikasi Admin.');
     }
 }
