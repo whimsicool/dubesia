@@ -36,13 +36,13 @@ class DatabaseSeeder extends Seeder
                 'name' => 'Student Intermediate',
                 'email' => 'student-intermediate@dubesia.id',
                 'role' => 'student',
-                'class_level' => 'Intermediate',
+                'class_level' => 'Middle Intermediate',
             ],
             [
                 'name' => 'Student Advance',
                 'email' => 'student-advance@dubesia.id',
                 'role' => 'student',
-                'class_level' => 'Advance',
+                'class_level' => 'Upper Intermediate',
             ],
         ];
         foreach ($accounts as $account) {

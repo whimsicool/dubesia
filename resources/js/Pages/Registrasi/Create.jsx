@@ -8,6 +8,18 @@ const rupiah = (value) =>
 const inputClass =
   'w-full min-w-0 rounded-lg border border-slate-200 bg-white px-3.5 py-3 text-sm text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100';
 
+const FIELD_LABELS = {
+  nama_lengkap: 'Nama lengkap',
+  tanggal_lahir: 'Tanggal lahir',
+  email: 'Email',
+  no_whatsapp: 'Nomor WhatsApp',
+  asal_institusi: 'Asal institusi',
+  alamat: 'Alamat',
+  program: 'Program kursus',
+  bukti_pembayaran: 'Bukti pembayaran',
+  setuju: 'Persetujuan',
+};
+
 function Field({ label, required = false, hint, error, children, id }) {
   return (
     <div id={id} className="min-w-0 space-y-1.5">
@@ -185,6 +197,9 @@ export default function Create({
   const fileInput = useRef(null);
   const selectedProgram = programs.find((program) => program.value === data.program);
   const selectedBiaya = selectedProgram?.biaya ?? biaya;
+  const invalidFields = Object.keys(FIELD_LABELS).filter(
+    (field) => clientErrors[field] || errors[field],
+  );
 
   useEffect(() => {
     const firstInvalidField = Object.keys(errors).find((field) => field !== 'umum');
@@ -343,6 +358,32 @@ export default function Create({
             <div className="mb-6 rounded-xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-800 sm:p-5">
               <h2 className="font-bold">Catatan perbaikan dari admin</h2>
               <p className="mt-2 whitespace-pre-wrap leading-6">{pendaftaran.catatan_verifikasi}</p>
+            </div>
+          )}
+
+          {invalidFields.length > 0 && (
+            <div
+              role="alert"
+              className="mb-5 rounded-xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-800"
+            >
+              <p className="font-bold">
+                {invalidFields.length} bagian belum benar
+              </p>
+
+              <ul className="mt-2 space-y-1">
+                {invalidFields.map((field) => (
+                  <li key={field}>
+                    <button
+                      type="button"
+                      onClick={() => document.getElementById(`field-${field}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' })}
+                      className="font-semibold underline decoration-rose-300 underline-offset-2 hover:text-rose-950"
+                    >
+                      {FIELD_LABELS[field]}
+                    </button>
+                    <span className="text-rose-700"> — {fieldError(field)}</span>
+                  </li>
+                ))}
+              </ul>
             </div>
           )}
 

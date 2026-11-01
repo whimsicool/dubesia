@@ -13,14 +13,20 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-#[Fillable(['name', 'email', 'password', 'role', 'username', 'is_active', 'no_hp', 'nip', 'status_akun', 'class_level'])]
+#[Fillable(['name', 'email', 'password', 'role', 'username', 'is_active', 'no_hp', 'nip', 'status_akun', 'class_level', 'photo_path'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
-    public const CLASS_LEVELS = ['Beginner', 'Intermediate', 'Advance'];
+    /**
+     * Level kelas yang sama dengan keluaran HasilTes::tentukanLevelKelas.
+     * Dipakai sebagai pilihan filter presensi tutor.
+     */
+    public const CLASS_LEVELS = ['Beginner', 'Low Intermediate', 'Middle Intermediate', 'Upper Intermediate'];
 
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
+
+    protected $appends = ['avatar_url'];
 
     public function classAttendancesAsStudent(): HasMany
     {
@@ -136,6 +142,17 @@ class User extends Authenticatable
     public function hasilTes(): HasMany
     {
         return $this->hasMany(HasilTes::class, 'id_murid', 'id');
+    }
+
+    /**
+     * URL foto profil. Null berarti tampilkan inisial nama.
+     * Memakai path relatif agar tetap benar di host dan port mana pun.
+     */
+    public function getAvatarUrlAttribute(): ?string
+    {
+        return filled($this->photo_path)
+            ? '/storage/'.ltrim($this->photo_path, '/')
+            : null;
     }
 
     /**

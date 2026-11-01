@@ -2,98 +2,134 @@
 
 namespace Tests\Feature;
 
+use App\Models\Pendaftaran;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
+use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
 
 class ProfileTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_profile_page_is_displayed(): void
+    private function studentWithRegistration(string $level = 'Middle Intermediate'): User
     {
-        $user = User::factory()->create();
+        $student = User::factory()->create([
+            'role' => 'student',
+            'class_level' => $level,
+            'name' => 'Ayu Lestari',
+        ]);
 
-        $response = $this
-            ->actingAs($user)
-            ->get('/profile');
+        Pendaftaran::create([
+            'user_id' => $student->id,
+            'nama_lengkap' => 'Ayu Lestari',
+            'tanggal_lahir' => '2005-04-12',
+            'email' => $student->email,
+            'no_whatsapp' => '6281234567890',
+            'alamat' => 'Jl. Merdeka 1',
+            'asal_institusi' => 'SMA Negeri 1',
+            'program' => 'toefl_ielts',
+            'bukti_pembayaran' => 'bukti/pembayaran.jpg',
+            'biaya' => 400000,
+            'status' => Pendaftaran::STATUS_TERVERIFIKASI,
+        ]);
 
-        $response->assertOk();
+        return $student;
     }
 
-    public function test_profile_information_can_be_updated(): void
+    public function test_profile_page_shows_read_only_data_and_registration(): void
     {
-        $user = User::factory()->create();
+        $student = $this->studentWithRegistration();
 
-        $response = $this
-            ->actingAs($user)
-            ->patch('/profile', [
-                'name' => 'Test User',
-                'email' => 'test@example.com',
-            ]);
-
-        $response
-            ->assertSessionHasNoErrors()
-            ->assertRedirect('/profile');
-
-        $user->refresh();
-
-        $this->assertSame('Test User', $user->name);
-        $this->assertSame('test@example.com', $user->email);
-        $this->assertNull($user->email_verified_at);
+        $this->actingAs($student)
+            ->get('/profile')
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('Profile/Edit')
+                ->where('profile.name', 'Ayu Lestari')
+                ->where('profile.class_level', 'Middle Intermediate')
+                ->where('profile.can_upload_photo', true)
+                ->where('pendaftaran.asal_institusi', 'SMA Negeri 1')
+                ->where('pendaftaran.program', 'TOEFL & IELTS Mastery')
+                ->where('pendaftaran.status_label', 'Terverifikasi')
+            );
     }
 
-    public function test_email_verification_status_is_unchanged_when_the_email_address_is_unchanged(): void
+    public function test_admin_profile_cannot_upload_a_photo(): void
     {
-        $user = User::factory()->create();
+        $admin = User::factory()->create(['role' => 'admin']);
 
-        $response = $this
-            ->actingAs($user)
-            ->patch('/profile', [
-                'name' => 'Test User',
-                'email' => $user->email,
-            ]);
-
-        $response
-            ->assertSessionHasNoErrors()
-            ->assertRedirect('/profile');
-
-        $this->assertNotNull($user->refresh()->email_verified_at);
+        $this->actingAs($admin)
+            ->get('/profile')
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->where('profile.can_upload_photo', false)
+                ->where('pendaftaran', null)
+            );
     }
 
-    public function test_user_can_delete_their_account(): void
+    public function test_student_can_upload_a_profile_photo(): void
     {
-        $user = User::factory()->create();
+        Storage::fake('public');
+        $student = User::factory()->create(['role' => 'student']);
 
-        $response = $this
-            ->actingAs($user)
-            ->delete('/profile', [
-                'password' => 'password',
-            ]);
+        $this->actingAs($student)
+            ->post(route('profile.photo.update'), [
+                'photo' => UploadedFile::fake()->image('foto.jpg'),
+            ])
+            ->assertRedirect(route('profile.edit'))
+            ->assertSessionHasNoErrors();
 
-        $response
-            ->assertSessionHasNoErrors()
-            ->assertRedirect('/');
+        $student->refresh();
 
-        $this->assertGuest();
-        $this->assertNull($user->fresh());
+        $this->assertNotNull($student->photo_path);
+        Storage::disk('public')->assertExists($student->photo_path);
+        $this->assertStringContainsString($student->photo_path, $student->avatar_url);
     }
 
-    public function test_correct_password_must_be_provided_to_delete_account(): void
+    public function test_replacing_a_photo_removes_the_previous_file(): void
     {
-        $user = User::factory()->create();
+        Storage::fake('public');
+        $student = User::factory()->create(['role' => 'student']);
 
-        $response = $this
-            ->actingAs($user)
-            ->from('/profile')
-            ->delete('/profile', [
-                'password' => 'wrong-password',
-            ]);
+        $this->actingAs($student)->post(route('profile.photo.update'), [
+            'photo' => UploadedFile::fake()->image('lama.jpg'),
+        ]);
 
-        $response
-            ->assertSessionHasErrors('password')
-            ->assertRedirect('/profile');
+        $oldPath = $student->refresh()->photo_path;
 
-        $this->assertNotNull($user->fresh());
+        $this->actingAs($student)->post(route('profile.photo.update'), [
+            'photo' => UploadedFile::fake()->image('baru.jpg'),
+        ]);
+
+        Storage::disk('public')->assertMissing($oldPath);
+        Storage::disk('public')->assertExists($student->refresh()->photo_path);
+    }
+
+    public function test_profile_photo_must_be_an_image(): void
+    {
+        Storage::fake('public');
+        $student = User::factory()->create(['role' => 'student']);
+
+        $this->actingAs($student)
+            ->post(route('profile.photo.update'), [
+                'photo' => UploadedFile::fake()->create('bukti.pdf', 200, 'application/pdf'),
+            ])
+            ->assertSessionHasErrors('photo');
+
+        $this->assertNull($student->refresh()->photo_path);
+    }
+
+    public function test_profile_information_cannot_be_edited(): void
+    {
+        $student = User::factory()->create(['role' => 'student', 'name' => 'Nama Asli']);
+
+        $this->actingAs($student)
+            ->patch('/profile', ['name' => 'Nama Baru', 'email' => 'baru@example.com'])
+            ->assertStatus(405);
+
+        $this->assertSame('Nama Asli', $student->refresh()->name);
     }
 }

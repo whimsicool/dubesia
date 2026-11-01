@@ -392,9 +392,18 @@ export default function Index({ users, filters, stats }) {
                                         </td>
                                         <td>
                                             <div className="kdp-user-cell">
-                                                <div className={`kdp-avatar kdp-avatar--${u.role}`}>
-                                                    {getInitials(u.name)}
-                                                </div>
+                                                {u.avatar_url ? (
+                                                    <img
+                                                        src={u.avatar_url}
+                                                        alt={`Foto profil ${u.name}`}
+                                                        className="kdp-avatar"
+                                                        style={{ objectFit: 'cover' }}
+                                                    />
+                                                ) : (
+                                                    <div className={`kdp-avatar kdp-avatar--${u.role}`}>
+                                                        {getInitials(u.name)}
+                                                    </div>
+                                                )}
                                                 <div>
                                                     <p className="kdp-user-name">{u.name}</p>
                                                     {u.nip && (
@@ -418,6 +427,11 @@ export default function Index({ users, filters, stats }) {
                                                 )}
                                                 {roleLabel(u.role)}
                                             </span>
+                                            {u.role === 'student' && u.class_level && (
+                                                <p style={{ fontSize: '11px', color: '#64748b', marginTop: '4px' }}>
+                                                    Level {u.class_level}
+                                                </p>
+                                            )}
                                         </td>
                                         <td>
                                             <p className="kdp-contact-email">{u.email}</p>
@@ -776,14 +790,22 @@ export default function Index({ users, filters, stats }) {
                         }}>
                             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-                                    <div style={{
-                                        width: '50px', height: '50px', borderRadius: '14px',
-                                        background: 'rgba(255,255,255,0.15)',
-                                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                        fontWeight: 700, fontSize: '18px',
-                                    }}>
-                                        {getInitials(detailUser.name)}
-                                    </div>
+                                    {detailUser.avatar_url ? (
+                                        <img
+                                            src={detailUser.avatar_url}
+                                            alt={`Foto profil ${detailUser.name}`}
+                                            style={{ width: '50px', height: '50px', borderRadius: '14px', objectFit: 'cover' }}
+                                        />
+                                    ) : (
+                                        <div style={{
+                                            width: '50px', height: '50px', borderRadius: '14px',
+                                            background: 'rgba(255,255,255,0.15)',
+                                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                            fontWeight: 700, fontSize: '18px',
+                                        }}>
+                                            {getInitials(detailUser.name)}
+                                        </div>
+                                    )}
                                     <div>
                                         <h3 style={{ fontSize: '16px', fontWeight: 700 }}>{detailUser.name}</h3>
                                         <p style={{ fontSize: '12px', opacity: 0.7 }}>{roleLabel(detailUser.role)}</p>
@@ -835,6 +857,12 @@ export default function Index({ users, filters, stats }) {
                                         {roleLabel(detailUser.role)}
                                     </span>
                                 </div>
+                                {detailUser.role === 'student' && (
+                                    <div>
+                                        <p style={{ fontSize: '11px', color: '#94a3b8', fontWeight: 600 }}>Level Kelas</p>
+                                        <p style={{ fontWeight: 600, color: '#0f172a' }}>{detailUser.class_level || 'Belum ada hasil tes'}</p>
+                                    </div>
+                                )}
                                 <div>
                                     <p style={{ fontSize: '11px', color: '#94a3b8', fontWeight: 600 }}>Terdaftar Sejak</p>
                                     <p style={{ fontWeight: 600, color: '#0f172a' }}>

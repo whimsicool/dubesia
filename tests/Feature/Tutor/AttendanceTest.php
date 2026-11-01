@@ -35,7 +35,7 @@ class AttendanceTest extends TestCase
     public function test_index_lists_students_of_the_selected_level(): void
     {
         $beginner = $this->student('Beginner');
-        $this->student('Advance');
+        $this->student('Upper Intermediate');
 
         $this->actingAs($this->tutor())
             ->get(route('tutor.attendance.index', ['level' => 'Beginner']))
