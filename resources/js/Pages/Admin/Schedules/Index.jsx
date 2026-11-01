@@ -1,6 +1,13 @@
+
 import { useState } from 'react';
 import { Head, Link, router, usePage } from '@inertiajs/react';
-import { ChevronDown, CirclePlus, Download, FileSpreadsheet, Printer } from 'lucide-react';
+import {
+    ChevronDown,
+    CirclePlus,
+    Download,
+    FileSpreadsheet,
+    Printer,
+} from 'lucide-react';
 import AdminLayout from '@/Layouts/AdminLayout';
 import FlashBanner from '@/Components/Common/FlashBanner';
 import ScheduleFilters from '@/Components/Schedules/ScheduleFilters';
@@ -11,7 +18,7 @@ import ScheduleFormModal from '@/Components/Schedules/ScheduleFormModal';
 import DeleteScheduleModal from '@/Components/Schedules/DeleteScheduleModal';
 import { cleanParams, formatWeekRange } from '@/Components/Schedules/constants';
 
-function ExportMenu({ exportUrl }) {
+function ExportMenu({ exportUrl, pdfUrl }) {
     const [open, setOpen] = useState(false);
 
     return (
@@ -36,16 +43,32 @@ function ExportMenu({ exportUrl }) {
                         onClick={() => setOpen(false)}
                         className="flex items-center gap-2 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50"
                     >
-                        <FileSpreadsheet className="h-4 w-4 text-slate-400" /> Unduh CSV (Excel)
+                        <FileSpreadsheet className="h-4 w-4 text-slate-400" />
+                        Unduh CSV (Excel)
                     </a>
+
                     <button
                         type="button"
-                        onMouseDown={(e) => e.preventDefault()}
-                        onClick={() => window.print()}
+                        onMouseDown={(event) => event.preventDefault()}
+                        onClick={() => {
+                            setOpen(false);
+                            window.print();
+                        }}
                         className="flex w-full items-center gap-2 px-4 py-2.5 text-left text-sm text-slate-700 hover:bg-slate-50"
                     >
-                        <Printer className="h-4 w-4 text-slate-400" /> Cetak / Simpan PDF
+                        <Printer className="h-4 w-4 text-slate-400" />
+                        Cetak / Simpan PDF
                     </button>
+
+                    <a
+                        href={pdfUrl}
+                        onMouseDown={(event) => event.preventDefault()}
+                        onClick={() => setOpen(false)}
+                        className="flex items-center gap-2 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50"
+                    >
+                        <Download className="h-4 w-4 text-red-700" />
+                        Unduh PDF
+                    </a>
                 </div>
             )}
         </div>
@@ -61,15 +84,24 @@ export default function Index({ semester, week, filters, schedules, options }) {
     const [deleting, setDeleting] = useState(null);
     const [defaultDate, setDefaultDate] = useState(week.start);
 
-    /** Kunjungi ulang halaman dengan filter / minggu baru, tanpa reload penuh. */
     const visit = (patch) => {
         const params = cleanParams({ week: week.start, ...filters, ...patch });
-        router.get(route('admin.schedules.index'), params, { preserveState: true, preserveScroll: true, replace: true });
+        router.get(route('admin.schedules.index'), params, {
+            preserveState: true,
+            preserveScroll: true,
+            replace: true,
+        });
     };
 
     const openCreate = (date = week.start) => {
         setEditing(null);
-        const selectedDate = date < semester?.start_date ? semester.start_date : date > semester?.end_date ? semester.end_date : date;
+        const selectedDate =
+            date < semester?.start_date
+                ? semester.start_date
+                : date > semester?.end_date
+                    ? semester.end_date
+                    : date;
+
         setDefaultDate(selectedDate);
         setFormOpen(true);
     };
@@ -79,7 +111,18 @@ export default function Index({ semester, week, filters, schedules, options }) {
         setFormOpen(true);
     };
 
-    const exportUrl = route('admin.schedules.export', cleanParams({ ...filters }));
+    const exportUrl = route(
+        'admin.schedules.export',
+        cleanParams({ ...filters })
+    );
+
+    const pdfUrl = route(
+        'admin.schedules.pdf',
+        cleanParams({
+            week: week.start,
+            ...filters,
+        })
+    );
 
     return (
         <AdminLayout>
@@ -87,32 +130,41 @@ export default function Index({ semester, week, filters, schedules, options }) {
 
             <FlashBanner flash={flash?.success} />
 
-            {/* Breadcrumb + judul */}
             <div className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
                 <div>
                     <nav className="flex flex-wrap items-center gap-2 text-[11px] font-semibold uppercase tracking-wider text-slate-500 print:hidden">
-                        <Link href={route('admin.dashboard')} className="hover:text-slate-900">
+                        <Link
+                            href={route('admin.dashboard')}
+                            className="hover:text-slate-900"
+                        >
                             Dashboard Admin
                         </Link>
                         <span>›</span>
                         <span className="text-red-700">Kelola Jadwal Belajar</span>
                     </nav>
-                    <h1 className="mt-2 text-3xl font-extrabold tracking-tight text-slate-900">Pengelolaan Jadwal Akademik</h1>
+
+                    <h1 className="mt-2 text-3xl font-extrabold tracking-tight text-slate-900">
+                        Pengelolaan Jadwal Akademik
+                    </h1>
+
                     <p className="mt-2 max-w-2xl text-sm text-slate-600">
                         Kelola penetapan hari, alokasi instruktur, ruang diplomatik/lab digital, serta pendaftaran kelompok murid aktif.
                     </p>
+
                     <p className="mt-1 hidden text-sm font-semibold text-slate-700 print:block">
                         Pekan {formatWeekRange(week.start, week.end)}
                     </p>
                 </div>
 
                 <div className="flex flex-wrap items-center gap-3 print:hidden">
-                    <ExportMenu exportUrl={exportUrl} />
+                    <ExportMenu
+                        exportUrl={exportUrl}
+                        pdfUrl={pdfUrl}
+                    />
 
                     <button
                         type="button"
                         onClick={() => openCreate()}
-    
                         className="flex items-center gap-2 rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
                     >
                         <CirclePlus className="h-4 w-4" />
@@ -121,45 +173,55 @@ export default function Index({ semester, week, filters, schedules, options }) {
                 </div>
             </div>
 
-            {!semester ? (
-                <div className="rounded-2xl border border-amber-200 bg-amber-50 p-6 text-sm text-amber-900">
-                    <p className="font-semibold">Belum ada periode jadwal aktif.</p>
-                    <p className="mt-1">Aktifkan periode jadwal agar jadwal dapat dikelola.</p>
-                </div>
-            ) : (
-                <div className="space-y-5">
-                    <ScheduleFilters
-                        filters={filters}
-                        options={options}
-                        view={view}
-                        onViewChange={setView}
-                        onChange={(patch) => visit(patch)}
-                    />
+            <div id="admin-schedule-pdf-content">
+                {!semester ? (
+                    <div className="rounded-2xl border border-amber-200 bg-amber-50 p-6 text-sm text-amber-900">
+                        <p className="font-semibold">Belum ada periode jadwal aktif.</p>
+                        <p className="mt-1">
+                            Aktifkan periode jadwal agar jadwal dapat dikelola.
+                        </p>
+                    </div>
+                ) : (
+                    <div className="space-y-5">
+                        <div data-html2canvas-ignore="true">
+                            <ScheduleFilters
+                                filters={filters}
+                                options={options}
+                                view={view}
+                                onViewChange={setView}
+                                onChange={(patch) => visit(patch)}
+                            />
+                        </div>
 
-                    {view === 'calendar' ? (
-                        <WeekCalendar
-                            week={week}
-                            schedules={schedules}
-                            dayFilter={filters.day}
-                            onNavigate={(date) => visit({ week: date })}
-                            onEdit={openEdit}
-                            onDelete={setDeleting}
-                        />
-                    ) : view === 'month' ? (
-                        <MonthCalendar
-                            week={week}
-                            semester={semester}
-                            schedules={schedules}
-                            dayFilter={filters.day}
-                            onNavigate={(date) => visit({ week: date })}
-                            onAdd={openCreate}
-                            onEdit={openEdit}
-                        />
-                    ) : (
-                        <ScheduleTable schedules={schedules} onEdit={openEdit} onDelete={setDeleting} />
-                    )}
-                </div>
-            )}
+                        {view === 'calendar' ? (
+                            <WeekCalendar
+                                week={week}
+                                schedules={schedules}
+                                dayFilter={filters.day}
+                                onNavigate={(date) => visit({ week: date })}
+                                onEdit={openEdit}
+                                onDelete={setDeleting}
+                            />
+                        ) : view === 'month' ? (
+                            <MonthCalendar
+                                week={week}
+                                semester={semester}
+                                schedules={schedules}
+                                dayFilter={filters.day}
+                                onNavigate={(date) => visit({ week: date })}
+                                onAdd={openCreate}
+                                onEdit={openEdit}
+                            />
+                        ) : (
+                            <ScheduleTable
+                                schedules={schedules}
+                                onEdit={openEdit}
+                                onDelete={setDeleting}
+                            />
+                        )}
+                    </div>
+                )}
+            </div>
 
             <ScheduleFormModal
                 open={formOpen}
@@ -169,7 +231,11 @@ export default function Index({ semester, week, filters, schedules, options }) {
                 defaultDate={defaultDate}
                 semester={semester}
             />
-            <DeleteScheduleModal schedule={deleting} onClose={() => setDeleting(null)} />
+
+            <DeleteScheduleModal
+                schedule={deleting}
+                onClose={() => setDeleting(null)}
+            />
         </AdminLayout>
     );
 }

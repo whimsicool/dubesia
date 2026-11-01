@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Schedule;
 use App\Models\Semester;
 use App\Models\User;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Constants\UnitValue;
 use Illuminate\Support\Carbon;
 use Illuminate\Http\Request;
@@ -48,30 +49,90 @@ class ScheduleViewController extends Controller
         ]);
     }
 
+    public function pdf(Request $request)
+    {
+        $user = $request->user();
+        $semester = Semester::active()->first();
+
+        $weekStart = $this->resolveWeekStart($request->query('week'));
+
+        $filters = [
+            'day' => $request->integer('day') ?: null,
+            'program_id' => $request->integer('program_id') ?: null,
+            'instructor_id' => $request->integer('instructor_id') ?: null,
+            'room_id' => $request->integer('room_id') ?: null,
+            'q' => trim((string) $request->query('q', '')) ?: null,
+        ];
+
+        $schedules = collect();
+
+        if ($semester) {
+            [$schedules] = $this->loadScheduleData($semester, $user, $filters);
+        }
+
+        $week = $this->weekData($weekStart, $semester);
+
+        $days = collect($week['days'])->map(function ($day) use ($schedules) {
+            $day['formatted_date'] = Carbon::parse($day['date'])->format('d/m/Y');
+
+            $day['schedules'] = $schedules
+                ->filter(function ($schedule) use ($day) {
+                    if (! $day['in_semester']) {
+                        return false;
+                    }
+
+                    if ((int) $schedule['day_of_week'] !== (int) $day['day']) {
+                        return false;
+                    }
+
+                    return ! $schedule['scheduled_date']
+                        || $schedule['scheduled_date'] === $day['date'];
+                })
+                ->values()
+                ->all();
+
+            return $day;
+        })->all();
+
+        return Pdf::loadView('pdf.schedules', [
+            'title' => 'Jadwal Belajar',
+            'user' => $user,
+            'semester' => $semester,
+            'days' => $days,
+            'audience' => $user->isTutor() ? 'Tutor' : 'Siswa',
+            'generatedAt' => now(),
+        ])
+            ->setPaper('a4', 'landscape')
+            ->download('Jadwal-Belajar-Dubesia.pdf');
+    }
+
     private function loadScheduleData(Semester $semester, User $user, array $filters): array
     {
         $baseQuery = Schedule::query()->where('semester_id', $semester->id);
 
         if ($user->isTutor()) {
-            $baseQuery->whereHas('instructor', fn ($instructor) => $instructor->where(function ($match) use ($user) {
+            $baseQuery->whereHas('instructor', fn($instructor) => $instructor->where(function ($match) use ($user) {
                 $match->where('user_id', $user->id)->orWhere('email', $user->email);
             }));
         } else {
-            $baseQuery->whereHas('students', fn ($student) => $student->where(function ($match) use ($user) {
+            $baseQuery->whereHas('students', fn($student) => $student->where(function ($match) use ($user) {
                 $match->where('user_id', $user->id)->orWhere('email', $user->email);
             }));
         }
 
         $available = (clone $baseQuery)->with(['program:id,name,category', 'instructor:id,name', 'room:id,name'])->get();
         $options = [
-            'programs' => $available->pluck('program')->unique('id')->sortBy('name')->values()->map(fn ($program) => [
-                'id' => $program->id, 'name' => $program->name,
+            'programs' => $available->pluck('program')->unique('id')->sortBy('name')->values()->map(fn($program) => [
+                'id' => $program->id,
+                'name' => $program->name,
             ]),
-            'instructors' => $available->pluck('instructor')->unique('id')->sortBy('name')->values()->map(fn ($instructor) => [
-                'id' => $instructor->id, 'name' => $instructor->name,
+            'instructors' => $available->pluck('instructor')->unique('id')->sortBy('name')->values()->map(fn($instructor) => [
+                'id' => $instructor->id,
+                'name' => $instructor->name,
             ]),
-            'rooms' => $available->pluck('room')->unique('id')->sortBy('name')->values()->map(fn ($room) => [
-                'id' => $room->id, 'name' => $room->name,
+            'rooms' => $available->pluck('room')->unique('id')->sortBy('name')->values()->map(fn($room) => [
+                'id' => $room->id,
+                'name' => $room->name,
             ]),
         ];
 
@@ -79,7 +140,7 @@ class ScheduleViewController extends Controller
         $this->applyFilters($query, $filters);
         $schedules = $query->with(['program:id,name,category', 'instructor:id,name', 'room:id,name,type,platform,capacity', 'students:id'])
             ->orderBy('day_of_week')->orderBy('start_time')->get()
-            ->map(fn (Schedule $schedule) => $this->formatSchedule($schedule))->values();
+            ->map(fn(Schedule $schedule) => $this->formatSchedule($schedule))->values();
 
         return [$schedules, $options];
     }
@@ -93,13 +154,13 @@ class ScheduleViewController extends Controller
         }
 
         if ($filters['q']) {
-            $like = '%'.addcslashes($filters['q'], '%_\\').'%';
-            $query->where(fn ($search) => $search
+            $like = '%' . addcslashes($filters['q'], '%_\\') . '%';
+            $query->where(fn($search) => $search
                 ->where('title', 'like', $like)
                 ->orWhere('class_name', 'like', $like)
-                ->orWhereHas('program', fn ($program) => $program->where('name', 'like', $like))
-                ->orWhereHas('instructor', fn ($instructor) => $instructor->where('name', 'like', $like))
-                ->orWhereHas('room', fn ($room) => $room->where('name', 'like', $like)));
+                ->orWhereHas('program', fn($program) => $program->where('name', 'like', $like))
+                ->orWhereHas('instructor', fn($instructor) => $instructor->where('name', 'like', $like))
+                ->orWhereHas('room', fn($room) => $room->where('name', 'like', $like)));
         }
     }
 

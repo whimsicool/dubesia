@@ -14,6 +14,7 @@ use App\Models\Semester;
 use App\Models\Student;
 use App\Models\User;
 use App\Services\ScheduleConflictService;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -68,10 +69,10 @@ class ScheduleController extends Controller
             'schedules' => ScheduleResource::collection($schedules)->resolve(),
             'options' => [
                 'programs' => Program::where('is_active', true)->orderBy('name')->get(['id', 'name', 'category'])
-                    ->map(fn ($p) => ['id' => $p->id, 'name' => $p->name, 'category' => $p->category->value]),
+                    ->map(fn($p) => ['id' => $p->id, 'name' => $p->name, 'category' => $p->category->value]),
                 'instructors' => Instructor::where('is_active', true)->orderBy('name')->get(['id', 'name']),
                 'classes' => CourseClass::where('is_active', true)->with(['tutors:id,name', 'students:id'])->orderBy('name')->get()
-                    ->map(fn (CourseClass $class) => [
+                    ->map(fn(CourseClass $class) => [
                         'id' => $class->id,
                         'name' => $class->name,
                         'level' => $class->level?->value,
@@ -83,13 +84,71 @@ class ScheduleController extends Controller
                     ]),
                 'tutors' => User::where('role', User::ROLE_TUTOR)->where('status_akun', 'aktif')->orderBy('name')->get(['id', 'name']),
                 'rooms' => Room::where('is_active', true)->orderBy('name')->get(['id', 'name', 'type', 'platform', 'location', 'capacity'])
-                    ->map(fn ($r) => [
-                        'id' => $r->id, 'name' => $r->name, 'type' => $r->type->value,
-                        'platform' => $r->platform, 'location' => $r->location, 'capacity' => $r->capacity,
+                    ->map(fn($r) => [
+                        'id' => $r->id,
+                        'name' => $r->name,
+                        'type' => $r->type->value,
+                        'platform' => $r->platform,
+                        'location' => $r->location,
+                        'capacity' => $r->capacity,
                     ]),
                 'students' => User::where('role', User::ROLE_STUDENT)->orderBy('name')->get(['id', 'name', 'email', 'nip']),
             ],
         ]);
+    }
+
+    public function pdf(Request $request)
+    {
+        $semester = Semester::active()->first();
+        $weekStart = $this->resolveWeekStart($request->query('week'));
+
+        $rows = $semester
+            ? $this->filteredQuery($request, $semester)->get()
+            : collect();
+
+        $days = collect($this->weekDays($weekStart, $semester))
+            ->map(function ($day) use ($rows) {
+                $day['formatted_date'] = Carbon::parse($day['date'])->format('d/m/Y');
+
+                $day['schedules'] = $rows
+                    ->filter(function ($schedule) use ($day) {
+                        if (! $day['in_semester']) {
+                            return false;
+                        }
+
+                        if ($schedule->scheduled_date) {
+                            return $schedule->scheduled_date->toDateString() === $day['date'];
+                        }
+
+                        return (int) $schedule->day_of_week === (int) $day['day'];
+                    })
+                    ->map(fn($schedule) => [
+                        'title' => $schedule->title,
+                        'class_name' => $schedule->class_name,
+                        'start_time' => substr($schedule->start_time, 0, 5),
+                        'end_time' => substr($schedule->end_time, 0, 5),
+                        'program' => $schedule->program?->name ?? '-',
+                        'instructor' => $schedule->instructor?->name ?? '-',
+                        'room' => $schedule->room?->name ?? '-',
+                        'participants' => $schedule->students->count(),
+                    ])
+                    ->values()
+                    ->all();
+
+                return $day;
+            })
+            ->all();
+
+        return Pdf::loadView('pdf.schedules', [
+            'title' => 'Jadwal Belajar',
+            'user' => $request->user(),
+            'semester' => $semester,
+            'days' => $days,
+            'audience' => 'Administrator',
+            'generatedAt' => now(),
+        ])
+            ->setPaper('a4', 'landscape')
+            ->download('Jadwal-Belajar-Dubesia.pdf');
     }
 
     /* ---------------------------------------------------------------------
@@ -97,26 +156,29 @@ class ScheduleController extends Controller
      | ------------------------------------------------------------------- */
     public function store(ScheduleRequest $request): RedirectResponse
     {
-        $schedule = DB::transaction(fn () => $this->persist(new Schedule, $request->validated()));
+        $schedule = DB::transaction(fn() => $this->persist(new Schedule, $request->validated()));
 
         return back()->with('success', [
             'title' => 'Jadwal Tersimpan',
             'message' => sprintf(
                 'Jadwal "%s" berhasil ditambahkan untuk kelas %s dengan %d murid terdaftar.',
-                $schedule->title, $schedule->class_name, $schedule->students()->count()
+                $schedule->title,
+                $schedule->class_name,
+                $schedule->students()->count()
             ),
         ]);
     }
 
     public function update(ScheduleRequest $request, Schedule $schedule): RedirectResponse
     {
-        DB::transaction(fn () => $this->persist($schedule, $request->validated()));
+        DB::transaction(fn() => $this->persist($schedule, $request->validated()));
 
         return back()->with('success', [
             'title' => 'Pembaruan Jadwal Tersimpan',
             'message' => sprintf(
                 'Data sesi belajar berhasil diperbarui dan disinkronisasi ke %d murid terdaftar di kelas %s.',
-                $schedule->students()->count(), $schedule->class_name
+                $schedule->students()->count(),
+                $schedule->class_name
             ),
         ]);
     }
@@ -169,7 +231,7 @@ class ScheduleController extends Controller
             // Formulir mengirim tutor & murid (user); mesin bentrok bekerja dengan id instruktur & students.
             instructorId: empty($data['tutor_id']) ? null : Instructor::where('user_id', $data['tutor_id'])->value('id'),
             roomId: $data['room_id'] ?? null,
-            studentIds: empty($data['student_ids']) ? [] : Student::whereIn('user_id', $data['student_ids'])->pluck('id')->map(fn ($id) => (int) $id)->all(),
+            studentIds: empty($data['student_ids']) ? [] : Student::whereIn('user_id', $data['student_ids'])->pluck('id')->map(fn($id) => (int) $id)->all(),
             ignoreId: $data['ignore_id'] ?? null,
             scheduledDate: $data['scheduled_date'],
         );
@@ -209,7 +271,7 @@ class ScheduleController extends Controller
             }
 
             fclose($out);
-        }, 'jadwal-belajar-'.now()->format('Ymd-His').'.csv', ['Content-Type' => 'text/csv; charset=UTF-8']);
+        }, 'jadwal-belajar-' . now()->format('Ymd-His') . '.csv', ['Content-Type' => 'text/csv; charset=UTF-8']);
     }
 
     /* ---------------------------------------------------------------------
@@ -296,24 +358,26 @@ class ScheduleController extends Controller
             return $user->nip;
         }
 
-        return 'USR-'.$user->id;
+        return 'USR-' . $user->id;
     }
 
     private function filteredQuery(Request $request, Semester $semester): Builder
     {
         $q = trim((string) $request->query('q', ''));
-        $like = '%'.addcslashes($q, '%_\\').'%';
+        $like = '%' . addcslashes($q, '%_\\') . '%';
 
         $query = Schedule::query();
         $query->with(['program', 'instructor', 'room', 'students:id']);
         $query->where('semester_id', $semester->getKey());
 
-        foreach ([
-            'day' => 'day_of_week',
-            'program_id' => 'program_id',
-            'instructor_id' => 'instructor_id',
-            'room_id' => 'room_id',
-        ] as $parameter => $column) {
+        foreach (
+            [
+                'day' => 'day_of_week',
+                'program_id' => 'program_id',
+                'instructor_id' => 'instructor_id',
+                'room_id' => 'room_id',
+            ] as $parameter => $column
+        ) {
             $value = $request->integer($parameter);
             if ($value) {
                 $query->where($column, $value);
@@ -324,10 +388,10 @@ class ScheduleController extends Controller
             $query->where(function (Builder $w) use ($like) {
                 $w->where('title', 'like', $like)
                     ->orWhere('class_name', 'like', $like)
-                    ->orWhereHas('program', fn ($p) => $p->where('name', 'like', $like))
-                    ->orWhereHas('instructor', fn ($i) => $i->where('name', 'like', $like))
-                    ->orWhereHas('room', fn ($r) => $r->where('name', 'like', $like))
-                    ->orWhereHas('students', fn ($s) => $s->where('name', 'like', $like)->orWhere('nisn', 'like', $like));
+                    ->orWhereHas('program', fn($p) => $p->where('name', 'like', $like))
+                    ->orWhereHas('instructor', fn($i) => $i->where('name', 'like', $like))
+                    ->orWhereHas('room', fn($r) => $r->where('name', 'like', $like))
+                    ->orWhereHas('students', fn($s) => $s->where('name', 'like', $like)->orWhere('nisn', 'like', $like));
             });
         }
 

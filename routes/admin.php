@@ -20,6 +20,7 @@ Route::middleware(['auth', 'verified', 'role:admin'])
             Route::post('/check-conflict', 'checkConflict')->name('check-conflict');
             Route::put('/{schedule}', 'update')->whereNumber('schedule')->name('update');
             Route::delete('/{schedule}', 'destroy')->whereNumber('schedule')->name('destroy');
+            Route::get('/pdf', 'pdf')->name('pdf');
         });
 
         Route::prefix('classes')->name('classes.')->controller(ClassController::class)->group(function () {
