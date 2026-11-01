@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\CalonMuridController;
 use App\Http\Controllers\Admin\FeedbackController as AdminFeedbackController;
 use App\Http\Controllers\AdminUserController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\LandingController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RegistrasiController;
 use App\Http\Controllers\Student\FeedbackController;
@@ -18,11 +19,8 @@ use App\Http\Controllers\TutorClassStudentController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
-Route::get('/', function () {
-    return auth()->check()
-        ? redirect()->route('dashboard')
-        : redirect()->route('login');
-});
+// Halaman publik pertama; pengguna yang sudah login diarahkan ke dashboard.
+Route::get('/', LandingController::class)->name('landing');
 
 // Satu dashboard universal; isinya mengikuti role user yang sedang login.
 Route::get('/dashboard', [DashboardController::class, 'index'])
