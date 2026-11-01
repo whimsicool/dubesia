@@ -153,7 +153,7 @@ class User extends Authenticatable
     }
 
     /**
-     * Kata sandi default akun guru baru: dbs.{nama}.{tahun}.
+     * Kata sandi default akun tutor baru: dbs.{nama}.{tahun}.
      */
     public static function generateDefaultPassword(string $name): string
     {

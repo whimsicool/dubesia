@@ -246,7 +246,7 @@ export default function Login({ status }) {
                                             </span>
                                         </div>
                                         <Link
-                                            href={route('register')}
+                                            href={route('registrasi.create')}
                                             className="inline-flex items-center gap-1 font-label-lg text-label-lg font-bold text-secondary hover:underline"
                                         >
                                             <span>

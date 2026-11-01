@@ -204,7 +204,7 @@ export default function ScheduleFormModal({ open, onClose, schedule, options, de
             title={isEdit ? 'Ubah Jadwal Belajar' : 'Tambah Jadwal Baru'}
             description={isEdit && !schedule.scheduled_date
                 ? 'Jadwal lama berulang mingguan. Isi tanggal untuk mengubahnya menjadi jadwal khusus tanggal.'
-                : 'Kelas, tutor, dan murid diambil dari data Kelola Kelas dan Data Murid & Guru. Bentrok jadwal dicek otomatis.'}
+                : 'Kelas, tutor, dan murid diambil dari data Kelola Kelas dan Data Murid & Tutor. Bentrok jadwal dicek otomatis.'}
         >
             <form onSubmit={submit} className="space-y-5">
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2">

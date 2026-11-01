@@ -243,7 +243,7 @@ export default function Result({ hasilTes, totalSoal, showDashboardButton = fals
                     {/* Bottom Action - Hidden in Print */}
                     {showDashboardButton && <div className="mt-5 flex justify-center gap-4 print:hidden">
                         <Link
-                            href={route('student.dashboard')}
+                            href={route('dashboard')}
                             className="inline-flex items-center gap-2 rounded-xl bg-slate-900 hover:bg-slate-800 active:scale-95 text-white px-6 py-3 text-sm font-semibold shadow-sm transition-all"
                         >
                             Masuk ke Dashboard

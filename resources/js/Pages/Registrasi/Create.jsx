@@ -84,14 +84,14 @@ function Shell({ children, editMode = false }) {
 
           <nav className="flex items-center gap-2 text-sm sm:gap-5">
             <Link
-              href="/bantuan-admisi"
+              href={route('bantuan-admisi')}
               className="hidden text-slate-600 transition hover:text-blue-700 md:inline"
             >
               Bantuan Admisi
             </Link>
 
             <Link
-              href="/panduan-pendaftaran"
+              href={route('panduan-pendaftaran')}
               className="hidden text-slate-600 transition hover:text-blue-700 md:inline"
             >
               Panduan Pendaftaran
@@ -135,13 +135,13 @@ function Shell({ children, editMode = false }) {
 
           <div className="flex flex-wrap gap-4 text-xs font-semibold text-slate-600">
             <Link
-              href="/panduan-pendaftaran"
+              href={route('panduan-pendaftaran')}
               className="hover:text-blue-700"
             >
               Panduan Pendaftaran
             </Link>
 
-            <Link href="/bantuan-admisi" className="hover:text-blue-700">
+            <Link href={route('bantuan-admisi')} className="hover:text-blue-700">
               Bantuan Admisi
             </Link>
           </div>

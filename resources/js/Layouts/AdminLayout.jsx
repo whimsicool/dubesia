@@ -35,7 +35,7 @@ const NAV = {
         {
             heading: 'Pengguna & Verifikasi',
             items: [
-                { label: 'Data Murid & Guru', icon: Users, route: 'admin.data-pengguna.index', active: 'admin.data-pengguna.*' },
+                { label: 'Data Murid & Tutor', icon: Users, route: 'admin.data-pengguna.index', active: 'admin.data-pengguna.*' },
                 {
                     label: 'Calon Murid',
                     icon: UserCheck,
@@ -62,7 +62,8 @@ const NAV = {
         {
             heading: 'Utama',
             items: [
-                { label: 'Kelas Saya', icon: LayoutGrid, route: 'tutor.dashboard', active: 'tutor.dashboard' },
+                { label: 'Dashboard', icon: LayoutGrid, route: 'tutor.dashboard', active: 'tutor.dashboard' },
+                { label: 'Kelas Saya', icon: GraduationCap, route: 'tutor.classes.index', active: 'tutor.classes.*' },
                 { label: 'Profil', icon: UserRound, route: 'profile.edit', active: 'profile.*' },
             ],
         },
@@ -79,7 +80,7 @@ const NAV = {
         {
             heading: 'Utama',
             items: [
-                { label: 'Dashboard', icon: LayoutGrid, route: 'student.dashboard', active: 'student.dashboard' },
+                { label: 'Dashboard', icon: LayoutGrid, route: 'dashboard', active: 'dashboard' },
                 { label: 'Profil', icon: UserRound, route: 'profile.edit', active: 'profile.*' },
             ],
         },

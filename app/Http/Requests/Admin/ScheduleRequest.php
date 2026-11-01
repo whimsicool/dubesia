@@ -52,7 +52,7 @@ class ScheduleRequest extends FormRequest
         return [
             'semester_id' => ['required', 'exists:semesters,id'],
             'program_id' => ['nullable', 'exists:programs,id'],
-            // Kelas, tutor, dan murid dipilih dari data yang dikelola di Kelola Kelas dan Data Murid & Guru.
+            // Kelas, tutor, dan murid dipilih dari data yang dikelola di Kelola Kelas dan Data Murid & Tutor.
             'class_id' => ['required', 'integer', 'exists:classes,id'],
             'tutor_id' => ['required', 'integer', Rule::exists('users', 'id')->where('role', User::ROLE_TUTOR)],
             'room_id' => ['required', 'exists:rooms,id'],
