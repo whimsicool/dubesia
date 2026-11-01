@@ -64,7 +64,8 @@ Route::middleware(['auth', 'verified', 'role:student', 'placement.test'])
     ->group(function () {
         Route::get('/grades', [StudentGradeViewController::class, 'index'])
             ->name('grades.index');
-
+        Route::get('/grades/pdf', [StudentGradeViewController::class, 'pdf'])
+            ->name('grades.pdf');
         Route::get('/feedback', [FeedbackController::class, 'create'])
             ->name('feedback.create');
         Route::post('/feedback', [FeedbackController::class, 'store'])
@@ -155,6 +156,6 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
         Route::delete('/{user}', [AdminUserController::class, 'destroy'])->name('destroy');
     });
 });
-require __DIR__.'/auth.php';
-require __DIR__.'/schedules.php';
-require __DIR__.'/admin.php';
+require __DIR__ . '/auth.php';
+require __DIR__ . '/schedules.php';
+require __DIR__ . '/admin.php';

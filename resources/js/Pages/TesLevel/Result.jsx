@@ -76,22 +76,6 @@ export default function Result({ hasilTes, totalSoal, showDashboardButton = fals
 
             <div className="py-3 sm:py-5 print:bg-white print:py-0">
                 <div className="mx-auto w-full max-w-none">
-                    {/* Print action stays available on both result views. */}
-                    <div className="mb-3 flex justify-end print:hidden">
-                        <div className="flex items-center gap-3">
-                            <button
-                                type="button"
-                                onClick={() => window.print()}
-                                className="inline-flex items-center gap-2 rounded-xl bg-slate-900 px-4 py-2 text-xs sm:text-sm font-semibold text-white shadow-sm hover:bg-slate-800 transition-colors"
-                            >
-                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                                    <path strokeLinecap="round" strokeLinejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
-                                </svg>
-                                Cetak / Simpan PDF
-                            </button>
-                        </div>
-                    </div>
-
                     {/* Main Certificate / Result Card */}
                     <div className="overflow-hidden rounded-3xl bg-white shadow-xl border border-slate-200 print:shadow-none print:border-none">
                         {/* Header Banner */}

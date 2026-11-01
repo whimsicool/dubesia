@@ -12,7 +12,6 @@ import {
     ListChecks,
     Menu,
     MessageSquare,
-    Printer,
     UserCheck,
     UserRound,
     Users,
@@ -282,15 +281,6 @@ export default function AdminLayout({ title, subtitle, semesterName, bare = fals
                     )}
 
                     <div className="ml-auto flex items-center gap-2 sm:gap-4">
-                        <button
-                            type="button"
-                            onClick={() => window.print()}
-                            className="hidden rounded-lg p-2 text-slate-600 hover:bg-slate-100 sm:block"
-                            aria-label="Cetak halaman"
-                        >
-                            <Printer className="h-5 w-5" />
-                        </button>
-                        <span className="hidden h-8 w-px bg-slate-200 sm:block" />
                         <UserMenu user={auth.user} />
                     </div>
                 </header>
