@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
 
 class AdminUserManagementTest extends TestCase
@@ -45,6 +46,19 @@ class AdminUserManagementTest extends TestCase
     {
         $response = $this->actingAs($this->admin)->get('/admin/data-pengguna');
         $response->assertStatus(200);
+    }
+
+    public function test_data_pengguna_shows_the_student_level(): void
+    {
+        $this->student->update(['class_level' => 'Upper Intermediate']);
+
+        $this->actingAs($this->admin)
+            ->get('/admin/data-pengguna')
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('Admin/DataPengguna/Index')
+                ->where('users.data', fn ($users) => collect($users)->firstWhere('id', $this->student->id)['class_level'] === 'Upper Intermediate')
+            );
     }
 
     public function test_admin_can_add_guru(): void

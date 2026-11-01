@@ -217,8 +217,12 @@ function UserMenu({ user }) {
                     <p className="text-sm font-bold leading-tight text-slate-900">{user.name}</p>
                     <p className="text-[11px] font-semibold text-red-700">{ROLE_LABEL[user.role] ?? user.role}</p>
                 </div>
-                <span className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-900 text-xs font-bold text-white ring-2 ring-slate-200">
-                    {initials}
+                <span className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full bg-slate-900 text-xs font-bold text-white ring-2 ring-slate-200">
+                    {user.avatar_url ? (
+                        <img src={user.avatar_url} alt={`Foto profil ${user.name}`} className="h-full w-full object-cover" />
+                    ) : (
+                        initials
+                    )}
                 </span>
                 <ChevronDown className="hidden h-4 w-4 text-slate-400 sm:block" />
             </button>

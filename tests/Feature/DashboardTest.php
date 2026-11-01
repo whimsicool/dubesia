@@ -72,7 +72,7 @@ class DashboardTest extends TestCase
 
     public function test_student_dashboard_averages_only_their_own_grades(): void
     {
-        $student = User::factory()->create(['role' => 'student', 'class_level' => 'Intermediate']);
+        $student = User::factory()->create(['role' => 'student', 'class_level' => 'Middle Intermediate']);
         $otherStudent = User::factory()->create(['role' => 'student']);
 
         StudentGrade::create(['student_id' => $student->id, 'subject' => 'Speaking', 'score' => 90, 'grade' => 'A']);
