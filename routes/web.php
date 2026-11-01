@@ -26,7 +26,7 @@ Route::get('/', function () {
 
 // Satu dashboard universal; isinya mengikuti role user yang sedang login.
 Route::get('/dashboard', [DashboardController::class, 'index'])
-    ->middleware(['auth', 'verified'])
+    ->middleware(['auth', 'verified', 'placement.test'])
     ->name('dashboard');
 
 Route::get('/registrasi', [RegistrasiController::class, 'create'])->name('registrasi.create');
@@ -58,7 +58,7 @@ Route::get('/admin/feedback', [AdminFeedbackController::class, 'index'])
     ->name('admin.feedback.index');
 
 // Student feedback routes
-Route::middleware(['auth', 'verified', 'role:student'])
+Route::middleware(['auth', 'verified', 'role:student', 'placement.test'])
     ->prefix('student')
     ->name('student.')
     ->group(function () {
@@ -118,14 +118,20 @@ Route::middleware('auth')->group(function () {
     Route::get('/pendaftaran/perbaiki', [RegistrasiController::class, 'edit'])->name('registrasi.edit');
     Route::put('/pendaftaran/perbaiki', [RegistrasiController::class, 'update'])->name('registrasi.update');
 
+    // Hasil tes pribadi untuk item navigasi murid.
+    Route::get('/student/hasil-tes-level', [TesLevelController::class, 'myResult'])
+        ->middleware(['verified', 'role:student', 'placement.test'])
+        ->name('student.placement-result');
+
     // === Tes Level Kelas Routes ===
-    Route::prefix('tes-level')->name('tes-level.')->group(function () {
+    Route::prefix('tes-level')->name('tes-level.')->middleware(['verified', 'role:student', 'placement.test'])->group(function () {
         Route::get('/', [TesLevelController::class, 'index'])->name('index');
         Route::post('/start', [TesLevelController::class, 'start'])->name('start');
         Route::get('/take', [TesLevelController::class, 'takeTest'])->name('take');
         Route::post('/auto-save', [TesLevelController::class, 'autoSave'])->name('auto-save');
         Route::post('/toggle-tandai', [TesLevelController::class, 'toggleTandai'])->name('toggle-tandai');
         Route::post('/submit', [TesLevelController::class, 'submit'])->name('submit');
+        Route::get('/onboarding-result/{id}', [TesLevelController::class, 'onboardingResult'])->name('onboarding-result');
         Route::get('/result/{id}', [TesLevelController::class, 'result'])->name('result');
     });
 });
@@ -135,6 +141,7 @@ Route::post('/registrasi', [RegistrasiController::class, 'store'])->name('regist
 
 Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/calon-murid', [CalonMuridController::class, 'index'])->name('calon-murid.index');
+    Route::get('/calon-murid/{pendaftaran}/bukti-pembayaran', [CalonMuridController::class, 'buktiPembayaran'])->name('calon-murid.bukti');
     Route::get('/calon-murid/{pendaftaran}', [CalonMuridController::class, 'show'])->name('calon-murid.show');
     Route::post('/calon-murid/{pendaftaran}/verifikasi', [CalonMuridController::class, 'verifikasi'])->name('calon-murid.verifikasi');
     Route::post('/calon-murid/{pendaftaran}/tolak', [CalonMuridController::class, 'tolak'])->name('calon-murid.tolak');
@@ -142,6 +149,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::prefix('data-pengguna')->name('data-pengguna.')->group(function () {
         Route::get('/', [AdminUserController::class, 'index'])->name('index');
         Route::post('/', [AdminUserController::class, 'store'])->name('store');
+        Route::post('/bulk-delete', [AdminUserController::class, 'bulkDestroy'])->name('bulk-destroy');
         Route::get('/{user}', [AdminUserController::class, 'show'])->name('show');
         Route::put('/{user}', [AdminUserController::class, 'update'])->name('update');
         Route::delete('/{user}', [AdminUserController::class, 'destroy'])->name('destroy');

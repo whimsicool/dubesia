@@ -1,5 +1,5 @@
 
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Head, Link, useForm } from '@inertiajs/react';
 
 const rupiah = (value) =>
@@ -8,9 +8,9 @@ const rupiah = (value) =>
 const inputClass =
   'w-full min-w-0 rounded-lg border border-slate-200 bg-white px-3.5 py-3 text-sm text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100';
 
-function Field({ label, required = false, hint, error, children }) {
+function Field({ label, required = false, hint, error, children, id }) {
   return (
-    <div className="min-w-0 space-y-1.5">
+    <div id={id} className="min-w-0 space-y-1.5">
       <div className="flex flex-wrap items-baseline justify-between gap-1">
         <label className="text-sm font-semibold text-slate-800">
           {label}
@@ -164,45 +164,34 @@ export default function Create({
   editMode = false,
   pendaftaran = null,
 }) {
-  const { data, setData, post, put, processing, errors } = useForm({
+  const { data, setData, post, put, processing, errors, clearErrors } = useForm({
     nama_lengkap: pendaftaran?.nama_lengkap ?? '',
     tanggal_lahir: pendaftaran?.tanggal_lahir ?? '',
     email: pendaftaran?.email ?? '',
     no_whatsapp: pendaftaran?.no_whatsapp ?? '',
+    asal_institusi: pendaftaran?.asal_institusi ?? '',
     alamat: pendaftaran?.alamat ?? '',
-    username: pendaftaran?.username ?? '',
-    password: '',
-    password_confirmation: '',
     pesan_motivasi: pendaftaran?.pesan_motivasi ?? '',
     program: pendaftaran?.program ?? programs[0]?.value ?? '',
     bukti_pembayaran: null,
     setuju: editMode,
   });
 
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmation, setShowConfirmation] = useState(false);
   const [dragging, setDragging] = useState(false);
   const [fileError, setFileError] = useState('');
   const [copied, setCopied] = useState('');
+  const [clientErrors, setClientErrors] = useState({});
 
   const fileInput = useRef(null);
+  const selectedProgram = programs.find((program) => program.value === data.program);
+  const selectedBiaya = selectedProgram?.biaya ?? biaya;
 
-  const passwordStrength = [
-    data.password.length >= 8,
-    /[a-z]/.test(data.password) && /[A-Z]/.test(data.password),
-    /\d/.test(data.password),
-    /[^A-Za-z0-9]/.test(data.password),
-  ].filter(Boolean).length;
-
-  const strengthLabels = ['Belum diisi', 'Lemah', 'Cukup', 'Baik', 'Kuat'];
-
-  const strengthColors = [
-    'bg-slate-200',
-    'bg-rose-500',
-    'bg-amber-500',
-    'bg-lime-500',
-    'bg-emerald-600',
-  ];
+  useEffect(() => {
+    const firstInvalidField = Object.keys(errors).find((field) => field !== 'umum');
+    if (firstInvalidField) {
+      window.setTimeout(() => document.getElementById(`field-${firstInvalidField}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 0);
+    }
+  }, [errors]);
 
   const chooseFile = (file) => {
     if (!file) return;
@@ -248,8 +237,40 @@ export default function Create({
     }
   };
 
+  const fieldError = (name) => clientErrors[name] || errors[name];
+  const updateField = (name, value) => {
+    setData(name, value);
+    clearErrors(name);
+    setClientErrors((current) => {
+      if (!current[name]) return current;
+      const next = { ...current };
+      delete next[name];
+      return next;
+    });
+  };
+
   const submit = (event) => {
     event.preventDefault();
+    const nextErrors = {};
+    if (!data.nama_lengkap.trim()) nextErrors.nama_lengkap = 'Masukkan nama lengkap sesuai identitas.';
+    if (!data.tanggal_lahir) nextErrors.tanggal_lahir = 'Pilih tanggal lahir Anda.';
+    else if (new Date(`${data.tanggal_lahir}T00:00:00`) >= new Date(new Date().toDateString())) nextErrors.tanggal_lahir = 'Tanggal lahir harus sebelum hari ini.';
+    if (!data.email.trim()) nextErrors.email = 'Masukkan alamat email yang aktif.';
+    else if (!/^[^\s@]+@gmail\.com$/i.test(data.email.trim())) nextErrors.email = 'Gunakan alamat email Gmail yang berakhiran @gmail.com.';
+    const phoneDigits = String(data.no_whatsapp).trim();
+    if (!phoneDigits) nextErrors.no_whatsapp = 'Masukkan nomor WhatsApp yang aktif tanpa kode negara.';
+    else if (!/^[0-9]+$/.test(phoneDigits)) nextErrors.no_whatsapp = 'Nomor WhatsApp hanya boleh berisi angka. Hapus huruf atau simbol.';
+    if (!data.asal_institusi.trim()) nextErrors.asal_institusi = 'Masukkan nama sekolah, universitas, perusahaan, atau institusi asal.';
+    if (!data.alamat.trim()) nextErrors.alamat = 'Masukkan alamat lengkap, termasuk kota/kabupaten.';
+    if (!data.program) nextErrors.program = 'Pilih salah satu program kursus.';
+    if (!data.bukti_pembayaran && !(editMode && pendaftaran?.bukti_url)) nextErrors.bukti_pembayaran = 'Unggah bukti pembayaran sebelum mengirim formulir.';
+    if (!data.setuju) nextErrors.setuju = 'Centang persetujuan setelah memastikan data yang diisi sudah benar.';
+    setClientErrors(nextErrors);
+    if (Object.keys(nextErrors).length) {
+      const firstInvalidField = Object.keys(nextErrors)[0];
+      window.setTimeout(() => document.getElementById(`field-${firstInvalidField}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 0);
+      return;
+    }
 
     if (editMode) {
       put(route('registrasi.update'), { forceFormData: true });
@@ -315,6 +336,7 @@ export default function Create({
         <form
           id="form-registrasi"
           onSubmit={submit}
+          noValidate
           className="min-w-0 rounded-2xl border border-slate-100 bg-white p-5 shadow-sm sm:p-7"
         >
           {editMode && pendaftaran?.catatan_verifikasi && (
@@ -340,49 +362,50 @@ export default function Create({
             />
 
             <div className="grid gap-4 sm:grid-cols-2">
-              <Field label="Nama Lengkap" required error={errors.nama_lengkap}>
+              <Field id="field-nama_lengkap" label="Nama Lengkap" required error={fieldError('nama_lengkap')}>
                 <input
                   required
                   autoComplete="name"
-                  className={inputClass}
+                  className={`${inputClass} ${fieldError('nama_lengkap') ? 'border-rose-400 bg-rose-50/40' : ''}`}
                   value={data.nama_lengkap}
-                  onChange={(e) => setData('nama_lengkap', e.target.value)}
+                  onChange={(e) => updateField('nama_lengkap', e.target.value)}
                   placeholder="Masukkan nama lengkap"
                 />
               </Field>
 
               <Field
+                id="field-tanggal_lahir"
                 label="Tanggal Lahir"
                 required
-                error={errors.tanggal_lahir}
+                error={fieldError('tanggal_lahir')}
               >
                 <input
                   required
                   type="date"
                   max={new Date().toISOString().slice(0, 10)}
-                  className={inputClass}
+                  className={`${inputClass} ${fieldError('tanggal_lahir') ? 'border-rose-400 bg-rose-50/40' : ''}`}
                   value={data.tanggal_lahir}
-                  onChange={(e) => setData('tanggal_lahir', e.target.value)}
+                  onChange={(e) => updateField('tanggal_lahir', e.target.value)}
                 />
               </Field>
 
-              <Field label="Email" required error={errors.email}>
+              <Field id="field-email" label="Email" required error={fieldError('email')}>
                 <input
                   required
                   type="email"
                   autoComplete="email"
-                  className={inputClass}
+                  className={`${inputClass} ${fieldError('email') ? 'border-rose-400 bg-rose-50/40' : ''}`}
                   value={data.email}
-                  onChange={(e) => setData('email', e.target.value)}
-                  placeholder="nama@email.com"
+                  onChange={(e) => updateField('email', e.target.value)}
+                  placeholder="nama@gmail.com"
                 />
               </Field>
 
               <Field
+                id="field-no_whatsapp"
                 label="Nomor WhatsApp"
                 required
-                hint="Gunakan nomor aktif"
-                error={errors.no_whatsapp}
+                error={fieldError('no_whatsapp')}
               >
                 <div className="flex min-w-0 rounded-lg border border-slate-200 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-100">
                   <span className="flex items-center rounded-l-lg bg-slate-100 px-3 text-sm font-semibold text-slate-600">
@@ -393,22 +416,35 @@ export default function Create({
                     required
                     inputMode="tel"
                     autoComplete="tel-national"
-                    className="min-w-0 flex-1 rounded-r-lg px-3 py-3 text-sm outline-none"
+                    className={`min-w-0 flex-1 rounded-r-lg px-3 py-3 text-sm outline-none ${fieldError('no_whatsapp') ? 'bg-rose-50/40' : ''}`}
                     value={data.no_whatsapp}
-                    onChange={(e) => setData('no_whatsapp', e.target.value)}
+                    onChange={(e) => updateField('no_whatsapp', e.target.value.replace(/\D/g, ''))}
                     placeholder="81234567890"
                   />
                 </div>
               </Field>
 
               <div className="sm:col-span-2">
-                <Field label="Alamat Lengkap" required error={errors.alamat}>
+                <Field id="field-asal_institusi" label="Asal Institusi" required error={fieldError('asal_institusi')}>
+                  <input
+                    required
+                    autoComplete="organization"
+                    className={`${inputClass} ${fieldError('asal_institusi') ? 'border-rose-400 bg-rose-50/40' : ''}`}
+                    value={data.asal_institusi}
+                    onChange={(e) => updateField('asal_institusi', e.target.value)}
+                    placeholder="Nama sekolah, universitas, perusahaan, atau institusi"
+                  />
+                </Field>
+              </div>
+
+              <div className="sm:col-span-2">
+                <Field id="field-alamat" label="Alamat Lengkap" required error={fieldError('alamat')}>
                   <textarea
                     required
                     rows={3}
-                    className={`${inputClass} resize-y`}
+                    className={`${inputClass} resize-y ${fieldError('alamat') ? 'border-rose-400 bg-rose-50/40' : ''}`}
                     value={data.alamat}
-                    onChange={(e) => setData('alamat', e.target.value)}
+                    onChange={(e) => updateField('alamat', e.target.value)}
                     placeholder="Jalan, nomor rumah, RT/RW, kecamatan, kota/kabupaten, kode pos..."
                   />
                 </Field>
@@ -418,118 +454,11 @@ export default function Create({
 
           <section className="mt-8 border-t border-slate-100 pt-6">
             <SectionTitle
-              title="Informasi Akun"
-              description="Informasi ini akan digunakan untuk masuk ke portal DUBESIA."
-            />
-
-            <div className="grid gap-4 sm:grid-cols-2">
-              <Field
-                label="Username"
-                required
-                hint="Minimal 5 karakter"
-                error={errors.username}
-              >
-                <input
-                  required
-                  minLength={5}
-                  autoComplete="username"
-                  className={inputClass}
-                  value={data.username}
-                  onChange={(e) => setData('username', e.target.value)}
-                  placeholder="Buat username"
-                />
-              </Field>
-
-              {!editMode && (
-              <>
-              <Field
-                label="Kata Sandi"
-                required
-                hint="Minimal 8 karakter"
-                error={errors.password}
-              >
-                <div className="relative">
-                  <input
-                    required
-                    minLength={8}
-                    type={showPassword ? 'text' : 'password'}
-                    autoComplete="new-password"
-                    className={`${inputClass} pr-20`}
-                    value={data.password}
-                    onChange={(e) => setData('password', e.target.value)}
-                    placeholder="Buat kata sandi"
-                  />
-
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword((value) => !value)}
-                    className="absolute inset-y-0 right-3 text-xs font-semibold text-blue-700"
-                  >
-                    {showPassword ? 'Sembunyikan' : 'Lihat'}
-                  </button>
-                </div>
-
-                <div className="mt-2 flex gap-1">
-                  {[0, 1, 2, 3].map((part) => (
-                    <span
-                      key={part}
-                      className={`h-1.5 flex-1 rounded-full ${
-                        part < passwordStrength
-                          ? strengthColors[passwordStrength]
-                          : 'bg-slate-100'
-                      }`}
-                    />
-                  ))}
-                </div>
-
-                <p className="mt-1 text-xs text-slate-500">
-                  {strengthLabels[data.password ? passwordStrength : 0]}
-                </p>
-              </Field>
-
-              <div className="sm:col-span-2">
-                <Field
-                  label="Konfirmasi Kata Sandi"
-                  required
-                  error={errors.password_confirmation}
-                >
-                  <div className="relative">
-                    <input
-                      required
-                      type={showConfirmation ? 'text' : 'password'}
-                      autoComplete="new-password"
-                      className={`${inputClass} pr-20`}
-                      value={data.password_confirmation}
-                      onChange={(e) =>
-                        setData('password_confirmation', e.target.value)
-                      }
-                      placeholder="Ketik ulang kata sandi"
-                    />
-
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setShowConfirmation((value) => !value)
-                      }
-                      className="absolute inset-y-0 right-3 text-xs font-semibold text-blue-700"
-                    >
-                      {showConfirmation ? 'Sembunyikan' : 'Lihat'}
-                    </button>
-                  </div>
-                </Field>
-              </div>
-              </>
-              )}
-            </div>
-          </section>
-
-          <section className="mt-8 border-t border-slate-100 pt-6">
-            <SectionTitle
               title="Program Kursus"
               description="Pilih program yang ingin Anda ikuti."
             />
 
-            <Field label="Pilihan Program" required error={errors.program}>
+            <Field id="field-program" label="Pilihan Program" required error={fieldError('program')}>
               <div className="grid gap-3 sm:grid-cols-2">
                 {programs.map((program) => (
                   <label
@@ -546,16 +475,19 @@ export default function Create({
                       name="program"
                       value={program.value}
                       checked={data.program === program.value}
-                      onChange={() => setData('program', program.value)}
+                      onChange={() => updateField('program', program.value)}
                       className="mt-1 accent-blue-600"
                     />
 
-                    <span>
+                    <span className="flex-1">
                       <span className="block text-sm font-bold text-slate-900">
                         {program.label}
                       </span>
                       <span className="mt-1 block text-xs leading-5 text-slate-500">
                         {program.deskripsi}
+                      </span>
+                      <span className="mt-2 block text-sm font-bold text-blue-800">
+                        {rupiah(program.biaya)}
                       </span>
                     </span>
                   </label>
@@ -574,7 +506,7 @@ export default function Create({
               </div>
 
               <p className="mt-2 text-2xl font-extrabold text-blue-800 sm:mt-0">
-                {rupiah(biaya)}
+                {rupiah(selectedBiaya)}
               </p>
             </div>
           </section>
@@ -586,9 +518,10 @@ export default function Create({
             />
 
             <Field
+              id="field-bukti_pembayaran"
               label="Upload Bukti Pembayaran"
               required
-              error={fileError || errors.bukti_pembayaran}
+              error={fileError || fieldError('bukti_pembayaran')}
             >
               <div
                 onDragOver={(event) => {
@@ -672,7 +605,7 @@ export default function Create({
             <Field
               label="Pesan / Motivasi Belajar"
               hint="Opsional"
-              error={errors.pesan_motivasi}
+              error={fieldError('pesan_motivasi')}
             >
               <textarea
                 rows={3}
@@ -689,7 +622,7 @@ export default function Create({
                   required
                   type="checkbox"
                   checked={data.setuju}
-                  onChange={(e) => setData('setuju', e.target.checked)}
+                  onChange={(e) => updateField('setuju', e.target.checked)}
                   className="mt-1 h-4 w-4 shrink-0 accent-blue-600"
                 />
 
@@ -699,8 +632,8 @@ export default function Create({
                 </span>
               </label>
 
-              {errors.setuju && (
-                <p className="mt-1.5 text-xs text-rose-600">{errors.setuju}</p>
+              {fieldError('setuju') && (
+                <p id="field-setuju" className="mt-1.5 text-xs text-rose-600">{fieldError('setuju')}</p>
               )}
             </div>
 
@@ -737,7 +670,7 @@ export default function Create({
 
             {!editMode && (
               <>
-                <p className="mt-4 text-2xl font-extrabold text-blue-800">{rupiah(biaya)}</p>
+                <p className="mt-4 text-2xl font-extrabold text-blue-800">{rupiah(selectedBiaya)}</p>
 
                 <div className="mt-4 space-y-3">
                   {rekening.map((account) => (
@@ -792,7 +725,7 @@ export default function Create({
                 <span>
                   <strong className="text-slate-800">{editMode ? 'Perbaiki data' : 'Isi formulir'}</strong>
                   <br />
-                  {editMode ? 'Perbarui bagian yang dijelaskan admin.' : 'Lengkapi data diri dan akun.'}
+                  {editMode ? 'Perbarui bagian yang dijelaskan admin.' : 'Lengkapi data diri dan bukti pembayaran.'}
                 </span>
               </li>
 

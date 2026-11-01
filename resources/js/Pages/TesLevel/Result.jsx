@@ -1,7 +1,7 @@
 import AdminLayout from '@/Layouts/AdminLayout';
 import { Head, Link } from '@inertiajs/react';
 
-export default function Result({ hasilTes, totalSoal }) {
+export default function Result({ hasilTes, totalSoal, showDashboardButton = false }) {
     // Level configuration & descriptions
     const levelConfigs = {
         'Upper Intermediate': {
@@ -71,23 +71,13 @@ export default function Result({ hasilTes, totalSoal }) {
     const akurasi = totalSoal > 0 ? Math.round((hasilTes.jumlah_benar / totalSoal) * 100) : 0;
 
     return (
-        <AdminLayout>
+        <AdminLayout bare={showDashboardButton} compact>
             <Head title={`Hasil Tes Level - ${hasilTes.nama_murid}`} />
 
-            <div className="py-10 print:bg-white print:py-0">
-                <div className="mx-auto max-w-4xl">
-                    {/* Action Bar (Print & Back) - Hidden in Print */}
-                    <div className="flex items-center justify-between gap-4 mb-6 print:hidden">
-                        <Link
-                            href={route('tes-level.index')}
-                            className="inline-flex items-center gap-2 rounded-xl bg-white px-4 py-2 text-xs sm:text-sm font-semibold text-slate-700 border border-slate-200 shadow-sm hover:bg-slate-50 transition-colors"
-                        >
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                            </svg>
-                            Kembali ke Halaman Tes
-                        </Link>
-
+            <div className="py-3 sm:py-5 print:bg-white print:py-0">
+                <div className="mx-auto w-full max-w-none">
+                    {/* Print action stays available on both result views. */}
+                    <div className="mb-3 flex justify-end print:hidden">
                         <div className="flex items-center gap-3">
                             <button
                                 type="button"
@@ -105,7 +95,7 @@ export default function Result({ hasilTes, totalSoal }) {
                     {/* Main Certificate / Result Card */}
                     <div className="overflow-hidden rounded-3xl bg-white shadow-xl border border-slate-200 print:shadow-none print:border-none">
                         {/* Header Banner */}
-                        <div className={`relative bg-gradient-to-br ${levelConfig.bgGradient} p-8 sm:p-12 text-white`}>
+                        <div className={`relative bg-gradient-to-br ${levelConfig.bgGradient} p-6 sm:p-8 text-white`}>
                             <div className="absolute right-0 top-0 h-full w-1/3 bg-white/5 transform skew-x-12"></div>
                             
                             <div className="relative z-10 text-center sm:text-left">
@@ -143,8 +133,8 @@ export default function Result({ hasilTes, totalSoal }) {
                         </div>
 
                         {/* Level Result Badge Section */}
-                        <div className="border-b border-slate-100 bg-slate-50/50 p-6 sm:p-8">
-                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div className="border-b border-slate-100 bg-slate-50/50 p-5 sm:p-6">
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                                 <div>
                                     <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider block mb-1">
                                         Level Kelas Direkomendasikan
@@ -187,12 +177,12 @@ export default function Result({ hasilTes, totalSoal }) {
                         </div>
 
                         {/* Breakdown Statistics Grid */}
-                        <div className="p-6 sm:p-8">
+                        <div className="p-5 sm:p-6">
                             <h2 className="text-base font-bold text-slate-900 mb-4">
                                 Rincian Performa Tes
                             </h2>
 
-                            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
+                            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
                                 {/* Total Soal */}
                                 <div className="rounded-2xl border border-slate-200/80 bg-slate-50 p-4">
                                     <p className="text-xs text-slate-500 font-medium">Total Soal</p>
@@ -243,7 +233,7 @@ export default function Result({ hasilTes, totalSoal }) {
                             </div>
 
                             {/* Footer Notice */}
-                            <div className="mt-8 pt-6 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-400 gap-3">
+                            <div className="mt-5 pt-4 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-400 gap-3">
                                 <span>ID Verifikasi Hasil: #DTES-{hasilTes.id_hasil}-{hasilTes.id_murid}</span>
                                 <span>DUBESIA English Assessment Engine</span>
                             </div>
@@ -251,7 +241,7 @@ export default function Result({ hasilTes, totalSoal }) {
                     </div>
 
                     {/* Bottom Action - Hidden in Print */}
-                    <div className="mt-8 flex justify-center gap-4 print:hidden">
+                    {showDashboardButton && <div className="mt-5 flex justify-center gap-4 print:hidden">
                         <Link
                             href={route('dashboard')}
                             className="inline-flex items-center gap-2 rounded-xl bg-slate-900 hover:bg-slate-800 active:scale-95 text-white px-6 py-3 text-sm font-semibold shadow-sm transition-all"
@@ -261,7 +251,7 @@ export default function Result({ hasilTes, totalSoal }) {
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
                             </svg>
                         </Link>
-                    </div>
+                    </div>}
                 </div>
             </div>
         </AdminLayout>

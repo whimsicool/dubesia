@@ -17,13 +17,16 @@ class TesLevelController extends Controller
     public function index()
     {
         $user = auth()->user();
-        $totalSoal = SoalTes::count();
-
-        // Cek apakah murid sudah pernah menyelesaikan tes
         $hasilTes = HasilTes::where('id_murid', $user->id)
             ->where('status_hasil', 'completed')
-            ->latest()
+            ->latest('completed_at')
             ->first();
+
+        if ($hasilTes) {
+            return redirect()->route('student.placement-result');
+        }
+
+        $totalSoal = SoalTes::count();
 
         // Cek apakah ada sesi tes yang sedang berjalan (in_progress)
         $tesAktif = HasilTes::where('id_murid', $user->id)
@@ -45,6 +48,10 @@ class TesLevelController extends Controller
     public function start()
     {
         $user = auth()->user();
+
+        if (HasilTes::where('id_murid', $user->id)->where('status_hasil', 'completed')->exists()) {
+            return redirect()->route('student.placement-result');
+        }
 
         // Cek jika sudah ada tes yang sedang berjalan
         $tesAktif = HasilTes::where('id_murid', $user->id)
@@ -222,14 +229,37 @@ class TesLevelController extends Controller
             'completed_at' => now(),
         ]);
 
-        return redirect()->route('tes-level.result', $tesAktif->id_hasil);
+        $user->forceFill(['class_level' => $levelKelas])->save();
+
+        return redirect()->route('tes-level.onboarding-result', $tesAktif->id_hasil);
+    }
+
+
+    public function myResult()
+    {
+        $hasilTes = HasilTes::where('id_murid', auth()->id())
+            ->where('status_hasil', 'completed')
+            ->latest('completed_at')
+            ->firstOrFail();
+
+        return redirect()->route('tes-level.result', $hasilTes->id_hasil);
     }
 
     /**
      * Step 9: Menampilkan halaman hasil tes.
      * Sequence Diagram: 9.2 DisplayNilaiTes() → 9.3 DisplayLevelKelas()
      */
+    public function onboardingResult($id)
+    {
+        return $this->renderResult($id, true);
+    }
+
     public function result($id)
+    {
+        return $this->renderResult($id, false);
+    }
+
+    private function renderResult($id, bool $showDashboardButton)
     {
         $user = auth()->user();
 
@@ -243,6 +273,7 @@ class TesLevelController extends Controller
         return Inertia::render('TesLevel/Result', [
             'hasilTes' => $hasilTes,
             'totalSoal' => $totalSoal,
+            'showDashboardButton' => $showDashboardButton,
         ]);
     }
 }

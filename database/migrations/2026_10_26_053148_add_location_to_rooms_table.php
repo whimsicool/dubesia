@@ -8,16 +8,20 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::table('rooms', function (Blueprint $table) {
-            // Ruang fisik/lab: gedung, lantai, atau alamat. Ruang online memakai kolom platform.
-            $table->string('location')->nullable()->after('platform');
-        });
+        if (! Schema::hasColumn('rooms', 'location')) {
+            Schema::table('rooms', function (Blueprint $table) {
+                // Ruang fisik/lab: gedung, lantai, atau alamat. Ruang online memakai kolom platform.
+                $table->string('location')->nullable()->after('platform');
+            });
+        }
     }
 
     public function down(): void
     {
-        Schema::table('rooms', function (Blueprint $table) {
-            $table->dropColumn('location');
-        });
+        if (Schema::hasColumn('rooms', 'location')) {
+            Schema::table('rooms', function (Blueprint $table) {
+                $table->dropColumn('location');
+            });
+        }
     }
 };

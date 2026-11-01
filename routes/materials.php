@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Route;
 */
 
 // Pustaka materi hanya untuk murid.
-Route::middleware(['auth', 'verified', 'role:student'])->prefix('materials')->name('materials.')->controller(MaterialController::class)->group(function () {
+Route::middleware(['auth', 'verified', 'role:student', 'placement.test'])->prefix('materials')->name('materials.')->controller(MaterialController::class)->group(function () {
     Route::get('/', 'index')->name('index');
     Route::get('/{material}/file', 'file')->whereNumber('material')->name('file');
     Route::get('/{material}/download', 'download')->whereNumber('material')->name('download');

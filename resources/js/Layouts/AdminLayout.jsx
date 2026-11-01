@@ -90,7 +90,7 @@ const NAV = {
                 { label: 'Jadwal Belajar', icon: CalendarDays, route: 'schedules.index', active: 'schedules.*' },
                 { label: 'Materi Belajar', icon: BookOpen, route: 'materials.index', active: 'materials.*' },
                 { label: 'Nilai Saya', icon: Award, route: 'student.grades.index', active: 'student.grades.*' },
-                { label: 'Tes Level', icon: ListChecks, route: 'tes-level.index', active: 'tes-level.*' },
+                { label: 'Hasil Tes Level', icon: ListChecks, route: 'student.placement-result', active: 'tes-level.*' },
             ],
         },
         {
@@ -141,8 +141,11 @@ function NavItem({ item, badgeCount }) {
     );
 }
 
-function Sidebar({ open, onClose, pendingRegistrations, user }) {
-    const groups = NAV[user?.role] ?? [];
+function Sidebar({ open, onClose, pendingRegistrations, user, studentPlacementRequired }) {
+    const studentGroups = studentPlacementRequired
+        ? [{ heading: 'Akademik', items: [{ label: 'Tes Level', icon: ListChecks, route: 'tes-level.index', active: 'tes-level.*' }] }]
+        : NAV.student;
+    const groups = user?.role === 'student' ? studentGroups : (NAV[user?.role] ?? []);
 
     return (
         <>
@@ -242,8 +245,12 @@ function UserMenu({ user }) {
     );
 }
 
-export default function AdminLayout({ title, subtitle, semesterName, children }) {
-    const { auth, pendingRegistrations = 0 } = usePage().props;
+export default function AdminLayout({ title, subtitle, semesterName, bare = false, compact = false, children }) {
+    const { auth, pendingRegistrations = 0, studentPlacementRequired = false } = usePage().props;
+
+    if (bare) {
+        return <div className="min-h-screen bg-slate-50 text-slate-900">{children}</div>;
+    }
     const [sidebarOpen, setSidebarOpen] = useState(false);
 
     return (
@@ -252,6 +259,7 @@ export default function AdminLayout({ title, subtitle, semesterName, children })
                 open={sidebarOpen}
                 onClose={() => setSidebarOpen(false)}
                 pendingRegistrations={pendingRegistrations}
+                studentPlacementRequired={studentPlacementRequired}
                 user={auth.user}
             />
 
@@ -287,7 +295,7 @@ export default function AdminLayout({ title, subtitle, semesterName, children })
                     </div>
                 </header>
 
-                <main className="mx-auto w-full max-w-[1500px] px-4 py-6 sm:px-6">
+                <main className={`mx-auto w-full max-w-[1500px] px-4 sm:px-6 ${compact ? 'py-2' : 'py-6'}`}>
                     {title && (
                         <div className="mb-6">
                             <h1 className="text-2xl font-extrabold tracking-tight text-slate-900">{title}</h1>

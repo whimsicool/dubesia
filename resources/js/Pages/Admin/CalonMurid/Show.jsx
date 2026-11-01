@@ -18,6 +18,7 @@ function Row({ label, children }) {
 export default function Show({ pendaftaran: p, flash }) {
   const [showTolak, setShowTolak] = useState(false);
   const [showVerif, setShowVerif] = useState(false);
+  const [showBukti, setShowBukti] = useState(false);
   const [busy, setBusy] = useState(false);
   const { data, setData, post, processing, errors, reset, clearErrors } = useForm({ catatan_verifikasi: '' });
 
@@ -63,7 +64,7 @@ export default function Show({ pendaftaran: p, flash }) {
               <Row label="Email">{p.email}</Row>
               <Row label="WhatsApp">{p.no_whatsapp}</Row>
               <Row label="Alamat">{p.alamat}</Row>
-              <Row label="Username">{p.username}</Row>
+              <Row label="Asal Institusi">{p.asal_institusi}</Row>
               <Row label="Program"><span className="capitalize">{p.program}</span></Row>
               <Row label="Motivasi">{p.pesan_motivasi}</Row>
               <Row label="Tanggal Daftar">{p.tanggal_daftar}</Row>
@@ -78,19 +79,36 @@ export default function Show({ pendaftaran: p, flash }) {
               <h2 className="text-sm font-bold text-[#0f1b2d]">Bukti Pembayaran</h2>
               <span className="text-lg font-extrabold text-[#b91c1c]">{rupiah(p.biaya)}</span>
             </div>
-            <div className="mt-3 overflow-hidden rounded-xl bg-[#eef3fd]">
-              {p.bukti_is_pdf ? (
-                <iframe src={p.bukti_url} title="Bukti pembayaran" className="h-[480px] w-full" />
-              ) : (
-                <a href={p.bukti_url} target="_blank" rel="noreferrer">
-                  <img src={p.bukti_url} alt="Bukti pembayaran" className="max-h-[480px] w-full object-contain" />
-                </a>
-              )}
-            </div>
-            <a href={p.bukti_url} target="_blank" rel="noreferrer"
-              className="mt-3 inline-flex items-center gap-1.5 text-xs font-bold text-[#b91c1c] hover:underline">
-              <ExternalLink className="h-3.5 w-3.5" /> Buka di tab baru
-            </a>
+            {!showBukti ? (
+              <button
+                type="button"
+                onClick={() => setShowBukti(true)}
+                className="mt-4 flex min-h-24 w-full items-center justify-center rounded-xl border border-dashed border-slate-300 bg-slate-50 px-4 text-sm font-bold text-[#0f1b2d] transition hover:border-blue-400 hover:bg-blue-50"
+              >
+                Lihat bukti pembayaran{p.bukti_is_pdf ? ' (PDF)' : ''}
+              </button>
+            ) : (
+              <>
+                <div className="mt-3 overflow-hidden rounded-xl bg-[#eef3fd]">
+                  {p.bukti_is_pdf ? (
+                    <iframe src={p.bukti_url} title="Bukti pembayaran" className="h-[480px] w-full" />
+                  ) : (
+                    <a href={p.bukti_url} target="_blank" rel="noreferrer">
+                      <img src={p.bukti_url} alt="Bukti pembayaran" className="max-h-[480px] w-full object-contain" />
+                    </a>
+                  )}
+                </div>
+                <div className="mt-3 flex items-center gap-4">
+                  <button type="button" onClick={() => setShowBukti(false)} className="text-xs font-bold text-slate-600 hover:underline">
+                    Tutup pratinjau
+                  </button>
+                  <a href={p.bukti_url} target="_blank" rel="noreferrer"
+                    className="inline-flex items-center gap-1.5 text-xs font-bold text-[#b91c1c] hover:underline">
+                    <ExternalLink className="h-3.5 w-3.5" /> Buka di tab baru
+                  </a>
+                </div>
+              </>
+            )}
           </section>
         </div>
 

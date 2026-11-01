@@ -89,6 +89,18 @@ class User extends Authenticatable
         return $this->hasOne(Pendaftaran::class);
     }
 
+    /** Use the registration WhatsApp value for older student accounts without no_hp. */
+    public function getNoHpAttribute($value): ?string
+    {
+        if (filled($value)) {
+            return $value;
+        }
+
+        $whatsapp = $this->pendaftaran?->no_whatsapp;
+
+        return filled($whatsapp) ? '+'.$whatsapp : null;
+    }
+
     /**
      * Classes in which this student is enrolled.
      */

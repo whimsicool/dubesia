@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Pendaftaran;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
@@ -16,7 +18,7 @@ class AdminUserController extends Controller
      */
     public function index(Request $request)
     {
-        $query = User::query()->where('role', '!=', 'admin');
+        $query = $this->visibleUsersQuery();
 
         // Filter berdasarkan tab/role
         if ($request->filled('role') && in_array($request->role, ['student', 'tutor'])) {
@@ -52,10 +54,10 @@ class AdminUserController extends Controller
         $users = $query->paginate($perPage)->withQueryString();
 
         // Statistik ringkasan
-        $totalPengguna = User::where('role', '!=', 'admin')->count();
-        $totalMurid = User::where('role', 'student')->count();
-        $totalGuru = User::where('role', 'tutor')->count();
-        $akunBaru = User::where('role', '!=', 'admin')
+        $totalPengguna = $this->visibleUsersQuery()->count();
+        $totalMurid = $this->visibleUsersQuery()->where('role', 'student')->count();
+        $totalGuru = $this->visibleUsersQuery()->where('role', 'tutor')->count();
+        $akunBaru = $this->visibleUsersQuery()
             ->where('created_at', '>=', now()->subDays(7))
             ->count();
 
@@ -69,6 +71,17 @@ class AdminUserController extends Controller
                 'akunBaru' => $akunBaru,
             ],
         ]);
+    }
+
+    /** Murid menunggu atau ditolak tidak ditampilkan sebagai data murid aktif. */
+    private function visibleUsersQuery()
+    {
+        return User::query()
+            ->where('role', '!=', 'admin')
+            ->where(function ($query) {
+                $query->whereDoesntHave('pendaftaran')
+                    ->orWhereHas('pendaftaran', fn ($registration) => $registration->where('status', Pendaftaran::STATUS_TERVERIFIKASI));
+            });
     }
 
     /**
@@ -154,6 +167,29 @@ class AdminUserController extends Controller
      *     → 8.1.1 DeleteDataUser() → 8.1.2 ReturnStatus(hapus)
      *   8.2 DisplayInfoAkunBerhasilDihapus()
      */
+    public function bulkDestroy(Request $request)
+    {
+        $validated = $request->validate([
+            'ids' => ['required', 'array', 'min:1'],
+            'ids.*' => ['required', 'integer', 'distinct', 'exists:users,id'],
+        ]);
+
+        $selectedIds = collect($validated['ids'])->map(fn ($id) => (int) $id)->unique();
+        $users = $this->visibleUsersQuery()->whereIn('id', $selectedIds)->get();
+
+        // Pastikan seluruh akun terpilih memang termasuk data yang boleh dikelola admin.
+        if ($users->count() !== $selectedIds->count()) {
+            return back()->with('error', 'Sebagian akun tidak dapat dihapus. Muat ulang halaman lalu pilih akun yang tersedia.');
+        }
+
+        DB::transaction(function () use ($users) {
+            $users->each(fn (User $user) => $user->delete());
+        });
+
+        return redirect()->route('admin.data-pengguna.index')
+            ->with('success', $users->count().' akun berhasil dihapus.');
+    }
+
     public function destroy(User $user)
     {
         // Jangan izinkan menghapus akun admin
