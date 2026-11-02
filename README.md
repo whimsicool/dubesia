@@ -532,7 +532,7 @@ Migration baru dijalankan otomatis saat container start. Seed hanya perlu diulan
 
 ---
 
-## Cheatsheet: Cara Menjalankan Project di Hari Berikutnya
+## Cheatsheet: Cara Menjalankan Project di Hari Berikutnya (Abaikan ini jika sudah pakai Docker)
 
 Jika setup di atas sudah pernah dilakukan dan kamu ingin lanjut ngoding di hari berikutnya, kamu tidak perlu mengulang langkah setup dari awal. 
 
