@@ -219,6 +219,319 @@ dubesia/
 
 ---
 
+## 6. Menjalankan Project dengan Docker (Tanpa Install PHP, Node, atau Database)
+
+Bagian ini adalah jalur alternatif dari Langkah 2 sampai Langkah 4. Seluruh kebutuhan aplikasi sudah dibungkus di dalam container, jadi kamu tidak perlu menginstall PHP, Composer, Node.js, maupun MariaDB secara manual di komputer.
+
+Project ini memakai dua container:
+
+| Container | Isi | Port |
+| :--- | :--- | :--- |
+| `app` | PHP 8.4, kode Laravel, hasil build React (Vite) | `8000` |
+| `db` | MariaDB 11.4 sebagai database | hanya internal, tidak dibuka ke komputer |
+
+---
+
+### 6.1 Prasyarat (Prerequisites)
+
+| Kebutuhan | Keterangan | Cara Cek |
+| :--- | :--- | :--- |
+| Docker Engine + Compose v2 | Menjalankan container aplikasi dan database | `docker --version` dan `docker compose version` |
+| Git | Mengunduh kode project | `git --version` |
+| RAM minimal 4 GB | Build pertama butuh memori lebih, disarankan 6-8 GB | - |
+| Ruang disk minimal 5 GB | Image dasar PHP, Node.js, dan MariaDB | `docker system df` |
+
+Kedua perintah di kolom "Cara Cek" harus menampilkan nomor versi. Kalau muncul `command not found`, install Docker sesuai sistem operasi kamu:
+
+**Windows 10/11 (PowerShell sebagai Administrator)**
+
+```powershell
+wsl --install -d Ubuntu
+```
+
+Setelah restart, install Docker Desktop dari https://www.docker.com/products/docker-desktop/, buka aplikasinya, lalu aktifkan:
+
+1. Settings > General > centang **Use the WSL 2 based engine**
+2. Settings > Resources > WSL Integration > nyalakan distro **Ubuntu**
+
+**macOS**
+
+```bash
+brew install --cask docker
+```
+
+Alternatifnya, unduh Docker Desktop dari situs resmi lalu buka aplikasinya.
+
+**Linux (Ubuntu/Debian)**
+
+```bash
+sudo apt update
+sudo apt install -y docker.io docker-compose-v2
+sudo usermod -aG docker $USER
+```
+
+Logout lalu login kembali agar izin grup `docker` berlaku. Kalau paket di atas tidak tersedia di repositori distro kamu, ikuti panduan resmi di https://docs.docker.com/engine/install/.
+
+**Linux (Fedora)**
+
+```bash
+sudo dnf install -y docker docker-compose-plugin
+sudo systemctl enable --now docker
+sudo usermod -aG docker $USER
+```
+
+**Linux (Arch)**
+
+```bash
+sudo pacman -S --needed docker docker-compose
+sudo systemctl enable --now docker
+sudo usermod -aG docker $USER
+```
+
+> Catatan untuk pengguna Windows: jalankan seluruh perintah Docker di bawah ini di dalam terminal **Ubuntu (WSL)**, bukan Command Prompt. Kalau memakai Docker Desktop langsung dari PowerShell, perintahnya sama, hanya cara mengatur variabel lingkungan yang berbeda (lihat bagian 6.6).
+
+---
+
+### 6.2 Mengunduh dan Menjalankan Project
+
+**Windows (PowerShell)**
+
+```powershell
+cd $HOME\Documents
+git clone <URL_REPOSITORY_GITHUB_KAMU>
+cd dubesia
+docker compose up -d
+```
+
+**Windows (WSL Ubuntu), Linux, dan macOS**
+
+```bash
+cd ~
+git clone <URL_REPOSITORY_GITHUB_KAMU>
+cd dubesia
+docker compose up -d
+```
+
+> Penting untuk pengguna WSL: simpan project di dalam filesystem WSL (contoh `~/dubesia`), jangan di `/mnt/c/...`. Build dari `/mnt/c` bisa 10-20 kali lebih lambat dan sering gagal karena masalah izin file.
+
+Build pertama memakan waktu sekitar 3-5 menit karena mengunduh image dasar PHP, Node.js, dan MariaDB (total sekitar 1,5 GB). Build berikutnya jauh lebih cepat karena layer sudah tersimpan.
+
+---
+
+### 6.3 Mengisi Data Awal (Sekali Saja)
+
+Migration database berjalan otomatis setiap container `app` start, tetapi data contoh tidak. Jalankan seeder satu kali agar akun demo tersedia:
+
+```bash
+docker compose exec app php artisan db:seed --force
+```
+
+Proses ini memakan waktu sekitar 30 detik.
+
+---
+
+### 6.4 Mengakses Aplikasi
+
+Buka browser dan ketik:
+
+```text
+http://localhost:8000
+```
+
+Akun demo (semua memakai password `password`):
+
+| Email | Peran |
+| :--- | :--- |
+| `admin@dubesia.id` | Admin |
+| `tutor@dubesia.id` | Tutor |
+| `student@dubesia.id` | Siswa (Beginner) |
+| `student-intermediate@dubesia.id` | Siswa (Middle Intermediate) |
+| `student-advance@dubesia.id` | Siswa (Upper Intermediate) |
+
+---
+
+### 6.5 Cheatsheet Perintah Harian
+
+Semua perintah dijalankan dari folder project (`cd dubesia`).
+
+| Tujuan | Perintah |
+| :--- | :--- |
+| Menyalakan aplikasi | `docker compose up -d` |
+| Mematikan aplikasi (data tetap aman) | `docker compose down` |
+| Melihat status container | `docker compose ps` |
+| Melihat log aplikasi secara real-time | `docker compose logs -f app` |
+| Melihat log database | `docker compose logs -f db` |
+| Masuk ke shell container | `docker compose exec app bash` |
+| Menjalankan perintah artisan | `docker compose exec app php artisan <perintah>` |
+| Rebuild setelah kode berubah | `docker compose up -d --build` |
+| Restart tanpa rebuild | `docker compose restart app` |
+| Menghapus database dan mulai dari nol | `docker compose down -v` lalu `docker compose up -d` dan seed ulang |
+
+> Peringatan: `docker compose down -v` menghapus volume `dubesia_db-data`, artinya seluruh data database hilang. Untuk sekadar mematikan aplikasi, gunakan `docker compose down` tanpa `-v`.
+
+> Kode aplikasi di-*copy* ke dalam image saat build. Jadi setiap kali kamu mengubah file PHP atau React, jalankan `docker compose up -d --build` agar perubahan terlihat.
+
+---
+
+### 6.6 Mengganti Port (Kalau Port 8000 Sudah Dipakai)
+
+Port default adalah `8000`. Kalau port tersebut sudah dipakai aplikasi lain (misalnya XAMPP, IIS, atau server lain), jalankan dengan port berbeda, misalnya `8081`.
+
+**Windows (PowerShell)**
+
+```powershell
+$env:APP_PORT="8081"; docker compose up -d
+```
+
+**Windows (CMD)**
+
+```bat
+set "APP_PORT=8081" && docker compose up -d
+```
+
+**WSL Ubuntu, Linux, dan macOS**
+
+```bash
+APP_PORT=8081 docker compose up -d
+```
+
+Agar tidak perlu mengetik ulang setiap kali, simpan nilainya di file `.env` pada folder project (file ini tidak ikut ter-commit):
+
+```bash
+echo "APP_PORT=8081" >> .env
+```
+
+Setelah itu cukup `docker compose up -d`, lalu buka `http://localhost:8081`.
+
+---
+
+### 6.7 Troubleshooting
+
+| Gejala | Penyebab | Solusi |
+| :--- | :--- | :--- |
+| `failed to bind host port 0.0.0.0:8000: address already in use` | Port 8000 dipakai aplikasi lain di komputer | Ganti port seperti pada bagian 6.6 |
+| `docker: command not found` di WSL | WSL Integration untuk Ubuntu belum aktif | Nyalakan di Docker Desktop > Settings > Resources > WSL Integration |
+| Build berhenti dengan `exit code: 137` | Memori Docker Desktop kurang | Naikkan memory di Settings > Resources, minimal 6 GB |
+| Container `db` tidak pernah `healthy` | Inisialisasi MariaDB gagal | Jalankan `docker compose logs db` untuk melihat pesan error |
+| Semua password ditolak saat login | Seeder belum dijalankan | `docker compose exec app php artisan db:seed --force` |
+| Halaman error 500 | Konfigurasi atau izin folder `storage` bermasalah | `docker compose logs -f app`, lalu cek pesan di `storage/logs/laravel.log` |
+| Build sangat lambat | Project disimpan di `/mnt/c` (WSL) | Pindahkan project ke `~/dubesia` di dalam WSL |
+
+---
+
+### 6.8 Yang Tidak Perlu Dilakukan
+
+Kalau memakai Docker, langkah-langkah berikut tidak diperlukan:
+
+- Install PHP, Composer, Node.js, npm, atau MariaDB di komputer.
+- Membuat file `.env` secara manual. Container membuatnya sendiri dari `.env.example`.
+- Menjalankan `npm run dev` dan `php artisan serve` di dua terminal.
+- Menjalankan `composer install` atau `npm install` di komputer.
+
+Yang **tidak** boleh dilakukan:
+
+- Menjalankan `php artisan` atau `npm` langsung di komputer (Windows/macOS) untuk project ini, karena hasilnya akan berbeda dengan isi container. Selalu lewat `docker compose exec app ...`.
+
+### 6.9 Do's and Don'ts Saat Development
+
+Kode aplikasi di-*copy* ke dalam image saat build. Artinya, perubahan di komputer kamu tidak otomatis masuk ke container yang sedang berjalan.
+
+#### Yang Sebaiknya Dilakukan
+
+| Kebiasaan | Perintah |
+| :--- | :--- |
+| Ubah kode di komputer, lalu rebuild | `docker compose up -d --build` |
+| Jalankan artisan lewat container | `docker compose exec app php artisan <perintah>` |
+| Tambah migration, lalu rebuild | `docker compose up -d --build`, migration jalan otomatis saat start |
+| Seed ulang setelah skema berubah | `docker compose exec app php artisan db:seed --force`, aman diulang karena memakai `updateOrCreate` |
+| Jalankan test di dalam container | `docker compose exec app php artisan test` |
+| Matikan aplikasi di akhir hari | `docker compose down` |
+| Pantau error | `docker compose logs -f app` |
+| Tambah package PHP | `composer require` di komputer, commit `composer.json` dan `composer.lock`, lalu rebuild |
+
+#### Yang Sebaiknya Tidak Dilakukan
+
+1. **Jangan menjalankan `composer require` atau `npm install` di dalam container.** Perubahan hanya tersimpan di layer container dan hilang saat build berikutnya, sedangkan `composer.json` di komputer tidak ikut berubah.
+2. **Jangan mengedit file lewat shell container.** Kalau kamu masuk dengan `docker compose exec app bash` lalu mengedit file di sana, perubahan itu tertimpa saat rebuild. Edit selalu di komputer.
+3. **Jangan menjalankan `php artisan migrate` dari komputer host.** File `.env` di komputer menunjuk ke MariaDB native di `127.0.0.1:3306`, berbeda dengan MariaDB milik container. Keduanya bernama `dubesia_db`, tetapi datanya terpisah.
+4. **Jangan memakai `docker compose down -v` tanpa alasan.** Perintah itu menghapus volume database beserta seluruh isinya.
+5. **Jangan mengandalkan file upload agar tetap ada setelah rebuild.** Foto profil dan bukti pembayaran disimpan di `storage/app/public` di dalam container, sehingga hilang saat container dibuat ulang.
+6. **Jangan menaruh password asli di `compose.yaml`.** Nilai `secret` yang ada sekarang hanya untuk pengembangan lokal dan terlihat di Git.
+7. **Jangan meng-commit file `.env`.** File itu sudah masuk `.gitignore`.
+
+---
+
+### 6.10 Panduan Setelah Mengubah Kode
+
+#### Perintah berdasarkan jenis perubahan
+
+| Yang kamu ubah | Perintah | Perkiraan waktu |
+| :--- | :--- | :--- |
+| File PHP (`app/`, `routes/`, `config/`) | `docker compose up -d --build` | 20-30 detik |
+| File React atau CSS (`resources/js`, `resources/css`) | `docker compose up -d --build` | 20-30 detik |
+| Migration baru (`database/migrations`) | `docker compose up -d --build` | 20-30 detik |
+| `composer.json` atau `composer.lock` | `docker compose up -d --build` | 30-60 detik |
+| `package.json` atau `package-lock.json` | `docker compose up -d --build` | 30-60 detik |
+| `compose.yaml` atau `APP_PORT` di `.env` | `docker compose up -d` | 2-5 detik |
+| Tidak ada perubahan, hanya menyalakan aplikasi | `docker compose up -d` | 5-10 detik |
+
+#### Langkah rutin setelah mengubah kode
+
+1. Pastikan container sedang berjalan.
+
+   ```bash
+   docker compose ps
+   ```
+
+2. Build ulang image dan jalankan container.
+
+   ```bash
+   docker compose up -d --build
+   ```
+
+3. Tunggu sampai aplikasi siap, lalu hentikan log dengan `Ctrl+C`.
+
+   ```bash
+   docker compose logs -f app
+   ```
+
+   Tanda berhasil: muncul baris `INFO  Server running on [http://0.0.0.0:8000]` dan tidak ada pesan `ERROR`.
+
+4. Muat ulang browser dengan `Ctrl+Shift+R` supaya cache tidak menampilkan aset lama.
+
+5. Kalau perubahan tetap tidak muncul, pastikan container benar-benar dibuat ulang.
+
+   ```bash
+   docker compose ps
+   ```
+
+   Container dengan status `Up` beberapa detik berarti baru dibuat. Kalau statusnya `Up 2 hours`, artinya rebuild belum berjalan.
+
+#### Kalau muncul error setelah perubahan
+
+| Gejala | Yang perlu dicek |
+| :--- | :--- |
+| Halaman error 500 | `docker compose logs -f app`, lalu buka `storage/logs/laravel.log` di dalam container |
+| Migration gagal | `docker compose logs app`, dan pastikan nama file migration tidak bertabrakan |
+| Perubahan React tidak muncul | Pastikan `npm run build` berhasil di log build, lalu hard refresh browser |
+| Container langsung berhenti | `docker compose logs app` untuk melihat error PHP saat start |
+
+#### Setelah menarik perubahan dari GitHub
+
+Kalau kamu atau temanmu menjalankan `git pull`, jalankan tiga perintah berikut:
+
+```bash
+git pull
+docker compose up -d --build
+docker compose exec app php artisan db:seed --force
+```
+
+Migration baru dijalankan otomatis saat container start. Seed hanya perlu diulang kalau data contoh berubah, dan aman dijalankan berkali-kali.
+
+> Untuk iterasi tampilan yang cepat, alur native pada bagian 3 (`npm run dev` dan `php artisan serve`) masih lebih cepat daripada rebuild Docker. Gunakan Docker untuk menguji hasil akhir, dan alur native untuk mengubah tampilan.
+
+---
+
 ## Cheatsheet: Cara Menjalankan Project di Hari Berikutnya
 
 Jika setup di atas sudah pernah dilakukan dan kamu ingin lanjut ngoding di hari berikutnya, kamu tidak perlu mengulang langkah setup dari awal. 
