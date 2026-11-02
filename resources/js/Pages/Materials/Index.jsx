@@ -22,7 +22,7 @@ function Tile({ icon: Icon, value, label }) {
     );
 }
 
-export default function Index({ materials, active, filters, stats, topics, types }) {
+export default function Index({ materials, active, filters, stats, types }) {
     const { auth } = usePage().props;
 
     const [search, setSearch] = useState(filters.q ?? '');
@@ -103,22 +103,6 @@ export default function Index({ materials, active, filters, stats, topics, types
                             murid dan tidak terikat pada kelas atau jadwal tertentu.
                         </p>
                     </div>
-
-                    {auth.user.role === 'student' && (
-                        <div className="w-full rounded-xl bg-white/5 p-5 ring-1 ring-white/10 lg:w-72">
-                            <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Progres belajar saya</p>
-                            <div className="mt-2 flex items-end justify-between">
-                                <p className="text-lg font-bold">
-                                    {stats.completed} / {stats.total} Materi
-                                </p>
-                                <p className="text-3xl font-extrabold">{stats.percent}%</p>
-                            </div>
-                            <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-white/10">
-                                <div className="h-full rounded-full bg-red-600" style={{ width: `${stats.percent}%` }} />
-                            </div>
-                            <p className="mt-2 text-[11px] text-slate-400">{Math.max(0, stats.total - stats.completed)} materi belum selesai</p>
-                        </div>
-                    )}
                 </div>
 
                 <div className="mt-6 grid grid-cols-2 gap-3 lg:grid-cols-4">
@@ -185,27 +169,6 @@ export default function Index({ materials, active, filters, stats, topics, types
                         </button>
                     ))}
                 </div>
-            </div>
-
-            {/* Chip topik */}
-            <div className="mt-4 flex gap-2 overflow-x-auto pb-1" role="tablist" aria-label="Topik">
-                <button
-                    type="button"
-                    onClick={() => visit({ topic: undefined })}
-                    className={`shrink-0 rounded-full px-4 py-1.5 text-xs font-bold ${!filters.topic ? 'bg-slate-900 text-white' : 'border border-slate-200 bg-white text-slate-600 hover:bg-slate-50'}`}
-                >
-                    Semua Topik ({stats.total})
-                </button>
-                {topics.map((t) => (
-                    <button
-                        key={t.name}
-                        type="button"
-                        onClick={() => visit({ topic: t.name })}
-                        className={`shrink-0 rounded-full px-4 py-1.5 text-xs font-bold ${filters.topic === t.name ? 'bg-slate-900 text-white' : 'border border-slate-200 bg-white text-slate-600 hover:bg-slate-50'}`}
-                    >
-                        {t.name} ({t.total})
-                    </button>
-                ))}
             </div>
 
             {/* Viewer */}

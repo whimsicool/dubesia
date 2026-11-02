@@ -8,12 +8,15 @@ import WeekCalendar from '@/Components/Schedules/WeekCalendar';
 import MonthCalendar from '@/Components/Schedules/MonthCalendar';
 import ScheduleTable from '@/Components/Schedules/ScheduleTable';
 import AttendanceModal from '@/Components/Schedules/AttendanceModal';
+import StudentAttendanceModal from '@/Components/Schedules/StudentAttendanceModal';
 import { cleanParams, formatWeekRange } from '@/Components/Schedules/constants';
 
 export default function Index({ semester, week, filters, schedules, options, audience, routeName }) {
     const [view, setView] = useState('calendar');
     const [attendance, setAttendance] = useState(null);
     const isTutor = audience === 'tutor';
+    const isStudent = audience === 'student';
+    const attendanceLabel = isTutor ? 'Isi presensi' : 'Lihat presensi';
     const pdfUrl = route(
         isTutor ? 'tutor.schedules.pdf' : 'schedules.pdf',
         cleanParams({
@@ -105,8 +108,8 @@ export default function Index({ semester, week, filters, schedules, options, aud
                                 schedules={schedules}
                                 dayFilter={filters.day}
                                 onNavigate={(date) => visit({ week: date })}
-                                onAttendance={isTutor ? openAttendance : undefined}
-                                attendanceLabel="Isi presensi"
+                                onAttendance={openAttendance}
+                                attendanceLabel={attendanceLabel}
                                 readOnly
                             />
                         ) : view === 'month' ? (
@@ -116,17 +119,18 @@ export default function Index({ semester, week, filters, schedules, options, aud
                                 schedules={schedules}
                                 dayFilter={filters.day}
                                 onNavigate={(date) => visit({ week: date })}
-                                onAttendance={isTutor ? openAttendance : undefined}
-                                attendanceLabel="Isi presensi"
+                                onAttendance={openAttendance}
+                                attendanceLabel={attendanceLabel}
                                 readOnly
                             />
                         ) : (
-                            <ScheduleTable schedules={schedules} week={week} readOnly onAttendance={isTutor ? openAttendance : undefined} attendanceLabel="Isi presensi" />
+                            <ScheduleTable schedules={schedules} week={week} readOnly onAttendance={openAttendance} attendanceLabel={attendanceLabel} />
                         )}
                     </div>
                 )}
             </div>
             {isTutor && <AttendanceModal audience="tutor" schedule={attendance?.schedule} date={attendance?.date} onClose={() => setAttendance(null)} />}
+            {isStudent && <StudentAttendanceModal schedule={attendance?.schedule} date={attendance?.date} onClose={() => setAttendance(null)} />}
 
         </AdminLayout>
     );

@@ -118,7 +118,6 @@
 
 .kdp-stat-card:hover {
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
-    transform: translateY(-2px);
 }
 
 .kdp-stat-card__top {
@@ -760,10 +759,6 @@
     border: 1px solid #c7d2fe;
 }
 
-.kdp-role-locked__emoji {
-    font-size: 24px;
-}
-
 .kdp-role-locked__text-title {
     font-size: 13px;
     font-weight: 700;
@@ -877,6 +872,20 @@
 
 .kdp-modal--sm { max-width: 400px; }
 .kdp-modal--md { max-width: 520px; }
+
+/* Formulir akun tampil di tengah layar, bukan sebagai drawer samping. */
+.kdp-modal--form {
+    position: fixed;
+    inset: 0;
+    z-index: 51;
+    width: 100%;
+    max-width: 560px;
+    height: fit-content;
+    max-height: calc(100vh - 48px);
+    margin: auto;
+    display: flex;
+    flex-direction: column;
+}
 
 /* ─── Animations ─── */
 
