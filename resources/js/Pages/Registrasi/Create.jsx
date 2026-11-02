@@ -320,6 +320,13 @@ export default function Create({
             pembayaran.
           </p>
 
+          <p className="mt-2 text-sm leading-6 text-slate-500">
+            Tunggu kiriman email dari kami di alamat yang Anda daftarkan.
+            Setelah pendaftaran diverifikasi, detail akun dan kata sandi
+            sementara dikirim ke email tersebut. Periksa juga folder Spam atau
+            Promosi.
+          </p>
+
           <Link
             href="/login"
             className="mt-6 inline-flex rounded-lg bg-blue-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-blue-700"
