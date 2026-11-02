@@ -62,5 +62,15 @@ class DatabaseSeeder extends Seeder
         $this->call(MaterialSeeder::class);
         $this->call(SoalTesSeeder::class);
         $this->call(UserPenggunaSeeder::class);
+        $this->call(PendaftaranSeeder::class);
+        $this->call(JawabanTesSeeder::class);
+        $this->call(HasilTesSeeder::class);
+        $this->call(GradeComponentSeeder::class);
+        $this->call(StudentGradeSeeder::class);
+        $this->call(GradeComponentScoreSeeder::class);
+        $this->call(ClassAttendanceSeeder::class);
+        $this->call(AttendanceSeeder::class);
+        $this->call(MaterialProgressSeeder::class);
+        $this->call(StudentFeedbackSeeder::class);
     }
 }
