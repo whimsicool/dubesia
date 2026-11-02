@@ -14,13 +14,12 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
-use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class ClassController extends Controller
 {
-    /** Halaman Kelola Kelas: statistik ringkas, filter, dan tabel kelas. */
+    /** Halaman Kelola Kelas: filter dan tabel kelas. */
     public function index(Request $request): Response
     {
         $search = trim((string) $request->query('q', ''));
@@ -66,7 +65,6 @@ class ClassController extends Controller
                 'description' => $courseClass->description,
                 'level' => $courseClass->level?->value,
                 'level_label' => $courseClass->level?->label(),
-                'capacity' => $courseClass->capacity,
                 'is_active' => $courseClass->is_active,
                 'students_count' => $courseClass->students->count(),
                 'student_ids' => $courseClass->students->pluck('id'),
@@ -102,7 +100,6 @@ class ClassController extends Controller
             $courseClass = CourseClass::create([
                 'name' => $data['name'],
                 'level' => $data['level'],
-                'capacity' => $data['capacity'] ?? null,
                 'description' => $data['description'] ?? null,
                 'is_active' => true,
             ]);
@@ -125,7 +122,6 @@ class ClassController extends Controller
             $courseClass->update([
                 'name' => $data['name'],
                 'level' => $data['level'],
-                'capacity' => $data['capacity'] ?? null,
                 'description' => $data['description'] ?? null,
             ]);
             $courseClass->tutors()->sync([$data['tutor_id']]);
@@ -150,12 +146,6 @@ class ClassController extends Controller
 
         $studentIds = $data['student_ids'] ?? [];
 
-        if ($courseClass->capacity !== null && count($studentIds) > $courseClass->capacity) {
-            throw ValidationException::withMessages([
-                'student_ids' => sprintf('Jumlah murid (%d) melebihi kapasitas kelas (%d).', count($studentIds), $courseClass->capacity),
-            ]);
-        }
-
         $courseClass->students()->sync($studentIds);
         $this->syncScheduleRosters($courseClass);
 
@@ -175,6 +165,7 @@ class ClassController extends Controller
                 ['nisn' => $user->nip && ! Student::where('nisn', $user->nip)->exists() ? $user->nip : 'USR-'.$user->id,
                     'name' => $user->name, 'email' => $user->email, 'status' => Student::STATUS_ACTIVE],
             );
+
             return $student->id;
         })->all();
 

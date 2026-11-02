@@ -40,7 +40,6 @@ class ClassManagementTest extends TestCase
             'name' => 'Diplomatic Speech Batch #4',
             'level' => ClassLevel::B2->value,
             'tutor_id' => $tutor->id,
-            'capacity' => 15,
             'description' => 'Kelas pidato diplomatik.',
         ], $override);
     }
@@ -50,7 +49,6 @@ class ClassManagementTest extends TestCase
         $courseClass = CourseClass::create(array_merge([
             'name' => 'Batch Lama',
             'level' => ClassLevel::A1->value,
-            'capacity' => 10,
             'is_active' => true,
         ], $override));
 
@@ -122,7 +120,6 @@ class ClassManagementTest extends TestCase
         $courseClass = CourseClass::firstOrFail();
         $this->assertSame('Diplomatic Speech Batch #4', $courseClass->name);
         $this->assertSame(ClassLevel::B2, $courseClass->level);
-        $this->assertSame(15, $courseClass->capacity);
         $this->assertTrue($courseClass->is_active);
         $this->assertSame([$tutor->id], $courseClass->tutors->pluck('id')->all());
     }
@@ -153,47 +150,25 @@ class ClassManagementTest extends TestCase
         $courseClass = $this->courseClass($oldTutor);
 
         $this->actingAs($this->admin())
-            ->put(route('admin.classes.update', $courseClass), $this->payload($newTutor, ['name' => 'Batch Baru', 'capacity' => 20]))
+            ->put(route('admin.classes.update', $courseClass), $this->payload($newTutor, ['name' => 'Batch Baru']))
             ->assertSessionHasNoErrors();
 
         $courseClass->refresh();
         $this->assertSame('Batch Baru', $courseClass->name);
-        $this->assertSame(20, $courseClass->capacity);
         $this->assertSame([$newTutor->id], $courseClass->tutors->pluck('id')->all());
     }
 
-    public function test_capacity_cannot_drop_below_enrolled_students(): void
+    public function test_admin_can_sync_students(): void
     {
-        $tutor = $this->tutor();
-        $courseClass = $this->courseClass($tutor, ['capacity' => 5]);
-        $courseClass->students()->attach([
-            $this->student('Murid A')->id,
-            $this->student('Murid B')->id,
-            $this->student('Murid C')->id,
-        ]);
-
-        $this->actingAs($this->admin())
-            ->put(route('admin.classes.update', $courseClass), $this->payload($tutor, ['capacity' => 2]))
-            ->assertSessionHasErrors('capacity');
-
-        $this->assertSame(5, $courseClass->fresh()->capacity);
-    }
-
-    public function test_admin_can_sync_students_and_capacity_is_enforced(): void
-    {
-        $courseClass = $this->courseClass($this->tutor(), ['capacity' => 1]);
+        $courseClass = $this->courseClass($this->tutor());
         $first = $this->student('Murid Satu');
         $second = $this->student('Murid Dua');
 
         $this->actingAs($this->admin())
             ->put(route('admin.classes.students', $courseClass), ['student_ids' => [$first->id, $second->id]])
-            ->assertSessionHasErrors('student_ids');
-
-        $this->actingAs($this->admin())
-            ->put(route('admin.classes.students', $courseClass), ['student_ids' => [$first->id]])
             ->assertSessionHasNoErrors();
 
-        $this->assertSame([$first->id], $courseClass->students()->pluck('users.id')->all());
+        $this->assertEqualsCanonicalizing([$first->id, $second->id], $courseClass->students()->pluck('users.id')->all());
     }
 
     public function test_students_endpoint_rejects_non_student_accounts(): void

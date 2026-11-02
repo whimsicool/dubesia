@@ -45,7 +45,6 @@ class ScheduleManagementTest extends TestCase
         $this->courseClass = CourseClass::create([
             'name' => 'Diplomatic Speech Batch #4',
             'level' => 'B2',
-            'capacity' => 15,
             'is_active' => true,
         ]);
         $this->courseClass->tutors()->attach($this->tutor->id);
@@ -221,7 +220,7 @@ class ScheduleManagementTest extends TestCase
         $student = $this->student('Murid Terdaftar');
         $this->makeSchedule()->students()->attach($this->mirrorStudent($student, '0001')->id);
 
-        $otherClass = CourseClass::create(['name' => 'Kelas Lain', 'capacity' => 15, 'is_active' => true]);
+        $otherClass = CourseClass::create(['name' => 'Kelas Lain', 'is_active' => true]);
         $otherClass->students()->attach($student->id);
         $otherRoom = Room::create(['name' => 'Hall B', 'type' => 'physical', 'capacity' => 20]);
         $otherTutor = User::factory()->create(['role' => User::ROLE_TUTOR, 'name' => 'Siti Aisyah']);
@@ -248,7 +247,7 @@ class ScheduleManagementTest extends TestCase
         $this->assertDatabaseCount('schedules', 2);
     }
 
-    public function test_participants_cannot_exceed_room_or_class_capacity(): void
+    public function test_participants_cannot_exceed_room_capacity(): void
     {
         $small = Room::create(['name' => 'Kecil', 'type' => 'physical', 'capacity' => 1]);
         $a = $this->student('Murid A');
@@ -258,14 +257,6 @@ class ScheduleManagementTest extends TestCase
         // Dua murid kelas tidak muat di ruang berkapasitas satu.
         $this->actingAs($this->admin())
             ->post(route('admin.schedules.store'), $this->payload(['room_id' => $small->id]))
-            ->assertSessionHasErrors('class_id');
-
-        $smallClass = CourseClass::create(['name' => 'Kelas Kecil', 'capacity' => 1, 'is_active' => true]);
-        $smallClass->students()->attach([$a->id, $b->id]);
-
-        // Dua anggota kelas melebihi kapasitas kelas itu sendiri.
-        $this->actingAs($this->admin())
-            ->post(route('admin.schedules.store'), $this->payload(['class_id' => $smallClass->id]))
             ->assertSessionHasErrors('class_id');
     }
 

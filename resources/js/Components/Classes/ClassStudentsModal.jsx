@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { router } from '@inertiajs/react';
-import { Search, TriangleAlert } from 'lucide-react';
+import { Search } from 'lucide-react';
 import Modal from '@/Components/Admin/Modal';
 
 const initials = (name = '') =>
@@ -25,9 +25,6 @@ export default function ClassStudentsModal({ open, onClose, courseClass, student
         setError(null);
     }, [open, courseClass?.id]);
 
-    const capacity = courseClass?.capacity ?? null;
-    const overCapacity = capacity !== null && selected.length > capacity;
-
     const filtered = useMemo(() => {
         const needle = query.trim().toLowerCase();
         if (!needle) return students;
@@ -44,7 +41,7 @@ export default function ClassStudentsModal({ open, onClose, courseClass, student
     };
 
     const submit = () => {
-        if (!courseClass || overCapacity) return;
+        if (!courseClass) return;
 
         setProcessing(true);
         router.put(
@@ -78,7 +75,7 @@ export default function ClassStudentsModal({ open, onClose, courseClass, student
                     <button
                         type="button"
                         onClick={submit}
-                        disabled={processing || overCapacity}
+                        disabled={processing}
                         className="rounded-lg bg-slate-900 px-5 py-2 text-sm font-semibold text-white hover:bg-slate-800 disabled:opacity-60"
                     >
                         {processing ? 'Menyimpan…' : 'Simpan Murid'}
@@ -98,21 +95,8 @@ export default function ClassStudentsModal({ open, onClose, courseClass, student
                             className="w-full rounded-lg border-slate-200 pl-9 text-sm text-slate-900 placeholder:text-slate-400 focus:border-slate-900 focus:ring-slate-900"
                         />
                     </div>
-                    <p className={`text-xs font-semibold ${overCapacity ? 'text-red-700' : 'text-slate-600'}`}>
-                        {selected.length}
-                        {capacity !== null && ` / ${capacity}`} murid dipilih
-                    </p>
+                    <p className="text-xs font-semibold text-slate-600">{selected.length} murid dipilih</p>
                 </div>
-
-                {overCapacity && (
-                    <div className="flex gap-2 rounded-xl border border-amber-200 bg-amber-50 p-3 text-xs text-amber-900" role="alert">
-                        <TriangleAlert className="mt-0.5 h-4 w-4 shrink-0" />
-                        <p>
-                            Jumlah murid melebihi kapasitas kelas ({capacity}). Kurangi pilihan atau ubah kapasitas kelas
-                            terlebih dahulu.
-                        </p>
-                    </div>
-                )}
 
                 <div className="max-h-80 overflow-y-auto rounded-xl border border-slate-200">
                     {filtered.length === 0 ? (

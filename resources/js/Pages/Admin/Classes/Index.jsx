@@ -165,10 +165,6 @@ export default function Index({ classes, filters, options }) {
                             </tr>
                         ) : (
                             classes.data.map((courseClass) => {
-                                const filled = courseClass.capacity
-                                    ? Math.min(100, Math.round((courseClass.students_count / courseClass.capacity) * 100))
-                                    : 0;
-
                                 return (
                                     <tr key={courseClass.id} className="hover:bg-slate-50/60">
                                         <td className="px-4 py-3">
@@ -210,20 +206,7 @@ export default function Index({ classes, filters, options }) {
                                             )}
                                         </td>
                                         <td className="px-4 py-3">
-                                            <p className="text-slate-900">
-                                                <span className="font-semibold">{courseClass.students_count}</span>
-                                                {courseClass.capacity && (
-                                                    <span className="text-slate-400"> / {courseClass.capacity}</span>
-                                                )}
-                                            </p>
-                                            {courseClass.capacity && (
-                                                <span className="mt-1.5 block h-1 w-24 rounded-full bg-slate-100">
-                                                    <span
-                                                        className="block h-1 rounded-full bg-slate-900"
-                                                        style={{ width: `${filled}%` }}
-                                                    />
-                                                </span>
-                                            )}
+                                            <span className="font-semibold text-slate-900">{courseClass.students_count}</span>
                                         </td>
                                         <td className="px-4 py-3">
                                             <span

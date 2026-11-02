@@ -14,7 +14,6 @@ class CourseClass extends Model
     protected $fillable = [
         'name',
         'level',
-        'capacity',
         'description',
         'is_active',
     ];
@@ -23,7 +22,6 @@ class CourseClass extends Model
     {
         return [
             'level' => ClassLevel::class,
-            'capacity' => 'integer',
             'is_active' => 'boolean',
         ];
     }

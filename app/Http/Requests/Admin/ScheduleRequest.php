@@ -108,13 +108,6 @@ class ScheduleRequest extends FormRequest
                     }
                 }
 
-                if ($class && $class->capacity !== null && count($studentUserIds) > $class->capacity) {
-                    $validator->errors()->add(
-                        'class_id',
-                        sprintf('Jumlah murid (%d) melebihi kapasitas kelas %s (%d).', count($studentUserIds), $class->name, $class->capacity)
-                    );
-                }
-
                 $room = Room::find($data['room_id']);
                 if ($room && count($studentUserIds) > $room->capacity) {
                     $validator->errors()->add(

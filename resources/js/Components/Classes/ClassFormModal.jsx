@@ -22,7 +22,6 @@ export default function ClassFormModal({ open, onClose, courseClass, levels, tut
         name: '',
         level: '',
         tutor_id: '',
-        capacity: '',
         description: '',
     });
 
@@ -35,7 +34,6 @@ export default function ClassFormModal({ open, onClose, courseClass, levels, tut
             name: courseClass?.name ?? '',
             level: courseClass?.level ?? '',
             tutor_id: courseClass?.tutor ? String(courseClass.tutor.id) : '',
-            capacity: courseClass?.capacity ?? '',
             description: courseClass?.description ?? '',
         });
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -62,7 +60,7 @@ export default function ClassFormModal({ open, onClose, courseClass, levels, tut
             title={isEdit ? 'Ubah Data Kelas' : 'Tambah Kelas Baru'}
             description={
                 isEdit
-                    ? 'Perbarui nama, level, tutor, kapasitas, dan deskripsi kelas.'
+                    ? 'Perbarui nama, level, tutor, dan deskripsi kelas.'
                     : 'Isi nama kelas, level, tutor, dan deskripsi. Murid dapat diatur setelah kelas tersimpan.'
             }
         >
@@ -108,18 +106,6 @@ export default function ClassFormModal({ open, onClose, courseClass, levels, tut
                         </select>
                     </Field>
                 </div>
-
-                <Field label="Kapasitas murid (opsional)" hint="Kosongkan bila tanpa batas." error={errors.capacity}>
-                    <input
-                        type="number"
-                        min="1"
-                        max="1000"
-                        value={data.capacity}
-                        onChange={(event) => setData('capacity', event.target.value)}
-                        className={`${inputClass} max-w-[12rem]`}
-                        placeholder="15"
-                    />
-                </Field>
 
                 <Field label="Deskripsi" error={errors.description}>
                     <textarea

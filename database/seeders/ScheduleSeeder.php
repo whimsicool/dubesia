@@ -160,7 +160,6 @@ class ScheduleSeeder extends Seeder
             [$label, $level, $userLevel] = $entry;
             $class = CourseClass::updateOrCreate(['name' => sprintf('Kelas %s %d', $label, $classIndex + 1)], [
                 'level' => $level->value,
-                'capacity' => 30,
                 'description' => 'Kelas contoh '.$label.' untuk data demo.',
                 'is_active' => true,
             ]);
