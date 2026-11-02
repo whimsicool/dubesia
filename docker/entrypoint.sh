@@ -23,13 +23,14 @@ sync_env_to_dotenv() {
 # requests. Persist them into .env so CLI and web agree on the database.
 sync_env_to_dotenv APP_URL "${APP_URL:-}"
 sync_env_to_dotenv DB_CONNECTION "${DB_CONNECTION:-}"
+sync_env_to_dotenv DB_HOST "${DB_HOST:-}"
+sync_env_to_dotenv DB_PORT "${DB_PORT:-}"
 sync_env_to_dotenv DB_DATABASE "${DB_DATABASE:-}"
-DB_FILE="${DB_DATABASE:-database/database.sqlite}"
-mkdir -p "$(dirname "$DB_FILE")"
+sync_env_to_dotenv DB_USERNAME "${DB_USERNAME:-}"
+sync_env_to_dotenv DB_PASSWORD "${DB_PASSWORD:-}"
 mkdir -p storage/framework/cache storage/framework/sessions storage/framework/views storage/logs bootstrap/cache
 chmod -R 775 storage bootstrap/cache || true
-touch "$DB_FILE"
-php artisan key:generate --force --no-interaction || true
+grep -q '^APP_KEY=base64:' .env || php artisan key:generate --force --no-interaction || true
 php artisan storage:link --force || true
 php artisan migrate --force
 exec php artisan serve --host=0.0.0.0 --port=8000

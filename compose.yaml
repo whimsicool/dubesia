@@ -1,13 +1,39 @@
+name: dubesia
+
 services:
   app:
     build: .
     ports:
-      - "8000:8000"
+      - "${APP_PORT:-8000}:8000"
     environment:
-      APP_URL: http://localhost:8000
-      DB_CONNECTION: sqlite
-      DB_DATABASE: /data/database.sqlite
+      APP_URL: "http://localhost:${APP_PORT:-8000}"
+      DB_CONNECTION: mariadb
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_DATABASE: dubesia_db
+      DB_USERNAME: dubesia
+      DB_PASSWORD: secret
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  db:
+    image: mariadb:11.4
+    environment:
+      MARIADB_DATABASE: dubesia_db
+      MARIADB_USER: dubesia
+      MARIADB_PASSWORD: secret
+      MARIADB_ROOT_PASSWORD: secret
     volumes:
-      - app-data:/data
+      - db-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+      start_period: 20s
+    restart: unless-stopped
+
 volumes:
-  app-data:
+  db-data:
