@@ -9,7 +9,6 @@ use App\Models\MaterialProgress;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
@@ -49,10 +48,7 @@ class MaterialController extends Controller
                 'view' => $filters['view'],
                 'material' => $active?->id,
             ],
-            'stats' => $this->stats($user->id),
-            'topics' => Material::published()->whereNotNull('topic')
-                ->select('topic', DB::raw('count(*) as total'))->groupBy('topic')->orderBy('topic')->get()
-                ->map(fn ($topic) => ['name' => $topic->topic, 'total' => (int) $topic->total]),
+            'stats' => $this->stats(),
             'types' => collect(MaterialType::cases())->map(fn (MaterialType $type) => ['value' => $type->value, 'label' => $type->label()]),
         ]);
     }
@@ -200,29 +196,17 @@ class MaterialController extends Controller
     }
 
     /** @return array<string, int> */
-    private function stats(int $userId): array
+    private function stats(): array
     {
         $byType = Material::published()->selectRaw('type, count(*) as total')->groupBy('type')->pluck('total', 'type');
 
         $sum = fn (array $types) => (int) collect($types)->sum(fn ($t) => $byType[$t] ?? 0);
 
-        $myProgress = MaterialProgress::query()
-            ->where('user_id', $userId)
-            ->whereHas('material', fn ($m) => $m->published())
-            ->selectRaw('status, count(*) as total')->groupBy('status')->pluck('total', 'status');
-
-        $total = (int) $byType->sum();
-        $completed = (int) ($myProgress[MaterialProgress::COMPLETED] ?? 0);
-
         return [
-            'total' => $total,
+            'total' => (int) $byType->sum(),
             'documents' => $sum(['document', 'slide']),
             'media' => $sum(['video', 'audio']),
-            'reading' => $sum(['article', 'link']),
             'new_this_week' => Material::published()->where('published_at', '>=', now()->subDays(7))->count(),
-            'completed' => $completed,
-            'opened' => $completed + (int) ($myProgress[MaterialProgress::OPENED] ?? 0),
-            'percent' => $total > 0 ? (int) round($completed / $total * 100) : 0,
         ];
     }
 }

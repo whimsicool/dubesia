@@ -178,7 +178,7 @@ export default function Index({ users, filters, stats }) {
 
     // ── Role labels ──
     const roleLabel = (role) => {
-        if (role === 'tutor') return 'Tutor / Mentor';
+        if (role === 'tutor') return 'Tutor';
         if (role === 'admin') return 'Admin';
         return 'Murid';
     };
@@ -309,12 +309,6 @@ export default function Index({ users, filters, stats }) {
                             </button>
                         ))}
                     </div>
-                    <button type="button" onClick={openCreateDrawer} className="btn-primary-dark" style={{ fontSize: '12px', padding: '8px 16px' }}>
-                        <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
-                        </svg>
-                        Tambah Akun Tutor
-                    </button>
                 </div>
 
                 {/* Filters Row */}
@@ -559,8 +553,8 @@ export default function Index({ users, filters, stats }) {
             {/* ═══════ DRAWER: Formulir Generate Akun ═══════ */}
             {drawerOpen && (
                 <>
-                    <div className="kdp-drawer-overlay" onClick={() => setDrawerOpen(false)} />
-                    <div className="kdp-drawer">
+                    <div className={editingUser ? 'kdp-drawer-overlay' : 'kdp-modal-overlay'} onClick={() => setDrawerOpen(false)} />
+                    <div className={editingUser ? 'kdp-drawer' : 'kdp-modal kdp-modal--form'}>
                         {/* Drawer Header */}
                         <div className="kdp-drawer__header">
                             <div className="kdp-drawer__header-badge">
@@ -594,7 +588,7 @@ export default function Index({ users, filters, stats }) {
                                                         : ''
                                                 }`}
                                             >
-                                                {r === 'tutor' ? '👨‍🏫 Tutor / Mentor' : '🎓 Murid'}
+                                                {r === 'tutor' ? 'Tutor' : '🎓 Murid'}
                                             </button>
                                         ))}
                                     </div>
@@ -602,9 +596,8 @@ export default function Index({ users, filters, stats }) {
                                 </div>
                             ) : (
                                 <div className="kdp-role-locked">
-                                    <span className="kdp-role-locked__emoji">👨‍🏫</span>
                                     <div>
-                                        <p className="kdp-role-locked__text-title">Tutor / Mentor</p>
+                                        <p className="kdp-role-locked__text-title">Tutor</p>
                                         <p className="kdp-role-locked__text-desc">Peran terkunci — Hanya akun tutor yang dapat ditambahkan.</p>
                                     </div>
                                 </div>

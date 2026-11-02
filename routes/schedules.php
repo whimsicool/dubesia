@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ScheduleViewController;
+use App\Http\Controllers\Student\ScheduleAttendanceController as StudentScheduleAttendanceController;
 use App\Http\Controllers\Tutor\ScheduleAttendanceController;
 use Illuminate\Support\Facades\Route;
 
@@ -11,7 +12,6 @@ Route::get('/tutor/schedules', [ScheduleViewController::class, 'index'])
 Route::get('/schedules', [ScheduleViewController::class, 'index'])
     ->middleware(['auth', 'verified', 'role:student', 'placement.test'])
     ->name('schedules.index');
-
 
 Route::get('/tutor/schedules/{schedule}/attendance', [ScheduleAttendanceController::class, 'show'])
     ->middleware(['auth', 'role:tutor'])
@@ -27,3 +27,7 @@ Route::get('/tutor/schedules/pdf', [ScheduleViewController::class, 'pdf'])
 Route::get('/schedules/pdf', [ScheduleViewController::class, 'pdf'])
     ->middleware(['auth', 'verified', 'role:student', 'placement.test'])
     ->name('schedules.pdf');
+
+Route::get('/schedules/{schedule}/attendance', [StudentScheduleAttendanceController::class, 'show'])
+    ->middleware(['auth', 'verified', 'role:student', 'placement.test'])
+    ->name('schedules.attendance');
