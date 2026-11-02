@@ -14,8 +14,8 @@ class RoomRequest extends FormRequest
     }
 
     /**
-     * Formulir hanya punya satu isian "Lokasi / Platform". Ruang online menyimpan
-     * isian itu ke kolom `platform`, ruang kelas ke kolom `location`.
+     * Formulir hanya punya satu isian "Nama ruangan / platform". Nama ruangan disimpan
+     * apa adanya; untuk ruang online nama itu juga menjadi nilai kolom `platform`.
      */
     public function storageAttributes(): array
     {
@@ -26,7 +26,7 @@ class RoomRequest extends FormRequest
             'name' => $data['name'],
             'type' => $data['type'],
             'capacity' => $data['capacity'],
-            'location' => $isOnline ? null : $data['location'],
+            'location' => $isOnline ? null : ($data['location'] ?? null),
             'platform' => $isOnline ? $data['name'] : null,
         ];
     }

@@ -7,8 +7,10 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration
 {
     /**
-     * Ubah data ruangan bawaan lama menjadi delapan nomor ruang dan dua tipe.
+     * Rapikan data ruangan lama menjadi nomor ruang 1-8 dan dua tipe.
      * Referensi jadwal dipindahkan sebelum data ruangan lama yang duplikat dihapus.
+     * Migration ini hanya mengubah data yang sudah ada; ruangan baru dibuat oleh seeder
+     * atau oleh admin melalui menu Kelola Ruang.
      */
     public function up(): void
     {
@@ -47,6 +49,7 @@ return new class extends Migration
                         'updated_at' => $now,
                     ]);
                     $target = DB::table('rooms')->where('id', $legacy->id)->first();
+
                     continue;
                 }
 
@@ -66,17 +69,6 @@ return new class extends Migration
                     'platform' => $platform,
                     'location' => null,
                     'is_active' => true,
-                    'updated_at' => $now,
-                ]);
-            } else {
-                DB::table('rooms')->insert([
-                    'name' => $number,
-                    'type' => $type,
-                    'platform' => $platform,
-                    'location' => null,
-                    'capacity' => 20,
-                    'is_active' => true,
-                    'created_at' => $now,
                     'updated_at' => $now,
                 ]);
             }

@@ -86,22 +86,21 @@ class ScheduleSeeder extends Seeder
 
     private function seedRooms(): Collection
     {
+        // Delapan nomor ruang; 3 dan 8 adalah ruang daring, sama seperti hasil migration normalisasi.
         $definitions = [
-            ['1', 'Ruang 1', 'physical', null, 'Gedung Utama, Lantai 1', 30],
-            ['2', 'Ruang 2', 'physical', null, 'Gedung Utama, Lantai 2', 30],
-            ['3', 'Ruang 3', 'physical', null, 'Gedung Utama, Lantai 3', 24],
-            ['4', 'Ruang 4', 'physical', null, 'Gedung Utama, Lantai 4', 20],
-            ['5', 'Ruang 5', 'physical', null, 'Gedung Utama, Lantai 5', 24],
-            ['6', 'Ruang 6', 'physical', null, 'Gedung Utama, Lantai 6', 20],
-            ['7', 'Ruang 7', 'physical', null, 'Gedung Utama, Lantai 7', 16],
-            ['8', 'Ruang 8', 'physical', null, 'Gedung Utama, Lantai 8', 20],
-            ['Zoom', 'Zoom', 'online', 'Zoom', null, 100],
-            ['Google Meet', 'Google Meet', 'online', 'Google Meet', null, 100],
+            '1' => ['physical', null, 'Gedung Utama, Lantai 1', 30],
+            '2' => ['physical', null, 'Gedung Utama, Lantai 2', 30],
+            '3' => ['online', 'Zoom', null, 24],
+            '4' => ['physical', null, 'Gedung Utama, Lantai 4', 20],
+            '5' => ['physical', null, 'Gedung Utama, Lantai 5', 24],
+            '6' => ['physical', null, 'Gedung Utama, Lantai 6', 20],
+            '7' => ['physical', null, 'Gedung Utama, Lantai 7', 16],
+            '8' => ['online', 'Zoom', null, 20],
         ];
 
         $rooms = collect();
-        foreach ($definitions as [$key, $name, $type, $platform, $location, $capacity]) {
-            $rooms->put($key, Room::updateOrCreate(['name' => $name], [
+        foreach ($definitions as $name => [$type, $platform, $location, $capacity]) {
+            $rooms->put($name, Room::updateOrCreate(['name' => $name], [
                 'type' => $type,
                 'platform' => $platform,
                 'location' => $location,
@@ -112,25 +111,22 @@ class ScheduleSeeder extends Seeder
 
         // Bersihkan nama-nama dummy lama sambil mempertahankan relasi jadwalnya.
         $legacyAliases = [
-            '1' => ['1', 'Diplomatic Hall A', 'Ruang Merdeka 1'],
-            '2' => ['2', 'Ruang Garuda 3'],
-            '3' => ['3'],
-            '4' => ['4', 'Audiovisual Lab 2'],
-            '5' => ['5', 'Bahasa Timur B'],
-            '6' => ['6', 'Diplomatic Hall B'],
-            '7' => ['7', 'Digital Lab 1'],
-            '8' => ['8'],
-            'Zoom' => ['Zoom Room 01', 'Zoom Room 02', 'Zoom Room 03'],
+            '1' => ['Diplomatic Hall A', 'Ruang Merdeka 1', 'Ruang 1'],
+            '2' => ['Ruang Garuda 3', 'Ruang 2'],
+            '3' => ['Zoom Room 02', 'Zoom Room 03', 'Ruang 3', 'Zoom'],
+            '4' => ['Audiovisual Lab 2', 'Ruang 4'],
+            '5' => ['Bahasa Timur B', 'Ruang 5'],
+            '6' => ['Diplomatic Hall B', 'Ruang 6'],
+            '7' => ['Digital Lab 1', 'Ruang 7'],
+            '8' => ['Zoom Room 01', 'Ruang 8', 'Google Meet'],
         ];
 
-        foreach ($legacyAliases as $key => $aliases) {
-            $target = $rooms->get($key);
-            foreach (array_unique($aliases) as $alias) {
-                if ($alias === $target->name) {
-                    continue;
-                }
+        foreach ($legacyAliases as $number => $aliases) {
+            $target = $rooms->get($number);
 
+            foreach ($aliases as $alias) {
                 $legacy = Room::where('name', $alias)->first();
+
                 if (! $legacy) {
                     continue;
                 }
@@ -213,8 +209,8 @@ class ScheduleSeeder extends Seeder
         $rows = [
             [1, '08:30', '10:00', 'DSP', 'Diplomatic Speech & Rhetoric', 'Diplomatic Speech Batch #4', 'Dr. Kevin Kusuma', '1', 18],
             [1, '14:00', '15:30', 'PRT', 'Protocol & Diplomatic Etiquette', 'Protocol Batch #2', 'Farhan Ardiansyah', '2', 14],
-            [2, '13:00', '14:30', 'EXE', 'Executive English Fluency', 'Executive Batch #3', 'Siti Aisyah', 'Zoom', 15],
-            [3, '15:30', '17:00', 'IELTS', 'IELTS Academic Masterclass', 'IELTS Batch #7', 'Ahmad Rizky', 'Google Meet', 12],
+            [2, '13:00', '14:30', 'EXE', 'Executive English Fluency', 'Executive Batch #3', 'Siti Aisyah', '3', 15],
+            [3, '15:30', '17:00', 'IELTS', 'IELTS Academic Masterclass', 'IELTS Batch #7', 'Ahmad Rizky', '8', 12],
             [4, '09:00', '11:00', 'HSK', 'Mandarin HSK Comprehensive', 'HSK Batch #2', 'Meilani Chen', '5', 10],
             [5, '14:00', '16:00', 'GBN', 'Global Business Negotiation', 'Business Batch #5', 'Dr. Kevin Kusuma', '6', 16],
             [6, '08:30', '11:30', 'TOEFL', 'Weekend Intensive TOEFL ITP', 'TOEFL Weekend Batch #1', 'Siti Aisyah', '7', 20],
