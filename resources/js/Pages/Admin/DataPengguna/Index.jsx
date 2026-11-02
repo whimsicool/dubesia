@@ -567,7 +567,7 @@ export default function Index({ users, filters, stats }) {
                                                     : ''
                                                     }`}
                                             >
-                                                {r === 'tutor' ? 'Tutor' : '🎓 Murid'}
+                                                {r === 'tutor' ? 'Tutor' : 'Murid'}
                                             </button>
                                         ))}
                                     </div>
