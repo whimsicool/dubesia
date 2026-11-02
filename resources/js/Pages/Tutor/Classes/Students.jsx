@@ -61,8 +61,7 @@ const getLetterGrade = (score) => {
 export default function Students({ courseClass, students, components }) {
     const { flash } = usePage().props;
     const [search, setSearch] = useState('');
-    const [selectedStudents, setSelectedStudents] = useState([]);
-    const { data, setData, put, processing, errors } = useForm({
+    const { data, setData, put, errors } = useForm({
         scores: Object.fromEntries(
             students.map((student) => [student.id, student.components]),
         ),
@@ -103,41 +102,10 @@ export default function Students({ courseClass, students, components }) {
         nextField?.focus();
     };
 
-    const toggleStudent = (studentId) => {
-        setSelectedStudents((current) =>
-            current.includes(studentId)
-                ? current.filter((id) => id !== studentId)
-                : [...current, studentId],
-        );
-    };
-
-    const allVisibleSelected =
-        visibleStudents.length > 0 &&
-        visibleStudents.every((student) => selectedStudents.includes(student.id));
-
-    const toggleVisibleStudents = () => {
-        setSelectedStudents((current) => {
-            if (allVisibleSelected) {
-                return current.filter(
-                    (id) => !visibleStudents.some((student) => student.id === id),
-                );
-            }
-
-            return [...new Set([...current, ...visibleStudents.map((student) => student.id)])];
-        });
-    };
-
     const submit = (event) => {
         event.preventDefault();
         put(route('tutor.classes.grades.update', courseClass.id));
     };
-
-    const gradedStudents = students.filter((student) =>
-        components.some((component) => {
-            const score = data.scores[student.id]?.[component.id];
-            return score !== '' && score !== null && score !== undefined;
-        }),
-    ).length;
 
     const totalWeight = components.reduce(
         (total, component) => total + Number(component.weight || 0),
@@ -145,23 +113,20 @@ export default function Students({ courseClass, students, components }) {
     );
 
     return (
-        <AdminLayout title="Kelola Nilai" subtitle={courseClass.name}
-        >
+        <AdminLayout>
             <Head title={`Kelola Nilai - ${courseClass.name}`} />
 
-            <div className="pb-36">
-                <main className="pb-4">
+            <div>
+                <main>
                     <div className="mb-5 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
                         <div>
-                            <Link
-                                href={route('tutor.classes.index')}
-                                className="inline-flex items-center gap-2 text-sm font-medium text-slate-500 transition hover:text-slate-900"
-                            >
-                                <span aria-hidden="true">←</span> Kembali ke kelas
-                            </Link>
-                            <p className="mt-5 text-xs font-bold uppercase tracking-[0.18em] text-red-700">
-                                Penilaian &amp; Evaluasi
-                            </p>
+                            <nav aria-label="Breadcrumb" className="mb-5 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
+                                <Link href={route('tutor.dashboard')} className="transition hover:text-red-700">Dashboard</Link>
+                                <span aria-hidden="true">›</span>
+                                <Link href={route('tutor.classes.index')} className="transition hover:text-red-700">Kelas Saya</Link>
+                                <span aria-hidden="true">›</span>
+                                <span aria-current="page" className="text-red-700">Kelola Nilai</span>
+                            </nav>
                             <h1 className="mt-1 text-3xl font-bold tracking-tight text-slate-950">
                                 Kelola Nilai
                             </h1>
@@ -207,30 +172,12 @@ export default function Students({ courseClass, students, components }) {
                                     />
                                 </label>
 
-                                <div className="flex flex-wrap items-center gap-2">
-                                    <span className="inline-flex items-center gap-2 rounded-lg bg-red-50 px-3 py-2 text-xs font-medium text-red-950">
-                                        <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
-                                            <circle cx="12" cy="12" r="9" />
-                                            <path d="M12 11v5m0-8h.01" />
-                                        </svg>
-                                        Tekan Tab / Enter untuk berpindah baris
-                                    </span>
-                                </div>
                             </div>
 
                             <div className="overflow-x-auto">
                                 <table className="min-w-full border-collapse">
                                     <thead className="bg-red-50 text-slate-700">
                                         <tr className="text-left text-xs font-bold uppercase tracking-wide">
-                                            <th className="w-12 px-4 py-4">
-                                                <input
-                                                    type="checkbox"
-                                                    checked={allVisibleSelected}
-                                                    onChange={toggleVisibleStudents}
-                                                    aria-label="Pilih semua murid yang terlihat"
-                                                    className="h-4 w-4 rounded border-slate-300 text-slate-900 focus:ring-slate-500"
-                                                />
-                                            </th>
                                             <th className="px-3 py-4">No</th>
                                             <th className="min-w-64 px-4 py-4">Nama Murid &amp; Email</th>
                                             <th className="min-w-36 px-4 py-4">Status Input</th>
@@ -261,16 +208,7 @@ export default function Students({ courseClass, students, components }) {
                                             });
 
                                             return (
-                                                <tr key={student.id} className={`transition-colors hover:bg-red-50/60 ${selectedStudents.includes(student.id) ? 'bg-red-50/40' : 'bg-white'}`}>
-                                                    <td className="px-4 py-5">
-                                                        <input
-                                                            type="checkbox"
-                                                            checked={selectedStudents.includes(student.id)}
-                                                            onChange={() => toggleStudent(student.id)}
-                                                            aria-label={`Pilih ${student.name}`}
-                                                            className="h-4 w-4 rounded border-slate-300 text-slate-900 focus:ring-slate-500"
-                                                        />
-                                                    </td>
+                                                <tr key={student.id} className="bg-white transition-colors hover:bg-red-50/60">
                                                     <td className="whitespace-nowrap px-3 py-5 text-sm font-medium text-slate-600">
                                                         {String(index + 1).padStart(2, '0')}
                                                     </td>
@@ -335,7 +273,7 @@ export default function Students({ courseClass, students, components }) {
                                             );
                                         }) : (
                                             <tr>
-                                                <td colSpan={components.length + 7} className="px-6 py-16 text-center">
+                                                <td colSpan={components.length + 6} className="px-6 py-16 text-center">
                                                     <p className="font-semibold text-slate-800">{students.length ? 'Tidak ada murid yang cocok' : 'Belum ada murid di kelas ini'}</p>
                                                     <p className="mt-1 text-sm text-slate-500">{students.length ? 'Coba ubah kata pencarian.' : 'Murid yang terdaftar di kelas akan tampil di sini.'}</p>
                                                 </td>
@@ -352,32 +290,6 @@ export default function Students({ courseClass, students, components }) {
                             )}
                         </section>
 
-                        <div className="fixed inset-x-0 bottom-0 z-20 border-t border-slate-700 bg-slate-950 px-4 py-4 text-white shadow-[0_-12px_32px_rgba(15,23,42,0.18)] sm:px-6">
-                            <div className="mx-auto flex max-w-[1600px] flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                                <div className="flex items-center gap-3">
-                                    <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-slate-700 text-xl" aria-hidden="true">↻</span>
-                                    <div>
-                                        <p className="font-semibold">Mode Penginputan Nilai Aktif</p>
-                                        <p className="text-xs text-slate-400 sm:text-sm">{gradedStudents} murid memiliki nilai komponen. Bobot total {formatScore(totalWeight)}%.</p>
-                                    </div>
-                                </div>
-                                <div className="flex flex-col-reverse gap-2 sm:flex-row">
-                                    <Link
-                                        href={route('tutor.classes.students.index', courseClass.id)}
-                                        className="inline-flex justify-center rounded-xl bg-red-100 px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-white"
-                                    >
-                                        Batal &amp; Muat Ulang
-                                    </Link>
-                                    <button
-                                        type="submit"
-                                        disabled={processing || components.length === 0}
-                                        className="inline-flex justify-center rounded-xl bg-red-700 px-5 py-3 text-sm font-semibold text-white transition hover:bg-red-600 disabled:cursor-not-allowed disabled:opacity-50"
-                                    >
-                                        {processing ? 'Menyimpan...' : 'Simpan & Sahkan Nilai'}
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
                     </form>
                 </main>
             </div>

@@ -8,6 +8,7 @@ use App\Models\GradeComponent;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -149,16 +150,13 @@ class GradeComponentController extends Controller
         $this->authorizeClass($request, $courseClass);
         abort_unless($gradeComponent->class_id === $courseClass->id, 404);
 
-        if ($gradeComponent->scores()->exists()) {
-            return back()->withErrors([
-                'component' => 'This component cannot be deleted because scores have already been recorded.',
-            ]);
-        }
-
-        $gradeComponent->delete();
+        DB::transaction(function () use ($gradeComponent): void {
+            $gradeComponent->scores()->delete();
+            $gradeComponent->delete();
+        });
 
         return redirect()
             ->route('tutor.classes.grade-components.index', $courseClass)
-            ->with('success', 'Grade component deleted successfully.');
+            ->with('success', 'Komponen dan nilai terkait berhasil dihapus.');
     }
 }

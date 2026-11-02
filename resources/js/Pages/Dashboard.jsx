@@ -2,7 +2,6 @@ import AdminLayout from '@/Layouts/AdminLayout';
 import { Head } from '@inertiajs/react';
 import ActionPanel from '@/Components/Dashboard/ActionPanel';
 import ActivityChart from '@/Components/Dashboard/ActivityChart';
-import QuickActions from '@/Components/Dashboard/QuickActions';
 import StatTile from '@/Components/Dashboard/StatTile';
 import WeekAgenda from '@/Components/Dashboard/WeekAgenda';
 
@@ -22,15 +21,11 @@ export default function Dashboard({ dashboard }) {
                 </section>
 
                 <div className="grid gap-5 xl:grid-cols-3">
-                    <div className="space-y-5 xl:col-span-2">
+                    <div className="xl:col-span-2">
                         <ActivityChart chart={dashboard.chart} />
-                        <WeekAgenda agenda={dashboard.agenda} />
                     </div>
-
-                    <div className="space-y-5">
-                        <QuickActions actions={dashboard.actions} />
-                        <ActionPanel panel={dashboard.panel} />
-                    </div>
+                    <ActionPanel panel={dashboard.panel} />
+                    <WeekAgenda agenda={dashboard.agenda} className="xl:col-span-3" />
                 </div>
             </div>
         </AdminLayout>

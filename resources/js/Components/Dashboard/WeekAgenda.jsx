@@ -1,13 +1,13 @@
 import { useState } from 'react';
 
 /** Agenda pekanan: pilih hari untuk melihat sesi pada hari itu. */
-export default function WeekAgenda({ agenda }) {
+export default function WeekAgenda({ agenda, className = '' }) {
     const initialDay = agenda.days.find((day) => day.is_today)?.day ?? agenda.days[0]?.day;
     const [selectedDay, setSelectedDay] = useState(initialDay);
     const selected = agenda.days.find((day) => day.day === selectedDay) ?? agenda.days[0];
 
     return (
-        <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+        <section className={`rounded-2xl border border-slate-200 bg-white p-5 shadow-sm ${className}`}>
             <h2 className="text-sm font-bold text-slate-900">{agenda.title}</h2>
 
             <div className="mt-4 grid grid-cols-3 gap-1.5 sm:grid-cols-6">

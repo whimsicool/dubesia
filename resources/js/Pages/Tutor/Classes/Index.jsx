@@ -3,12 +3,17 @@ import { Head, Link } from '@inertiajs/react';
 
 export default function Index({ classes }) {
     return (
-        <AdminLayout title="Kelas Saya"
-        >
+        <AdminLayout>
             <Head title="Kelas Saya" />
 
             <main className="px-4 py-8 sm:px-6 lg:px-8">
                 <div className="mx-auto max-w-7xl">
+                    <nav aria-label="Breadcrumb" className="mb-5 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
+                        <Link href={route('tutor.dashboard')} className="transition hover:text-red-700">Dashboard</Link>
+                        <span aria-hidden="true">›</span>
+                        <span aria-current="page" className="text-red-700">Kelas Saya</span>
+                    </nav>
+                    <h1 className="mb-6 text-3xl font-extrabold tracking-tight text-slate-950">Kelas Saya</h1>
                     {classes.length === 0 ? (
                         <section className="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
                             <h2 className="font-semibold text-slate-900">Belum ada kelas yang ditugaskan</h2>

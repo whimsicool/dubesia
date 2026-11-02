@@ -162,7 +162,6 @@ export default function MaterialViewer({ material: m, onClose, onToggleComplete,
                     <dl className="space-y-2 text-xs">
                         {[
                             ['Jenis', metaLine(m)],
-                            ['Topik', m.topic],
                             ['Level', m.level],
                             ['Diunggah', formatDate(m.published_at)],
                         ]

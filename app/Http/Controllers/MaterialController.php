@@ -43,7 +43,6 @@ class MaterialController extends Controller
                 'q' => $filters['q'] ?: null,
                 'type' => $filters['type']?->value,
                 'status' => $filters['status'],
-                'topic' => $filters['topic'],
                 'sort' => $filters['sort'],
                 'view' => $filters['view'],
                 'material' => $active?->id,
@@ -54,14 +53,13 @@ class MaterialController extends Controller
     }
 
     /**
-     * @return array{q: string, type: ?MaterialType, status: ?string, topic: ?string, sort: string, view: string}
+     * @return array{q: string, type: ?MaterialType, status: ?string, sort: string, view: string}
      */
     private function resolveIndexFilters(Request $request): array
     {
         $q = trim((string) $request->query('q', ''));
         $type = MaterialType::tryFrom((string) $request->query('type'));
         $status = in_array($request->query('status'), ['unopened', 'learning', 'completed'], true) ? $request->query('status') : null;
-        $topic = trim((string) $request->query('topic', '')) ?: null;
         $sort = in_array($request->query('sort'), ['newest', 'oldest', 'title'], true) ? $request->query('sort') : 'newest';
         $view = $request->query('view') === 'list' ? 'list' : 'grid';
 
@@ -69,7 +67,6 @@ class MaterialController extends Controller
             'q' => $q,
             'type' => $type,
             'status' => $status,
-            'topic' => $topic,
             'sort' => $sort,
             'view' => $view,
         ];
@@ -100,25 +97,22 @@ class MaterialController extends Controller
     }
 
     /**
-     * @param  array{q: string, type: ?MaterialType, status: ?string, topic: ?string, sort: string, view: string}  $filters
+     * @param  array{q: string, type: ?MaterialType, status: ?string, sort: string, view: string}  $filters
      */
     private function buildMaterialsQuery(int $userId, array $filters): Builder
     {
         $q = $filters['q'];
         $type = $filters['type'];
         $status = $filters['status'];
-        $topic = $filters['topic'];
         $sort = $filters['sort'];
 
         return $this->baseQuery($userId)
             ->when($type, fn (Builder $query) => $query->where('type', $type->value))
-            ->when($topic, fn (Builder $query) => $query->where('topic', $topic))
             ->when($q !== '', function (Builder $query) use ($q) {
                 $like = '%'.addcslashes($q, '%_\\').'%';
                 $query->where(fn (Builder $w) => $w
                     ->where('title', 'like', $like)
-                    ->orWhere('description', 'like', $like)
-                    ->orWhere('topic', 'like', $like));
+                    ->orWhere('description', 'like', $like));
             })
             ->when($status === 'unopened', fn (Builder $query) => $query->whereDoesntHave('progresses', fn ($progress) => $progress->where('user_id', $userId)))
             ->when($status === 'learning', fn (Builder $query) => $query->whereHas('progresses', fn ($progress) => $progress->where('user_id', $userId)->where('status', MaterialProgress::OPENED)))

@@ -31,7 +31,15 @@ return [
         'disk' => 'local',
         'directory' => 'materials',
         'max_upload_kb' => 512000, // 500 MB
-        'levels' => ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'],
+        'levels' => ['Beginner', 'Intermediate low', 'Intermediate', 'Intermediate Up', 'Advanced'],
+        'legacy_level_map' => [
+            'A1' => 'Beginner',
+            'A2' => 'Intermediate low',
+            'B1' => 'Intermediate',
+            'B2' => 'Intermediate Up',
+            'C1' => 'Advanced',
+            'C2' => 'Advanced',
+        ],
         'mimes' => [
             'document' => ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'txt', 'rtf', 'odt'],
             'slide' => ['pdf', 'ppt', 'pptx', 'odp'],

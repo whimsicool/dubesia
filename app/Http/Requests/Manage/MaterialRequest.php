@@ -45,7 +45,6 @@ class MaterialRequest extends FormRequest
             'type' => ['required', Rule::enum(MaterialType::class)],
             'title' => ['required', 'string', 'max:180'],
             'description' => ['nullable', 'string', 'max:600'],
-            'topic' => ['nullable', 'string', 'max:100'],
             'level' => ['nullable', 'string', Rule::in(config('dubesia.materials.levels'))],
             'status' => ['required', Rule::in([Material::STATUS_DRAFT, Material::STATUS_PUBLISHED])],
             'is_featured' => ['boolean'],

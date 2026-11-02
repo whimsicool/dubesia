@@ -38,7 +38,7 @@ export default function Index({ semester, week, filters, schedules, options, aud
 
 
     return (
-        <AdminLayout semesterName={semester?.name}>
+        <AdminLayout semesterName={isTutor ? undefined : semester?.name}>
             <Head title={isTutor ? 'Jadwal Tutor' : 'Jadwal Belajar'} />
 
             <div className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">

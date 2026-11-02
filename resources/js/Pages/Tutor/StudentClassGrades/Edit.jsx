@@ -11,7 +11,6 @@ export default function Edit({
     courseClass,
     student,
     components,
-    finalScore,
     flash,
 }) {
     const { data, setData, put, processing, errors } = useForm({
@@ -57,42 +56,46 @@ export default function Edit({
         (total, component) => total + Number(component.weight || 0),
         0
     );
+    const enteredWeight = components.reduce((total, component) => {
+        const score = data.scores[component.id]?.score;
+        return score === '' || score == null ? total : total + Number(component.weight || 0);
+    }, 0);
+    const previewScore = enteredWeight > 0
+        ? components.reduce((total, component) => {
+            const score = data.scores[component.id]?.score;
+            if (score === '' || score == null) return total;
+            return total + (Number(score) / Number(component.max_score || 100)) * Number(component.weight || 0);
+        }, 0) / enteredWeight * 100
+        : null;
     const scoreProgress = components.length
         ? Math.round((gradedCount / components.length) * 100)
         : 0;
 
     return (
-        <AdminLayout title="Kelola Nilai" subtitle={courseClass.name}
-        >
+        <AdminLayout>
             <Head title={`Kelola Nilai - ${student.name}`} />
 
             <main>
                 <div className="mx-auto max-w-6xl">
-                    <Link
-                        href={route('tutor.classes.students.index', {
-                            courseClass: courseClass.id,
-                        })}
-                        className="inline-flex items-center gap-2 text-sm font-medium text-slate-600 transition hover:text-red-700"
-                    >
-                        <span aria-hidden="true">←</span> Kembali ke daftar murid
-                    </Link>
+                    <nav aria-label="Breadcrumb" className="mb-5 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
+                        <Link href={route('tutor.dashboard')} className="transition hover:text-red-700">Dashboard</Link>
+                        <span aria-hidden="true">›</span>
+                        <Link href={route('tutor.classes.index')} className="transition hover:text-red-700">Kelas Saya</Link>
+                        <span aria-hidden="true">›</span>
+                        <Link
+                            href={route('tutor.classes.students.index', { courseClass: courseClass.id })}
+                            className="transition hover:text-red-700"
+                        >Kelola Nilai</Link>
+                        <span aria-hidden="true">›</span>
+                        <span aria-current="page" className="text-red-700">Detail Nilai</span>
+                    </nav>
 
-                    <header className="mt-5 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
-                        <div>
-                            <p className="text-sm font-semibold uppercase tracking-[0.16em] text-red-600">
-                                Buku nilai
-                            </p>
-                            <h1 className="mt-2 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
-                                Nilai {student.name}
-                            </h1>
-                            <p className="mt-2 max-w-2xl text-slate-600">
-                                Masukkan nilai setiap komponen dan catatan untuk murid ini.
-                            </p>
-                        </div>
-                        <div className="rounded-2xl border border-slate-200 bg-white px-5 py-3 shadow-sm">
-                            <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Kelas</p>
-                            <p className="mt-1 font-semibold text-slate-900">{courseClass.name}</p>
-                        </div>
+                    <header className="mb-6">
+                        <h1 className="text-3xl font-bold tracking-tight text-slate-900">Kelola Nilai</h1>
+                        <p className="mt-1 font-semibold text-slate-700">{courseClass.name}</p>
+                        <p className="mt-2 text-sm text-slate-600">
+                            Masukkan nilai setiap komponen dan catatan untuk murid ini.
+                        </p>
                     </header>
 
                     {flash?.success && (
@@ -222,15 +225,15 @@ export default function Edit({
                         <section className="rounded-2xl border border-red-100 bg-gradient-to-br from-red-50 to-white p-5 shadow-sm sm:flex sm:items-center sm:justify-between sm:p-6">
                             <div>
                                 <p className="text-sm font-semibold text-red-700">Nilai akhir</p>
-                                {finalScore !== null && finalScore !== undefined ? (
-                                    <p className="mt-1 text-sm text-slate-600">Dihitung dari nilai dan bobot seluruh komponen.</p>
-                                ) : (
-                                    <p className="mt-1 max-w-xl text-sm text-slate-600">Nilai akhir muncul setelah komponen wajib terisi dan total bobot mencapai 100%.</p>
-                                )}
+                                <p className="mt-1 text-sm text-slate-600">
+                                    {previewScore === null
+                                        ? 'Preview rata-rata akhir akan muncul saat nilai diisi.'
+                                        : 'Preview rata-rata akhir dari komponen yang sudah diisi.'}
+                                </p>
                             </div>
                             <div className="mt-4 flex items-baseline gap-2 sm:mt-0 sm:text-right">
-                                <span className="text-4xl font-bold tracking-tight text-slate-900">{finalScore !== null && finalScore !== undefined ? formatNumber(finalScore, 2) : '—'}</span>
-                                {finalScore !== null && finalScore !== undefined && <span className="text-sm font-medium text-slate-500">/ 100</span>}
+                                <span className="text-4xl font-bold tracking-tight text-slate-900">{previewScore !== null ? formatNumber(previewScore, 2) : '—'}</span>
+                                {previewScore !== null && <span className="text-sm font-medium text-slate-500">/ 100</span>}
                             </div>
                         </section>
 

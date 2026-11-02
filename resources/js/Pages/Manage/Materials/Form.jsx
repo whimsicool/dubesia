@@ -29,7 +29,6 @@ export default function Form({ material, options, routePrefix = 'tutor.materials
         type: material?.type ?? 'document',
         title: material?.title ?? '',
         description: material?.description ?? '',
-        topic: material?.topic ?? '',
         level: material?.level ?? '',
         body: material?.body ?? '',
         external_url: material?.external_url ?? '',
@@ -122,16 +121,7 @@ export default function Form({ material, options, routePrefix = 'tutor.materials
                         <textarea rows={2} value={data.description} onChange={(e) => setData('description', e.target.value)} className={input} />
                     </Field>
 
-                    <Field label="Topik" error={errors.topic} hint="Dipakai sebagai kategori/filter di pustaka murid.">
-                        <input type="text" list="topic-list" value={data.topic} onChange={(e) => setData('topic', e.target.value)} placeholder="Public Speaking & Rhetorics" className={input} />
-                        <datalist id="topic-list">
-                            {options.topics.map((t) => (
-                                <option key={t} value={t} />
-                            ))}
-                        </datalist>
-                    </Field>
-
-                    <Field label="Level" error={errors.level}>
+                    <Field label="Level" error={errors.level} className="md:col-span-2">
                         <select value={data.level} onChange={(e) => setData('level', e.target.value)} className={input}>
                             <option value="">Semua level</option>
                             {options.levels.map((l) => (

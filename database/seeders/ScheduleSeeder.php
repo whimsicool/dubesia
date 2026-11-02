@@ -143,16 +143,16 @@ class ScheduleSeeder extends Seeder
     private function seedClasses(): Collection
     {
         $levels = [
-            ['Beginner', ClassLevel::A1, 'Beginner'],
-            ['Beginner', ClassLevel::A1, 'Beginner'],
-            ['Intermediate Low', ClassLevel::A2, 'Low Intermediate'],
-            ['Intermediate Low', ClassLevel::A2, 'Low Intermediate'],
-            ['Intermediate', ClassLevel::B1, 'Middle Intermediate'],
-            ['Intermediate', ClassLevel::B1, 'Middle Intermediate'],
-            ['Intermediate Up', ClassLevel::B2, 'Upper Intermediate'],
-            ['Intermediate Up', ClassLevel::B2, 'Upper Intermediate'],
-            ['Advanced', ClassLevel::C1, 'Upper Intermediate'],
-            ['Advanced', ClassLevel::C1, 'Upper Intermediate'],
+            ['Beginner', ClassLevel::Beginner, 'Beginner'],
+            ['Beginner', ClassLevel::Beginner, 'Beginner'],
+            ['Intermediate low', ClassLevel::IntermediateLow, 'Low Intermediate'],
+            ['Intermediate low', ClassLevel::IntermediateLow, 'Low Intermediate'],
+            ['Intermediate', ClassLevel::Intermediate, 'Middle Intermediate'],
+            ['Intermediate', ClassLevel::Intermediate, 'Middle Intermediate'],
+            ['Intermediate Up', ClassLevel::IntermediateUp, 'Upper Intermediate'],
+            ['Intermediate Up', ClassLevel::IntermediateUp, 'Upper Intermediate'],
+            ['Advanced', ClassLevel::Advanced, 'Upper Intermediate'],
+            ['Advanced', ClassLevel::Advanced, 'Upper Intermediate'],
         ];
         $tutors = User::where('role', User::ROLE_TUTOR)->orderBy('id')->get();
 

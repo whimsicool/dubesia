@@ -23,6 +23,12 @@ class ScheduleAttendanceController extends Controller
             ->whereHas('schedule.instructor', fn ($query) => $query
                 ->where('user_id', $tutor->id)
                 ->orWhere('email', $tutor->email))
+            // Jadwal bertanggal tetap hanya memiliki satu pertemuan. Abaikan
+            // catatan presensi lama yang tersimpan pada tanggal lain sebelum
+            // jadwal tersebut diubah menjadi tanggal tertentu.
+            ->whereHas('schedule', fn ($query) => $query
+                ->whereNull('scheduled_date')
+                ->orWhereRaw('DATE(schedules.scheduled_date) = DATE(attendances.date)'))
             ->with([
                 'student:id,name',
                 'schedule:id,title,class_name,room_id,start_time,end_time',

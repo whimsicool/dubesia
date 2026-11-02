@@ -93,7 +93,7 @@ class ScheduleViewController extends Controller
             return $day;
         })->all();
 
-        return app('dompdf.wrapper')->loadView('pdf.schedules', [
+         return app('dompdf.wrapper')->loadView('pdf.schedules', [
             'title' => 'Jadwal Belajar',
             'user' => $user,
             'semester' => $semester,

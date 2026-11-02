@@ -41,21 +41,21 @@ Referensi tambahan: [UN Protocol](https://www.un.org/en/)
 MD;
 
         $rows = [
-            ['article', 'Framework Komunikasi & Argumentasi Diplomatik', 'Panduan sistematis merancang posisi tawar dalam negosiasi bilateral, lengkap dengan latihan mandiri.', 'International Negotiation', 'C1', ['body' => $article, 'is_featured' => true]],
-            ['video', 'Workshop: Tone of Voice & Rhetorical Pauses', 'Rekaman masterclass tentang intonasi persuasif, ritme vokal, dan jeda retoris dalam pidato.', 'Public Speaking & Rhetorics', 'B2', ['external_url' => 'https://www.youtube.com/watch?v=aqz-KE-bpKQ', 'duration_minutes' => 42]],
-            ['link', 'United Nations — Protocol and Liaison Service', 'Sumber resmi tata cara protokol dan etiket diplomatik internasional.', 'Diplomatic Protocol & Etiquette', 'B2', ['external_url' => 'https://www.un.org/en/']],
-            ['article', 'Etiket Jamuan Resmi (State Banquet)', 'Tata letak tempat duduk, urutan sambutan, dan bahasa yang tepat pada jamuan kenegaraan.', 'Diplomatic Protocol & Etiquette', 'C1', ['body' => "# Etiket Jamuan Resmi\n\nTamu kehormatan duduk di sisi kanan tuan rumah.\n\n- Sambutan dimulai oleh tuan rumah.\n- Toast dilakukan setelah hidangan pembuka."]],
-            ['article', 'Draft: Studi Kasus Krisis Komunikasi (belum terbit)', 'Masih dalam penyusunan.', 'Speech Drafting & Case Studies', 'C1', ['body' => 'Draft materi.', 'status' => 'draft']],
+            ['article', 'Framework Komunikasi & Argumentasi Diplomatik', 'Panduan sistematis merancang posisi tawar dalam negosiasi bilateral, lengkap dengan latihan mandiri.', 'Advanced', ['body' => $article, 'is_featured' => true]],
+            ['video', 'Workshop: Tone of Voice & Rhetorical Pauses', 'Rekaman masterclass tentang intonasi persuasif, ritme vokal, dan jeda retoris dalam pidato.', 'Intermediate Up', ['external_url' => 'https://www.youtube.com/watch?v=aqz-KE-bpKQ', 'duration_minutes' => 42]],
+            ['link', 'United Nations — Protocol and Liaison Service', 'Sumber resmi tata cara protokol dan etiket diplomatik internasional.', 'Intermediate Up', ['external_url' => 'https://www.un.org/en/']],
+            ['article', 'Etiket Jamuan Resmi (State Banquet)', 'Tata letak tempat duduk, urutan sambutan, dan bahasa yang tepat pada jamuan kenegaraan.', 'Advanced', ['body' => "# Etiket Jamuan Resmi\n\nTamu kehormatan duduk di sisi kanan tuan rumah.\n\n- Sambutan dimulai oleh tuan rumah.\n- Toast dilakukan setelah hidangan pembuka."]],
+            ['article', 'Draft: Studi Kasus Krisis Komunikasi (belum terbit)', 'Masih dalam penyusunan.', 'Advanced', ['body' => 'Draft materi.', 'status' => 'draft']],
         ];
 
-        foreach ($rows as [$type, $title, $desc, $topic, $level, $extra]) {
+        foreach ($rows as [$type, $title, $desc, $level, $extra]) {
             Material::updateOrCreate(
                 ['title' => $title],
                 array_merge([
                     'user_id' => $tutor->id,
                     'type' => $type,
                     'description' => $desc,
-                    'topic' => $topic,
+                    'topic' => null,
                     'level' => $level,
                     'status' => 'published',
                     'published_at' => now()->subDays(rand(0, 12)),

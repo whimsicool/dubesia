@@ -78,7 +78,7 @@ export default function MaterialCard({ material: m, active, layout = 'grid', onO
             }`}
         >
             <div className="flex flex-wrap items-center gap-2">
-                <span className={`rounded px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ${meta.chip}`}>{m.topic ?? meta.label}</span>
+                <span className={`rounded px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ${meta.chip}`}>{meta.label}</span>
                 {m.level && <span className="rounded bg-slate-100 px-2 py-0.5 text-[10px] font-bold text-slate-600">{m.level}</span>}
                 <span className="ml-auto flex items-center gap-1.5">
                     <Badges m={m} />

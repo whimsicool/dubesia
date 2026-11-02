@@ -89,7 +89,7 @@ export default function Index({ materials, filters, types, routePrefix = 'tutor.
                 <div>
                     <h1 className="text-3xl font-extrabold tracking-tight text-slate-900">Kelola Materi Belajar</h1>
                     <p className="mt-2 max-w-2xl text-sm text-slate-600">
-                        Unggah dokumen, video, slide, artikel, atau tautan. Materi yang diterbitkan langsung tampil untuk <strong>semua murid</strong> —
+                        Unggah dokumen, video, slide, artikel, atau tautan. Materi yang diterbitkan langsung tampil untuk <strong>semua murid</strong>,
                         tidak terikat kelas atau jadwal.
                     </p>
                 </div>
@@ -144,8 +144,8 @@ export default function Index({ materials, filters, types, routePrefix = 'tutor.
                             key={value}
                             type="button"
                             onClick={() => visit({ view: value })}
-                            aria-pressed={(filters.view ?? 'list') === value}
-                            className={`inline-flex items-center gap-1.5 rounded-md px-2.5 py-2 text-xs font-semibold transition-colors ${(filters.view ?? 'list') === value ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-900'}`}
+                            aria-pressed={(filters.view ?? 'grid') === value}
+                            className={`inline-flex items-center gap-1.5 rounded-md px-2.5 py-2 text-xs font-semibold transition-colors ${(filters.view ?? 'grid') === value ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-900'}`}
                         >
                             <Icon className="h-4 w-4" /> {label}
                         </button>
@@ -153,10 +153,10 @@ export default function Index({ materials, filters, types, routePrefix = 'tutor.
                 </div>
             </div>
 
-            <div className={`mt-5 ${filters.view === 'grid' ? '' : 'overflow-x-auto'} rounded-2xl border border-slate-100 bg-white shadow-sm`}>
+            <div className={`mt-5 ${(filters.view ?? 'grid') === 'grid' ? '' : 'overflow-x-auto'} rounded-2xl border border-slate-100 bg-white shadow-sm`}>
                 {materials.data.length === 0 ? (
                     <p className="p-12 text-center text-sm text-slate-500">Belum ada materi. Klik “Tambah Materi” untuk mengunggah yang pertama.</p>
-                ) : filters.view === 'grid' ? (
+                ) : (filters.view ?? 'grid') === 'grid' ? (
                     <div className="grid gap-5 p-4 sm:grid-cols-2 xl:grid-cols-3">
                         {materials.data.map((m) => {
                             const meta = TYPE_META[m.type] ?? TYPE_META.document;
@@ -165,7 +165,7 @@ export default function Index({ materials, filters, types, routePrefix = 'tutor.
                             return (
                                 <article key={m.id} className={`flex min-h-[340px] flex-col rounded-2xl border border-x-slate-200 border-b-slate-200 border-t-4 bg-white p-5 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md ${meta.bar}`}>
                                     <div className="flex flex-wrap items-center gap-2">
-                                        <span className={`rounded px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide ${meta.chip}`}>{m.topic || meta.label}</span>
+                                        <span className={`rounded px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide ${meta.chip}`}>{meta.label}</span>
                                         {m.level && <span className="rounded bg-slate-100 px-2 py-1 text-[10px] font-bold uppercase tracking-wide text-slate-600">{m.level}</span>}
                                         <span className={`ml-auto rounded px-2 py-1 text-[10px] font-bold ${m.status === 'published' ? 'bg-emerald-50 text-emerald-700' : 'bg-slate-100 text-slate-600'}`}>
                                             {m.status === 'published' ? 'Terbit' : 'Draft'}
@@ -227,7 +227,6 @@ export default function Index({ materials, filters, types, routePrefix = 'tutor.
                                                     </p>
                                                     <p className="text-xs text-slate-500">
                                                         {metaLine(m)}
-                                                        {m.topic ? ` • ${m.topic}` : ''}
                                                         {m.level ? ` • ${m.level}` : ''}
                                                     </p>
                                                 </div>

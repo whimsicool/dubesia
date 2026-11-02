@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\AttendanceStatus;
+use App\Models\Attendance;
 use App\Models\ClassAttendance;
 use App\Models\CourseClass;
 use App\Models\Material;
@@ -25,7 +27,7 @@ use Inertia\Response;
  * Dashboard universal: satu halaman dipakai semua role.
  *
  * Isi halaman mengikuti fitur role user, tetapi bentuk payload-nya seragam
- * (statistik, bagan, agenda, aksi cepat, panel) supaya satu set komponen
+ * (statistik, bagan, agenda, panel) supaya satu set komponen
  * React dapat melayani admin, tutor, dan murid.
  */
 class DashboardController extends Controller
@@ -122,15 +124,7 @@ class DashboardController extends Controller
                 $this->dailySeries(Pendaftaran::query()->where('created_at', '>=', now()->subDays(self::TREND_DAYS))->pluck('created_at'), 'pendaftar'),
                 'pendaftar',
             ),
-            'agenda' => $this->scheduleAgenda('Jadwal Pekan Ini', $schedules),
-            'actions' => [
-                $this->action('Verifikasi Pendaftaran', route('admin.calon-murid.index', absolute: false), 'user-check'),
-                $this->action('Data Pengguna', route('admin.data-pengguna.index', absolute: false), 'users'),
-                $this->action('Jadwal Belajar', route('admin.schedules.index', absolute: false), 'calendar-days'),
-                $this->action('Kelola Kelas', route('admin.classes.index', absolute: false), 'graduation-cap'),
-                $this->action('Kelola Ruangan', route('admin.rooms.index', absolute: false), 'building'),
-                $this->action('Kotak Aspirasi', route('admin.feedback.index', absolute: false), 'message-square'),
-            ],
+            'agenda' => $this->scheduleAgenda('Jadwal Pekan Ini', $schedules, $semester),
             'panel' => [
                 'title' => 'Perlu Tindakan',
                 'tabs' => [
@@ -194,18 +188,27 @@ class DashboardController extends Controller
             ->whereHas('enrolledClasses', fn (Builder $query) => $query->whereIn('classes.id', $classes->pluck('id')))
             ->count();
 
-        $attendances = ClassAttendance::query()
-            ->where('tutor_id', $user->id)
-            ->where('attendance_date', '>=', now()->subDays(6)->toDateString())
-            ->get(['status', 'attendance_date']);
-        $hadir = $attendances->where('status', 'Hadir')->count();
+        $today = Carbon::now('Asia/Jakarta')->startOfDay();
+        $attendanceStart = $today->copy()->subDays(6);
+        $attendances = Attendance::query()
+            ->whereDate('date', '>=', $attendanceStart->toDateString())
+            ->whereDate('date', '<=', $today->toDateString())
+            ->whereHas('schedule', fn (Builder $schedule) => $schedule
+                ->whereHas('instructor', fn (Builder $instructor) => $instructor->where(
+                    fn (Builder $match) => $match->where('user_id', $user->id)->orWhere('email', $user->email)
+                ))
+                ->where(fn (Builder $datedSchedule) => $datedSchedule
+                    ->whereNull('scheduled_date')
+                    ->orWhereRaw('DATE(schedules.scheduled_date) = DATE(attendances.date)')))
+            ->get(['status', 'date']);
+        $hadir = $attendances->where('status', AttendanceStatus::Present)->count();
 
         $materials = Material::query()->where('user_id', $user->id)->get(['id', 'type', 'title', 'status', 'published_at']);
         $published = $materials->where('status', Material::STATUS_PUBLISHED);
         $drafts = $materials->where('status', Material::STATUS_DRAFT);
 
         $schedules = $this->tutorSchedules($user, $semester);
-        $sessionsToday = $schedules->where('day_of_week', now()->dayOfWeekIso)->count();
+        $sessionsToday = $this->schedulesOnDate($schedules, $today, $semester)->count();
 
         return [
             'stats' => [
@@ -247,16 +250,10 @@ class DashboardController extends Controller
             ],
             'chart' => $this->trendChart(
                 'Presensi Tercatat',
-                $this->dailySeries($attendances->pluck('attendance_date'), 'catatan'),
+                $this->dailySeries($attendances->pluck('date'), 'catatan'),
                 'catatan',
             ),
-            'agenda' => $this->scheduleAgenda('Jadwal Mengajar', $schedules),
-            'actions' => [
-                $this->action('Riwayat Presensi', route('tutor.attendance.index', absolute: false), 'clipboard-check'),
-                $this->action('Jadwal Mengajar', route('tutor.schedules.index', absolute: false), 'calendar-days'),
-                $this->action('Materi Belajar', route('tutor.materials.index', absolute: false), 'book-open'),
-                $this->action('Kelas Saya', route('tutor.classes.index', absolute: false), 'layout-grid'),
-            ],
+            'agenda' => $this->scheduleAgenda('Jadwal Mengajar', $schedules, $semester),
             'panel' => [
                 'title' => 'Kelas & Materi',
                 'tabs' => [
@@ -385,14 +382,7 @@ class DashboardController extends Controller
                 ),
             ],
             'chart' => $this->gradeChart($grades),
-            'agenda' => $this->scheduleAgenda('Jadwal Belajar', $schedules),
-            'actions' => [
-                $this->action('Jadwal Belajar', route('schedules.index', absolute: false), 'calendar-days'),
-                $this->action('Materi Belajar', route('materials.index', absolute: false), 'book-open'),
-                $this->action('Nilai Saya', route('student.grades.index', absolute: false), 'award'),
-                $this->action('Tes Level', route('tes-level.index', absolute: false), 'list-checks'),
-                $this->action('Kritik & Saran', route('student.feedback.create', absolute: false), 'message-square'),
-            ],
+            'agenda' => $this->scheduleAgenda('Jadwal Belajar', $schedules, $semester),
             'panel' => [
                 'title' => 'Progres Belajar',
                 'tabs' => [
@@ -461,14 +451,6 @@ class DashboardController extends Controller
             'icon' => $icon,
             'tone' => $tone,
         ];
-    }
-
-    /**
-     * @return array<string, string>
-     */
-    private function action(string $label, string $href, string $icon): array
-    {
-        return ['label' => $label, 'href' => $href, 'icon' => $icon];
     }
 
     /**
@@ -558,17 +540,18 @@ class DashboardController extends Controller
     /**
      * @return array<string, mixed>
      */
-    private function scheduleAgenda(string $title, Collection $schedules): array
+    private function scheduleAgenda(string $title, Collection $schedules, ?Semester $semester): array
     {
-        $today = now()->dayOfWeekIso;
+        $today = Carbon::now('Asia/Jakarta')->startOfDay();
+        $weekStart = $today->copy()->startOfWeek(Carbon::MONDAY);
 
         return [
             'title' => $title,
-            'today' => $today,
+            'today' => $today->dayOfWeekIso,
             'days' => collect(config('dubesia.days'))
-                ->map(function (string $name, int $day) use ($schedules, $today): array {
-                    $items = $schedules
-                        ->where('day_of_week', $day)
+                ->map(function (string $name, int $day) use ($schedules, $semester, $today, $weekStart): array {
+                    $date = $weekStart->copy()->addDays($day - 1);
+                    $items = $this->schedulesOnDate($schedules, $date, $semester)
                         ->sortBy('start_time')
                         ->map(fn (Schedule $schedule): array => [
                             'id' => $schedule->id,
@@ -582,13 +565,39 @@ class DashboardController extends Controller
                     return [
                         'day' => $day,
                         'name' => $name,
-                        'is_today' => $day === $today,
+                        'date' => $date->toDateString(),
+                        'is_today' => $date->isSameDay($today),
                         'items' => $items,
                     ];
                 })
                 ->values()
                 ->all(),
         ];
+    }
+
+    /**
+     * Jadwal bertanggal tampil hanya pada tanggal tersebut. Jadwal lama tanpa
+     * tanggal tetap diperlakukan sebagai jadwal mingguan selama semester aktif.
+     *
+     * @param  Collection<int, Schedule>  $schedules
+     * @return Collection<int, Schedule>
+     */
+    private function schedulesOnDate(Collection $schedules, Carbon $date, ?Semester $semester): Collection
+    {
+        if (! $semester) {
+            return new Collection;
+        }
+
+        $semesterStart = Carbon::parse($semester->start_date)->startOfDay();
+        $semesterEnd = Carbon::parse($semester->end_date)->startOfDay();
+
+        if ($date->lt($semesterStart) || $date->gt($semesterEnd)) {
+            return new Collection;
+        }
+
+        return $schedules->filter(fn (Schedule $schedule): bool => $schedule->scheduled_date
+            ? $schedule->scheduled_date->toDateString() === $date->toDateString()
+            : (int) $schedule->day_of_week === $date->dayOfWeekIso);
     }
 
     /**

@@ -73,7 +73,7 @@ export default function Index({ materials, active, filters, stats, types }) {
     const goToPage = (page) => router.get(route('materials.index'), cleanParams({ ...filters, view: undefined, page }), { preserveState: true, preserveScroll: false });
 
     const select = 'rounded-lg border-slate-200 bg-slate-50 py-2 pl-3 pr-8 text-sm text-slate-800 focus:border-slate-900 focus:ring-slate-900';
-    const hasFilter = filters.q || filters.type || filters.status || filters.topic;
+    const hasFilter = filters.q || filters.type || filters.status;
 
     return (
         <AdminLayout>
@@ -121,7 +121,7 @@ export default function Index({ materials, active, filters, stats, types }) {
                         type="search"
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
-                        placeholder="Cari judul materi, topik diplomasi, keyword rangkuman..."
+                        placeholder="Cari judul atau deskripsi materi..."
                         className="w-full rounded-lg border-slate-200 bg-slate-50 py-2 pl-9 pr-3 text-sm focus:border-slate-900 focus:ring-slate-900"
                     />
                 </div>

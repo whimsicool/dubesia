@@ -11,12 +11,11 @@ import DeleteClassModal from '@/Components/Classes/DeleteClassModal';
 import { visitFilters } from '@/Components/Admin/filters';
 
 const LEVEL_STYLES = {
-    A1: 'bg-emerald-100 text-emerald-800',
-    A2: 'bg-emerald-50 text-emerald-700',
-    B1: 'bg-amber-100 text-amber-800',
-    B2: 'bg-amber-50 text-amber-700',
-    C1: 'bg-red-700 text-white',
-    C2: 'bg-slate-900 text-white',
+    Beginner: 'bg-emerald-100 text-emerald-800',
+    'Intermediate low': 'bg-emerald-50 text-emerald-700',
+    Intermediate: 'bg-amber-100 text-amber-800',
+    'Intermediate Up': 'bg-amber-50 text-amber-700',
+    Advanced: 'bg-red-700 text-white',
 };
 
 const selectClass = 'rounded-lg border-slate-200 text-sm text-slate-700 focus:border-slate-900 focus:ring-slate-900';
@@ -99,7 +98,7 @@ export default function Index({ classes, filters, options }) {
                     <option value="">Semua Level</option>
                     {options.levels.map((level) => (
                         <option key={level.value} value={level.value}>
-                            {level.value} — {level.label}
+                            {level.label}
                         </option>
                     ))}
                 </select>

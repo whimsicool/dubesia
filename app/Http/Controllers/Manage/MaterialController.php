@@ -33,7 +33,7 @@ class MaterialController extends Controller
         $status = in_array($request->query('status'), [Material::STATUS_DRAFT, Material::STATUS_PUBLISHED], true)
             ? $request->query('status') : null;
         $scope = $request->query('scope') === 'mine' ? 'mine' : 'all';
-        $view = in_array($request->query('view'), ['list', 'grid'], true) ? $request->query('view') : 'list';
+        $view = in_array($request->query('view'), ['list', 'grid'], true) ? $request->query('view') : 'grid';
 
         $materials = Material::query()
             ->with('uploader:id,name')
@@ -48,8 +48,7 @@ class MaterialController extends Controller
                 $like = '%'.addcslashes($q, '%_\\').'%';
                 $query->where(fn (Builder $w) => $w
                     ->where('title', 'like', $like)
-                    ->orWhere('description', 'like', $like)
-                    ->orWhere('topic', 'like', $like));
+                    ->orWhere('description', 'like', $like));
             })
             ->latest('id')
             ->paginate(12)
@@ -165,6 +164,7 @@ class MaterialController extends Controller
     private function persist(Material $material, MaterialRequest $request): Material
     {
         $data = $request->validated();
+        $data['topic'] = null;
         $type = MaterialType::from($data['type']);
         $file = $request->file('file');
         unset($data['file']);
@@ -234,7 +234,6 @@ class MaterialController extends Controller
                 'extensions' => $t->allowedExtensions(),
             ])->all(),
             'levels' => config('dubesia.materials.levels'),
-            'topics' => Material::query()->whereNotNull('topic')->distinct()->orderBy('topic')->pluck('topic'),
             'max_upload_mb' => (int) round(config('dubesia.materials.max_upload_kb') / 1024),
         ];
     }
