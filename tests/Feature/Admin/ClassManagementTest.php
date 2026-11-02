@@ -38,7 +38,7 @@ class ClassManagementTest extends TestCase
     {
         return array_merge([
             'name' => 'Diplomatic Speech Batch #4',
-            'level' => ClassLevel::B2->value,
+            'level' => ClassLevel::IntermediateUp->value,
             'tutor_id' => $tutor->id,
             'description' => 'Kelas pidato diplomatik.',
         ], $override);
@@ -48,7 +48,7 @@ class ClassManagementTest extends TestCase
     {
         $courseClass = CourseClass::create(array_merge([
             'name' => 'Batch Lama',
-            'level' => ClassLevel::A1->value,
+            'level' => ClassLevel::Beginner->value,
             'is_active' => true,
         ], $override));
 
@@ -82,9 +82,9 @@ class ClassManagementTest extends TestCase
                 ->component('Admin/Classes/Index')
                 ->has('classes.data', 1)
                 ->where('classes.data.0.name', 'Batch Lama')
-                ->where('classes.data.0.level', ClassLevel::A1->value)
+                ->where('classes.data.0.level', ClassLevel::Beginner->value)
                 ->where('classes.data.0.tutor.name', $tutor->name)
-                ->has('options.levels', 6)
+                ->has('options.levels', 5)
                 ->has('options.tutors', 1)
             );
     }
@@ -119,7 +119,7 @@ class ClassManagementTest extends TestCase
 
         $courseClass = CourseClass::firstOrFail();
         $this->assertSame('Diplomatic Speech Batch #4', $courseClass->name);
-        $this->assertSame(ClassLevel::B2, $courseClass->level);
+        $this->assertSame(ClassLevel::IntermediateUp, $courseClass->level);
         $this->assertTrue($courseClass->is_active);
         $this->assertSame([$tutor->id], $courseClass->tutors->pluck('id')->all());
     }

@@ -44,7 +44,7 @@ class ScheduleManagementTest extends TestCase
         $this->tutor = User::factory()->create(['role' => User::ROLE_TUTOR, 'name' => 'Dr. Kevin Kusuma, M.A.']);
         $this->courseClass = CourseClass::create([
             'name' => 'Diplomatic Speech Batch #4',
-            'level' => 'B2',
+            'level' => 'Intermediate Up',
             'is_active' => true,
         ]);
         $this->courseClass->tutors()->attach($this->tutor->id);
@@ -262,7 +262,7 @@ class ScheduleManagementTest extends TestCase
     public function test_update_does_not_conflict_with_itself_and_uses_the_selected_class(): void
     {
         $schedule = $this->makeSchedule();
-        $otherClass = CourseClass::create(['name' => 'Executive Batch #3', 'level' => 'B1', 'is_active' => true]);
+        $otherClass = CourseClass::create(['name' => 'Executive Batch #3', 'level' => 'Intermediate', 'is_active' => true]);
 
         $this->actingAs($this->admin())
             ->put(route('admin.schedules.update', $schedule), $this->payload([

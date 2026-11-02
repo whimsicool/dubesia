@@ -33,7 +33,7 @@ class MaterialTest extends TestCase
             'title' => 'Etiket Diplomatik',
             'description' => 'Ringkasan',
             'topic' => 'Protocol',
-            'level' => 'C1',
+            'level' => 'Advanced',
             'body' => "# Judul\n\nIsi materi",
             'status' => 'published',
         ], $override);
