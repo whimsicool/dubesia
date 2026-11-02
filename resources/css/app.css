@@ -577,34 +577,10 @@
 }
 
 /* ═══════════════════════════════════════════════
-   DRAWER — FORMULIR GENERATE AKUN
+   FORMULIR AKUN — ISI MODAL TENGAH
    ═══════════════════════════════════════════════ */
 
-.kdp-drawer-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(15, 23, 42, 0.5);
-    backdrop-filter: blur(4px);
-    z-index: 50;
-    animation: kdp-fade-in 0.2s ease;
-}
-
-.kdp-drawer {
-    position: fixed;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    width: 400px;
-    max-width: 100%;
-    background: white;
-    z-index: 51;
-    display: flex;
-    flex-direction: column;
-    box-shadow: -8px 0 30px rgba(0, 0, 0, 0.12);
-    animation: kdp-slide-in 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.kdp-drawer__header {
+.kdp-modal__header {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -612,13 +588,13 @@
     border-bottom: 1px solid #f1f5f9;
 }
 
-.kdp-drawer__header-badge {
+.kdp-modal__header-badge {
     display: inline-flex;
     align-items: center;
     gap: 6px;
 }
 
-.kdp-drawer__header-badge-label {
+.kdp-modal__header-badge-label {
     padding: 3px 10px;
     border-radius: 5px;
     background: #0f172a;
@@ -629,13 +605,13 @@
     text-transform: uppercase;
 }
 
-.kdp-drawer__header-badge-text {
+.kdp-modal__header-badge-text {
     font-size: 14px;
     font-weight: 700;
     color: #ef4444;
 }
 
-.kdp-drawer__close {
+.kdp-modal__close {
     width: 28px;
     height: 28px;
     border-radius: 6px;
@@ -649,12 +625,12 @@
     transition: all 0.2s;
 }
 
-.kdp-drawer__close:hover {
+.kdp-modal__close:hover {
     background: #e2e8f0;
     color: #334155;
 }
 
-.kdp-drawer__form {
+.kdp-modal__form {
     flex: 1;
     overflow-y: auto;
     padding: 24px;
@@ -791,7 +767,7 @@
 }
 
 /* Drawer Footer */
-.kdp-drawer__footer {
+.kdp-modal__footer {
     display: flex;
     align-items: center;
     justify-content: flex-end;
@@ -890,11 +866,6 @@
     to { opacity: 1; }
 }
 
-@keyframes kdp-slide-in {
-    from { transform: translateX(100%); }
-    to { transform: translateX(0); }
-}
-
 @keyframes kdp-scale-in {
     from { opacity: 0; transform: scale(0.95); }
     to { opacity: 1; transform: scale(1); }
@@ -937,10 +908,6 @@
         flex-direction: column;
         align-items: flex-start;
         gap: 12px;
-    }
-
-    .kdp-drawer {
-        width: 100%;
     }
 }
 

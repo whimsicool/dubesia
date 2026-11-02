@@ -530,28 +530,28 @@ export default function Index({ users, filters, stats }) {
                 )}
             </div>
 
-            {/* ═══════ DRAWER: Formulir Generate Akun ═══════ */}
+            {/* ═══════ MODAL: Formulir Akun ═══════ */}
             {drawerOpen && (
                 <>
-                    <div className={editingUser ? 'kdp-drawer-overlay' : 'kdp-modal-overlay'} onClick={() => setDrawerOpen(false)} />
-                    <div className={editingUser ? 'kdp-drawer' : 'kdp-modal kdp-modal--form'}>
-                        {/* Drawer Header */}
-                        <div className="kdp-drawer__header">
-                            <div className="kdp-drawer__header-badge">
-                                <span className="kdp-drawer__header-badge-label">FORMULIR</span>
-                                <span className="kdp-drawer__header-badge-text">
+                    <div className="kdp-modal-overlay" onClick={() => setDrawerOpen(false)} />
+                    <div className="kdp-modal kdp-modal--form">
+                        {/* Modal Header */}
+                        <div className="kdp-modal__header">
+                            <div className="kdp-modal__header-badge">
+                                <span className="kdp-modal__header-badge-label">FORMULIR</span>
+                                <span className="kdp-modal__header-badge-text">
                                     {editingUser ? 'Edit Data' : 'Generate Akun'}
                                 </span>
                             </div>
-                            <button type="button" onClick={() => setDrawerOpen(false)} className="kdp-drawer__close">
+                            <button type="button" onClick={() => setDrawerOpen(false)} className="kdp-modal__close">
                                 <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                                     <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
                                 </svg>
                             </button>
                         </div>
 
-                        {/* Drawer Form */}
-                        <form onSubmit={handleSubmit} className="kdp-drawer__form">
+                        {/* Modal Form */}
+                        <form onSubmit={handleSubmit} className="kdp-modal__form">
                             {/* Role */}
                             {editingUser ? (
                                 <div className="kdp-field">
@@ -658,7 +658,7 @@ export default function Index({ users, filters, stats }) {
                         </form>
 
                         {/* Drawer Footer */}
-                        <div className="kdp-drawer__footer">
+                        <div className="kdp-modal__footer">
                             <button type="button" onClick={() => setDrawerOpen(false)} className="btn-cancel">
                                 Batal
                             </button>
