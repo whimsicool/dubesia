@@ -4,11 +4,14 @@ namespace App\Http\Controllers;
 
 use App\Models\Pendaftaran;
 use App\Models\User;
+use App\Exports\UsersExport;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
+use Maatwebsite\Excel\Facades\Excel;
+
 
 class AdminUserController extends Controller
 {
@@ -80,10 +83,9 @@ class AdminUserController extends Controller
             ->where('role', '!=', 'admin')
             ->where(function ($query) {
                 $query->whereDoesntHave('pendaftaran')
-                    ->orWhereHas('pendaftaran', fn ($registration) => $registration->where('status', Pendaftaran::STATUS_TERVERIFIKASI));
+                    ->orWhereHas('pendaftaran', fn($registration) => $registration->where('status', Pendaftaran::STATUS_TERVERIFIKASI));
             });
     }
-
     /**
      * Menyimpan data tutor baru (Tambah Akun).
      * Sequence Diagram:
@@ -174,7 +176,7 @@ class AdminUserController extends Controller
             'ids.*' => ['required', 'integer', 'distinct', 'exists:users,id'],
         ]);
 
-        $selectedIds = collect($validated['ids'])->map(fn ($id) => (int) $id)->unique();
+        $selectedIds = collect($validated['ids'])->map(fn($id) => (int) $id)->unique();
         $users = $this->visibleUsersQuery()->whereIn('id', $selectedIds)->get();
 
         // Pastikan seluruh akun terpilih memang termasuk data yang boleh dikelola admin.
@@ -183,11 +185,11 @@ class AdminUserController extends Controller
         }
 
         DB::transaction(function () use ($users) {
-            $users->each(fn (User $user) => $user->delete());
+            $users->each(fn(User $user) => $user->delete());
         });
 
         return redirect()->route('admin.data-pengguna.index')
-            ->with('success', $users->count().' akun berhasil dihapus.');
+            ->with('success', $users->count() . ' akun berhasil dihapus.');
     }
 
     public function destroy(User $user)
@@ -201,5 +203,47 @@ class AdminUserController extends Controller
         $user->delete();
 
         return redirect()->route('admin.data-pengguna.index')->with('success', "Akun \"{$name}\" berhasil dihapus.");
+    }
+
+    public function export(Request $request)
+    {
+        $query = $this->visibleUsersQuery()
+            ->with('pendaftaran');
+
+        // Filter berdasarkan role
+        if ($request->filled('role') && in_array($request->role, ['student', 'tutor'])) {
+            $query->where('role', $request->role);
+        }
+
+        // Filter berdasarkan status akun
+        if ($request->filled('status')) {
+            $query->where('status_akun', $request->status);
+        }
+
+        // Pencarian
+        if ($request->filled('search')) {
+            $search = $request->search;
+
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "%{$search}%")
+                    ->orWhere('nip', 'like', "%{$search}%")
+                    ->orWhere('no_hp', 'like', "%{$search}%");
+            });
+        }
+
+        // Sorting
+        $sortBy = $request->input('sort_by', 'created_at');
+        $sortDir = $request->input('sort_dir', 'desc');
+
+        $allowedSorts = ['name', 'email', 'role', 'created_at', 'status_akun'];
+
+        if (in_array($sortBy, $allowedSorts)) {
+            $query->orderBy($sortBy, $sortDir === 'asc' ? 'asc' : 'desc');
+        }
+
+        $filename = 'data-pengguna-' . now()->format('Y-m-d_H-i-s') . '.xlsx';
+
+        return Excel::download(new UsersExport($query), $filename);
     }
 }
