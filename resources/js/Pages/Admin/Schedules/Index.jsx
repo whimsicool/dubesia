@@ -6,7 +6,6 @@ import {
     CirclePlus,
     Download,
     FileSpreadsheet,
-    Printer,
 } from 'lucide-react';
 import AdminLayout from '@/Layouts/AdminLayout';
 import FlashBanner from '@/Components/Common/FlashBanner';
@@ -46,19 +45,6 @@ function ExportMenu({ exportUrl, pdfUrl }) {
                         <FileSpreadsheet className="h-4 w-4 text-slate-400" />
                         Unduh CSV (Excel)
                     </a>
-
-                    <button
-                        type="button"
-                        onMouseDown={(event) => event.preventDefault()}
-                        onClick={() => {
-                            setOpen(false);
-                            window.print();
-                        }}
-                        className="flex w-full items-center gap-2 px-4 py-2.5 text-left text-sm text-slate-700 hover:bg-slate-50"
-                    >
-                        <Printer className="h-4 w-4 text-slate-400" />
-                        Cetak / Simpan PDF
-                    </button>
 
                     <a
                         href={pdfUrl}

@@ -1,7 +1,7 @@
 
 import AdminLayout from '@/Layouts/AdminLayout';
 import { Head, usePage } from '@inertiajs/react';
-import { Printer, Download } from 'lucide-react';
+import { Download } from 'lucide-react';
 
 const formatScore = (score) =>
     score === null || score === undefined || score === ''
@@ -21,17 +21,8 @@ export default function Index({ grades }) {
 
             <div className="mx-auto max-w-5xl print:max-w-none">
 
-                {/* Tombol Cetak dan Unduh PDF */}
+                {/* Tombol Unduh PDF */}
                 <div className="mb-4 flex justify-end gap-2 print:hidden">
-                    <button
-                        type="button"
-                        onClick={() => window.print()}
-                        className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 shadow-sm transition hover:bg-slate-50"
-                    >
-                        <Printer className="h-4 w-4" />
-                        Cetak
-                    </button>
-
                     <a
                         href={route('student.grades.pdf')}
                         className="flex items-center gap-2 rounded-xl bg-red-800 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-red-700"
