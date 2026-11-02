@@ -76,12 +76,6 @@ export default function Index({ users, filters, stats }) {
         applyFilters({ role });
     };
 
-    const handleStatusChange = (e) => {
-        const val = e.target.value;
-        setStatusFilter(val);
-        applyFilters({ status: val });
-    };
-
     const handlePerPageChange = (e) => {
         const val = parseInt(e.target.value);
         setPerPage(val);
@@ -335,16 +329,6 @@ export default function Index({ users, filters, stats }) {
                             className="kdp-search-input"
                         />
                     </div>
-
-                    <select value={statusFilter} onChange={handleStatusChange} className="kdp-filter-select">
-                        <option value="">Semua Status</option>
-                        <option value="aktif">Aktif</option>
-                        <option value="nonaktif">Nonaktif</option>
-                    </select>
-
-                    <select className="kdp-filter-select">
-                        <option value="">Semua Cohort</option>
-                    </select>
 
                     <button type="button" onClick={clearFilters} className="kdp-filter-clear" title="Reset Filter">
                         <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
