@@ -3,7 +3,9 @@
 namespace Database\Seeders;
 
 use App\Enums\AttendanceStatus;
+use App\Enums\ClassLevel;
 use App\Models\Attendance;
+use App\Models\CourseClass;
 use App\Models\Instructor;
 use App\Models\Program;
 use App\Models\Room;
@@ -28,10 +30,9 @@ class ScheduleSeeder extends Seeder
         $this->linkTutorInstructor($instructors);
 
         $rooms = $this->seedRooms();
-        $demoStudentId = $this->seedStudents();
-        $activeIds = Student::where('status', Student::STATUS_ACTIVE)->orderBy('id')->pluck('id');
+        $classes = $this->seedClasses();
 
-        $this->seedSchedules($semester, $programs, $instructors, $rooms, $activeIds, $demoStudentId);
+        $this->seedSchedules($semester, $programs, $instructors, $rooms, $classes);
     }
 
     private function seedPrograms(): Collection
@@ -85,58 +86,117 @@ class ScheduleSeeder extends Seeder
 
     private function seedRooms(): Collection
     {
-        return collect([
-            ['Diplomatic Hall A', 'physical', null, 30],
-            ['Diplomatic Hall B', 'physical', null, 30],
-            ['Audiovisual Lab 2', 'lab', null, 20],
-            ['Digital Lab 1', 'lab', null, 24],
-            ['Ruang Garuda 3', 'physical', null, 20],
-            ['Bahasa Timur B', 'physical', null, 16],
-            ['Ruang Merdeka 1', 'physical', null, 20],
-            ['Zoom Room 01', 'online', 'Zoom', 100],
-            ['Zoom Room 02', 'online', 'Zoom', 100],
-            ['Zoom Room 03', 'online', 'Zoom', 100],
-        ])->mapWithKeys(fn (array $room): array => [
-            $room[0] => Room::updateOrCreate(['name' => $room[0]], [
-                'type' => $room[1],
-                'platform' => $room[2],
-                'capacity' => $room[3],
+        // Delapan nomor ruang; 3 dan 8 adalah ruang daring, sama seperti hasil migration normalisasi.
+        $definitions = [
+            '1' => ['physical', null, 'Gedung Utama, Lantai 1', 30],
+            '2' => ['physical', null, 'Gedung Utama, Lantai 2', 30],
+            '3' => ['online', 'Zoom', null, 24],
+            '4' => ['physical', null, 'Gedung Utama, Lantai 4', 20],
+            '5' => ['physical', null, 'Gedung Utama, Lantai 5', 24],
+            '6' => ['physical', null, 'Gedung Utama, Lantai 6', 20],
+            '7' => ['physical', null, 'Gedung Utama, Lantai 7', 16],
+            '8' => ['online', 'Zoom', null, 20],
+        ];
+
+        $rooms = collect();
+        foreach ($definitions as $name => [$type, $platform, $location, $capacity]) {
+            $rooms->put($name, Room::updateOrCreate(['name' => $name], [
+                'type' => $type,
+                'platform' => $platform,
+                'location' => $location,
+                'capacity' => $capacity,
                 'is_active' => true,
-            ]),
-        ]);
-    }
+            ]));
+        }
 
-    private function seedStudents(): ?int
-    {
-        $firstNames = ['Aditya', 'Bella', 'Citra', 'Dimas', 'Eka', 'Fajar', 'Gita', 'Hana', 'Indra', 'Jasmine', 'Kirana', 'Lukman', 'Maya', 'Nadia', 'Oscar'];
-        $lastNames = ['Pratama', 'Putri', 'Wibowo', 'Saputra'];
+        // Bersihkan nama-nama dummy lama sambil mempertahankan relasi jadwalnya.
+        $legacyAliases = [
+            '1' => ['Diplomatic Hall A', 'Ruang Merdeka 1', 'Ruang 1'],
+            '2' => ['Ruang Garuda 3', 'Ruang 2'],
+            '3' => ['Zoom Room 02', 'Zoom Room 03', 'Ruang 3', 'Zoom'],
+            '4' => ['Audiovisual Lab 2', 'Ruang 4'],
+            '5' => ['Bahasa Timur B', 'Ruang 5'],
+            '6' => ['Diplomatic Hall B', 'Ruang 6'],
+            '7' => ['Digital Lab 1', 'Ruang 7'],
+            '8' => ['Zoom Room 01', 'Ruang 8', 'Google Meet'],
+        ];
 
-        $names = [];
-        foreach ($lastNames as $last) {
-            foreach ($firstNames as $first) {
-                $names[] = "$first $last";
+        foreach ($legacyAliases as $number => $aliases) {
+            $target = $rooms->get($number);
+
+            foreach ($aliases as $alias) {
+                $legacy = Room::where('name', $alias)->first();
+
+                if (! $legacy) {
+                    continue;
+                }
+
+                $legacy->schedules()->update(['room_id' => $target->id]);
+                $legacy->delete();
             }
         }
 
-        foreach ($names as $i => $name) {
-            Student::updateOrCreate(
-                ['nisn' => '2026'.str_pad((string) ($i + 1), 4, '0', STR_PAD_LEFT)],
-                ['name' => $name, 'status' => $i < 48 ? Student::STATUS_ACTIVE : Student::STATUS_PENDING],
-            );
-        }
+        return $rooms;
+    }
 
-        $studentUser = User::where('email', 'student@dubesia.id')->first();
-        if (! $studentUser) {
-            return null;
-        }
+    /** Sepuluh kelas contoh dengan anggota yang dikelola dari menu Kelola Kelas. */
+    private function seedClasses(): Collection
+    {
+        $levels = [
+            ['Beginner', ClassLevel::A1, 'Beginner'],
+            ['Beginner', ClassLevel::A1, 'Beginner'],
+            ['Intermediate Low', ClassLevel::A2, 'Low Intermediate'],
+            ['Intermediate Low', ClassLevel::A2, 'Low Intermediate'],
+            ['Intermediate', ClassLevel::B1, 'Middle Intermediate'],
+            ['Intermediate', ClassLevel::B1, 'Middle Intermediate'],
+            ['Intermediate Up', ClassLevel::B2, 'Upper Intermediate'],
+            ['Intermediate Up', ClassLevel::B2, 'Upper Intermediate'],
+            ['Advanced', ClassLevel::C1, 'Upper Intermediate'],
+            ['Advanced', ClassLevel::C1, 'Upper Intermediate'],
+        ];
+        $tutors = User::where('role', User::ROLE_TUTOR)->orderBy('id')->get();
 
-        Student::where('nisn', '20260001')->update([
-            'user_id' => $studentUser->id,
-            'name' => $studentUser->name,
-            'email' => $studentUser->email,
-        ]);
+        return collect($levels)->values()->map(function (array $entry, int $classIndex) use ($tutors): CourseClass {
+            [$label, $level, $userLevel] = $entry;
+            $class = CourseClass::updateOrCreate(['name' => sprintf('Kelas %s %d', $label, $classIndex + 1)], [
+                'level' => $level->value,
+                'capacity' => 30,
+                'description' => 'Kelas contoh '.$label.' untuk data demo.',
+                'is_active' => true,
+            ]);
 
-        return Student::where('user_id', $studentUser->id)->value('id');
+            if ($tutors->isNotEmpty()) {
+                $class->tutors()->syncWithoutDetaching([$tutors[$classIndex % $tutors->count()]->id]);
+            }
+
+            $studentUserIds = [];
+            for ($studentIndex = 1; $studentIndex <= 10; $studentIndex++) {
+                $studentNumber = ($classIndex * 10) + $studentIndex;
+                $email = sprintf('demo.murid.%03d@dubesia.id', $studentNumber);
+                $nisn = sprintf('DUB%07d', $studentNumber);
+                $user = User::updateOrCreate(['email' => $email], [
+                    'name' => sprintf('Murid %s %d-%02d', $label, $classIndex + 1, $studentIndex),
+                    'password' => 'password',
+                    'role' => User::ROLE_STUDENT,
+                    'class_level' => $userLevel,
+                    'nip' => $nisn,
+                    'is_active' => true,
+                    'status_akun' => 'aktif',
+                    'email_verified_at' => now(),
+                ]);
+
+                Student::updateOrCreate(
+                    ['user_id' => $user->id],
+                    ['nisn' => $nisn, 'name' => $user->name, 'email' => $user->email, 'status' => Student::STATUS_ACTIVE],
+                );
+                $studentUserIds[] = $user->id;
+            }
+
+            // Seeder dapat dijalankan berulang; kelas demo akan tetap berisi tepat 10 akun.
+            $class->students()->sync($studentUserIds);
+
+            return $class;
+        });
     }
 
     private function seedSchedules(
@@ -144,34 +204,38 @@ class ScheduleSeeder extends Seeder
         Collection $programs,
         Collection $instructors,
         Collection $rooms,
-        mixed $activeIds,
-        ?int $demoStudentId,
+        Collection $classes,
     ): void {
         $rows = [
-            [1, '08:30', '10:00', 'DSP', 'Diplomatic Speech & Rhetoric', 'Diplomatic Speech Batch #4', 'Dr. Kevin Kusuma', 'Diplomatic Hall A', 18],
-            [1, '14:00', '15:30', 'PRT', 'Protocol & Diplomatic Etiquette', 'Protocol Batch #2', 'Farhan Ardiansyah', 'Ruang Garuda 3', 14],
-            [2, '13:00', '14:30', 'EXE', 'Executive English Fluency', 'Executive Batch #3', 'Siti Aisyah', 'Zoom Room 02', 15],
-            [3, '15:30', '17:00', 'IELTS', 'IELTS Academic Masterclass', 'IELTS Batch #7', 'Ahmad Rizky', 'Audiovisual Lab 2', 12],
-            [4, '09:00', '11:00', 'HSK', 'Mandarin HSK Comprehensive', 'HSK Batch #2', 'Meilani Chen', 'Bahasa Timur B', 10],
-            [5, '14:00', '16:00', 'GBN', 'Global Business Negotiation', 'Business Batch #5', 'Dr. Kevin Kusuma', 'Diplomatic Hall B', 16],
-            [6, '08:30', '11:30', 'TOEFL', 'Weekend Intensive TOEFL ITP', 'TOEFL Weekend Batch #1', 'Siti Aisyah', 'Digital Lab 1', 20],
+            [1, '08:30', '10:00', 'DSP', 'Diplomatic Speech & Rhetoric', 'Diplomatic Speech Batch #4', 'Dr. Kevin Kusuma', '1', 18],
+            [1, '14:00', '15:30', 'PRT', 'Protocol & Diplomatic Etiquette', 'Protocol Batch #2', 'Farhan Ardiansyah', '2', 14],
+            [2, '13:00', '14:30', 'EXE', 'Executive English Fluency', 'Executive Batch #3', 'Siti Aisyah', '3', 15],
+            [3, '15:30', '17:00', 'IELTS', 'IELTS Academic Masterclass', 'IELTS Batch #7', 'Ahmad Rizky', '8', 12],
+            [4, '09:00', '11:00', 'HSK', 'Mandarin HSK Comprehensive', 'HSK Batch #2', 'Meilani Chen', '5', 10],
+            [5, '14:00', '16:00', 'GBN', 'Global Business Negotiation', 'Business Batch #5', 'Dr. Kevin Kusuma', '6', 16],
+            [6, '08:30', '11:30', 'TOEFL', 'Weekend Intensive TOEFL ITP', 'TOEFL Weekend Batch #1', 'Siti Aisyah', '7', 20],
         ];
 
         foreach ($rows as $i => [$day, $start, $end, $program, $title, $class, $instructor, $room, $count]) {
-            $schedule = Schedule::updateOrCreate(
-                ['semester_id' => $semester->id, 'class_name' => $class],
-                [
-                    'program_id' => $programs[$program]->id,
-                    'instructor_id' => $instructors[$instructor]->id,
-                    'room_id' => $rooms[$room]->id,
-                    'title' => $title,
-                    'day_of_week' => $day,
-                    'start_time' => $start,
-                    'end_time' => $end,
-                ],
-            );
-
-            $schedule->students()->sync($activeIds->concat($activeIds)->slice($i * 6, $count)->values()->all());
+            $courseClass = $classes->values()->get($i);
+            $schedule = Schedule::where('semester_id', $semester->id)->where('class_id', $courseClass->id)->first()
+                ?? Schedule::where('semester_id', $semester->id)->where('class_name', $class)->first()
+                ?? new Schedule;
+            $schedule->fill([
+                'semester_id' => $semester->id,
+                'program_id' => $programs[$program]->id,
+                'class_id' => $courseClass->id,
+                'instructor_id' => $instructors[$instructor]->id,
+                'room_id' => $rooms[$room]->id,
+                'title' => $title,
+                'class_name' => $courseClass->name,
+                'day_of_week' => $day,
+                'start_time' => $start,
+                'end_time' => $end,
+            ])->save();
+            $studentUserIds = $courseClass->students()->pluck('users.id')->all();
+            $studentIds = Student::whereIn('user_id', $studentUserIds)->pluck('id')->all();
+            $schedule->students()->sync($studentIds);
 
             if ($day !== now()->dayOfWeekIso) {
                 continue;
@@ -198,10 +262,5 @@ class ScheduleSeeder extends Seeder
             }
         }
 
-        if ($demoStudentId) {
-            Schedule::where('semester_id', $semester->id)
-                ->where('class_name', 'Diplomatic Speech Batch #4')
-                ->first()?->students()->syncWithoutDetaching([$demoStudentId]);
-        }
     }
 }

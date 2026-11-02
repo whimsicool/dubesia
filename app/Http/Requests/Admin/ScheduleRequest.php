@@ -61,8 +61,6 @@ class ScheduleRequest extends FormRequest
             'start_time' => ['required', 'date_format:H:i'],
             'end_time' => ['required', 'date_format:H:i', 'after:start_time'],
             'notes' => ['nullable', 'string', 'max:1000'],
-            'student_ids' => ['nullable', 'array'],
-            'student_ids.*' => ['integer', 'distinct', Rule::exists('users', 'id')->where('role', User::ROLE_STUDENT)],
         ];
     }
 
@@ -83,7 +81,6 @@ class ScheduleRequest extends FormRequest
             'end_time.required' => 'Jam selesai wajib diisi.',
             'end_time.date_format' => 'Format jam selesai tidak valid (HH:MM).',
             'end_time.after' => 'Jam selesai harus setelah jam mulai.',
-            'student_ids.*.exists' => 'Murid yang dipilih tidak ditemukan.',
         ];
     }
 
@@ -97,7 +94,8 @@ class ScheduleRequest extends FormRequest
                 }
 
                 $data = $validator->validated();
-                $studentUserIds = array_map('intval', $data['student_ids'] ?? []);
+                $class = CourseClass::with('students:id')->find($data['class_id']);
+                $studentUserIds = $class?->students->pluck('id')->map(fn ($id) => (int) $id)->all() ?? [];
 
                 if (! empty($data['scheduled_date'])) {
                     $semester = Semester::find($data['semester_id']);
@@ -110,11 +108,9 @@ class ScheduleRequest extends FormRequest
                     }
                 }
 
-                $class = CourseClass::find($data['class_id']);
-
                 if ($class && $class->capacity !== null && count($studentUserIds) > $class->capacity) {
                     $validator->errors()->add(
-                        'student_ids',
+                        'class_id',
                         sprintf('Jumlah murid (%d) melebihi kapasitas kelas %s (%d).', count($studentUserIds), $class->name, $class->capacity)
                     );
                 }
@@ -122,7 +118,7 @@ class ScheduleRequest extends FormRequest
                 $room = Room::find($data['room_id']);
                 if ($room && count($studentUserIds) > $room->capacity) {
                     $validator->errors()->add(
-                        'student_ids',
+                        'class_id',
                         sprintf('Jumlah peserta (%d) melebihi kapasitas %s (%d).', count($studentUserIds), $room->name, $room->capacity)
                     );
                 }
@@ -140,7 +136,7 @@ class ScheduleRequest extends FormRequest
                     scheduledDate: $data['scheduled_date'] ?? null,
                 );
 
-                $fieldFor = ['instructor' => 'tutor_id', 'room' => 'room_id', 'students' => 'student_ids'];
+                $fieldFor = ['instructor' => 'tutor_id', 'room' => 'room_id', 'students' => 'class_id'];
 
                 foreach ($conflicts->groupBy('type') as $type => $items) {
                     $validator->errors()->add($fieldFor[$type], $items->pluck('message')->implode(' '));

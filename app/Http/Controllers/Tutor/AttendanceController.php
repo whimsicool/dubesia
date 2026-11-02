@@ -6,84 +6,13 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreAttendanceRequest;
 use App\Models\ClassAttendance;
 use App\Models\User;
-use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
-use Inertia\Inertia;
-use Inertia\Response;
 
 class AttendanceController extends Controller
 {
-    public function index(Request $request): Response
-    {
-        $filters = $request->validate([
-            'level' => ['nullable', Rule::in(User::CLASS_LEVELS)],
-            'date' => ['nullable', 'date'],
-        ]);
-
-        $level = $filters['level'] ?? User::CLASS_LEVELS[0];
-        $date = $filters['date'] ?? now()->toDateString();
-
-        $students = User::query()
-            ->where('role', 'student')
-            ->where('class_level', $level)
-            ->orderBy('name')
-            ->get(['id', 'name', 'class_level']);
-
-        $savedRecords = ClassAttendance::query()
-            ->whereIn('student_id', $students->pluck('id'))
-            ->whereDate('attendance_date', $date)
-            ->get()
-            ->keyBy('student_id');
-        $hasSavedAttendance = $savedRecords->isNotEmpty();
-
-        $historyDates = ClassAttendance::query()
-            ->where('class_level', $level)
-            ->select('attendance_date')
-            ->distinct()
-            ->orderByDesc('attendance_date')
-            ->limit(10)
-            ->pluck('attendance_date');
-
-        $history = ClassAttendance::query()
-            ->where('class_level', $level)
-            ->whereIn('attendance_date', $historyDates)
-            ->with('student:id,name')
-            ->orderByDesc('attendance_date')
-            ->get()
-            ->groupBy(fn (ClassAttendance $record) => $record->attendance_date->toDateString())
-            ->map(fn ($records, $recordDate) => [
-                'date' => $recordDate,
-                'total' => $records->count(),
-                'hadir' => $records->where('status', 'Hadir')->count(),
-                'izin' => $records->where('status', 'Izin')->count(),
-                'sakit' => $records->where('status', 'Sakit')->count(),
-                'alpa' => $records->where('status', 'Alpa')->count(),
-                'students' => $records->map(fn (ClassAttendance $record) => [
-                    'id' => $record->student_id,
-                    'name' => $record->student?->name ?? 'Murid',
-                    'status' => $record->status,
-                    'notes' => $record->notes,
-                ])->values(),
-            ])
-            ->values();
-
-        return Inertia::render('Tutor/Attendance/Index', [
-            'levels' => User::CLASS_LEVELS,
-            'selectedLevel' => $level,
-            'attendanceDate' => $date,
-            'hasSavedAttendance' => $hasSavedAttendance,
-            'history' => $history,
-            'students' => $students->map(fn (User $student) => [
-                'id' => $student->id,
-                'name' => $student->name,
-                'status' => $savedRecords->get($student->id)?->status,
-                'notes' => $savedRecords->get($student->id)?->notes ?? '',
-            ])->values(),
-        ]);
-    }
-
     public function store(StoreAttendanceRequest $request): RedirectResponse
     {
         $data = $request->validated();

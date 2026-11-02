@@ -81,11 +81,11 @@ class RoomManagementTest extends TestCase
         $this->actingAs($student)->post(route('admin.rooms.store'), $this->payload())->assertForbidden();
     }
 
-    public function test_admin_sees_rooms_with_stats(): void
+    public function test_admin_sees_rooms_and_options(): void
     {
-        $this->room(['name' => 'Diplomatic Hall A']);
-        $this->room(['name' => 'Audiovisual Lab 2', 'type' => RoomType::Lab->value]);
-        $this->room(['name' => 'Zoom Room 01', 'type' => RoomType::Online->value, 'location' => null, 'platform' => 'Zoom']);
+        $this->room(['name' => '1']);
+        $this->room(['name' => '4']);
+        $this->room(['name' => 'Zoom', 'type' => RoomType::Online->value, 'location' => null, 'platform' => 'Zoom']);
 
         $this->actingAs($this->admin())
             ->get(route('admin.rooms.index'))
@@ -93,11 +93,7 @@ class RoomManagementTest extends TestCase
             ->assertInertia(fn (Assert $page) => $page
                 ->component('Admin/Rooms/Index')
                 ->has('rooms.data', 3)
-                ->where('stats.total', 3)
-                ->where('stats.physical_lab', 2)
-                ->where('stats.online', 1)
-                ->where('stats.inactive', 0)
-                ->has('options.types', 3)
+                ->has('options.types', 2)
             );
     }
 
@@ -108,7 +104,7 @@ class RoomManagementTest extends TestCase
             ->assertSessionHasNoErrors()
             ->assertSessionHas('success');
 
-        $room = Room::firstOrFail();
+        $room = Room::where('name', 'Diplomatic Hall A')->firstOrFail();
         $this->assertSame('Diplomatic Hall A', $room->name);
         $this->assertSame(RoomType::Physical, $room->type);
         $this->assertSame('Gedung Utama, Lantai 2', $room->location);
@@ -116,18 +112,18 @@ class RoomManagementTest extends TestCase
         $this->assertTrue($room->is_active);
     }
 
-    public function test_online_room_stores_platform_instead_of_location(): void
+    public function test_online_room_uses_its_name_as_platform(): void
     {
+        // Formulir ruang online hanya punya isian nama; lokasi tidak dikirim.
         $this->actingAs($this->admin())
-            ->post(route('admin.rooms.store'), $this->payload([
-                'name' => 'Zoom Room 01',
+            ->post(route('admin.rooms.store'), [
+                'name' => 'Zoom',
                 'type' => RoomType::Online->value,
                 'capacity' => 100,
-                'location' => 'Zoom',
-            ]))
+            ])
             ->assertSessionHasNoErrors();
 
-        $room = Room::firstOrFail();
+        $room = Room::where('name', 'Zoom')->firstOrFail();
         $this->assertSame('Zoom', $room->platform);
         $this->assertNull($room->location);
     }
@@ -137,8 +133,8 @@ class RoomManagementTest extends TestCase
         $this->room(['name' => 'Diplomatic Hall A']);
 
         $this->actingAs($this->admin())
-            ->post(route('admin.rooms.store'), ['name' => '', 'type' => '', 'capacity' => '', 'location' => ''])
-            ->assertSessionHasErrors(['name', 'type', 'capacity', 'location']);
+            ->post(route('admin.rooms.store'), ['name' => '', 'type' => '', 'capacity' => ''])
+            ->assertSessionHasErrors(['name', 'type', 'capacity']);
 
         $this->actingAs($this->admin())
             ->post(route('admin.rooms.store'), $this->payload())
@@ -150,31 +146,19 @@ class RoomManagementTest extends TestCase
         $room = $this->room();
 
         $this->actingAs($this->admin())
-            ->put(route('admin.rooms.update', $room), $this->payload([
-                'name' => 'Zoom Room 04',
+            ->put(route('admin.rooms.update', $room), [
+                'name' => 'Google Meet',
                 'type' => RoomType::Online->value,
                 'capacity' => 100,
-                'location' => 'Google Meet',
-            ]))
+            ])
             ->assertSessionHasNoErrors();
 
         $room->refresh();
-        $this->assertSame('Zoom Room 04', $room->name);
+        $this->assertSame('Google Meet', $room->name);
         $this->assertSame(RoomType::Online, $room->type);
         $this->assertSame('Google Meet', $room->platform);
         $this->assertNull($room->location);
         $this->assertSame(100, $room->capacity);
-    }
-
-    public function test_admin_can_toggle_room_status(): void
-    {
-        $room = $this->room();
-
-        $this->actingAs($this->admin())
-            ->patch(route('admin.rooms.status', $room))
-            ->assertSessionHasNoErrors();
-
-        $this->assertFalse($room->fresh()->is_active);
     }
 
     public function test_room_used_by_schedule_cannot_be_deleted(): void

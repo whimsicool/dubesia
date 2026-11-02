@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\Schedule;
 use App\Models\Semester;
 use App\Models\User;
-use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Constants\UnitValue;
 use Illuminate\Support\Carbon;
 use Illuminate\Http\Request;
@@ -94,7 +93,7 @@ class ScheduleViewController extends Controller
             return $day;
         })->all();
 
-        return Pdf::loadView('pdf.schedules', [
+        return app('dompdf.wrapper')->loadView('pdf.schedules', [
             'title' => 'Jadwal Belajar',
             'user' => $user,
             'semester' => $semester,
@@ -136,11 +135,12 @@ class ScheduleViewController extends Controller
             ]),
         ];
 
+        /** @var \Illuminate\Database\Eloquent\Builder<Schedule> $query */
         $query = clone $baseQuery;
         $this->applyFilters($query, $filters);
         $schedules = $query->with(['program:id,name,category', 'instructor:id,name', 'room:id,name,type,platform,capacity', 'students:id'])
             ->orderBy('day_of_week')->orderBy('start_time')->get()
-            ->map(fn(Schedule $schedule) => $this->formatSchedule($schedule))->values();
+            ->map($this->formatSchedule(...))->values();
 
         return [$schedules, $options];
     }

@@ -70,7 +70,7 @@ const NAV = {
             heading: 'Kegiatan Mengajar',
             items: [
                 { label: 'Jadwal Mengajar', icon: CalendarDays, route: 'tutor.schedules.index', active: 'tutor.schedules.*' },
-                { label: 'Presensi Kelas', icon: ClipboardCheck, route: 'tutor.attendance.index', active: 'tutor.attendance.*' },
+                { label: 'Riwayat Presensi', icon: ClipboardCheck, route: 'tutor.attendance.index', active: 'tutor.attendance.*' },
                 { label: 'Materi Belajar', icon: BookOpen, route: 'tutor.materials.index', active: 'tutor.materials.*' },
             ],
         },

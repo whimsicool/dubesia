@@ -14,8 +14,8 @@ class RoomRequest extends FormRequest
     }
 
     /**
-     * Formulir hanya punya satu isian "Lokasi / Platform". Ruang online menyimpan
-     * isian itu ke kolom `platform`, ruang fisik/lab ke kolom `location`.
+     * Formulir hanya punya satu isian "Nama ruangan / platform". Nama ruangan disimpan
+     * apa adanya; untuk ruang online nama itu juga menjadi nilai kolom `platform`.
      */
     public function storageAttributes(): array
     {
@@ -26,8 +26,8 @@ class RoomRequest extends FormRequest
             'name' => $data['name'],
             'type' => $data['type'],
             'capacity' => $data['capacity'],
-            'location' => $isOnline ? null : $data['location'],
-            'platform' => $isOnline ? $data['location'] : null,
+            'location' => $isOnline ? null : ($data['location'] ?? null),
+            'platform' => $isOnline ? $data['name'] : null,
         ];
     }
 
@@ -40,7 +40,7 @@ class RoomRequest extends FormRequest
             'name' => ['required', 'string', 'max:100', Rule::unique('rooms', 'name')->ignore($this->route('room'))],
             'type' => ['required', Rule::enum(RoomType::class)],
             'capacity' => ['required', 'integer', 'min:1', 'max:1000'],
-            'location' => ['required', 'string', $isOnline ? 'max:50' : 'max:150'],
+            'location' => ['nullable', 'string', 'max:150'],
         ];
     }
 
@@ -56,7 +56,6 @@ class RoomRequest extends FormRequest
             'capacity.integer' => 'Kapasitas harus berupa angka.',
             'capacity.min' => 'Kapasitas minimal 1 peserta.',
             'capacity.max' => 'Kapasitas maksimal 1000 peserta.',
-            'location.required' => 'Lokasi atau platform wajib diisi.',
             'location.max' => 'Nama lokasi atau platform terlalu panjang.',
         ];
     }

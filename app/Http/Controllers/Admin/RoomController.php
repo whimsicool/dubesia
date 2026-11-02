@@ -14,7 +14,7 @@ use Inertia\Response;
 
 class RoomController extends Controller
 {
-    /** Halaman Kelola Ruangan: statistik ringkas, filter, dan tabel ruang / platform. */
+    /** Halaman Kelola Ruangan: filter dan tabel ruang / platform. */
     public function index(Request $request): Response
     {
         $search = trim((string) $request->query('q', ''));
@@ -64,12 +64,6 @@ class RoomController extends Controller
                 'status' => in_array($status, ['active', 'inactive'], true) ? $status : null,
                 'sort' => $request->query('sort', 'newest'),
             ],
-            'stats' => [
-                'total' => Room::count(),
-                'physical_lab' => Room::whereIn('type', [RoomType::Physical, RoomType::Lab])->where('is_active', true)->count(),
-                'online' => Room::where('type', RoomType::Online)->where('is_active', true)->count(),
-                'inactive' => Room::where('is_active', false)->count(),
-            ],
             'options' => [
                 'types' => RoomType::options(),
             ],
@@ -96,18 +90,6 @@ class RoomController extends Controller
         ]);
     }
 
-    public function toggleStatus(Room $room): RedirectResponse
-    {
-        $room->update(['is_active' => ! $room->is_active]);
-
-        return back()->with('success', [
-            'title' => $room->is_active ? 'Ruangan Diaktifkan' : 'Ruangan Dinonaktifkan',
-            'message' => $room->is_active
-                ? sprintf('Ruangan "%s" kembali muncul di pilihan jadwal.', $room->name)
-                : sprintf('Ruangan "%s" tidak lagi muncul di pilihan jadwal.', $room->name),
-        ]);
-    }
-
     public function destroy(Room $room): RedirectResponse
     {
         $schedules = $room->schedules()->count();
@@ -116,7 +98,7 @@ class RoomController extends Controller
             return back()->with('error', [
                 'title' => 'Ruangan Tidak Dapat Dihapus',
                 'message' => sprintf(
-                    'Ruangan "%s" dipakai oleh %d jadwal. Nonaktifkan ruangan ini agar tidak muncul di pilihan jadwal.',
+                    'Ruangan "%s" dipakai oleh %d jadwal. Pindahkan jadwal ke ruangan lain terlebih dahulu.',
                     $room->name, $schedules
                 ),
             ]);

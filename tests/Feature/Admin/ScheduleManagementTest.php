@@ -71,7 +71,6 @@ class ScheduleManagementTest extends TestCase
             'scheduled_date' => $this->scheduledDate(),
             'start_time' => '08:30',
             'end_time' => '10:00',
-            'student_ids' => [],
         ], $override);
     }
 
@@ -150,10 +149,11 @@ class ScheduleManagementTest extends TestCase
         $this->mirrorStudent($newStudent, '0001', Student::STATUS_PENDING);
         $active = $this->student('Murid Aktif');
 
+        // Daftar peserta diambil dari anggota kelas, bukan lagi dari formulir jadwal.
+        $this->courseClass->students()->attach([$newStudent->id, $active->id]);
+
         $this->actingAs($this->admin())
-            ->post(route('admin.schedules.store'), $this->payload([
-                'student_ids' => [$newStudent->id, $active->id],
-            ]))
+            ->post(route('admin.schedules.store'), $this->payload())
             ->assertSessionHasNoErrors()
             ->assertSessionHas('success');
 
@@ -221,16 +221,20 @@ class ScheduleManagementTest extends TestCase
         $student = $this->student('Murid Terdaftar');
         $this->makeSchedule()->students()->attach($this->mirrorStudent($student, '0001')->id);
 
+        $otherClass = CourseClass::create(['name' => 'Kelas Lain', 'capacity' => 15, 'is_active' => true]);
+        $otherClass->students()->attach($student->id);
         $otherRoom = Room::create(['name' => 'Hall B', 'type' => 'physical', 'capacity' => 20]);
         $otherTutor = User::factory()->create(['role' => User::ROLE_TUTOR, 'name' => 'Siti Aisyah']);
 
         $this->actingAs($this->admin())
             ->post(route('admin.schedules.store'), $this->payload([
+                'class_id' => $otherClass->id,
                 'room_id' => $otherRoom->id,
                 'tutor_id' => $otherTutor->id,
-                'student_ids' => [$student->id],
             ]))
-            ->assertSessionHasErrors('student_ids');
+            ->assertSessionHasErrors('class_id');
+
+        $this->assertDatabaseCount('schedules', 1);
     }
 
     public function test_back_to_back_sessions_are_not_a_conflict(): void
@@ -249,16 +253,20 @@ class ScheduleManagementTest extends TestCase
         $small = Room::create(['name' => 'Kecil', 'type' => 'physical', 'capacity' => 1]);
         $a = $this->student('Murid A');
         $b = $this->student('Murid B');
+        $this->courseClass->students()->attach([$a->id, $b->id]);
 
+        // Dua murid kelas tidak muat di ruang berkapasitas satu.
         $this->actingAs($this->admin())
-            ->post(route('admin.schedules.store'), $this->payload(['room_id' => $small->id, 'student_ids' => [$a->id, $b->id]]))
-            ->assertSessionHasErrors('student_ids');
+            ->post(route('admin.schedules.store'), $this->payload(['room_id' => $small->id]))
+            ->assertSessionHasErrors('class_id');
 
         $smallClass = CourseClass::create(['name' => 'Kelas Kecil', 'capacity' => 1, 'is_active' => true]);
+        $smallClass->students()->attach([$a->id, $b->id]);
 
+        // Dua anggota kelas melebihi kapasitas kelas itu sendiri.
         $this->actingAs($this->admin())
-            ->post(route('admin.schedules.store'), $this->payload(['class_id' => $smallClass->id, 'student_ids' => [$a->id, $b->id]]))
-            ->assertSessionHasErrors('student_ids');
+            ->post(route('admin.schedules.store'), $this->payload(['class_id' => $smallClass->id]))
+            ->assertSessionHasErrors('class_id');
     }
 
     public function test_update_does_not_conflict_with_itself_and_uses_the_selected_class(): void

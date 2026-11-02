@@ -69,7 +69,7 @@ function Shell({ children, editMode = false }) {
           crossOrigin="anonymous"
         />
         <link
-          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&display=swap"
           rel="stylesheet"
         />
       </Head>
@@ -184,7 +184,9 @@ export default function Create({
     asal_institusi: pendaftaran?.asal_institusi ?? '',
     alamat: pendaftaran?.alamat ?? '',
     pesan_motivasi: pendaftaran?.pesan_motivasi ?? '',
-    program: pendaftaran?.program ?? programs[0]?.value ?? '',
+    program: programs.some((item) => item.value === pendaftaran?.program)
+      ? pendaftaran.program
+      : programs[0]?.value ?? '',
     bukti_pembayaran: null,
     setuju: editMode,
   });

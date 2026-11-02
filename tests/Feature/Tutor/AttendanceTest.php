@@ -4,7 +4,6 @@ namespace Tests\Feature\Tutor;
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
 
 class AttendanceTest extends TestCase
@@ -30,21 +29,6 @@ class AttendanceTest extends TestCase
                 ['id' => $student->id, 'status' => $status, 'notes' => ''],
             ],
         ];
-    }
-
-    public function test_index_lists_students_of_the_selected_level(): void
-    {
-        $beginner = $this->student('Beginner');
-        $this->student('Upper Intermediate');
-
-        $this->actingAs($this->tutor())
-            ->get(route('tutor.attendance.index', ['level' => 'Beginner']))
-            ->assertOk()
-            ->assertInertia(fn (Assert $page) => $page
-                ->component('Tutor/Attendance/Index')
-                ->has('students', 1)
-                ->where('students.0.id', $beginner->id)
-            );
     }
 
     public function test_tutor_saves_attendance_for_a_class_level(): void

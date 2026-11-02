@@ -1,6 +1,6 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from '@inertiajs/react';
-import { Search, TriangleAlert } from 'lucide-react';
+import { TriangleAlert } from 'lucide-react';
 import Modal from '@/Components/Admin/Modal';
 const BLANK = {
     class_id: '',
@@ -10,7 +10,6 @@ const BLANK = {
     start_time: '08:00',
     end_time: '09:30',
     notes: '',
-    student_ids: [],
 };
 
 const inputClass =
@@ -26,92 +25,12 @@ function Field({ label, error, children, className = '' }) {
     );
 }
 
-function StudentPicker({ students, selected, onChange, capacity, error, hint, emptyHint }) {
-    const [query, setQuery] = useState('');
-
-    const filtered = useMemo(() => {
-        const q = query.trim().toLowerCase();
-        if (!q) return students;
-        return students.filter(
-            (student) =>
-                student.name.toLowerCase().includes(q) ||
-                (student.email ?? '').toLowerCase().includes(q) ||
-                (student.nip ?? '').toLowerCase().includes(q),
-        );
-    }, [students, query]);
-
-    const toggle = (id) => onChange(selected.includes(id) ? selected.filter((x) => x !== id) : [...selected, id]);
-    const selectAllShown = () => onChange([...new Set([...selected, ...filtered.map((s) => s.id)])]);
-    const over = capacity != null && selected.length > capacity;
-
-    return (
-        <div>
-            <div className="mb-1 flex items-center justify-between">
-                <label className="text-xs font-semibold text-slate-700">Peserta (murid kelas)</label>
-                <span className={`text-xs font-semibold ${over ? 'text-red-700' : 'text-slate-500'}`}>
-                    {selected.length}
-                    {capacity != null && ` / ${capacity}`} dipilih
-                </span>
-            </div>
-
-            {hint && <p className="mb-1 text-xs text-amber-700">{hint}</p>}
-
-            <div className="rounded-xl border border-slate-200">
-                <div className="flex items-center gap-2 border-b border-slate-100 px-3 py-2">
-                    <Search className="h-4 w-4 text-slate-400" />
-                    <input
-                        type="text"
-                        value={query}
-                        onChange={(e) => setQuery(e.target.value)}
-                        placeholder="Cari nama, email, atau NISN…"
-                        className="w-full border-0 p-0 text-sm placeholder:text-slate-400 focus:ring-0"
-                    />
-                    <button type="button" onClick={selectAllShown} className="shrink-0 text-xs font-semibold text-slate-700 hover:underline">
-                        Pilih semua
-                    </button>
-                    <button type="button" onClick={() => onChange([])} className="shrink-0 text-xs font-semibold text-red-700 hover:underline">
-                        Kosongkan
-                    </button>
-                </div>
-
-                <ul className="max-h-48 divide-y divide-slate-50 overflow-y-auto">
-                    {filtered.length === 0 && (
-                        <li className="px-3 py-4 text-center text-xs text-slate-400">{emptyHint ?? 'Murid tidak ditemukan.'}</li>
-                    )}
-                    {filtered.map((student) => (
-                        <li key={student.id}>
-                            <label className="flex cursor-pointer items-center gap-3 px-3 py-2 hover:bg-slate-50">
-                                <input
-                                    type="checkbox"
-                                    checked={selected.includes(student.id)}
-                                    onChange={() => toggle(student.id)}
-                                    className="rounded border-slate-300 text-slate-900 focus:ring-slate-900"
-                                />
-                                <span className="min-w-0 flex-1">
-                                    <span className="block truncate text-sm text-slate-800">{student.name}</span>
-                                    <span className="block truncate text-xs text-slate-400">
-                                        {student.nip ? `NISN ${student.nip}` : student.email}
-                                    </span>
-                                </span>
-                            </label>
-                        </li>
-                    ))}
-                </ul>
-            </div>
-            {error && <p className="mt-1 text-xs text-red-700">{error}</p>}
-        </div>
-    );
-}
-
 export default function ScheduleFormModal({ open, onClose, schedule, options, defaultDate, semester }) {
     const isEdit = !!schedule;
     const { data, setData, post, put, processing, errors, clearErrors } = useForm(BLANK);
     const [liveConflicts, setLiveConflicts] = useState([]);
 
     const selectedClass = options.classes.find((item) => String(item.id) === String(data.class_id));
-    const rosterStudents = options.students.filter((student) => (selectedClass?.student_ids ?? []).includes(student.id));
-    const usesWholeList = !!selectedClass && rosterStudents.length === 0;
-    const pickerStudents = selectedClass ? (usesWholeList ? options.students : rosterStudents) : [];
 
     // Isi ulang form setiap kali modal dibuka / jadwal yang diedit berganti.
     useEffect(() => {
@@ -129,7 +48,6 @@ export default function ScheduleFormModal({ open, onClose, schedule, options, de
                       start_time: schedule.start_time,
                       end_time: schedule.end_time,
                       notes: schedule.notes ?? '',
-                      student_ids: schedule.student_user_ids ?? [],
                   }
                 : { ...BLANK, scheduled_date: defaultDate ?? '' },
         );
@@ -141,7 +59,7 @@ export default function ScheduleFormModal({ open, onClose, schedule, options, de
         if (!open) return undefined;
 
         const validTime = data.scheduled_date && data.start_time && data.end_time && data.end_time > data.start_time;
-        const hasSubject = data.tutor_id || data.room_id || data.student_ids.length > 0;
+        const hasSubject = data.tutor_id || data.room_id || data.class_id;
 
         if (!validTime || !hasSubject) {
             setLiveConflicts([]);
@@ -159,7 +77,7 @@ export default function ScheduleFormModal({ open, onClose, schedule, options, de
                         end_time: data.end_time,
                         tutor_id: data.tutor_id || null,
                         room_id: data.room_id || null,
-                        student_ids: data.student_ids,
+                        class_id: data.class_id || null,
                         ignore_id: schedule?.id ?? null,
                     },
                     { signal: controller.signal },
@@ -172,7 +90,7 @@ export default function ScheduleFormModal({ open, onClose, schedule, options, de
             clearTimeout(timer);
             controller.abort();
         };
-    }, [open, data.scheduled_date, data.start_time, data.end_time, data.tutor_id, data.room_id, data.student_ids, schedule?.id]);
+    }, [open, data.scheduled_date, data.start_time, data.end_time, data.tutor_id, data.room_id, data.class_id, schedule?.id]);
 
     const selectedRoom = options.rooms.find((r) => String(r.id) === String(data.room_id));
 
@@ -184,7 +102,6 @@ export default function ScheduleFormModal({ open, onClose, schedule, options, de
             ...data,
             class_id: classId,
             tutor_id: courseClass?.tutor ? String(courseClass.tutor.id) : data.tutor_id,
-            student_ids: courseClass ? courseClass.student_ids : [],
         });
     };
 
@@ -235,9 +152,7 @@ export default function ScheduleFormModal({ open, onClose, schedule, options, de
                             <option value="">Pilih ruang…</option>
                             {options.rooms.map((room) => (
                                 <option key={room.id} value={room.id}>
-                                    {room.name} — {room.type === 'online'
-                                        ? `Online${room.platform ? ` (${room.platform})` : ''}`
-                                        : room.location ?? 'Tatap muka'}, kap. {room.capacity}
+                                    {room.type === 'online' ? `Ruang ${room.name} — Online${room.platform ? ` (${room.platform})` : ''}` : `Ruang Kelas ${room.name}`}, kap. {room.capacity}
                                 </option>
                             ))}
                         </select>
@@ -262,15 +177,11 @@ export default function ScheduleFormModal({ open, onClose, schedule, options, de
                     </Field>
                 </div>
 
-                <StudentPicker
-                    students={pickerStudents}
-                    selected={data.student_ids}
-                    onChange={(ids) => setData('student_ids', ids)}
-                    capacity={selectedRoom?.capacity}
-                    error={errors.student_ids}
-                    emptyHint={selectedClass ? 'Tidak ada murid yang cocok.' : 'Pilih kelas terlebih dahulu.'}
-                    hint={usesWholeList ? 'Kelas ini belum punya murid. Semua murid ditampilkan; atur anggota kelas di Kelola Kelas.' : undefined}
-                />
+                <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600">
+                    {selectedClass
+                        ? `${selectedClass.students_count ?? 0} murid terdaftar akan otomatis mengikuti jadwal ini. Atur anggota melalui menu Kelola Kelas.`
+                        : 'Pilih kelas untuk menggunakan daftar murid yang sudah diatur di Kelola Kelas.'}
+                </div>
 
                 <Field label="Catatan (opsional)" error={errors.notes}>
                     <textarea

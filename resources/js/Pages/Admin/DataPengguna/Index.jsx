@@ -1,4 +1,5 @@
 import AdminLayout from '@/Layouts/AdminLayout';
+import PageBreadcrumbs from '@/Components/Admin/PageBreadcrumbs';
 import { Head, Link, router, useForm, usePage } from '@inertiajs/react';
 import { useEffect, useRef, useState } from 'react';
 
@@ -201,6 +202,13 @@ export default function Index({ users, filters, stats }) {
             {/* ── Page Header ── */}
             <div className="kdp-header">
                 <div>
+                    <PageBreadcrumbs
+                        className="mb-2"
+                        items={[
+                            { label: 'Dashboard Admin', route: 'admin.dashboard' },
+                            { label: 'Data Murid & Tutor', current: true, route: 'admin.data-pengguna.index' },
+                        ]}
+                    />
                     <h1 className="kdp-header__title">Kelola Data Pengguna (Murid & Tutor)</h1>
                     <p className="kdp-header__desc">
                         Kelola basis data akun, penerbitan kredensial akses, hak peran pengajar dan siswa di portal akademik DUBESIA.

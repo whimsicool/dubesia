@@ -59,16 +59,20 @@ export default function RoomFormModal({ open, onClose, room, types }) {
             open={open}
             onClose={onClose}
             title={isEdit ? 'Ubah Data Ruangan' : 'Tambah Ruangan Baru'}
-            description="Isi nama, jenis, lokasi, dan kapasitas. Ruang online memakai platform (mis. Zoom) sebagai ganti lokasi."
+            description="Masukkan nama ruangan atau platform sesuai kebutuhan."
         >
             <form onSubmit={submit} className="space-y-4">
-                <Field label="Nama ruangan / platform" error={errors.name}>
+                <Field
+                    label="Nama ruangan / platform"
+                    hint={isOnline(data.type) ? 'Contoh: Zoom atau Google Meet.' : 'Admin dapat memasukkan nomor atau nama ruang sesuai kebutuhan.'}
+                    error={errors.name}
+                >
                     <input
                         type="text"
                         value={data.name}
                         onChange={(event) => setData('name', event.target.value)}
-                        placeholder="Diplomatic Hall A"
                         className={inputClass}
+                        placeholder={isOnline(data.type) ? 'Zoom' : 'Ruang 1'}
                         autoFocus
                     />
                 </Field>
@@ -101,19 +105,21 @@ export default function RoomFormModal({ open, onClose, room, types }) {
                     </Field>
                 </div>
 
-                <Field
-                    label={isOnline(data.type) ? 'Platform' : 'Lokasi'}
-                    hint={isOnline(data.type) ? 'Nama platform daring, mis. Zoom atau Google Meet.' : 'Gedung, lantai, atau alamat ruangan.'}
-                    error={errors.location}
-                >
-                    <input
-                        type="text"
-                        value={data.location}
-                        onChange={(event) => setData('location', event.target.value)}
-                        placeholder={isOnline(data.type) ? 'Zoom' : 'Gedung Utama, Lantai 2'}
-                        className={inputClass}
-                    />
-                </Field>
+                {!isOnline(data.type) && (
+                    <Field
+                        label="Lokasi ruang (opsional)"
+                        hint="Keterangan gedung atau lantai untuk ruang kelas."
+                        error={errors.location}
+                    >
+                        <input
+                            type="text"
+                            value={data.location}
+                            onChange={(event) => setData('location', event.target.value)}
+                            placeholder="Gedung Utama, Lantai 2"
+                            className={inputClass}
+                        />
+                    </Field>
+                )}
 
                 <div className="flex justify-end gap-2 border-t border-slate-100 pt-4">
                     <button

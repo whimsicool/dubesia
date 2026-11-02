@@ -6,6 +6,8 @@ use App\Enums\ClassLevel;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\ClassRequest;
 use App\Models\CourseClass;
+use App\Models\Schedule;
+use App\Models\Student;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
@@ -83,14 +85,6 @@ class ClassController extends Controller
                 'status' => in_array($status, ['active', 'inactive'], true) ? $status : null,
                 'sort' => $request->query('sort', 'newest'),
             ],
-            'stats' => [
-                'total' => CourseClass::count(),
-                'active' => CourseClass::where('is_active', true)->count(),
-                'inactive' => CourseClass::where('is_active', false)->count(),
-                'students' => User::where('role', User::ROLE_STUDENT)
-                    ->whereHas('enrolledClasses', fn (Builder $query) => $query->where('is_active', true))
-                    ->count(),
-            ],
             'options' => [
                 'levels' => ClassLevel::options(),
                 'tutors' => User::where('role', User::ROLE_TUTOR)->orderBy('name')->get(['id', 'name'])
@@ -163,6 +157,7 @@ class ClassController extends Controller
         }
 
         $courseClass->students()->sync($studentIds);
+        $this->syncScheduleRosters($courseClass);
 
         return back()->with('success', [
             'title' => 'Murid Kelas Diperbarui',
@@ -170,16 +165,20 @@ class ClassController extends Controller
         ]);
     }
 
-    public function toggleStatus(CourseClass $courseClass): RedirectResponse
+    /** Perubahan anggota kelas langsung memperbarui daftar peserta pada semua jadwal kelas. */
+    private function syncScheduleRosters(CourseClass $courseClass): void
     {
-        $courseClass->update(['is_active' => ! $courseClass->is_active]);
+        $users = User::whereIn('id', $courseClass->students()->pluck('users.id'))->get(['id', 'name', 'email', 'nip']);
+        $studentIds = $users->map(function (User $user): int {
+            $student = Student::firstOrCreate(
+                ['user_id' => $user->id],
+                ['nisn' => $user->nip && ! Student::where('nisn', $user->nip)->exists() ? $user->nip : 'USR-'.$user->id,
+                    'name' => $user->name, 'email' => $user->email, 'status' => Student::STATUS_ACTIVE],
+            );
+            return $student->id;
+        })->all();
 
-        return back()->with('success', [
-            'title' => $courseClass->is_active ? 'Kelas Diaktifkan' : 'Kelas Dinonaktifkan',
-            'message' => $courseClass->is_active
-                ? sprintf('Kelas "%s" kembali dapat dijadwalkan.', $courseClass->name)
-                : sprintf('Kelas "%s" dipindahkan ke arsip dan tidak muncul di pilihan jadwal.', $courseClass->name),
-        ]);
+        $courseClass->schedules()->each(fn (Schedule $schedule) => $schedule->students()->sync($studentIds));
     }
 
     public function destroy(CourseClass $courseClass): RedirectResponse
@@ -194,7 +193,7 @@ class ClassController extends Controller
             return back()->with('error', [
                 'title' => 'Kelas Tidak Dapat Dihapus',
                 'message' => sprintf(
-                    'Kelas "%s" masih terhubung dengan %d murid, %d jadwal, dan %d komponen nilai. Nonaktifkan kelas ini sebagai gantinya.',
+                    'Kelas "%s" masih terhubung dengan %d murid, %d jadwal, dan %d komponen nilai. Lepaskan relasi murid, jadwal, dan komponen nilainya terlebih dahulu.',
                     $courseClass->name, $students, $schedules, $grades
                 ),
             ]);

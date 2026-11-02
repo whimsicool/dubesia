@@ -148,7 +148,7 @@ class DashboardController extends Controller
                             ->map(fn (Pendaftaran $pendaftaran): array => $this->panelItem(
                                 $pendaftaran->id,
                                 $pendaftaran->nama_lengkap,
-                                (Pendaftaran::PROGRAMS[$pendaftaran->program] ?? $pendaftaran->program).' · '.$pendaftaran->created_at->format('d M Y'),
+                                Pendaftaran::labelProgram($pendaftaran->program).' · '.$pendaftaran->created_at->format('d M Y'),
                                 $pendaftaran->resubmitted_at ? 'Perbaikan' : null,
                                 $pendaftaran->resubmitted_at ? 'attention' : 'neutral',
                                 route('admin.calon-murid.show', $pendaftaran->id, absolute: false),
@@ -252,7 +252,7 @@ class DashboardController extends Controller
             ),
             'agenda' => $this->scheduleAgenda('Jadwal Mengajar', $schedules),
             'actions' => [
-                $this->action('Presensi Kelas', route('tutor.attendance.index', absolute: false), 'clipboard-check'),
+                $this->action('Riwayat Presensi', route('tutor.attendance.index', absolute: false), 'clipboard-check'),
                 $this->action('Jadwal Mengajar', route('tutor.schedules.index', absolute: false), 'calendar-days'),
                 $this->action('Materi Belajar', route('tutor.materials.index', absolute: false), 'book-open'),
                 $this->action('Kelas Saya', route('tutor.classes.index', absolute: false), 'layout-grid'),

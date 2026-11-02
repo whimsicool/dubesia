@@ -72,7 +72,7 @@ class ClassManagementTest extends TestCase
         $this->actingAs($student)->post(route('admin.classes.store'), $this->payload($student))->assertForbidden();
     }
 
-    public function test_admin_sees_classes_with_stats_and_options(): void
+    public function test_admin_sees_classes_and_options(): void
     {
         $tutor = $this->tutor();
         $this->courseClass($tutor);
@@ -86,8 +86,6 @@ class ClassManagementTest extends TestCase
                 ->where('classes.data.0.name', 'Batch Lama')
                 ->where('classes.data.0.level', ClassLevel::A1->value)
                 ->where('classes.data.0.tutor.name', $tutor->name)
-                ->where('stats.total', 1)
-                ->where('stats.active', 1)
                 ->has('options.levels', 6)
                 ->has('options.tutors', 1)
             );
@@ -206,17 +204,6 @@ class ClassManagementTest extends TestCase
         $this->actingAs($this->admin())
             ->put(route('admin.classes.students', $courseClass), ['student_ids' => [$tutor->id]])
             ->assertSessionHasErrors('student_ids.0');
-    }
-
-    public function test_admin_can_toggle_class_status(): void
-    {
-        $courseClass = $this->courseClass($this->tutor());
-
-        $this->actingAs($this->admin())
-            ->patch(route('admin.classes.status', $courseClass))
-            ->assertSessionHasNoErrors();
-
-        $this->assertFalse($courseClass->fresh()->is_active);
     }
 
     public function test_class_with_members_cannot_be_deleted(): void

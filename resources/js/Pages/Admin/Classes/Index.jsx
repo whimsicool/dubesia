@@ -1,11 +1,10 @@
 import { useRef, useState } from 'react';
-import { Head, router, usePage } from '@inertiajs/react';
-import { CalendarDays, CirclePlus, EyeOff, Pencil, Power, Search, Trash2, UserPlus, Users } from 'lucide-react';
+import { Head, usePage } from '@inertiajs/react';
+import { CalendarDays, CirclePlus, Pencil, Search, Trash2, UserPlus } from 'lucide-react';
 import AdminLayout from '@/Layouts/AdminLayout';
 import FlashBanner from '@/Components/Common/FlashBanner';
 import PageHeader from '@/Components/Admin/PageHeader';
 import Pagination from '@/Components/Common/Pagination';
-import StatCard from '@/Components/Admin/StatCard';
 import ClassFormModal from '@/Components/Classes/ClassFormModal';
 import ClassStudentsModal from '@/Components/Classes/ClassStudentsModal';
 import DeleteClassModal from '@/Components/Classes/DeleteClassModal';
@@ -22,7 +21,7 @@ const LEVEL_STYLES = {
 
 const selectClass = 'rounded-lg border-slate-200 text-sm text-slate-700 focus:border-slate-900 focus:ring-slate-900';
 
-export default function Index({ classes, filters, stats, options }) {
+export default function Index({ classes, filters, options }) {
     const { flash } = usePage().props;
 
     const [search, setSearch] = useState(filters.q ?? '');
@@ -50,10 +49,6 @@ export default function Index({ classes, filters, stats, options }) {
         searchTimer.current = setTimeout(() => apply({ q: value }), 400);
     };
 
-    const toggleStatus = (courseClass) => {
-        router.patch(route('admin.classes.status', courseClass.id), {}, { preserveScroll: true });
-    };
-
     return (
         <AdminLayout>
             <Head title="Kelola Kelas" />
@@ -64,8 +59,7 @@ export default function Index({ classes, filters, stats, options }) {
             <PageHeader
                 breadcrumbs={[
                     { label: 'Dashboard Admin', route: 'admin.dashboard' },
-                    { label: 'Data Akademik' },
-                    { label: 'Kelola Kelas' },
+                    { label: 'Kelola Kelas', current: true, route: 'admin.classes.index' },
                 ]}
                 title="Pengelolaan Kelas"
                 description="Kelola data kelas — nama, level, deskripsi, dan tutor — serta atur murid yang tergabung di setiap kelas."
@@ -83,17 +77,6 @@ export default function Index({ classes, filters, stats, options }) {
                     </button>
                 }
             />
-
-            <div className="mb-5 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-                <StatCard label="Total Kelas" value={stats.total} icon={Users} />
-                <StatCard label="Kelas Aktif" value={stats.active} icon={Power} />
-                <StatCard label="Kelas Nonaktif" value={stats.inactive} icon={EyeOff} />
-                <StatCard
-                    label="Murid Tergabung"
-                    value={stats.students}
-                    icon={UserPlus}
-                />
-            </div>
 
             <div className="mb-5 flex flex-wrap items-center gap-3 rounded-2xl border border-slate-100 bg-white p-4 shadow-sm">
                 <div className="relative min-w-[240px] flex-1">
@@ -273,18 +256,6 @@ export default function Index({ classes, filters, stats, options }) {
                                                     aria-label={`Ubah kelas ${courseClass.name}`}
                                                 >
                                                     <Pencil className="h-4 w-4" />
-                                                </button>
-                                                <button
-                                                    type="button"
-                                                    onClick={() => toggleStatus(courseClass)}
-                                                    className="rounded-lg p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-900"
-                                                    aria-label={
-                                                        courseClass.is_active
-                                                            ? `Nonaktifkan kelas ${courseClass.name}`
-                                                            : `Aktifkan kelas ${courseClass.name}`
-                                                    }
-                                                >
-                                                    <Power className="h-4 w-4" />
                                                 </button>
                                                 <button
                                                     type="button"

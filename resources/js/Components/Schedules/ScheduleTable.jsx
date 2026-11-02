@@ -1,8 +1,8 @@
-import { Pencil, Trash2 } from 'lucide-react';
+import { ClipboardCheck, Pencil, Trash2 } from 'lucide-react';
 import RoomIcon from './RoomIcon';
 import { CATEGORY_STYLES, DAY_NAMES, formatDate } from './constants';
 
-export default function ScheduleTable({ schedules, onEdit, onDelete, readOnly = false }) {
+export default function ScheduleTable({ schedules, week, onEdit, onDelete, onAttendance, attendanceLabel = 'Isi presensi', readOnly = false }) {
     if (schedules.length === 0) {
         return (
             <div className="rounded-2xl border border-slate-100 bg-white p-12 text-center text-sm text-slate-500 shadow-sm">
@@ -22,7 +22,7 @@ export default function ScheduleTable({ schedules, onEdit, onDelete, readOnly = 
                         <th className="px-4 py-3">Instruktur</th>
                         <th className="px-4 py-3">Ruang / Platform</th>
                         <th className="px-4 py-3 text-right">Peserta</th>
-                        {!readOnly && <th className="px-4 py-3 text-right print:hidden">Aksi</th>}
+                        {(!readOnly || onAttendance) && <th className="px-4 py-3 text-right print:hidden">Aksi</th>}
                     </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
@@ -40,9 +40,10 @@ export default function ScheduleTable({ schedules, onEdit, onDelete, readOnly = 
                                 <td className="px-4 py-3">
                                     <p className="font-semibold text-slate-900">{s.title}</p>
                                     <p className="text-xs text-slate-500">{s.class_name}</p>
+                                    {s.student_names?.length > 0 && <p className="mt-1 max-w-64 truncate text-xs text-slate-500" title={s.student_names.join(', ')}>Murid: {s.student_names.slice(0, 3).join(', ')}{s.student_names.length > 3 ? ` +${s.student_names.length - 3}` : ''}</p>}
                                 </td>
                                 <td className="px-4 py-3">
-                                    <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${style.badge}`}>{s.program?.name ?? '—'}</span>
+                                    <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${style.badge}`}>{s.program?.name ?? 'â€”'}</span>
                                 </td>
                                 <td className="px-4 py-3">
                                     <span className="flex items-center gap-2">
@@ -61,24 +62,13 @@ export default function ScheduleTable({ schedules, onEdit, onDelete, readOnly = 
                                 <td className="whitespace-nowrap px-4 py-3 text-right text-slate-700">
                                     {s.participants} <span className="text-slate-400">/ {s.room.capacity}</span>
                                 </td>
-                                {!readOnly && (
+                                {(!readOnly || onAttendance) && (
                                     <td className="whitespace-nowrap px-4 py-3 text-right print:hidden">
-                                        <button
-                                            type="button"
-                                            onClick={() => onEdit(s)}
-                                            className="rounded-lg p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-900"
-                                            aria-label={`Ubah jadwal ${s.title}`}
-                                        >
-                                            <Pencil className="h-4 w-4" />
-                                        </button>
-                                        <button
-                                            type="button"
-                                            onClick={() => onDelete(s)}
-                                            className="rounded-lg p-2 text-slate-500 hover:bg-red-50 hover:text-red-700"
-                                            aria-label={`Hapus jadwal ${s.title}`}
-                                        >
-                                            <Trash2 className="h-4 w-4" />
-                                        </button>
+                                        {onAttendance && <button type="button" onClick={() => onAttendance(s, s.scheduled_date ?? week.days.find((day) => day.day === s.day_of_week)?.date)} className="rounded-lg p-2 text-slate-500 hover:bg-emerald-50 hover:text-emerald-700" aria-label={`${attendanceLabel} ${s.title}`}><ClipboardCheck className="h-4 w-4" /></button>}
+                                        {!readOnly && <>
+                                            <button type="button" onClick={() => onEdit(s)} className="rounded-lg p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-900" aria-label={`Ubah jadwal ${s.title}`}><Pencil className="h-4 w-4" /></button>
+                                            <button type="button" onClick={() => onDelete(s)} className="rounded-lg p-2 text-slate-500 hover:bg-red-50 hover:text-red-700" aria-label={`Hapus jadwal ${s.title}`}><Trash2 className="h-4 w-4" /></button>
+                                        </>}
                                     </td>
                                 )}
                             </tr>

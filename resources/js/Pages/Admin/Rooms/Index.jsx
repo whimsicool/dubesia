@@ -1,11 +1,10 @@
 import { useRef, useState } from 'react';
-import { Head, router, usePage } from '@inertiajs/react';
-import { Building2, CirclePlus, EyeOff, LayoutGrid, Pencil, Power, Search, Trash2, Video } from 'lucide-react';
+import { Head, usePage } from '@inertiajs/react';
+import { CirclePlus, Pencil, Search, Trash2 } from 'lucide-react';
 import AdminLayout from '@/Layouts/AdminLayout';
 import FlashBanner from '@/Components/Common/FlashBanner';
 import PageHeader from '@/Components/Admin/PageHeader';
 import Pagination from '@/Components/Common/Pagination';
-import StatCard from '@/Components/Admin/StatCard';
 import RoomIcon from '@/Components/Schedules/RoomIcon';
 import RoomFormModal from '@/Components/Rooms/RoomFormModal';
 import DeleteRoomModal from '@/Components/Rooms/DeleteRoomModal';
@@ -13,13 +12,12 @@ import { visitFilters } from '@/Components/Admin/filters';
 
 const TYPE_STYLES = {
     physical: 'bg-slate-100 text-slate-700',
-    lab: 'bg-amber-50 text-amber-700',
     online: 'bg-red-50 text-red-700',
 };
 
 const selectClass = 'rounded-lg border-slate-200 text-sm text-slate-700 focus:border-slate-900 focus:ring-slate-900';
 
-export default function Index({ rooms, filters, stats, options }) {
+export default function Index({ rooms, filters, options }) {
     const { flash } = usePage().props;
 
     const [search, setSearch] = useState(filters.q ?? '');
@@ -45,10 +43,6 @@ export default function Index({ rooms, filters, stats, options }) {
         searchTimer.current = setTimeout(() => apply({ q: value }), 400);
     };
 
-    const toggleStatus = (room) => {
-        router.patch(route('admin.rooms.status', room.id), {}, { preserveScroll: true });
-    };
-
     return (
         <AdminLayout>
             <Head title="Kelola Ruang" />
@@ -59,11 +53,10 @@ export default function Index({ rooms, filters, stats, options }) {
             <PageHeader
                 breadcrumbs={[
                     { label: 'Dashboard Admin', route: 'admin.dashboard' },
-                    { label: 'Data Akademik' },
-                    { label: 'Kelola Ruang' },
+                    { label: 'Kelola Ruang', current: true, route: 'admin.rooms.index' },
                 ]}
                 title="Pengelolaan Ruang & Platform"
-                description="Kelola ruang kelas, laboratorium, dan platform online yang dipakai pada jadwal belajar — nama, jenis, lokasi, dan kapasitas."
+                description="Kelola ruang kelas dan platform online."
                 actions={
                     <button
                         type="button"
@@ -78,13 +71,6 @@ export default function Index({ rooms, filters, stats, options }) {
                     </button>
                 }
             />
-
-            <div className="mb-5 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-                <StatCard label="Total Ruangan" value={stats.total} icon={LayoutGrid} />
-                <StatCard label="Fisik & Lab Aktif" value={stats.physical_lab} icon={Building2} />
-                <StatCard label="Online Aktif" value={stats.online} icon={Video} />
-                <StatCard label="Nonaktif" value={stats.inactive} icon={EyeOff} />
-            </div>
 
             <div className="mb-5 flex flex-wrap items-center gap-3 rounded-2xl border border-slate-100 bg-white p-4 shadow-sm">
                 <div className="relative min-w-[240px] flex-1">
@@ -207,18 +193,6 @@ export default function Index({ rooms, filters, stats, options }) {
                                                 aria-label={`Ubah ruangan ${room.name}`}
                                             >
                                                 <Pencil className="h-4 w-4" />
-                                            </button>
-                                            <button
-                                                type="button"
-                                                onClick={() => toggleStatus(room)}
-                                                className="rounded-lg p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-900"
-                                                aria-label={
-                                                    room.is_active
-                                                        ? `Nonaktifkan ruangan ${room.name}`
-                                                        : `Aktifkan ruangan ${room.name}`
-                                                }
-                                            >
-                                                <Power className="h-4 w-4" />
                                             </button>
                                             <button
                                                 type="button"
