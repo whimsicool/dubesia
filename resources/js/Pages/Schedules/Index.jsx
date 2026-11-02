@@ -1,7 +1,7 @@
 
 import { useState } from 'react';
 import { Head, Link, router } from '@inertiajs/react';
-import { Printer, Download } from 'lucide-react';
+import { Download } from 'lucide-react';
 import AdminLayout from '@/Layouts/AdminLayout';
 import ScheduleFilters from '@/Components/Schedules/ScheduleFilters';
 import WeekCalendar from '@/Components/Schedules/WeekCalendar';
@@ -69,15 +69,6 @@ export default function Index({ semester, week, filters, schedules, options, aud
                 </div>
 
                 <div className="flex flex-wrap gap-2 print:hidden" data-html2canvas-ignore="true">
-                    <button
-                        type="button"
-                        onClick={() => window.print()}
-                        className="flex items-center gap-2 self-start rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 shadow-sm hover:bg-slate-50"
-                    >
-                        <Printer className="h-4 w-4" />
-                        Cetak Jadwal
-                    </button>
-
                     <a
                         href={pdfUrl}
                         className="flex items-center gap-2 self-start rounded-xl bg-red-800 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-red-700"
