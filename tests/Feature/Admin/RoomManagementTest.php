@@ -81,7 +81,7 @@ class RoomManagementTest extends TestCase
         $this->actingAs($student)->post(route('admin.rooms.store'), $this->payload())->assertForbidden();
     }
 
-    public function test_admin_sees_rooms_with_stats(): void
+    public function test_admin_sees_rooms_and_options(): void
     {
         $this->room(['name' => 'Diplomatic Hall A']);
         $this->room(['name' => 'Audiovisual Lab 2', 'type' => RoomType::Lab->value]);
@@ -93,10 +93,6 @@ class RoomManagementTest extends TestCase
             ->assertInertia(fn (Assert $page) => $page
                 ->component('Admin/Rooms/Index')
                 ->has('rooms.data', 3)
-                ->where('stats.total', 3)
-                ->where('stats.physical_lab', 2)
-                ->where('stats.online', 1)
-                ->where('stats.inactive', 0)
                 ->has('options.types', 3)
             );
     }
@@ -164,17 +160,6 @@ class RoomManagementTest extends TestCase
         $this->assertSame('Google Meet', $room->platform);
         $this->assertNull($room->location);
         $this->assertSame(100, $room->capacity);
-    }
-
-    public function test_admin_can_toggle_room_status(): void
-    {
-        $room = $this->room();
-
-        $this->actingAs($this->admin())
-            ->patch(route('admin.rooms.status', $room))
-            ->assertSessionHasNoErrors();
-
-        $this->assertFalse($room->fresh()->is_active);
     }
 
     public function test_room_used_by_schedule_cannot_be_deleted(): void

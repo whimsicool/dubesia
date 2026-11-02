@@ -16,6 +16,7 @@ import MonthCalendar from '@/Components/Schedules/MonthCalendar';
 import ScheduleTable from '@/Components/Schedules/ScheduleTable';
 import ScheduleFormModal from '@/Components/Schedules/ScheduleFormModal';
 import DeleteScheduleModal from '@/Components/Schedules/DeleteScheduleModal';
+import AttendanceModal from '@/Components/Schedules/AttendanceModal';
 import { cleanParams, formatWeekRange } from '@/Components/Schedules/constants';
 
 function ExportMenu({ exportUrl, pdfUrl }) {
@@ -82,6 +83,7 @@ export default function Index({ semester, week, filters, schedules, options }) {
     const [formOpen, setFormOpen] = useState(false);
     const [editing, setEditing] = useState(null);
     const [deleting, setDeleting] = useState(null);
+    const [attendance, setAttendance] = useState(null);
     const [defaultDate, setDefaultDate] = useState(week.start);
 
     const visit = (patch) => {
@@ -110,6 +112,8 @@ export default function Index({ semester, week, filters, schedules, options }) {
         setEditing(schedule);
         setFormOpen(true);
     };
+
+    const openAttendance = (schedule, date) => setAttendance({ schedule, date });
 
     const exportUrl = route(
         'admin.schedules.export',
@@ -140,7 +144,9 @@ export default function Index({ semester, week, filters, schedules, options }) {
                             Dashboard Admin
                         </Link>
                         <span>›</span>
-                        <span className="text-red-700">Kelola Jadwal Belajar</span>
+                        <Link href={route('admin.schedules.index')} className="text-red-700 hover:text-slate-900" aria-current="page">
+                            Kelola Jadwal Belajar
+                        </Link>
                     </nav>
 
                     <h1 className="mt-2 text-3xl font-extrabold tracking-tight text-slate-900">
@@ -201,6 +207,8 @@ export default function Index({ semester, week, filters, schedules, options }) {
                                 onNavigate={(date) => visit({ week: date })}
                                 onEdit={openEdit}
                                 onDelete={setDeleting}
+                                onAttendance={openAttendance}
+                                attendanceLabel="Lihat presensi"
                             />
                         ) : view === 'month' ? (
                             <MonthCalendar
@@ -211,12 +219,17 @@ export default function Index({ semester, week, filters, schedules, options }) {
                                 onNavigate={(date) => visit({ week: date })}
                                 onAdd={openCreate}
                                 onEdit={openEdit}
+                                onAttendance={openAttendance}
+                                attendanceLabel="Lihat presensi"
                             />
                         ) : (
                             <ScheduleTable
                                 schedules={schedules}
+                                week={week}
                                 onEdit={openEdit}
                                 onDelete={setDeleting}
+                                onAttendance={openAttendance}
+                                attendanceLabel="Lihat presensi"
                             />
                         )}
                     </div>
@@ -235,6 +248,13 @@ export default function Index({ semester, week, filters, schedules, options }) {
             <DeleteScheduleModal
                 schedule={deleting}
                 onClose={() => setDeleting(null)}
+            />
+
+            <AttendanceModal
+                audience="admin"
+                schedule={attendance?.schedule}
+                date={attendance?.date}
+                onClose={() => setAttendance(null)}
             />
         </AdminLayout>
     );

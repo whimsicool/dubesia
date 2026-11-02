@@ -1,11 +1,16 @@
 import AdminLayout from '@/Layouts/AdminLayout';
 import { Head, Link } from '@inertiajs/react';
+import PageBreadcrumbs from '@/Components/Admin/PageBreadcrumbs';
 
 export default function Index({ feedbackEntries }) {
     return (
         <AdminLayout title="Kritik & Saran Murid"
         >
             <Head title="Kritik dan Saran Murid" />
+            <PageBreadcrumbs className="mb-4" items={[
+                { label: 'Dashboard Admin', route: 'admin.dashboard' },
+                { label: 'Kotak Aspirasi Murid', current: true, route: 'admin.feedback.index' },
+            ]} />
 
             <div>
                     {feedbackEntries.data.length === 0 ? (

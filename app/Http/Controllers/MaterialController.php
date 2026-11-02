@@ -29,7 +29,39 @@ class MaterialController extends Controller
     public function index(Request $request): Response
     {
         $user = $request->user();
+        $filters = $this->resolveIndexFilters($request);
+        $active = $this->resolveActiveMaterial($request, $user);
 
+        $materials = $this->buildMaterialsQuery($user->id, $filters)
+            ->paginate(9)
+            ->withQueryString()
+            ->through(fn (Material $material) => MaterialResource::make($material)->resolve());
+
+        return Inertia::render('Materials/Index', [
+            'materials' => $materials,
+            'active' => $active ? MaterialResource::make($active)->withBody()->resolve() : null,
+            'filters' => [
+                'q' => $filters['q'] ?: null,
+                'type' => $filters['type']?->value,
+                'status' => $filters['status'],
+                'topic' => $filters['topic'],
+                'sort' => $filters['sort'],
+                'view' => $filters['view'],
+                'material' => $active?->id,
+            ],
+            'stats' => $this->stats($user->id),
+            'topics' => Material::published()->whereNotNull('topic')
+                ->select('topic', DB::raw('count(*) as total'))->groupBy('topic')->orderBy('topic')->get()
+                ->map(fn ($topic) => ['name' => $topic->topic, 'total' => (int) $topic->total]),
+            'types' => collect(MaterialType::cases())->map(fn (MaterialType $type) => ['value' => $type->value, 'label' => $type->label()]),
+        ]);
+    }
+
+    /**
+     * @return array{q: string, type: ?MaterialType, status: ?string, topic: ?string, sort: string, view: string}
+     */
+    private function resolveIndexFilters(Request $request): array
+    {
         $q = trim((string) $request->query('q', ''));
         $type = MaterialType::tryFrom((string) $request->query('type'));
         $status = in_array($request->query('status'), ['unopened', 'learning', 'completed'], true) ? $request->query('status') : null;
@@ -37,25 +69,52 @@ class MaterialController extends Controller
         $sort = in_array($request->query('sort'), ['newest', 'oldest', 'title'], true) ? $request->query('sort') : 'newest';
         $view = $request->query('view') === 'list' ? 'list' : 'grid';
 
-        // ---- Materi yang sedang dibuka di panel viewer ----
-        $active = null;
-        if ($id = $request->integer('material')) {
-            $candidate = Material::with('uploader:id,name')->find($id);
+        return [
+            'q' => $q,
+            'type' => $type,
+            'status' => $status,
+            'topic' => $topic,
+            'sort' => $sort,
+            'view' => $view,
+        ];
+    }
 
-            if ($candidate && Gate::allows('view', $candidate)) {
-                if ($user->isStudent()) {
-                    MaterialProgress::firstOrCreate(
-                        ['material_id' => $candidate->id, 'user_id' => $user->id],
-                        ['status' => MaterialProgress::OPENED, 'opened_at' => now()],
-                    );
-                }
-                $candidate->load(['progresses' => fn ($p) => $p->where('user_id', $user->id)]);
-                $active = $candidate;
-            }
+    private function resolveActiveMaterial(Request $request, $user): ?Material
+    {
+        if (! $id = $request->integer('material')) {
+            return null;
         }
 
-        // ---- Daftar materi ----
-        $materials = $this->baseQuery($user->id)
+        $candidate = Material::with('uploader:id,name')->find($id);
+
+        if (! $candidate || ! Gate::allows('view', $candidate)) {
+            return null;
+        }
+
+        if ($user->isStudent()) {
+            MaterialProgress::firstOrCreate(
+                ['material_id' => $candidate->id, 'user_id' => $user->id],
+                ['status' => MaterialProgress::OPENED, 'opened_at' => now()],
+            );
+        }
+
+        $candidate->load(['progresses' => fn ($progress) => $progress->where('user_id', $user->id)]);
+
+        return $candidate;
+    }
+
+    /**
+     * @param  array{q: string, type: ?MaterialType, status: ?string, topic: ?string, sort: string, view: string}  $filters
+     */
+    private function buildMaterialsQuery(int $userId, array $filters): Builder
+    {
+        $q = $filters['q'];
+        $type = $filters['type'];
+        $status = $filters['status'];
+        $topic = $filters['topic'];
+        $sort = $filters['sort'];
+
+        return $this->baseQuery($userId)
             ->when($type, fn (Builder $query) => $query->where('type', $type->value))
             ->when($topic, fn (Builder $query) => $query->where('topic', $topic))
             ->when($q !== '', function (Builder $query) use ($q) {
@@ -65,30 +124,12 @@ class MaterialController extends Controller
                     ->orWhere('description', 'like', $like)
                     ->orWhere('topic', 'like', $like));
             })
-            ->when($status === 'unopened', fn (Builder $query) => $query->whereDoesntHave('progresses', fn ($p) => $p->where('user_id', $user->id)))
-            ->when($status === 'learning', fn (Builder $query) => $query->whereHas('progresses', fn ($p) => $p->where('user_id', $user->id)->where('status', MaterialProgress::OPENED)))
-            ->when($status === 'completed', fn (Builder $query) => $query->whereHas('progresses', fn ($p) => $p->where('user_id', $user->id)->where('status', MaterialProgress::COMPLETED)))
+            ->when($status === 'unopened', fn (Builder $query) => $query->whereDoesntHave('progresses', fn ($progress) => $progress->where('user_id', $userId)))
+            ->when($status === 'learning', fn (Builder $query) => $query->whereHas('progresses', fn ($progress) => $progress->where('user_id', $userId)->where('status', MaterialProgress::OPENED)))
+            ->when($status === 'completed', fn (Builder $query) => $query->whereHas('progresses', fn ($progress) => $progress->where('user_id', $userId)->where('status', MaterialProgress::COMPLETED)))
             ->when($sort === 'newest', fn (Builder $query) => $query->orderByDesc('published_at')->orderByDesc('id'))
             ->when($sort === 'oldest', fn (Builder $query) => $query->orderBy('published_at')->orderBy('id'))
-            ->when($sort === 'title', fn (Builder $query) => $query->orderBy('title'))
-            ->paginate(9)
-            ->withQueryString()
-            ->through(fn (Material $m) => MaterialResource::make($m)->resolve());
-
-        return Inertia::render('Materials/Index', [
-            'materials' => $materials,
-            'active' => $active ? MaterialResource::make($active)->withBody()->resolve() : null,
-            'filters' => [
-                'q' => $q ?: null, 'type' => $type?->value, 'status' => $status,
-                'topic' => $topic, 'sort' => $sort, 'view' => $view,
-                'material' => $active?->id,
-            ],
-            'stats' => $this->stats($user->id),
-            'topics' => Material::published()->whereNotNull('topic')
-                ->select('topic', DB::raw('count(*) as total'))->groupBy('topic')->orderBy('topic')->get()
-                ->map(fn ($t) => ['name' => $t->topic, 'total' => (int) $t->total]),
-            'types' => collect(MaterialType::cases())->map(fn (MaterialType $t) => ['value' => $t->value, 'label' => $t->label()]),
-        ]);
+            ->when($sort === 'title', fn (Builder $query) => $query->orderBy('title'));
     }
 
     /** Tampilkan berkas inline (PDF / video / audio) — hanya untuk user yang berhak. */

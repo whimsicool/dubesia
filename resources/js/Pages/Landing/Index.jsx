@@ -109,7 +109,7 @@ export default function Landing({ programs }) {
                     crossOrigin=""
                 />
                 <link
-                    href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&display=swap"
+                    href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&display=swap"
                     rel="stylesheet"
                 />
                 <meta
@@ -253,7 +253,7 @@ export default function Landing({ programs }) {
                                     Program
                                 </p>
                                 <h2 className="mt-3 text-balance font-headline-lg text-headline-lg text-on-surface">
-                                    Empat program, satu standar pembinaan.
+                                    Pilih paket belajar yang sesuai kebutuhan Anda.
                                 </h2>
                             </Reveal>
 

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { CalendarDays, ChevronLeft, ChevronRight, Plus } from 'lucide-react';
+import { CalendarDays, ChevronLeft, ChevronRight, ClipboardCheck, Plus } from 'lucide-react';
 import { CATEGORY_STYLES, formatDate, parseISODate } from './constants';
 
 const WEEKDAYS = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
@@ -28,7 +28,7 @@ function monthDates(month) {
     });
 }
 
-function ScheduleChip({ schedule, onEdit, readOnly }) {
+function ScheduleChip({ schedule, date, onEdit, onAttendance, attendanceLabel, readOnly }) {
     const style = CATEGORY_STYLES[schedule.program?.category] ?? CATEGORY_STYLES.english;
     const content = (
         <>
@@ -37,23 +37,21 @@ function ScheduleChip({ schedule, onEdit, readOnly }) {
             </span>
             <span className="mt-1 block truncate text-xs font-semibold text-slate-900">{schedule.title}</span>
             <span className="block truncate text-[10px] text-slate-500">{schedule.instructor.name}</span>
+            {schedule.student_names?.length > 0 && <span className="block truncate text-[10px] text-slate-500" title={schedule.student_names.join(', ')}>Murid: {schedule.student_names.slice(0, 2).join(', ')}{schedule.student_names.length > 2 ? ` +${schedule.student_names.length - 2}` : ''}</span>}
         </>
     );
 
     return readOnly ? (
-        <div className={`rounded-md border border-l-2 border-slate-200 ${style.border} bg-white p-1.5`}>{content}</div>
+        <div className={`rounded-md border border-l-2 border-slate-200 ${style.border} bg-white p-1.5`}>{content}{onAttendance && <button type="button" onClick={() => onAttendance(schedule, date)} className="mt-1 inline-flex items-center gap-1 text-[10px] font-semibold text-slate-500 hover:text-emerald-700"><ClipboardCheck className="h-3 w-3" /> {attendanceLabel}</button>}</div>
     ) : (
-        <button
-            type="button"
-            onClick={() => onEdit(schedule)}
-            className={`w-full rounded-md border border-l-2 border-slate-200 ${style.border} bg-white p-1.5 text-left hover:bg-slate-50`}
-        >
-            {content}
-        </button>
+        <div className={`rounded-md border border-l-2 border-slate-200 ${style.border} bg-white p-1.5`}>
+            <button type="button" onClick={() => onEdit(schedule)} className="w-full text-left hover:bg-slate-50">{content}</button>
+            <button type="button" onClick={() => onAttendance(schedule, date)} className="mt-1 inline-flex items-center gap-1 text-[10px] font-semibold text-slate-500 hover:text-emerald-700" aria-label={`${attendanceLabel} ${schedule.title}`}><ClipboardCheck className="h-3 w-3" /> {attendanceLabel}</button>
+        </div>
     );
 }
 
-export default function MonthCalendar({ week, semester, schedules, dayFilter, onNavigate, onAdd, onEdit, readOnly = false }) {
+export default function MonthCalendar({ week, semester, schedules, dayFilter, onNavigate, onAdd, onEdit, onAttendance, attendanceLabel = 'Presensi', readOnly = false }) {
     const [month, setMonth] = useState(() => parseISODate(`${week.start.slice(0, 7)}-15`));
 
     useEffect(() => {
@@ -117,7 +115,7 @@ export default function MonthCalendar({ week, semester, schedules, dayFilter, on
                                 )}
                             </div>
                             <div className="space-y-1.5">
-                                {items.map((schedule) => <ScheduleChip key={schedule.id} schedule={schedule} onEdit={onEdit} readOnly={readOnly} />)}
+                                {items.map((schedule) => <ScheduleChip key={schedule.id} schedule={schedule} date={iso} onEdit={onEdit} onAttendance={onAttendance} attendanceLabel={attendanceLabel} readOnly={readOnly} />)}
                                 {visible && items.length === 0 && <p className="pt-1 text-[10px] text-slate-400">Tidak ada sesi</p>}
                                 {inMonth && !inSemester && <p className="pt-1 text-[10px] text-slate-400">Di luar periode</p>}
                                 {visible && isSunday && <p className="pt-1 text-[10px] text-slate-400">Tidak ada kelas</p>}

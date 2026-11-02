@@ -15,22 +15,22 @@ export default {
     theme: {
         extend: {
             fontFamily: {
-                sans: ['Inter', ...defaultTheme.fontFamily.sans],
+                sans: ['Nunito', ...defaultTheme.fontFamily.sans],
                 // DUBESIA portal type scale (used as `font-{name}` utilities).
-                'label-md': ['Inter'],
-                'headline-md': ['Plus Jakarta Sans'],
-                'display-lg': ['Plus Jakarta Sans'],
-                'headline-lg': ['Plus Jakarta Sans'],
-                'title-sm': ['Inter'],
-                'display-lg-mobile': ['Plus Jakarta Sans'],
-                'headline-lg-mobile': ['Plus Jakarta Sans'],
-                'title-md': ['Inter'],
-                'body-lg': ['Inter'],
-                'headline-sm': ['Plus Jakarta Sans'],
-                'body-sm': ['Inter'],
-                'body-md': ['Inter'],
-                'label-sm': ['Inter'],
-                'label-lg': ['Inter'],
+                'label-md': ['Nunito'],
+                'headline-md': ['Nunito'],
+                'display-lg': ['Nunito'],
+                'headline-lg': ['Nunito'],
+                'title-sm': ['Nunito'],
+                'display-lg-mobile': ['Nunito'],
+                'headline-lg-mobile': ['Nunito'],
+                'title-md': ['Nunito'],
+                'body-lg': ['Nunito'],
+                'headline-sm': ['Nunito'],
+                'body-sm': ['Nunito'],
+                'body-md': ['Nunito'],
+                'label-sm': ['Nunito'],
+                'label-lg': ['Nunito'],
             },
             fontSize: {
                 // DUBESIA portal type scale (used as `text-{name}` utilities).

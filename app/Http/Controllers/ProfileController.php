@@ -37,7 +37,7 @@ class ProfileController extends Controller
                 'no_whatsapp' => $pendaftaran->no_whatsapp,
                 'alamat' => $pendaftaran->alamat,
                 'asal_institusi' => $pendaftaran->asal_institusi,
-                'program' => Pendaftaran::PROGRAMS[$pendaftaran->program] ?? $pendaftaran->program,
+                'program' => Pendaftaran::labelProgram($pendaftaran->program),
                 'biaya' => $pendaftaran->biaya,
                 'status' => $pendaftaran->status,
                 'status_label' => Pendaftaran::STATUS_LABEL[$pendaftaran->status] ?? $pendaftaran->status,

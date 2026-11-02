@@ -18,6 +18,7 @@ Route::middleware(['auth', 'verified', 'role:admin'])
             Route::get('/export', 'export')->name('export');
             Route::post('/', 'store')->name('store');
             Route::post('/check-conflict', 'checkConflict')->name('check-conflict');
+            Route::get('/{schedule}/attendance', 'attendanceData')->whereNumber('schedule')->name('attendance');
             Route::put('/{schedule}', 'update')->whereNumber('schedule')->name('update');
             Route::delete('/{schedule}', 'destroy')->whereNumber('schedule')->name('destroy');
             Route::get('/pdf', 'pdf')->name('pdf');
@@ -27,7 +28,6 @@ Route::middleware(['auth', 'verified', 'role:admin'])
             Route::get('/', 'index')->name('index');
             Route::post('/', 'store')->name('store');
             Route::put('/{courseClass}/students', 'syncStudents')->whereNumber('courseClass')->name('students');
-            Route::patch('/{courseClass}/status', 'toggleStatus')->whereNumber('courseClass')->name('status');
             Route::put('/{courseClass}', 'update')->whereNumber('courseClass')->name('update');
             Route::delete('/{courseClass}', 'destroy')->whereNumber('courseClass')->name('destroy');
         });
@@ -35,7 +35,6 @@ Route::middleware(['auth', 'verified', 'role:admin'])
         Route::prefix('rooms')->name('rooms.')->controller(RoomController::class)->group(function () {
             Route::get('/', 'index')->name('index');
             Route::post('/', 'store')->name('store');
-            Route::patch('/{room}/status', 'toggleStatus')->whereNumber('room')->name('status');
             Route::put('/{room}', 'update')->whereNumber('room')->name('update');
             Route::delete('/{room}', 'destroy')->whereNumber('room')->name('destroy');
         });

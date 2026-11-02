@@ -1,8 +1,8 @@
-import { CalendarDays, ChevronLeft, ChevronRight, Trash2 } from 'lucide-react';
+import { CalendarDays, ChevronLeft, ChevronRight, ClipboardCheck, Trash2 } from 'lucide-react';
 import RoomIcon from './RoomIcon';
 import { CATEGORY_STYLES, formatDate, formatWeekRange } from './constants';
 
-function SessionCard({ schedule, onEdit, onDelete, readOnly }) {
+function SessionCard({ schedule, date, onEdit, onDelete, onAttendance, attendanceLabel, readOnly }) {
     const style = CATEGORY_STYLES[schedule.program?.category] ?? CATEGORY_STYLES.english;
 
     const content = (
@@ -16,6 +16,7 @@ function SessionCard({ schedule, onEdit, onDelete, readOnly }) {
                     <span className="truncate">{schedule.room.name}</span>
                 </p>
 
+                {schedule.student_names?.length > 0 && <p className="mt-2 truncate text-[11px] text-slate-500" title={schedule.student_names.join(', ')}>Murid: {schedule.student_names.slice(0, 2).join(', ')}{schedule.student_names.length > 2 ? ` +${schedule.student_names.length - 2}` : ''}</p>}
                 <div className="mt-3 flex items-center justify-between gap-2 text-xs">
                     <span className="flex min-w-0 items-center gap-1.5 font-semibold text-slate-800">
                         <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-slate-900 text-[9px] font-bold text-white">
@@ -29,9 +30,8 @@ function SessionCard({ schedule, onEdit, onDelete, readOnly }) {
     );
 
     if (readOnly) {
-        return <div className={`rounded-xl border border-l-4 border-slate-200 ${style.border} bg-white p-3 shadow-sm`}>{content}</div>;
+        return <div className={`rounded-xl border border-l-4 border-slate-200 ${style.border} bg-white p-3 shadow-sm`}>{content}{onAttendance && <button type="button" onClick={() => onAttendance(schedule, date)} className="mt-2 inline-flex items-center gap-1 rounded-md px-1 text-[10px] font-semibold text-slate-500 hover:text-emerald-700"><ClipboardCheck className="h-3.5 w-3.5" /> {attendanceLabel}</button>}</div>;
     }
-
     return (
         <div className="group relative">
             <button
@@ -40,6 +40,14 @@ function SessionCard({ schedule, onEdit, onDelete, readOnly }) {
                 className={`w-full rounded-xl border border-l-4 border-slate-200 ${style.border} bg-white p-3 text-left shadow-sm transition hover:shadow-md focus:outline-none focus:ring-2 focus:ring-slate-900`}
             >
                 {content}
+            </button>
+            <button
+                type="button"
+                onClick={() => onAttendance(schedule, date)}
+                className="mt-1 inline-flex items-center gap-1 rounded-md px-1 text-[10px] font-semibold text-slate-500 hover:text-emerald-700"
+                aria-label={`${attendanceLabel} ${schedule.title}`}
+            >
+                <ClipboardCheck className="h-3.5 w-3.5" /> {attendanceLabel}
             </button>
             <button
                 type="button"
@@ -53,7 +61,7 @@ function SessionCard({ schedule, onEdit, onDelete, readOnly }) {
     );
 }
 
-export default function WeekCalendar({ week, schedules, dayFilter, onNavigate, onEdit, onDelete, readOnly = false }) {
+export default function WeekCalendar({ week, schedules, dayFilter, onNavigate, onEdit, onDelete, onAttendance, attendanceLabel = 'Isi presensi', readOnly = false }) {
     const days = dayFilter ? week.days.filter((d) => d.day === Number(dayFilter)) : week.days;
 
     return (
@@ -120,7 +128,7 @@ export default function WeekCalendar({ week, schedules, dayFilter, onNavigate, o
                                             Tidak ada sesi
                                         </p>
                                     ) : (
-                                        items.map((s) => <SessionCard key={s.id} schedule={s} onEdit={onEdit} onDelete={onDelete} readOnly={readOnly} />)
+                                        items.map((s) => <SessionCard key={s.id} schedule={s} date={d.date} onEdit={onEdit} onDelete={onDelete} onAttendance={onAttendance} attendanceLabel={attendanceLabel} readOnly={readOnly} />)
                                     )}
                                 </div>
                             </div>

@@ -136,11 +136,12 @@ class ScheduleViewController extends Controller
             ]),
         ];
 
+        /** @var \Illuminate\Database\Eloquent\Builder<Schedule> $query */
         $query = clone $baseQuery;
         $this->applyFilters($query, $filters);
         $schedules = $query->with(['program:id,name,category', 'instructor:id,name', 'room:id,name,type,platform,capacity', 'students:id'])
             ->orderBy('day_of_week')->orderBy('start_time')->get()
-            ->map(fn(Schedule $schedule) => $this->formatSchedule($schedule))->values();
+            ->map($this->formatSchedule(...))->values();
 
         return [$schedules, $options];
     }

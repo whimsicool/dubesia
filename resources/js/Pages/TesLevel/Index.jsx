@@ -30,10 +30,10 @@ export default function Index({ totalSoal, durasiMenit, hasilTes, tesAktif }) {
                             <span className="inline-flex items-center rounded-full bg-white/15 px-3 py-1 text-xs font-semibold uppercase tracking-wider backdrop-blur-sm mb-4">
                                 Assessment Akademik
                             </span>
-                            <h1 className="text-3xl font-bold mb-2" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
+                            <h1 className="text-3xl font-bold mb-2" style={{ fontFamily: 'Nunito, sans-serif' }}>
                                 Tes Penempatan & Penilaian Level Kelas
                             </h1>
-                            <p className="text-white/80 text-sm max-w-2xl" style={{ fontFamily: 'Inter, sans-serif' }}>
+                            <p className="text-white/80 text-sm max-w-2xl" style={{ fontFamily: 'Nunito, sans-serif' }}>
                                 Uji kemampuan bahasa Inggris Anda melalui tes pilihan ganda untuk menentukan level kelas yang sesuai di DUBESIA.
                             </p>
                         </div>

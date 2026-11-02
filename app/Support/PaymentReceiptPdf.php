@@ -27,7 +27,7 @@ class PaymentReceiptPdf
         $this->text($commands, 385, 640, 'No: '.str_pad((string) $pendaftaran->id, 6, '0', STR_PAD_LEFT), 10, false);
         $this->row($commands, 600, 'Sudah terima dari', $pendaftaran->nama_lengkap);
         $this->row($commands, 560, 'Banyaknya uang', 'Rp '.number_format((int) $pendaftaran->biaya, 0, ',', '.'));
-        $this->row($commands, 520, 'Untuk pembayaran', 'Kursus Bahasa Inggris - '.(Pendaftaran::PROGRAMS[$pendaftaran->program] ?? $pendaftaran->program));
+        $this->row($commands, 520, 'Untuk pembayaran', 'Kursus Bahasa Inggris - '.Pendaftaran::labelProgram($pendaftaran->program));
         $this->row($commands, 480, 'Tanggal pembayaran', ($pendaftaran->verified_at ?? now())->format('d/m/Y'));
         $this->row($commands, 440, 'Metode pembayaran', 'Transfer');
         $this->row($commands, 400, 'Keterangan', 'Pembayaran telah diverifikasi oleh admin.');

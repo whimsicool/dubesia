@@ -17,31 +17,41 @@ class Pendaftaran extends Model
     self::STATUS_DITOLAK       => 'Ditolak',
 ];
     public const PROGRAMS = [
+        'reguler' => 'Reguler',
+        'private' => 'Private',
+        'employee' => 'Employee',
+    ];
+
+    /** Labels retained for registrations submitted before the package change. */
+    public const PROGRAMS_LAMA = [
         'diplomatic_speech' => 'Diplomatic Speech & Rhetoric',
-        'toefl_ielts'       => 'TOEFL & IELTS Mastery',
+        'toefl_ielts' => 'TOEFL & IELTS Mastery',
         'executive_english' => 'Executive English Fluency',
-        'mandarin_hsk'      => 'Mandarin HSK Comprehensive',
+        'mandarin_hsk' => 'Mandarin HSK Comprehensive',
     ];
 
     public const PROGRAM_DESKRIPSI = [
-        'diplomatic_speech' => 'Mastery pidato bilateral & etiket global',
-        'toefl_ielts'       => 'Target band 7.5+ & beasiswa dunia',
-        'executive_english' => 'Percakapan profesional & negosiasi',
-        'mandarin_hsk'      => 'Aksara Hanzi, HSK 1 - 5 & bisnis',
+        'reguler' => 'Kelas reguler mengikuti jadwal belajar yang tersedia.',
+        'private' => 'Pembelajaran privat dengan pendampingan yang lebih personal.',
+        'employee' => 'Program untuk karyawan dengan jadwal yang lebih fleksibel.',
     ];
 
-    public const BIAYA_DEFAULT = 250000;
+    public const BIAYA_DEFAULT = 1000000;
 
     public const BIAYA_PER_PROGRAM = [
-        'diplomatic_speech' => 300000,
-        'toefl_ielts' => 400000,
-        'executive_english' => 350000,
-        'mandarin_hsk' => 450000,
+        'reguler' => 1000000,
+        'private' => 1500000,
+        'employee' => 1700000,
     ];
 
     public static function biayaUntuk(string $program): int
     {
         return self::BIAYA_PER_PROGRAM[$program] ?? self::BIAYA_DEFAULT;
+    }
+
+    public static function labelProgram(?string $program): string
+    {
+        return self::PROGRAMS[$program] ?? self::PROGRAMS_LAMA[$program] ?? ($program ?: '-');
     }
 
     protected $fillable = [

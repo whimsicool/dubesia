@@ -12,6 +12,7 @@ use App\Http\Controllers\Student\GradeController as StudentGradeViewController;
 use App\Http\Controllers\StudentGradeController;
 use App\Http\Controllers\TesLevelController;
 use App\Http\Controllers\Tutor\AttendanceController;
+use App\Http\Controllers\Tutor\ScheduleAttendanceController;
 use App\Http\Controllers\Tutor\GradeComponentController;
 use App\Http\Controllers\Tutor\StudentClassGradeController;
 use App\Http\Controllers\TutorClassController;
@@ -42,7 +43,7 @@ Route::get('/tutor/dashboard', [DashboardController::class, 'index'])
     ->name('tutor.dashboard');
 
 Route::middleware(['auth', 'role:tutor'])->prefix('tutor')->name('tutor.')->group(function () {
-    Route::get('/presensi', [AttendanceController::class, 'index'])->name('attendance.index');
+    Route::get('/presensi', [ScheduleAttendanceController::class, 'history'])->name('attendance.index');
     Route::post('/presensi', [AttendanceController::class, 'store'])->name('attendance.store');
     Route::patch('/presensi/riwayat', [AttendanceController::class, 'updateHistory'])->name('attendance.history.update');
 });

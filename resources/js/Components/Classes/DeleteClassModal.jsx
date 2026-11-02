@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { router } from '@inertiajs/react';
-import { Power, TriangleAlert } from 'lucide-react';
+import { TriangleAlert } from 'lucide-react';
 import Modal from '@/Components/Admin/Modal';
 
 export default function DeleteClassModal({ open, courseClass, onClose }) {
@@ -25,18 +25,7 @@ export default function DeleteClassModal({ open, courseClass, onClose }) {
         });
     };
 
-    const deactivate = () => {
-        setProcessing(true);
-        router.patch(
-            route('admin.classes.status', courseClass.id),
-            {},
-            {
-                preserveScroll: true,
-                onSuccess: () => onClose(),
-                onFinish: () => setProcessing(false),
-            },
-        );
-    };
+
 
     return (
         <Modal
@@ -53,27 +42,15 @@ export default function DeleteClassModal({ open, courseClass, onClose }) {
                     >
                         Batal
                     </button>
-                    {isUsed && courseClass?.is_active ? (
+                    {!isUsed && (
                         <button
                             type="button"
-                            onClick={deactivate}
+                            onClick={remove}
                             disabled={processing}
-                            className="flex items-center gap-2 rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800 disabled:opacity-60"
+                            className="rounded-lg bg-red-700 px-4 py-2 text-sm font-semibold text-white hover:bg-red-800 disabled:cursor-not-allowed disabled:opacity-60"
                         >
-                            <Power className="h-4 w-4" />
-                            {processing ? 'Memproses…' : 'Nonaktifkan kelas'}
+                            {processing ? 'Menghapus…' : 'Ya, hapus kelas'}
                         </button>
-                    ) : (
-                        !isUsed && (
-                            <button
-                                type="button"
-                                onClick={remove}
-                                disabled={processing}
-                                className="rounded-lg bg-red-700 px-4 py-2 text-sm font-semibold text-white hover:bg-red-800 disabled:cursor-not-allowed disabled:opacity-60"
-                            >
-                                {processing ? 'Menghapus…' : 'Ya, hapus kelas'}
-                            </button>
-                        )
                     )}
                 </>
             }
@@ -88,11 +65,7 @@ export default function DeleteClassModal({ open, courseClass, onClose }) {
                         <div className="flex gap-3 rounded-xl bg-red-50 p-3 text-red-800">
                             <TriangleAlert className="mt-0.5 h-5 w-5 shrink-0" />
                             <p>
-                                Kelas ini masih terhubung dengan <strong>{related.join(', ')}</strong>. Hapus permanen
-                                tidak tersedia agar data tersebut tidak hilang.
-                                {courseClass.is_active
-                                    ? ' Nonaktifkan kelas ini untuk memindahkannya ke arsip.'
-                                    : ' Kelas ini sudah nonaktif.'}
+                                Kelas ini masih terhubung dengan <strong>{related.join(', ')}</strong>. Lepaskan murid, jadwal, dan komponen nilai sebelum menghapus kelas ini.
                             </p>
                         </div>
                     ) : (

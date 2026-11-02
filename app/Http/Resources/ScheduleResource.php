@@ -40,6 +40,7 @@ class ScheduleResource extends JsonResource
                 'capacity' => $this->room->capacity,
             ],
             'participants' => $this->students->count(),
+            'student_names' => $this->students->pluck('name')->values(),
             'student_ids' => $this->students->pluck('id')->values(),
             // Id akun murid untuk memilih ulang peserta di formulir.
             'student_user_ids' => $this->students->pluck('user_id')->filter()->values(),
