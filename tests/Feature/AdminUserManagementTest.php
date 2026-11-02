@@ -67,7 +67,6 @@ class AdminUserManagementTest extends TestCase
             'name' => 'Guru Baru Test',
             'email' => 'gurubaru@dubes.ac.id',
             'no_hp' => '+62 812-0000-1111',
-            'nip' => '19900101-2020-01',
         ]);
 
         $response->assertRedirect('/admin/data-pengguna');
@@ -79,19 +78,18 @@ class AdminUserManagementTest extends TestCase
         ]);
     }
 
-    public function test_admin_can_add_guru_without_nip(): void
+    public function test_admin_can_add_guru_without_phone(): void
     {
         $response = $this->actingAs($this->admin)->post('/admin/data-pengguna', [
-            'name' => 'Guru Tanpa NIP',
-            'email' => 'gurutanpanip@dubes.ac.id',
+            'name' => 'Guru Tanpa Nomor HP',
+            'email' => 'gurutanpa.hp@dubes.ac.id',
             'no_hp' => '',
-            'nip' => '',
         ]);
 
         $response->assertRedirect('/admin/data-pengguna');
 
         $this->assertDatabaseHas('users', [
-            'email' => 'gurutanpanip@dubes.ac.id',
+            'email' => 'gurutanpa.hp@dubes.ac.id',
             'role' => 'tutor',
         ]);
     }
@@ -124,7 +122,6 @@ class AdminUserManagementTest extends TestCase
             'name' => 'Nama Baru Updated',
             'email' => $tutor->email,
             'no_hp' => '+62 821-9999-8888',
-            'nip' => '19950505-2021-01',
             'role' => 'tutor',
             'status_akun' => 'aktif',
         ]);

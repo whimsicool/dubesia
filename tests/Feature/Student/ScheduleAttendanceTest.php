@@ -43,7 +43,6 @@ class ScheduleAttendanceTest extends TestCase
 
         $this->student = Student::create([
             'user_id' => $this->studentUser->id,
-            'nisn' => '0001',
             'name' => $this->studentUser->name,
             'email' => $this->studentUser->email,
             'status' => Student::STATUS_ACTIVE,
@@ -101,7 +100,6 @@ class ScheduleAttendanceTest extends TestCase
         $outsider = User::factory()->create(['role' => User::ROLE_STUDENT]);
         Student::create([
             'user_id' => $outsider->id,
-            'nisn' => '0002',
             'name' => $outsider->name,
             'status' => Student::STATUS_ACTIVE,
         ]);

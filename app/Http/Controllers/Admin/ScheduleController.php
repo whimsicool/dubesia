@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\ScheduleRequest;
 use App\Http\Resources\ScheduleResource;
-use App\Enums\AttendanceStatus;
 use App\Models\Attendance;
 use App\Models\CourseClass;
 use App\Models\Instructor;
@@ -71,10 +70,10 @@ class ScheduleController extends Controller
             'schedules' => ScheduleResource::collection($schedules)->resolve(),
             'options' => [
                 'programs' => Program::where('is_active', true)->orderBy('name')->get(['id', 'name', 'category'])
-                    ->map(fn($p) => ['id' => $p->id, 'name' => $p->name, 'category' => $p->category->value]),
+                    ->map(fn ($p) => ['id' => $p->id, 'name' => $p->name, 'category' => $p->category->value]),
                 'instructors' => Instructor::where('is_active', true)->orderBy('name')->get(['id', 'name']),
                 'classes' => CourseClass::where('is_active', true)->with(['tutors:id,name'])->withCount('students')->orderBy('name')->get()
-                    ->map(fn(CourseClass $class) => [
+                    ->map(fn (CourseClass $class) => [
                         'id' => $class->id,
                         'name' => $class->name,
                         'level' => $class->level?->value,
@@ -86,7 +85,7 @@ class ScheduleController extends Controller
                     ]),
                 'tutors' => User::where('role', User::ROLE_TUTOR)->where('status_akun', 'aktif')->orderBy('name')->get(['id', 'name']),
                 'rooms' => Room::where('is_active', true)->orderBy('name')->get(['id', 'name', 'type', 'platform', 'location', 'capacity'])
-                    ->map(fn($r) => [
+                    ->map(fn ($r) => [
                         'id' => $r->id,
                         'name' => $r->name,
                         'type' => $r->type->value,
@@ -123,7 +122,7 @@ class ScheduleController extends Controller
 
                         return (int) $schedule->day_of_week === (int) $day['day'];
                     })
-                    ->map(fn($schedule) => [
+                    ->map(fn ($schedule) => [
                         'title' => $schedule->title,
                         'class_name' => $schedule->class_name,
                         'start_time' => substr($schedule->start_time, 0, 5),
@@ -157,7 +156,7 @@ class ScheduleController extends Controller
      | ------------------------------------------------------------------- */
     public function store(ScheduleRequest $request): RedirectResponse
     {
-        $schedule = DB::transaction(fn() => $this->persist(new Schedule, $request->validated()));
+        $schedule = DB::transaction(fn () => $this->persist(new Schedule, $request->validated()));
 
         return back()->with('success', [
             'title' => 'Jadwal Tersimpan',
@@ -172,7 +171,7 @@ class ScheduleController extends Controller
 
     public function update(ScheduleRequest $request, Schedule $schedule): RedirectResponse
     {
-        DB::transaction(fn() => $this->persist($schedule, $request->validated()));
+        DB::transaction(fn () => $this->persist($schedule, $request->validated()));
 
         return back()->with('success', [
             'title' => 'Pembaruan Jadwal Tersimpan',
@@ -247,7 +246,7 @@ class ScheduleController extends Controller
         $date = Carbon::createFromFormat('Y-m-d', $data['date']);
         abort_unless($this->scheduleOccursOn($schedule, $date), 422, 'Tanggal bukan tanggal pertemuan jadwal ini.');
 
-        $students = $schedule->students()->orderBy('name')->get(['students.id', 'students.name', 'students.nisn']);
+        $students = $schedule->students()->orderBy('name')->get(['students.id', 'students.name']);
         $records = Attendance::query()
             ->where('schedule_id', $schedule->id)
             ->whereDate('date', $date->toDateString())
@@ -261,11 +260,11 @@ class ScheduleController extends Controller
             'students' => $students->map(fn (Student $student) => [
                 'id' => $student->id,
                 'name' => $student->name,
-                'nisn' => $student->nisn,
                 'status' => $records->get($student->id)?->status?->value,
             ])->values(),
         ]);
     }
+
     private function scheduleOccursOn(Schedule $schedule, Carbon $date): bool
     {
         return $schedule->scheduled_date
@@ -277,6 +276,7 @@ class ScheduleController extends Controller
     private function studentIdsForClass(int $classId): array
     {
         $userIds = CourseClass::with('students:id')->find($classId)?->students->pluck('id')->map(fn ($id) => (int) $id)->all() ?? [];
+
         return Student::whereIn('user_id', $userIds)->pluck('id')->map(fn ($id) => (int) $id)->all();
     }
 
@@ -312,7 +312,7 @@ class ScheduleController extends Controller
             }
 
             fclose($out);
-        }, 'jadwal-belajar-' . now()->format('Ymd-His') . '.csv', ['Content-Type' => 'text/csv; charset=UTF-8']);
+        }, 'jadwal-belajar-'.now()->format('Ymd-His').'.csv', ['Content-Type' => 'text/csv; charset=UTF-8']);
     }
 
     /* ---------------------------------------------------------------------
@@ -373,12 +373,11 @@ class ScheduleController extends Controller
             return [];
         }
 
-        return User::whereIn('id', $userIds)->get(['id', 'name', 'email', 'nip'])
+        return User::whereIn('id', $userIds)->get(['id', 'name', 'email'])
             ->map(function (User $user): int {
                 $student = Student::firstOrCreate(
                     ['user_id' => $user->id],
                     [
-                        'nisn' => $this->nisnFor($user),
                         'name' => $user->name,
                         'email' => $user->email,
                         'status' => Student::STATUS_ACTIVE,
@@ -390,20 +389,10 @@ class ScheduleController extends Controller
             ->all();
     }
 
-    /** NISN diambil dari NIP murid; bila kosong atau sudah dipakai, pakai penanda unik akun. */
-    private function nisnFor(User $user): string
-    {
-        if ($user->nip && ! Student::where('nisn', $user->nip)->exists()) {
-            return $user->nip;
-        }
-
-        return 'USR-' . $user->id;
-    }
-
     private function filteredQuery(Request $request, Semester $semester): Builder
     {
         $q = trim((string) $request->query('q', ''));
-        $like = '%' . addcslashes($q, '%_\\') . '%';
+        $like = '%'.addcslashes($q, '%_\\').'%';
 
         $query = Schedule::query();
         $query->with(['program', 'instructor', 'room', 'students:id,name']);
@@ -427,10 +416,10 @@ class ScheduleController extends Controller
             $query->where(function (Builder $w) use ($like) {
                 $w->where('title', 'like', $like)
                     ->orWhere('class_name', 'like', $like)
-                    ->orWhereHas('program', fn($p) => $p->where('name', 'like', $like))
-                    ->orWhereHas('instructor', fn($i) => $i->where('name', 'like', $like))
-                    ->orWhereHas('room', fn($r) => $r->where('name', 'like', $like))
-                    ->orWhereHas('students', fn($s) => $s->where('name', 'like', $like)->orWhere('nisn', 'like', $like));
+                    ->orWhereHas('program', fn ($p) => $p->where('name', 'like', $like))
+                    ->orWhereHas('instructor', fn ($i) => $i->where('name', 'like', $like))
+                    ->orWhereHas('room', fn ($r) => $r->where('name', 'like', $like))
+                    ->orWhereHas('students', fn ($s) => $s->where('name', 'like', $like));
             });
         }
 

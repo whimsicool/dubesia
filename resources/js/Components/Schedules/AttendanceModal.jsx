@@ -67,7 +67,7 @@ export default function AttendanceModal({ schedule, date, onClose, audience = 'a
                     {canEdit && <div className="flex justify-end border-t border-slate-100 px-4 py-2"><button type="button" onClick={markEveryonePresent} className="inline-flex items-center gap-2 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs font-semibold text-emerald-700 hover:bg-emerald-100"><Check className="h-4 w-4" /> Tandai semua hadir</button></div>}
                     {students.map((student) => (
                         <div key={student.id} className="grid grid-cols-[1fr_160px] items-center gap-3 border-t border-slate-100 px-4 py-3">
-                            <div className="min-w-0"><p className="truncate text-sm font-semibold text-slate-800">{student.name}</p><p className="text-xs text-slate-500">{student.nisn || 'Murid terdaftar'}</p></div>
+                            <div className="min-w-0"><p className="truncate text-sm font-semibold text-slate-800">{student.name}</p></div>
                             {canEdit ? (
                                 <select value={student.status} onChange={(event) => updateStatus(student.id, event.target.value)} className="rounded-lg border-slate-200 text-sm">
                                     <option value="">Pilih status...</option>{Object.entries(STATUS_LABELS).map(([value, label]) => <option key={value} value={value}>{label}</option>)}

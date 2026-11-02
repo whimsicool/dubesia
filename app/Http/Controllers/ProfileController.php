@@ -25,7 +25,6 @@ class ProfileController extends Controller
                 'name' => $user->name,
                 'email' => $user->email,
                 'no_hp' => $user->no_hp,
-                'nip' => $user->nip,
                 'role' => $user->role,
                 'class_level' => $user->class_level,
                 'avatar_url' => $user->avatar_url,

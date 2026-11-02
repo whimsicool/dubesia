@@ -100,11 +100,10 @@ class ScheduleManagementTest extends TestCase
     }
 
     /** Baris students adalah pasangan murid (user) yang dipakai pivot jadwal. */
-    private function mirrorStudent(User $user, string $nisn, string $status = Student::STATUS_ACTIVE): Student
+    private function mirrorStudent(User $user, string $status = Student::STATUS_ACTIVE): Student
     {
         return Student::create([
             'user_id' => $user->id,
-            'nisn' => $nisn,
             'name' => $user->name,
             'email' => $user->email,
             'status' => $status,
@@ -145,7 +144,7 @@ class ScheduleManagementTest extends TestCase
     public function test_admin_can_create_schedule_from_class_and_tutor(): void
     {
         $newStudent = $this->student('Murid Baru');
-        $this->mirrorStudent($newStudent, '0001', Student::STATUS_PENDING);
+        $this->mirrorStudent($newStudent, Student::STATUS_PENDING);
         $active = $this->student('Murid Aktif');
 
         // Daftar peserta diambil dari anggota kelas, bukan lagi dari formulir jadwal.
@@ -218,7 +217,7 @@ class ScheduleManagementTest extends TestCase
     public function test_student_conflict_is_rejected(): void
     {
         $student = $this->student('Murid Terdaftar');
-        $this->makeSchedule()->students()->attach($this->mirrorStudent($student, '0001')->id);
+        $this->makeSchedule()->students()->attach($this->mirrorStudent($student)->id);
 
         $otherClass = CourseClass::create(['name' => 'Kelas Lain', 'is_active' => true]);
         $otherClass->students()->attach($student->id);
@@ -281,7 +280,7 @@ class ScheduleManagementTest extends TestCase
 
     public function test_delete_cascades_enrollments_and_attendances(): void
     {
-        $student = $this->mirrorStudent($this->student('Murid Satu'), '0001');
+        $student = $this->mirrorStudent($this->student('Murid Satu'));
         $schedule = $this->makeSchedule();
         $schedule->students()->attach($student->id);
         $schedule->attendances()->create(['student_id' => $student->id, 'date' => now()->toDateString(), 'status' => 'present']);

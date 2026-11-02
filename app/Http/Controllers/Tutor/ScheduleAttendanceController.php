@@ -24,7 +24,7 @@ class ScheduleAttendanceController extends Controller
                 ->where('user_id', $tutor->id)
                 ->orWhere('email', $tutor->email))
             ->with([
-                'student:id,name,nisn',
+                'student:id,name',
                 'schedule:id,title,class_name,room_id,start_time,end_time',
                 'schedule.room:id,name',
             ])
@@ -57,7 +57,6 @@ class ScheduleAttendanceController extends Controller
                     'students' => $session->map(fn (Attendance $record) => [
                         'id' => $record->student_id,
                         'name' => $record->student?->name ?? 'Murid',
-                        'nisn' => $record->student?->nisn,
                         'status' => $record->status?->value,
                     ])->values(),
                 ];
@@ -66,6 +65,7 @@ class ScheduleAttendanceController extends Controller
 
         return Inertia::render('Tutor/Attendance/Index', ['history' => $history]);
     }
+
     public function show(Request $request, Schedule $schedule): JsonResponse
     {
         $this->ensureAssignedTutor($request, $schedule);
@@ -73,7 +73,7 @@ class ScheduleAttendanceController extends Controller
         $date = Carbon::createFromFormat('Y-m-d', $data['date']);
         abort_unless($this->scheduleOccursOn($schedule, $date), 422, 'Tanggal bukan tanggal pertemuan jadwal ini.');
 
-        $students = $schedule->students()->orderBy('name')->get(['students.id', 'students.name', 'students.nisn']);
+        $students = $schedule->students()->orderBy('name')->get(['students.id', 'students.name']);
         $records = Attendance::query()
             ->where('schedule_id', $schedule->id)
             ->whereDate('date', $date->toDateString())
@@ -87,7 +87,6 @@ class ScheduleAttendanceController extends Controller
             'students' => $students->map(fn ($student) => [
                 'id' => $student->id,
                 'name' => $student->name,
-                'nisn' => $student->nisn,
                 'status' => $records->get($student->id)?->status?->value,
             ])->values(),
         ]);
@@ -126,6 +125,7 @@ class ScheduleAttendanceController extends Controller
 
                 if ($attendance) {
                     $attendance->update(['status' => $student['status']]);
+
                     continue;
                 }
 

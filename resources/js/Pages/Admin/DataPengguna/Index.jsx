@@ -47,7 +47,6 @@ export default function Index({ users, filters, stats }) {
         name: '',
         email: '',
         no_hp: '',
-        nip: '',
         role: 'tutor',
         status_akun: 'aktif',
     });
@@ -94,7 +93,7 @@ export default function Index({ users, filters, stats }) {
     const openCreateDrawer = () => {
         setEditingUser(null);
         form.reset();
-        form.setData({ name: '', email: '', no_hp: '', nip: '', role: 'tutor', status_akun: 'aktif' });
+        form.setData({ name: '', email: '', no_hp: '', role: 'tutor', status_akun: 'aktif' });
         form.clearErrors();
         setDrawerOpen(true);
     };
@@ -103,7 +102,7 @@ export default function Index({ users, filters, stats }) {
         setEditingUser(user);
         form.setData({
             name: user.name || '', email: user.email || '',
-            no_hp: user.no_hp || '', nip: user.nip || '',
+            no_hp: user.no_hp || '',
             role: user.role || 'student', status_akun: user.status_akun || 'aktif',
         });
         form.clearErrors();
@@ -325,7 +324,7 @@ export default function Index({ users, filters, stats }) {
                             type="text"
                             value={search}
                             onChange={handleSearchChange}
-                            placeholder="Cari nama, email, NIP..."
+                            placeholder="Cari nama, email, nomor HP..."
                             className="kdp-search-input"
                         />
                     </div>
@@ -394,11 +393,6 @@ export default function Index({ users, filters, stats }) {
                                                 )}
                                                 <div>
                                                     <p className="kdp-user-name">{u.name}</p>
-                                                    {u.nip && (
-                                                        <p className="kdp-user-nip">
-                                                            {u.role === 'tutor' ? 'NIP' : 'NISN'}: {u.nip}
-                                                        </p>
-                                                    )}
                                                 </div>
                                             </div>
                                         </td>
@@ -631,21 +625,6 @@ export default function Index({ users, filters, stats }) {
                                 {form.errors.no_hp && <p className="kdp-field__error">{form.errors.no_hp}</p>}
                             </div>
 
-                            {/* NIP (Opsional) */}
-                            <div className="kdp-field">
-                                <label className="kdp-field__label">
-                                    NIP {editingUser && form.data.role === 'student' ? '/ NISN' : 'Tutor'} (Opsional)
-                                </label>
-                                <input
-                                    type="text"
-                                    value={form.data.nip}
-                                    onChange={(e) => form.setData('nip', e.target.value)}
-                                    placeholder={editingUser && form.data.role === 'student' ? 'cth: 0063921094' : 'cth: 19860412-2015-02'}
-                                    className="kdp-field__input"
-                                />
-                                {form.errors.nip && <p className="kdp-field__error">{form.errors.nip}</p>}
-                            </div>
-
                             {/* Status (hanya edit) */}
                             {editingUser && (
                                 <div className="kdp-field">
@@ -824,10 +803,6 @@ export default function Index({ users, filters, stats }) {
                                 <div>
                                     <p style={{ fontSize: '11px', color: '#94a3b8', fontWeight: 600 }}>No. HP / WhatsApp</p>
                                     <p style={{ fontWeight: 600, color: '#0f172a' }}>{detailUser.no_hp || '-'}</p>
-                                </div>
-                                <div>
-                                    <p style={{ fontSize: '11px', color: '#94a3b8', fontWeight: 600 }}>{detailUser.role === 'tutor' ? 'NIP' : 'NIP / NISN'}</p>
-                                    <p style={{ fontWeight: 600, color: '#0f172a' }}>{detailUser.nip || '-'}</p>
                                 </div>
                                 <div>
                                     <p style={{ fontSize: '11px', color: '#94a3b8', fontWeight: 600 }}>Status Akun</p>

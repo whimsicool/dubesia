@@ -9,7 +9,7 @@ use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 
-class UsersExport implements FromQuery, WithHeadings, WithMapping, ShouldAutoSize
+class UsersExport implements FromQuery, ShouldAutoSize, WithHeadings, WithMapping
 {
     public function __construct(
         private Builder $query
@@ -27,7 +27,6 @@ class UsersExport implements FromQuery, WithHeadings, WithMapping, ShouldAutoSiz
             'Nama Lengkap',
             'Email',
             'Nomor HP',
-            'NIP',
             'Peran',
             'Status Akun',
             'Tanggal Dibuat',
@@ -41,7 +40,6 @@ class UsersExport implements FromQuery, WithHeadings, WithMapping, ShouldAutoSiz
             $user->name,
             $user->email,
             $user->no_hp ?? '-',
-            $user->nip ?? '-',
             match ($user->role) {
                 User::ROLE_STUDENT => 'Murid',
                 User::ROLE_TUTOR => 'Tutor',

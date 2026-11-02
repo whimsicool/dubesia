@@ -47,7 +47,6 @@ class ScheduleAttendanceTest extends TestCase
         $studentUser = User::factory()->create(['role' => User::ROLE_STUDENT, 'name' => 'Murid Satu']);
         $this->student = Student::create([
             'user_id' => $studentUser->id,
-            'nisn' => '0001',
             'name' => $studentUser->name,
             'email' => $studentUser->email,
             'status' => Student::STATUS_ACTIVE,
@@ -130,7 +129,6 @@ class ScheduleAttendanceTest extends TestCase
     public function test_store_rejects_students_outside_the_class_roster(): void
     {
         $outsider = Student::create([
-            'nisn' => '0002',
             'name' => 'Murid Lain',
             'status' => Student::STATUS_ACTIVE,
         ]);

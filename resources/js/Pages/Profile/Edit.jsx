@@ -147,7 +147,6 @@ export default function Edit({ profile, pendaftaran }) {
                             <InfoRow label="Nama lengkap" value={profile.name} />
                             <InfoRow label="Email" value={profile.email} />
                             <InfoRow label="No. HP / WhatsApp" value={profile.no_hp} />
-                            {profile.nip && <InfoRow label={profile.role === 'tutor' ? 'NIP' : 'NISN'} value={profile.nip} />}
                             {profile.role === 'student' && (
                                 <InfoRow label="Level kelas" value={profile.class_level || 'Belum ada hasil tes'} />
                             )}

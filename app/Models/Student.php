@@ -9,10 +9,12 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Student extends Model
 {
     public const STATUS_PENDING = 'pending';
+
     public const STATUS_ACTIVE = 'active';
+
     public const STATUS_INACTIVE = 'inactive';
 
-    protected $fillable = ['user_id', 'nisn', 'name', 'email', 'status'];
+    protected $fillable = ['user_id', 'name', 'email', 'status'];
 
     public function schedules(): BelongsToMany
     {

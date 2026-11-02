@@ -172,13 +172,11 @@ class ScheduleSeeder extends Seeder
             for ($studentIndex = 1; $studentIndex <= 10; $studentIndex++) {
                 $studentNumber = ($classIndex * 10) + $studentIndex;
                 $email = sprintf('demo.murid.%03d@dubesia.id', $studentNumber);
-                $nisn = sprintf('DUB%07d', $studentNumber);
                 $user = User::updateOrCreate(['email' => $email], [
                     'name' => sprintf('Murid %s %d-%02d', $label, $classIndex + 1, $studentIndex),
                     'password' => 'password',
                     'role' => User::ROLE_STUDENT,
                     'class_level' => $userLevel,
-                    'nip' => $nisn,
                     'is_active' => true,
                     'status_akun' => 'aktif',
                     'email_verified_at' => now(),
@@ -186,7 +184,7 @@ class ScheduleSeeder extends Seeder
 
                 Student::updateOrCreate(
                     ['user_id' => $user->id],
-                    ['nisn' => $nisn, 'name' => $user->name, 'email' => $user->email, 'status' => Student::STATUS_ACTIVE],
+                    ['name' => $user->name, 'email' => $user->email, 'status' => Student::STATUS_ACTIVE],
                 );
                 $studentUserIds[] = $user->id;
             }

@@ -158,12 +158,11 @@ class ClassController extends Controller
     /** Perubahan anggota kelas langsung memperbarui daftar peserta pada semua jadwal kelas. */
     private function syncScheduleRosters(CourseClass $courseClass): void
     {
-        $users = User::whereIn('id', $courseClass->students()->pluck('users.id'))->get(['id', 'name', 'email', 'nip']);
+        $users = User::whereIn('id', $courseClass->students()->pluck('users.id'))->get(['id', 'name', 'email']);
         $studentIds = $users->map(function (User $user): int {
             $student = Student::firstOrCreate(
                 ['user_id' => $user->id],
-                ['nisn' => $user->nip && ! Student::where('nisn', $user->nip)->exists() ? $user->nip : 'USR-'.$user->id,
-                    'name' => $user->name, 'email' => $user->email, 'status' => Student::STATUS_ACTIVE],
+                ['name' => $user->name, 'email' => $user->email, 'status' => Student::STATUS_ACTIVE],
             );
 
             return $student->id;
