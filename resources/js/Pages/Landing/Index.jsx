@@ -89,7 +89,10 @@ const ADDRESS =
     'Jl. Taman Karya, Tuah Karya, Tuah Madani, Kota Pekanbaru, Riau 28293';
 
 const MAPS_URL =
-    'https://www.google.com/maps/search/?api=1&query=Dubes+Communications+Pekanbaru';
+    'https://www.google.com/maps/place/Dubes+Communications/@0.4620464,101.37687,871m/data=!3m2!1e3!4b1!4m6!3m5!1s0x31d5a9f450fd353b:0xfdde6a53051a493e!8m2!3d0.4620464!4d101.37687!16s%2Fg%2F11l20ddm1l';
+
+const MAP_EMBED_URL =
+    'https://maps.google.com/maps?q=0.4620464,101.37687&z=17&output=embed';
 
 const heroContainer = {
     hidden: {},
@@ -423,16 +426,17 @@ export default function Landing({ programs }) {
 
                             <Reveal
                                 delay={0.1}
-                                className="relative overflow-hidden rounded-3xl border border-outline-variant/50 bg-surface-container-lowest p-8 shadow-[0_20px_45px_-35px_rgba(11,28,48,0.5)] lg:max-w-md lg:justify-self-end"
+                                className="relative w-full overflow-hidden rounded-3xl border border-outline-variant/50 bg-surface-container-lowest shadow-[0_20px_45px_-35px_rgba(11,28,48,0.5)]"
                             >
-                                <div
-                                    aria-hidden="true"
-                                    className="pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full bg-dubesia-gold/15 blur-2xl"
+                                <iframe
+                                    title="Peta lokasi DUBES Communications"
+                                    src={MAP_EMBED_URL}
+                                    loading="lazy"
+                                    referrerPolicy="no-referrer-when-downgrade"
+                                    allowFullScreen
+                                    className="h-64 w-full border-0 sm:h-72"
                                 />
-                                <div className="relative flex flex-col gap-3">
-                                    <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-secondary/10 text-secondary">
-                                        <MapPin className="h-5 w-5" />
-                                    </span>
+                                <div className="flex flex-col gap-2 border-t border-outline-variant/50 p-5 sm:p-6">
                                     <p className="font-title-md text-title-md text-on-surface">
                                         DUBES Communications
                                     </p>
