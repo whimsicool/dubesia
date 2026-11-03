@@ -202,9 +202,10 @@ export default function Landing({ programs }) {
                                     </Link>
                                     <Link
                                         href={route('login')}
-                                        className="rounded-xl border border-outline-variant bg-surface-container-lowest px-6 py-3 text-center font-label-lg text-label-lg text-on-surface transition-colors hover:bg-surface-container"
+                                        className="group inline-flex items-center justify-center gap-2 rounded-xl border border-outline-variant bg-surface-container-lowest px-6 py-3 font-label-lg text-label-lg text-on-surface transition-colors hover:bg-surface-container"
                                     >
                                         Masuk ke portal
+                                        <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
                                     </Link>
                                 </motion.div>
 
@@ -481,15 +482,16 @@ export default function Landing({ programs }) {
                                 <div className="flex flex-wrap gap-3">
                                     <Link
                                         href={route('registrasi.create')}
-                                        className="rounded-xl bg-white px-6 py-3 font-label-lg text-label-lg text-primary-container transition-colors hover:bg-dubesia-gold-soft"
+                                        className="inline-flex items-center gap-2 rounded-xl bg-white px-6 py-3 font-label-lg text-label-lg text-primary-container transition-colors hover:bg-dubesia-gold-soft"
                                     >
                                         Daftar sekarang
+                                        <ArrowRight className="h-4 w-4" />
                                     </Link>
                                     <Link
                                         href={route('panduan-pendaftaran')}
-                                        className="rounded-xl border border-white/25 px-6 py-3 font-label-lg text-label-lg text-white transition-colors hover:bg-white/10"
+                                        className="inline-flex items-center gap-2 rounded-xl border border-white/25 px-6 py-3 font-label-lg text-label-lg text-white transition-colors hover:bg-white/10"
                                     >
-                                        Lihat panduan
+                                        <BookOpen className="h-4 w-4" /> Lihat panduan
                                     </Link>
                                 </div>
                             </div>
