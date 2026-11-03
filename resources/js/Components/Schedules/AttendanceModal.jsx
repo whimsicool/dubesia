@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Check, ClipboardCheck } from 'lucide-react';
+import { Check, ClipboardCheck, Save, X } from 'lucide-react';
 import Modal from '@/Components/Admin/Modal';
 
 const STATUS_LABELS = { present: 'Hadir', permit: 'Izin', sick: 'Sakit', absent: 'Alpa' };
@@ -54,8 +54,10 @@ export default function AttendanceModal({ schedule, date, onClose, audience = 'a
 
     const footer = (
         <>
-            <button type="button" onClick={onClose} className="rounded-lg border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700">{canEdit ? 'Batal' : 'Tutup'}</button>
-            {canEdit && <button type="button" disabled={saving || loading || students.length === 0 || students.some((student) => !student.status)} onClick={save} className="rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50">{saving ? 'Menyimpan...' : 'Simpan Presensi'}</button>}
+            <button type="button" onClick={onClose} className="inline-flex items-center gap-2 rounded-lg border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700">
+                <X className="h-4 w-4" /> {canEdit ? 'Batal' : 'Tutup'}
+            </button>
+            {canEdit && <button type="button" disabled={saving || loading || students.length === 0 || students.some((student) => !student.status)} onClick={save} className="inline-flex items-center gap-2 rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"><Save className="h-4 w-4" /> {saving ? 'Menyimpan...' : 'Simpan Presensi'}</button>}
         </>
     );
 

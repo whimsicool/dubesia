@@ -127,6 +127,30 @@ class MaterialTest extends TestCase
         $this->assertSame('https://www.youtube-nocookie.com/embed/aqz-KE-bpKQ', Material::firstOrFail()->embed_url);
     }
 
+    public function test_video_upload_is_limited_to_fifty_megabytes(): void
+    {
+        $tutor = $this->user('tutor');
+
+        $this->actingAs($tutor)->post(route('tutor.materials.store'), $this->payload([
+            'type' => 'video',
+            'body' => null,
+            'file' => UploadedFile::fake()->create('materi.mp4', 51201, 'video/mp4'),
+        ]))->assertSessionHasErrors('file');
+
+        $this->assertDatabaseCount('materials', 0);
+    }
+
+    public function test_video_upload_at_fifty_megabytes_is_accepted(): void
+    {
+        $this->actingAs($this->user('tutor'))->post(route('tutor.materials.store'), $this->payload([
+            'type' => 'video',
+            'body' => null,
+            'file' => UploadedFile::fake()->create('materi.mp4', 51200, 'video/mp4'),
+        ]))->assertSessionHasNoErrors();
+
+        $this->assertSame('materi.mp4', Material::firstOrFail()->file_name);
+    }
+
     public function test_disallowed_file_format_is_rejected(): void
     {
         $this->actingAs($this->user('tutor'))

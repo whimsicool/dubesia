@@ -18,7 +18,7 @@ class EnsureStudentPlacementTest
         }
 
         $isTestRoute = $request->routeIs('tes-level.*', 'student.placement-result');
-        $isResultRoute = $request->routeIs('tes-level.result', 'tes-level.onboarding-result', 'student.placement-result');
+        $isResultRoute = $request->routeIs('tes-level.result', 'student.placement-result');
         $completedResult = HasilTes::where('id_murid', $user->id)
             ->where('status_hasil', 'completed')
             ->latest('completed_at')

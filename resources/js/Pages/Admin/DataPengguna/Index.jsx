@@ -1,6 +1,7 @@
 import AdminLayout from '@/Layouts/AdminLayout';
 import PageBreadcrumbs from '@/Components/Admin/PageBreadcrumbs';
 import { Head, Link, router, useForm, usePage } from '@inertiajs/react';
+import { Save, Trash2, X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 
 /* ═══════════════════════════════════════════════
@@ -340,7 +341,7 @@ export default function Index({ users, filters, stats }) {
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', padding: '12px 20px', borderTop: '1px solid #e2e8f0', background: '#fff7f7' }}>
                         <span style={{ fontSize: '13px', fontWeight: 600, color: '#475569' }}>{selectedRows.length} akun dipilih</span>
                         <button type="button" onClick={() => setBulkDeleteOpen(true)} className="btn-cancel" style={{ color: '#b91c1c', borderColor: '#fecaca' }}>
-                            Hapus yang dipilih
+                            <Trash2 className="h-4 w-4" /> Hapus yang dipilih
                         </button>
                     </div>
                 )}
@@ -660,9 +661,10 @@ export default function Index({ users, filters, stats }) {
                         {/* Drawer Footer */}
                         <div className="kdp-modal__footer">
                             <button type="button" onClick={() => setDrawerOpen(false)} className="btn-cancel">
-                                Batal
+                                <X className="h-4 w-4" /> Batal
                             </button>
                             <button type="button" disabled={form.processing} onClick={handleSubmit} className="btn-submit">
+                                <Save className="h-4 w-4" />
                                 {form.processing ? (
                                     'Memproses...'
                                 ) : (
@@ -697,7 +699,7 @@ export default function Index({ users, filters, stats }) {
                                 </div>
                             </div>
                             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
-                                <button type="button" onClick={() => setDeleteTarget(null)} className="btn-cancel">Batal</button>
+                                <button type="button" onClick={() => setDeleteTarget(null)} className="btn-cancel"><X className="h-4 w-4" /> Batal</button>
                                 <button
                                     type="button"
                                     onClick={handleDelete}
@@ -731,9 +733,9 @@ export default function Index({ users, filters, stats }) {
                                 Anda akan menghapus <strong>{selectedRows.length} akun</strong>. Tindakan ini tidak dapat dibatalkan.
                             </p>
                             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '22px' }}>
-                                <button type="button" disabled={bulkDeleting} onClick={() => setBulkDeleteOpen(false)} className="btn-cancel">Batal</button>
-                                <button type="button" disabled={bulkDeleting} onClick={handleBulkDelete} style={{ padding: '9px 18px', borderRadius: '10px', border: 'none', background: '#ef4444', color: 'white', fontSize: '13px', fontWeight: 700, cursor: bulkDeleting ? 'wait' : 'pointer', opacity: bulkDeleting ? 0.65 : 1 }}>
-                                    {bulkDeleting ? 'Menghapus...' : `Ya, Hapus ${selectedRows.length} Akun`}
+                                <button type="button" disabled={bulkDeleting} onClick={() => setBulkDeleteOpen(false)} className="btn-cancel"><X className="h-4 w-4" /> Batal</button>
+                                <button type="button" disabled={bulkDeleting} onClick={handleBulkDelete} style={{ padding: '9px 18px', borderRadius: '10px', border: 'none', background: '#ef4444', color: 'white', fontSize: '13px', fontWeight: 700, cursor: bulkDeleting ? 'wait' : 'pointer', opacity: bulkDeleting ? 0.65 : 1, display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                                    <Trash2 className="h-4 w-4" /> {bulkDeleting ? 'Menghapus...' : `Ya, Hapus ${selectedRows.length} Akun`}
                                 </button>
                             </div>
                         </div>
@@ -842,7 +844,7 @@ export default function Index({ users, filters, stats }) {
                                 </svg>
                                 Edit Data
                             </button>
-                            <button type="button" onClick={() => setDetailUser(null)} className="btn-cancel">Tutup</button>
+                            <button type="button" onClick={() => setDetailUser(null)} className="btn-cancel"><X className="h-4 w-4" /> Tutup</button>
                         </div>
                     </div>
                 </div>

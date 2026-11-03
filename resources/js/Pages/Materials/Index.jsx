@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Head, router, usePage } from '@inertiajs/react';
-import { BookOpen, Film, FileText, Filter, LayoutGrid, List, Newspaper, Search } from 'lucide-react';
+import { BookOpen, Film, FileText, Filter, LayoutGrid, List, Newspaper, Search, X } from 'lucide-react';
 import AdminLayout from '@/Layouts/AdminLayout';
 import MaterialCard from '@/Components/Materials/MaterialCard';
 import MaterialViewer from '@/Components/Materials/MaterialViewer';
@@ -192,9 +192,9 @@ export default function Index({ materials, active, filters, stats, types }) {
                                 setSearch('');
                                 router.get(route('materials.index'), {}, { preserveScroll: true });
                             }}
-                            className="text-sm font-semibold text-red-700 hover:underline"
+                            className="inline-flex items-center gap-1.5 text-sm font-semibold text-red-700 hover:underline"
                         >
-                            Reset filter
+                            <X className="h-4 w-4" /> Reset filter
                         </button>
                     )}
                 </div>

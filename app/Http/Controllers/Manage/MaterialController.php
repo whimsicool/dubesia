@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Manage;
 
 use App\Enums\MaterialType;
-use App\Http\Controllers\MaterialController as StudentMaterialController;
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\MaterialController as StudentMaterialController;
 use App\Http\Requests\Manage\MaterialRequest;
 use App\Http\Resources\MaterialResource;
 use App\Models\Material;
@@ -12,11 +12,11 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
-use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
 use Inertia\Response;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 /**
  * Kelola materi oleh tutor. Materi bersifat umum: tidak terikat kelas / jadwal.
@@ -232,9 +232,9 @@ class MaterialController extends Controller
                 'label' => $t->label(),
                 'uses_file' => $t->usesFile(),
                 'extensions' => $t->allowedExtensions(),
+                'max_upload_mb' => (int) round($t->maxUploadKb() / 1024),
             ])->all(),
             'levels' => config('dubesia.materials.levels'),
-            'max_upload_mb' => (int) round(config('dubesia.materials.max_upload_kb') / 1024),
         ];
     }
 }

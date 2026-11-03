@@ -1,7 +1,7 @@
 import AdminLayout from '@/Layouts/AdminLayout';
-import { Head, Link } from '@inertiajs/react';
+import { Head } from '@inertiajs/react';
 
-export default function Result({ hasilTes, totalSoal, showDashboardButton = false }) {
+export default function Result({ hasilTes, totalSoal }) {
     // Level configuration & descriptions
     const levelConfigs = {
         'Upper Intermediate': {
@@ -71,7 +71,7 @@ export default function Result({ hasilTes, totalSoal, showDashboardButton = fals
     const akurasi = totalSoal > 0 ? Math.round((hasilTes.jumlah_benar / totalSoal) * 100) : 0;
 
     return (
-        <AdminLayout bare={showDashboardButton} compact>
+        <AdminLayout compact>
             <Head title={`Hasil Tes Level - ${hasilTes.nama_murid}`} />
 
             <div className="py-3 sm:py-5 print:bg-white print:py-0">
@@ -223,19 +223,6 @@ export default function Result({ hasilTes, totalSoal, showDashboardButton = fals
                             </div>
                         </div>
                     </div>
-
-                    {/* Bottom Action - Hidden in Print */}
-                    {showDashboardButton && <div className="mt-5 flex justify-center gap-4 print:hidden">
-                        <Link
-                            href={route('dashboard')}
-                            className="inline-flex items-center gap-2 rounded-xl bg-slate-900 hover:bg-slate-800 active:scale-95 text-white px-6 py-3 text-sm font-semibold shadow-sm transition-all"
-                        >
-                            Masuk ke Dashboard
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                            </svg>
-                        </Link>
-                    </div>}
                 </div>
             </div>
         </AdminLayout>

@@ -786,6 +786,9 @@
     color: #64748b;
     cursor: pointer;
     transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
 }
 
 .btn-cancel:hover {

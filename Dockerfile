@@ -31,6 +31,7 @@ COPY .env.example ./.env.example
 RUN composer install --no-dev --no-interaction --no-progress --prefer-dist --optimize-autoloader
 RUN mkdir -p storage/framework/cache storage/framework/sessions storage/framework/views storage/logs bootstrap/cache && chmod -R 775 storage bootstrap/cache
 COPY --from=frontend /app/public/build ./public/build
+COPY docker/php.ini /usr/local/etc/php/conf.d/uploads.ini
 COPY docker/entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
 EXPOSE 8000

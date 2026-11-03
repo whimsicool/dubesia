@@ -36,9 +36,10 @@ class MaterialRequest extends FormRequest
     public function rules(): array
     {
         $type = $this->materialType();
+        $maxUploadKb = $type?->maxUploadKb() ?? config('dubesia.materials.max_upload_kb');
 
         $fileRules = $type?->usesFile()
-            ? ['nullable', 'file', 'max:'.config('dubesia.materials.max_upload_kb'), 'mimes:'.implode(',', $type->allowedExtensions())]
+            ? ['nullable', 'file', 'max:'.$maxUploadKb, 'mimes:'.implode(',', $type->allowedExtensions())]
             : ['prohibited'];
 
         return [
@@ -58,13 +59,15 @@ class MaterialRequest extends FormRequest
 
     public function messages(): array
     {
+        $maxUploadKb = $this->materialType()?->maxUploadKb() ?? config('dubesia.materials.max_upload_kb');
+
         return [
             'type.required' => 'Pilih jenis materi.',
             'title.required' => 'Judul materi wajib diisi.',
             'body.required' => 'Isi artikel wajib diisi.',
             'external_url.required' => 'Tautan wajib diisi.',
             'external_url.url' => 'Tautan harus berupa URL http:// atau https:// yang valid.',
-            'file.max' => 'Ukuran berkas melebihi batas unggah ('.round(config('dubesia.materials.max_upload_kb') / 1024).' MB).',
+            'file.max' => 'Ukuran berkas melebihi batas unggah ('.round($maxUploadKb / 1024).' MB).',
             'file.mimes' => 'Format berkas tidak didukung untuk jenis materi ini.',
             'file.uploaded' => 'Berkas gagal diunggah. Ukuran kemungkinan melebihi batas server (upload_max_filesize / post_max_size).',
             'file.prohibited' => 'Jenis materi ini tidak menerima berkas unggahan.',

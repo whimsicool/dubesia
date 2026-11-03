@@ -6,7 +6,7 @@ const rupiah = (value) =>
   `Rp ${Number(value ?? 0).toLocaleString('id-ID')}`;
 
 const inputClass =
-  'w-full min-w-0 rounded-lg border border-slate-200 bg-white px-3.5 py-3 text-sm text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100';
+  'w-full min-w-0 rounded-lg border border-slate-200 bg-white px-3.5 py-3 text-sm text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-dubesia-red focus:ring-2 focus:ring-dubesia-red/15';
 
 const FIELD_LABELS = {
   nama_lengkap: 'Nama lengkap',
@@ -97,26 +97,26 @@ function Shell({ children, editMode = false }) {
           <nav className="flex items-center gap-2 text-sm sm:gap-5">
             <Link
               href={route('bantuan-admisi')}
-              className="hidden text-slate-600 transition hover:text-blue-700 md:inline"
+              className="hidden text-slate-600 transition hover:text-dubesia-red md:inline"
             >
               Bantuan Admisi
             </Link>
 
             <Link
               href={route('panduan-pendaftaran')}
-              className="hidden text-slate-600 transition hover:text-blue-700 md:inline"
+              className="hidden text-slate-600 transition hover:text-dubesia-red md:inline"
             >
               Panduan Pendaftaran
             </Link>
 
             {editMode ? (
-              <Link href={route('logout')} method="post" as="button" className="rounded-lg bg-blue-50 px-3 py-2 text-center text-xs font-semibold text-blue-900 transition hover:bg-blue-100 sm:px-4 sm:text-sm">
+              <Link href={route('logout')} method="post" as="button" className="rounded-lg bg-dubesia-red-soft px-3 py-2 text-center text-xs font-semibold text-dubesia-red transition hover:bg-dubesia-red/10 sm:px-4 sm:text-sm">
                 Keluar
               </Link>
             ) : (
               <Link
                 href="/login"
-                className="rounded-lg bg-blue-50 px-3 py-2 text-center text-xs font-semibold text-blue-900 transition hover:bg-blue-100 sm:px-4 sm:text-sm"
+                className="rounded-lg bg-dubesia-red-soft px-3 py-2 text-center text-xs font-semibold text-dubesia-red transition hover:bg-dubesia-red/10 sm:px-4 sm:text-sm"
               >
                 Masuk
               </Link>
@@ -148,12 +148,12 @@ function Shell({ children, editMode = false }) {
           <div className="flex flex-wrap gap-4 text-xs font-semibold text-slate-600">
             <Link
               href={route('panduan-pendaftaran')}
-              className="hover:text-blue-700"
+              className="hover:text-dubesia-red"
             >
               Panduan Pendaftaran
             </Link>
 
-            <Link href={route('bantuan-admisi')} className="hover:text-blue-700">
+            <Link href={route('bantuan-admisi')} className="hover:text-dubesia-red">
               Bantuan Admisi
             </Link>
           </div>
@@ -329,7 +329,7 @@ export default function Create({
 
           <Link
             href="/login"
-            className="mt-6 inline-flex rounded-lg bg-blue-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-blue-700"
+            className="mt-6 inline-flex rounded-lg bg-dubesia-red px-5 py-3 text-sm font-semibold text-white transition hover:bg-dubesia-navy"
           >
             Kembali ke halaman masuk
           </Link>
@@ -340,8 +340,8 @@ export default function Create({
 
   return (
     <Shell editMode={editMode}>
-      <section className="mb-6 overflow-hidden rounded-2xl bg-gradient-to-r from-slate-950 to-blue-900 px-5 py-7 text-white shadow-sm sm:px-8 sm:py-9">
-        <p className="text-xs font-bold uppercase tracking-[0.18em] text-blue-200">
+      <section className="mb-6 overflow-hidden rounded-2xl bg-gradient-to-r from-dubesia-red via-dubesia-red to-dubesia-navy px-5 py-7 text-white shadow-sm sm:px-8 sm:py-9">
+        <p className="text-xs font-bold uppercase tracking-[0.18em] text-white/80">
           {editMode ? 'Perbaikan Pendaftaran' : 'Pendaftaran Calon Murid'}
         </p>
 
@@ -349,7 +349,7 @@ export default function Create({
           {editMode ? 'Perbaiki Data Pendaftaran' : 'Formulir Registrasi Calon Murid'}
         </h1>
 
-        <p className="mt-3 max-w-2xl text-sm leading-6 text-blue-100">
+        <p className="mt-3 max-w-2xl text-sm leading-6 text-white/85">
           {editMode
             ? 'Periksa catatan admin, perbaiki bagian yang diperlukan, lalu kirim kembali untuk diverifikasi.'
             : 'Lengkapi data diri Anda untuk menjadi bagian dari DUBESIA. Bersama kami, wujudkan masa depan global Anda.'}
@@ -457,7 +457,7 @@ export default function Create({
                 required
                 error={fieldError('no_whatsapp')}
               >
-                <div className="flex min-w-0 rounded-lg border border-slate-200 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-100">
+                <div className="flex min-w-0 rounded-lg border border-slate-200 focus-within:border-dubesia-red focus-within:ring-2 focus-within:ring-dubesia-red/15">
                   <span className="flex items-center rounded-l-lg bg-slate-100 px-3 text-sm font-semibold text-slate-600">
                     +62
                   </span>
@@ -515,8 +515,8 @@ export default function Create({
                     key={program.value}
                     className={`flex cursor-pointer gap-3 rounded-xl border p-4 transition ${
                       data.program === program.value
-                        ? 'border-blue-500 bg-blue-50 ring-1 ring-blue-200'
-                        : 'border-slate-200 hover:border-blue-200'
+                        ? 'border-dubesia-red bg-dubesia-red-soft ring-1 ring-dubesia-red/20'
+                        : 'border-slate-200 hover:border-dubesia-red/40'
                     }`}
                   >
                     <input
@@ -526,7 +526,7 @@ export default function Create({
                       value={program.value}
                       checked={data.program === program.value}
                       onChange={() => updateField('program', program.value)}
-                      className="mt-1 accent-blue-600"
+                      className="mt-1 accent-dubesia-red"
                     />
 
                     <span className="flex-1">
@@ -536,7 +536,7 @@ export default function Create({
                       <span className="mt-1 block text-xs leading-5 text-slate-500">
                         {program.deskripsi}
                       </span>
-                      <span className="mt-2 block text-sm font-bold text-blue-800">
+                      <span className="mt-2 block text-sm font-bold text-dubesia-red">
                         {rupiah(program.biaya)}
                       </span>
                     </span>
@@ -545,7 +545,7 @@ export default function Create({
               </div>
             </Field>
 
-            <div className="mt-4 rounded-xl bg-blue-50 p-4 sm:flex sm:items-center sm:justify-between">
+            <div className="mt-4 rounded-xl bg-dubesia-red-soft p-4 sm:flex sm:items-center sm:justify-between">
               <div>
                 <p className="text-sm font-semibold text-slate-700">
                   Biaya Pendaftaran
@@ -555,7 +555,7 @@ export default function Create({
                 </p>
               </div>
 
-              <p className="mt-2 text-2xl font-extrabold text-blue-800 sm:mt-0">
+              <p className="mt-2 text-2xl font-extrabold text-dubesia-red sm:mt-0">
                 {rupiah(selectedBiaya)}
               </p>
             </div>
@@ -586,8 +586,8 @@ export default function Create({
                 }}
                 className={`rounded-xl border-2 border-dashed p-6 text-center transition sm:p-8 ${
                   dragging
-                    ? 'border-blue-500 bg-blue-50'
-                    : 'border-slate-200 bg-slate-50 hover:border-blue-300'
+                    ? 'border-dubesia-red bg-dubesia-red-soft'
+                    : 'border-slate-200 bg-slate-50 hover:border-dubesia-red/50'
                 }`}
               >
                 <input
@@ -601,7 +601,7 @@ export default function Create({
                   }
                 />
 
-                <div className="text-3xl text-blue-600">↑</div>
+                <div className="text-3xl text-dubesia-red">↑</div>
 
                 {data.bukti_pembayaran ? (
                   <p className="mt-2 break-all text-sm font-semibold text-slate-800">
@@ -610,7 +610,7 @@ export default function Create({
                 ) : editMode && pendaftaran?.bukti_url ? (
                   <div className="mt-2 space-y-1">
                     <p className="text-sm font-semibold text-slate-800">Bukti pembayaran saat ini tetap digunakan</p>
-                    <a href={pendaftaran.bukti_url} target="_blank" rel="noreferrer" className="text-xs font-semibold text-blue-700 underline">
+                    <a href={pendaftaran.bukti_url} target="_blank" rel="noreferrer" className="text-xs font-semibold text-dubesia-red underline">
                       Lihat bukti yang tersimpan{pendaftaran.bukti_is_pdf ? ' (PDF)' : ''}
                     </a>
                   </div>
@@ -628,7 +628,7 @@ export default function Create({
                   <button
                     type="button"
                     onClick={() => fileInput.current?.click()}
-                    className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-700"
+                    className="rounded-lg bg-dubesia-red px-4 py-2 text-sm font-semibold text-white transition hover:bg-dubesia-navy"
                   >
                     Pilih File
                   </button>
@@ -673,7 +673,7 @@ export default function Create({
                   type="checkbox"
                   checked={data.setuju}
                   onChange={(e) => updateField('setuju', e.target.checked)}
-                  className="mt-1 h-4 w-4 shrink-0 accent-blue-600"
+                  className="mt-1 h-4 w-4 shrink-0 accent-dubesia-red"
                 />
 
                 <span>
@@ -690,7 +690,7 @@ export default function Create({
             <button
               type="submit"
               disabled={processing}
-              className="mt-6 flex w-full items-center justify-center rounded-lg bg-blue-600 px-5 py-3.5 text-sm font-bold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
+              className="mt-6 flex w-full items-center justify-center rounded-lg bg-dubesia-red px-5 py-3.5 text-sm font-bold text-white transition hover:bg-dubesia-navy disabled:cursor-not-allowed disabled:opacity-60"
             >
               {processing
                 ? (editMode ? 'Mengirim perbaikan...' : 'Mengirim pendaftaran...')
@@ -699,7 +699,7 @@ export default function Create({
 
             {!editMode && <p className="mt-4 text-center text-sm text-slate-500">
               Sudah memiliki akun?{' '}
-              <Link href="/login" className="font-semibold text-blue-700 hover:underline">
+              <Link href="/login" className="font-semibold text-dubesia-red hover:underline">
                 Masuk di sini
               </Link>
             </p>}
@@ -720,7 +720,7 @@ export default function Create({
 
             {!editMode && (
               <>
-                <p className="mt-4 text-2xl font-extrabold text-blue-800">{rupiah(selectedBiaya)}</p>
+                <p className="mt-4 text-2xl font-extrabold text-dubesia-red">{rupiah(selectedBiaya)}</p>
 
                 <div className="mt-4 space-y-3">
                   {rekening.map((account) => (
@@ -740,7 +740,7 @@ export default function Create({
                     <button
                       type="button"
                       onClick={() => copyAccount(account.nomor)}
-                      className="shrink-0 rounded-md border border-slate-200 px-2.5 py-1.5 text-xs font-semibold text-blue-700 hover:bg-blue-50"
+                      className="shrink-0 rounded-md border border-slate-200 px-2.5 py-1.5 text-xs font-semibold text-dubesia-red hover:bg-dubesia-red-soft"
                     >
                       {copied === account.nomor ? 'Tersalin' : 'Salin'}
                     </button>
@@ -769,7 +769,7 @@ export default function Create({
 
             <ol className="mt-4 space-y-4 text-sm text-slate-600">
               <li className="flex gap-3">
-                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-blue-50 font-bold text-blue-700">
+                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-dubesia-red-soft font-bold text-dubesia-red">
                   1
                 </span>
                 <span>
@@ -780,7 +780,7 @@ export default function Create({
               </li>
 
               <li className="flex gap-3">
-                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-blue-50 font-bold text-blue-700">
+                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-dubesia-red-soft font-bold text-dubesia-red">
                   2
                 </span>
                 <span>
@@ -791,7 +791,7 @@ export default function Create({
               </li>
 
               <li className="flex gap-3">
-                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-blue-50 font-bold text-blue-700">
+                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-dubesia-red-soft font-bold text-dubesia-red">
                   3
                 </span>
                 <span>

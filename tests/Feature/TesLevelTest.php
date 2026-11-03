@@ -147,7 +147,7 @@ class TesLevelTest extends TestCase
         $this->assertEquals('Upper Intermediate', $hasil->level_kelas);
         $this->assertEquals('completed', $hasil->status_hasil);
 
-        $response->assertRedirect(route('tes-level.onboarding-result', $hasil->id_hasil));
+        $response->assertRedirect(route('dashboard'));
     }
 
     public function test_grading_logic_thresholds(): void

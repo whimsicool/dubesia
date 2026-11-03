@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Head, Link, useForm } from '@inertiajs/react';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Save, Upload, X } from 'lucide-react';
 import AdminLayout from '@/Layouts/AdminLayout';
 import FileDropzone from '@/Components/Materials/FileDropzone';
 import SimpleMarkdown from '@/Components/Materials/SimpleMarkdown';
@@ -144,7 +144,7 @@ export default function Form({ material, options, routePrefix = 'tutor.materials
                                     file={data.file}
                                     onFile={(f) => setData('file', f)}
                                     extensions={typeOpt.extensions}
-                                    maxMb={options.max_upload_mb}
+                                    maxMb={typeOpt.max_upload_mb}
                                     existing={existingFile}
                                     progress={progress}
                                     error={errors.file}
@@ -223,14 +223,14 @@ export default function Form({ material, options, routePrefix = 'tutor.materials
                 </section>
 
                 <div className="flex flex-wrap justify-end gap-3">
-                    <Link href={route(`${routePrefix}.index`)} className="rounded-lg border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50">
-                        Batal
+                    <Link href={route(`${routePrefix}.index`)} className="inline-flex items-center gap-2 rounded-lg border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50">
+                        <X className="h-4 w-4" /> Batal
                     </Link>
-                    <button type="button" disabled={processing} onClick={submit('draft')} className="rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 hover:bg-slate-50 disabled:opacity-60">
-                        Simpan sebagai Draft
+                    <button type="button" disabled={processing} onClick={submit('draft')} className="inline-flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 hover:bg-slate-50 disabled:opacity-60">
+                        <Save className="h-4 w-4" /> Simpan sebagai Draft
                     </button>
-                    <button type="submit" disabled={processing} className="rounded-lg bg-slate-900 px-5 py-2.5 text-sm font-semibold text-white hover:bg-slate-800 disabled:opacity-60">
-                        {processing ? 'Menyimpan…' : publishLabel}
+                    <button type="submit" disabled={processing} className="inline-flex items-center gap-2 rounded-lg bg-slate-900 px-5 py-2.5 text-sm font-semibold text-white hover:bg-slate-800 disabled:opacity-60">
+                        <Upload className="h-4 w-4" /> {processing ? 'Menyimpan…' : publishLabel}
                     </button>
                 </div>
             </form>

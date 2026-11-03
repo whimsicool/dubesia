@@ -34,4 +34,11 @@ enum MaterialType: string
     {
         return config('dubesia.materials.mimes.'.$this->value, []);
     }
+
+    /** Batas ukuran berkas untuk tipe ini, dalam KB. */
+    public function maxUploadKb(): int
+    {
+        return (int) (config('dubesia.materials.max_upload_kb_by_type.'.$this->value)
+            ?? config('dubesia.materials.max_upload_kb'));
+    }
 }

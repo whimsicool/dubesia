@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Head, Link, router, useForm } from '@inertiajs/react';
-import { ArrowLeft, BadgeCheck, XCircle, ExternalLink } from '@/Components/Icons';
+import { ArrowLeft, BadgeCheck, ExternalLink, Send, X, XCircle } from '@/Components/Icons';
 import AdminLayout from '@/Layouts/AdminLayout';
 import StatusBadge from '@/Components/StatusBadge';
 import PageBreadcrumbs from '@/Components/Admin/PageBreadcrumbs';
@@ -19,7 +19,6 @@ function Row({ label, children }) {
 export default function Show({ pendaftaran: p, flash }) {
   const [showTolak, setShowTolak] = useState(false);
   const [showVerif, setShowVerif] = useState(false);
-  const [showBukti, setShowBukti] = useState(false);
   const [busy, setBusy] = useState(false);
   const { data, setData, post, processing, errors, reset, clearErrors } = useForm({ catatan_verifikasi: '' });
 
@@ -85,36 +84,19 @@ export default function Show({ pendaftaran: p, flash }) {
               <h2 className="text-sm font-bold text-[#0f1b2d]">Bukti Pembayaran</h2>
               <span className="text-lg font-extrabold text-[#b91c1c]">{rupiah(p.biaya)}</span>
             </div>
-            {!showBukti ? (
-              <button
-                type="button"
-                onClick={() => setShowBukti(true)}
-                className="mt-4 flex min-h-24 w-full items-center justify-center rounded-xl border border-dashed border-slate-300 bg-slate-50 px-4 text-sm font-bold text-[#0f1b2d] transition hover:border-blue-400 hover:bg-blue-50"
-              >
-                Lihat bukti pembayaran{p.bukti_is_pdf ? ' (PDF)' : ''}
-              </button>
-            ) : (
-              <>
-                <div className="mt-3 overflow-hidden rounded-xl bg-[#eef3fd]">
-                  {p.bukti_is_pdf ? (
-                    <iframe src={p.bukti_url} title="Bukti pembayaran" className="h-[480px] w-full" />
-                  ) : (
-                    <a href={p.bukti_url} target="_blank" rel="noreferrer">
-                      <img src={p.bukti_url} alt="Bukti pembayaran" className="max-h-[480px] w-full object-contain" />
-                    </a>
-                  )}
-                </div>
-                <div className="mt-3 flex items-center gap-4">
-                  <button type="button" onClick={() => setShowBukti(false)} className="text-xs font-bold text-slate-600 hover:underline">
-                    Tutup pratinjau
-                  </button>
-                  <a href={p.bukti_url} target="_blank" rel="noreferrer"
-                    className="inline-flex items-center gap-1.5 text-xs font-bold text-[#b91c1c] hover:underline">
-                    <ExternalLink className="h-3.5 w-3.5" /> Buka di tab baru
-                  </a>
-                </div>
-              </>
-            )}
+            <div className="mt-3 overflow-hidden rounded-xl bg-[#eef3fd]">
+              {p.bukti_is_pdf ? (
+                <iframe src={p.bukti_url} title="Bukti pembayaran" className="h-[480px] w-full" />
+              ) : (
+                <a href={p.bukti_url} target="_blank" rel="noreferrer">
+                  <img src={p.bukti_url} alt="Bukti pembayaran" className="max-h-[480px] w-full object-contain" />
+                </a>
+              )}
+            </div>
+            <a href={p.bukti_url} target="_blank" rel="noreferrer"
+              className="mt-3 inline-flex items-center gap-1.5 text-xs font-bold text-[#b91c1c] hover:underline">
+              <ExternalLink className="h-3.5 w-3.5" /> Buka di tab baru
+            </a>
           </section>
         </div>
 
@@ -143,10 +125,12 @@ export default function Show({ pendaftaran: p, flash }) {
             <h3 className="text-lg font-bold text-[#0f1b2d]">Verifikasi pendaftaran?</h3>
             <p className="mt-2 text-sm text-slate-600">Status menjadi Terverifikasi dan akun murid akan diaktifkan.</p>
             <div className="mt-5 flex justify-end gap-2">
-              <button onClick={() => setShowVerif(false)} className="rounded-lg px-4 py-2 text-sm font-semibold text-slate-600">Batal</button>
+              <button onClick={() => setShowVerif(false)} className="inline-flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-semibold text-slate-600">
+                <X className="h-4 w-4" /> Batal
+              </button>
               <button onClick={verifikasi} disabled={busy}
-                className="rounded-lg bg-[#0f1b2d] px-5 py-2 text-sm font-bold text-white disabled:opacity-60">
-                {busy ? 'Memproses...' : 'Ya, Verifikasi'}
+                className="inline-flex items-center gap-1.5 rounded-lg bg-[#0f1b2d] px-5 py-2 text-sm font-bold text-white disabled:opacity-60">
+                <BadgeCheck className="h-4 w-4" /> {busy ? 'Memproses...' : 'Ya, Verifikasi'}
               </button>
             </div>
           </div>
@@ -167,10 +151,12 @@ export default function Show({ pendaftaran: p, flash }) {
               placeholder="Contoh: Bukti transfer tidak terbaca, mohon kirim ulang foto yang lebih jelas." />
             {errors.catatan_verifikasi && <p className="mt-1.5 text-xs text-red-600">{errors.catatan_verifikasi}</p>}
             <div className="mt-5 flex justify-end gap-2">
-              <button type="button" onClick={tutupTolak} className="rounded-lg px-4 py-2 text-sm font-semibold text-slate-600">Batal</button>
+              <button type="button" onClick={tutupTolak} className="inline-flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-semibold text-slate-600">
+                <X className="h-4 w-4" /> Batal
+              </button>
               <button disabled={processing}
-                className="rounded-lg bg-[#b91c1c] px-5 py-2 text-sm font-bold text-white disabled:opacity-60">
-                {processing ? 'Mengirim...' : 'Kirim'}
+                className="inline-flex items-center gap-1.5 rounded-lg bg-[#b91c1c] px-5 py-2 text-sm font-bold text-white disabled:opacity-60">
+                <Send className="h-4 w-4" /> {processing ? 'Mengirim...' : 'Kirim'}
               </button>
             </div>
           </form>

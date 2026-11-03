@@ -95,7 +95,7 @@ class TesLevelController extends Controller
             ->where('status_hasil', 'in_progress')
             ->first();
 
-        if (!$tesAktif) {
+        if (! $tesAktif) {
             return redirect()->route('tes-level.index');
         }
 
@@ -193,7 +193,7 @@ class TesLevelController extends Controller
             ->where('status_hasil', 'in_progress')
             ->first();
 
-        if (!$tesAktif) {
+        if (! $tesAktif) {
             return redirect()->route('tes-level.index');
         }
 
@@ -231,9 +231,8 @@ class TesLevelController extends Controller
 
         $user->forceFill(['class_level' => $levelKelas])->save();
 
-        return redirect()->route('tes-level.onboarding-result', $tesAktif->id_hasil);
+        return redirect()->route('dashboard');
     }
-
 
     public function myResult()
     {
@@ -249,17 +248,7 @@ class TesLevelController extends Controller
      * Step 9: Menampilkan halaman hasil tes.
      * Sequence Diagram: 9.2 DisplayNilaiTes() → 9.3 DisplayLevelKelas()
      */
-    public function onboardingResult($id)
-    {
-        return $this->renderResult($id, true);
-    }
-
     public function result($id)
-    {
-        return $this->renderResult($id, false);
-    }
-
-    private function renderResult($id, bool $showDashboardButton)
     {
         $user = auth()->user();
 
@@ -273,7 +262,6 @@ class TesLevelController extends Controller
         return Inertia::render('TesLevel/Result', [
             'hasilTes' => $hasilTes,
             'totalSoal' => $totalSoal,
-            'showDashboardButton' => $showDashboardButton,
         ]);
     }
 }

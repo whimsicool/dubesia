@@ -9,9 +9,9 @@ use App\Mail\PendaftaranDitolakMail;
 use App\Models\Pendaftaran;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Throwable;
@@ -22,7 +22,7 @@ class CalonMuridController extends Controller
     public function index(Request $request)
     {
         $filters = [
-            'q'      => $request->query('q', ''),
+            'q' => $request->query('q', ''),
             'status' => $request->query('status', ''),
         ];
 
@@ -33,18 +33,19 @@ class CalonMuridController extends Controller
                     ->where('nama_lengkap', 'like', "%{$term}%")
                     ->orWhere('email', 'like', "%{$term}%"));
             })
+            ->orderByRaw('CASE WHEN status = ? THEN 0 ELSE 1 END', [Pendaftaran::STATUS_MENUNGGU])
             ->orderByRaw('COALESCE(resubmitted_at, created_at) DESC')
             ->orderByDesc('created_at')
             ->paginate(10)
             ->withQueryString()
             ->through(fn ($p) => [
-                'id'             => $p->id,
-                'nama_lengkap'   => $p->nama_lengkap,
-                'email'          => $p->email,
-                'program'        => Pendaftaran::labelProgram($p->program),
+                'id' => $p->id,
+                'nama_lengkap' => $p->nama_lengkap,
+                'email' => $p->email,
+                'program' => Pendaftaran::labelProgram($p->program),
                 'tanggal_daftar' => $p->created_at->format('d M Y, H:i'),
-                'status'         => $p->status,
-                'status_label'   => Pendaftaran::STATUS_LABEL[$p->status] ?? $p->status,
+                'status' => $p->status,
+                'status_label' => Pendaftaran::STATUS_LABEL[$p->status] ?? $p->status,
                 'perbaikan_baru' => $p->status === Pendaftaran::STATUS_MENUNGGU && $p->resubmitted_at !== null,
             ]);
 
@@ -54,11 +55,11 @@ class CalonMuridController extends Controller
 
         return Inertia::render('Admin/CalonMurid/Index', [
             'pendaftarans' => $pendaftarans,
-            'filters'      => $filters,
-            'statuses'     => Pendaftaran::STATUS_LABEL,
-            'ringkasan'    => $ringkasan,
-            'flash'        => [
-                'sukses'     => session('sukses'),
+            'filters' => $filters,
+            'statuses' => Pendaftaran::STATUS_LABEL,
+            'ringkasan' => $ringkasan,
+            'flash' => [
+                'sukses' => session('sukses'),
                 'peringatan' => session('peringatan'),
             ],
         ]);
@@ -71,27 +72,27 @@ class CalonMuridController extends Controller
 
         return Inertia::render('Admin/CalonMurid/Show', [
             'pendaftaran' => [
-                'id'                 => $pendaftaran->id,
-                'nama_lengkap'       => $pendaftaran->nama_lengkap,
-                'tanggal_lahir'      => $pendaftaran->tanggal_lahir->format('d M Y'),
-                'email'              => $pendaftaran->email,
-                'no_whatsapp'        => '+'.$pendaftaran->no_whatsapp,
-                'alamat'             => $pendaftaran->alamat,
-                'asal_institusi'     => $pendaftaran->asal_institusi,
-                'program'            => Pendaftaran::labelProgram($pendaftaran->program),
-                'pesan_motivasi'     => $pendaftaran->pesan_motivasi,
-                'biaya'              => $pendaftaran->biaya,
-                'tanggal_daftar'     => $pendaftaran->created_at->format('d M Y, H:i'),
-                'status'             => $pendaftaran->status,
-                'status_label'       => Pendaftaran::STATUS_LABEL[$pendaftaran->status] ?? $pendaftaran->status,
-                'perbaikan_baru'     => $pendaftaran->status === Pendaftaran::STATUS_MENUNGGU && $pendaftaran->resubmitted_at !== null,
+                'id' => $pendaftaran->id,
+                'nama_lengkap' => $pendaftaran->nama_lengkap,
+                'tanggal_lahir' => $pendaftaran->tanggal_lahir->format('d M Y'),
+                'email' => $pendaftaran->email,
+                'no_whatsapp' => '+'.$pendaftaran->no_whatsapp,
+                'alamat' => $pendaftaran->alamat,
+                'asal_institusi' => $pendaftaran->asal_institusi,
+                'program' => Pendaftaran::labelProgram($pendaftaran->program),
+                'pesan_motivasi' => $pendaftaran->pesan_motivasi,
+                'biaya' => $pendaftaran->biaya,
+                'tanggal_daftar' => $pendaftaran->created_at->format('d M Y, H:i'),
+                'status' => $pendaftaran->status,
+                'status_label' => Pendaftaran::STATUS_LABEL[$pendaftaran->status] ?? $pendaftaran->status,
+                'perbaikan_baru' => $pendaftaran->status === Pendaftaran::STATUS_MENUNGGU && $pendaftaran->resubmitted_at !== null,
                 'dikirim_ulang_pada' => $pendaftaran->resubmitted_at?->format('d M Y, H:i'),
-                'bukti_url'          => route('admin.calon-murid.bukti', $pendaftaran),
-                'bukti_is_pdf'       => $pendaftaran->bukti_is_pdf,
+                'bukti_url' => route('admin.calon-murid.bukti', $pendaftaran),
+                'bukti_is_pdf' => $pendaftaran->bukti_is_pdf,
                 'catatan_verifikasi' => $pendaftaran->catatan_verifikasi,
-                'diverifikasi_oleh'  => $pendaftaran->verifikator?->name,
-                'diverifikasi_pada'  => $pendaftaran->verified_at?->format('d M Y, H:i'),
-                'bisa_diproses'      => $pendaftaran->status === Pendaftaran::STATUS_MENUNGGU,
+                'diverifikasi_oleh' => $pendaftaran->verifikator?->name,
+                'diverifikasi_pada' => $pendaftaran->verified_at?->format('d M Y, H:i'),
+                'bisa_diproses' => $pendaftaran->status === Pendaftaran::STATUS_MENUNGGU,
             ],
             'flash' => ['error' => session('error')],
         ]);
@@ -125,15 +126,15 @@ class CalonMuridController extends Controller
                 }
 
                 $p->update([
-                    'status'             => Pendaftaran::STATUS_TERVERIFIKASI,
+                    'status' => Pendaftaran::STATUS_TERVERIFIKASI,
                     'catatan_verifikasi' => null,
-                    'verified_by'        => $request->user()->id,
-                    'verified_at'        => now(),
+                    'verified_by' => $request->user()->id,
+                    'verified_at' => now(),
                 ]);
                 $user->update([
-                    'password'  => $temporaryPassword,
+                    'password' => $temporaryPassword,
                     'is_active' => true,
-                    'no_hp'     => '+'.$p->no_whatsapp,
+                    'no_hp' => '+'.$p->no_whatsapp,
                 ]);
 
                 Log::info('Dispatching registration approval email.', ['registration_id' => $p->id]);
@@ -168,10 +169,10 @@ class CalonMuridController extends Controller
                 }
 
                 $p->update([
-                    'status'             => Pendaftaran::STATUS_DITOLAK,
+                    'status' => Pendaftaran::STATUS_DITOLAK,
                     'catatan_verifikasi' => $request->validated('catatan_verifikasi'),
-                    'verified_by'        => $request->user()->id,
-                    'verified_at'        => now(),
+                    'verified_by' => $request->user()->id,
+                    'verified_at' => now(),
                 ]);
 
                 Log::info('Dispatching registration rejection email.', ['registration_id' => $p->id]);

@@ -30,7 +30,11 @@ return [
     'materials' => [
         'disk' => 'local',
         'directory' => 'materials',
-        'max_upload_kb' => 512000, // 500 MB
+        'max_upload_kb' => 512000, // 500 MB — batas bawaan untuk semua jenis berkas
+        // Batas khusus per jenis materi. Video dibatasi 50 MB untuk menghemat storage.
+        'max_upload_kb_by_type' => [
+            'video' => 51200, // 50 MB
+        ],
         'levels' => ['Beginner', 'Intermediate low', 'Intermediate', 'Intermediate Up', 'Advanced'],
         'legacy_level_map' => [
             'A1' => 'Beginner',

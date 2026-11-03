@@ -1,5 +1,6 @@
 import AdminLayout from '@/Layouts/AdminLayout';
 import { Head, Link, useForm } from '@inertiajs/react';
+import { Play, X } from 'lucide-react';
 import { useState } from 'react';
 
 export default function Index({ totalSoal, durasiMenit, hasilTes, tesAktif }) {
@@ -201,16 +202,16 @@ export default function Index({ totalSoal, durasiMenit, hasilTes, tesAktif }) {
                         <div className="flex gap-3">
                             <button
                                 onClick={() => setShowConfirm(false)}
-                                className="flex-1 rounded-xl border border-gray-300 px-4 py-3 text-sm font-medium text-gray-700 transition-all hover:bg-gray-50"
+                                className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-gray-300 px-4 py-3 text-sm font-medium text-gray-700 transition-all hover:bg-gray-50"
                             >
-                                Batal
+                                <X className="h-4 w-4" /> Batal
                             </button>
                             <button
                                 onClick={confirmStartTes}
                                 disabled={processing}
-                                className="flex-1 rounded-xl bg-primary-container px-4 py-3 text-sm font-semibold text-white shadow-md transition-all hover:bg-on-surface disabled:opacity-50"
+                                className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-primary-container px-4 py-3 text-sm font-semibold text-white shadow-md transition-all hover:bg-on-surface disabled:opacity-50"
                             >
-                                {processing ? 'Memulai...' : 'Ya, Mulai Tes'}
+                                <Play className="h-4 w-4" /> {processing ? 'Memulai...' : 'Ya, Mulai Tes'}
                             </button>
                         </div>
                     </div>

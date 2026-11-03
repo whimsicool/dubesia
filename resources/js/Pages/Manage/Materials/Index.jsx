@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Head, Link, router, usePage } from '@inertiajs/react';
-import { CalendarDays, CheckCircle2, ExternalLink, Grid2X2, List, Pencil, Plus, Search, Star, Trash2, TriangleAlert, Upload, UserRound, Users } from 'lucide-react';
+import { CalendarDays, CheckCircle2, ExternalLink, Grid2X2, List, Pencil, Plus, Search, Star, Trash2, TriangleAlert, Upload, UserRound, Users, X } from 'lucide-react';
 import AdminLayout from '@/Layouts/AdminLayout';
 import Modal from '@/Components/Admin/Modal';
 import Pagination from '@/Components/Common/Pagination';
@@ -270,16 +270,16 @@ export default function Index({ materials, filters, types, routePrefix = 'tutor.
                 title="Hapus materi?"
                 footer={
                     <>
-                        <button type="button" onClick={() => setDeleting(null)} className="rounded-lg border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50">
-                            Batal
+                        <button type="button" onClick={() => setDeleting(null)} className="inline-flex items-center gap-2 rounded-lg border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50">
+                            <X className="h-4 w-4" /> Batal
                         </button>
                         <button
                             type="button"
                             onClick={confirmDelete}
                             disabled={processing}
-                            className="rounded-lg bg-red-700 px-4 py-2 text-sm font-semibold text-white hover:bg-red-800 disabled:opacity-60"
+                            className="inline-flex items-center gap-2 rounded-lg bg-red-700 px-4 py-2 text-sm font-semibold text-white hover:bg-red-800 disabled:opacity-60"
                         >
-                            {processing ? 'Menghapus…' : 'Ya, hapus materi'}
+                            <Trash2 className="h-4 w-4" /> {processing ? 'Menghapus…' : 'Ya, hapus materi'}
                         </button>
                     </>
                 }

@@ -12,8 +12,8 @@ use App\Http\Controllers\Student\GradeController as StudentGradeViewController;
 use App\Http\Controllers\StudentGradeController;
 use App\Http\Controllers\TesLevelController;
 use App\Http\Controllers\Tutor\AttendanceController;
-use App\Http\Controllers\Tutor\ScheduleAttendanceController;
 use App\Http\Controllers\Tutor\GradeComponentController;
+use App\Http\Controllers\Tutor\ScheduleAttendanceController;
 use App\Http\Controllers\Tutor\StudentClassGradeController;
 use App\Http\Controllers\TutorClassController;
 use App\Http\Controllers\TutorClassStudentController;
@@ -130,7 +130,6 @@ Route::middleware('auth')->group(function () {
         Route::post('/auto-save', [TesLevelController::class, 'autoSave'])->name('auto-save');
         Route::post('/toggle-tandai', [TesLevelController::class, 'toggleTandai'])->name('toggle-tandai');
         Route::post('/submit', [TesLevelController::class, 'submit'])->name('submit');
-        Route::get('/onboarding-result/{id}', [TesLevelController::class, 'onboardingResult'])->name('onboarding-result');
         Route::get('/result/{id}', [TesLevelController::class, 'result'])->name('result');
     });
 });
