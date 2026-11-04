@@ -70,6 +70,7 @@ export default function Show({ pendaftaran: p, flash }) {
               <Row label="WhatsApp">{p.no_whatsapp}</Row>
               <Row label="Alamat">{p.alamat}</Row>
               <Row label="Asal Institusi">{p.asal_institusi}</Row>
+              <Row label="Pendidikan Terakhir">{p.pendidikan_terakhir}</Row>
               <Row label="Program"><span className="capitalize">{p.program}</span></Row>
               <Row label="Motivasi">{p.pesan_motivasi}</Row>
               <Row label="Tanggal Daftar">{p.tanggal_daftar}</Row>
@@ -85,7 +86,11 @@ export default function Show({ pendaftaran: p, flash }) {
               <span className="text-lg font-extrabold text-[#b91c1c]">{rupiah(p.biaya)}</span>
             </div>
             <div className="mt-3 overflow-hidden rounded-xl bg-[#eef3fd]">
-              {p.bukti_is_pdf ? (
+              {!p.has_bukti ? (
+                <p className="px-4 py-12 text-center text-sm text-slate-600">
+                  Calon murid belum mengunggah bukti pembayaran.
+                </p>
+              ) : p.bukti_is_pdf ? (
                 <iframe src={p.bukti_url} title="Bukti pembayaran" className="h-[480px] w-full" />
               ) : (
                 <a href={p.bukti_url} target="_blank" rel="noreferrer">
@@ -93,10 +98,12 @@ export default function Show({ pendaftaran: p, flash }) {
                 </a>
               )}
             </div>
-            <a href={p.bukti_url} target="_blank" rel="noreferrer"
-              className="mt-3 inline-flex items-center gap-1.5 text-xs font-bold text-[#b91c1c] hover:underline">
-              <ExternalLink className="h-3.5 w-3.5" /> Buka di tab baru
-            </a>
+            {p.has_bukti && (
+              <a href={p.bukti_url} target="_blank" rel="noreferrer"
+                className="mt-3 inline-flex items-center gap-1.5 text-xs font-bold text-[#b91c1c] hover:underline">
+                <ExternalLink className="h-3.5 w-3.5" /> Buka di tab baru
+              </a>
+            )}
           </section>
         </div>
 

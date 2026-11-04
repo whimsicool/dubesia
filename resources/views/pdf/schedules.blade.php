@@ -16,24 +16,6 @@
             color: #263247;
         }
 
-        .header {
-            text-align: center;
-            border-bottom: 2px solid #263247;
-            padding-bottom: 12px;
-            margin-bottom: 15px;
-        }
-
-        .header h1 {
-            font-size: 19px;
-            margin: 0 0 5px;
-            letter-spacing: 1px;
-        }
-
-        .header p {
-            margin: 3px 0;
-            color: #64748b;
-        }
-
         .info {
             width: 100%;
             margin-bottom: 15px;
@@ -97,11 +79,10 @@
 </head>
 
 <body>
-    <div class="header">
-        <h1>DUBESIA</h1>
-        <p>Laporan Jadwal Belajar</p>
-        <p>{{ $semester?->name ?? 'Tidak ada semester aktif' }}</p>
-    </div>
+    @include('pdf.partials.kop')
+
+    <p class="kop-title">LAPORAN JADWAL BELAJAR</p>
+    <p class="kop-meta">{{ $semester?->name ?? 'Tidak ada semester aktif' }}</p>
 
     <table class="info">
         <tr>
@@ -198,5 +179,4 @@
         | Dokumen dibuat secara otomatis oleh Dubesia
     </div>
 </body>
-
 </html>

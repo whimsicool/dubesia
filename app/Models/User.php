@@ -26,6 +26,16 @@ class User extends Authenticatable
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
 
+    /**
+     * Nilai bawaan yang sama dengan default kolom database. Tanpa ini, model
+     * yang baru dibuat tanpa atribut is_active terbaca tidak aktif di memori.
+     *
+     * @var array<string, mixed>
+     */
+    protected $attributes = [
+        'is_active' => true,
+    ];
+
     protected $appends = ['avatar_url'];
 
     public function classAttendancesAsStudent(): HasMany

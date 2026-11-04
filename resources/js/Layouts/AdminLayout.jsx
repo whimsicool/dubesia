@@ -15,6 +15,7 @@ import {
     UserCheck,
     UserRound,
     Users,
+    Wallet,
     X,
 } from 'lucide-react';
 
@@ -42,6 +43,12 @@ const NAV = {
                     active: 'admin.calon-murid.*',
                     badge: 'pendingRegistrations',
                 },
+            ],
+        },
+        {
+            heading: 'Keuangan',
+            items: [
+                { label: 'Pembayaran Masuk', icon: Wallet, route: 'admin.pembayaran.index', active: 'admin.pembayaran.*' },
             ],
         },
         {

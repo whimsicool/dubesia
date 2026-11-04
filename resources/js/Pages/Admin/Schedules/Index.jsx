@@ -2,10 +2,8 @@
 import { useState } from 'react';
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import {
-    ChevronDown,
     CirclePlus,
     Download,
-    FileSpreadsheet,
 } from 'lucide-react';
 import AdminLayout from '@/Layouts/AdminLayout';
 import FlashBanner from '@/Components/Common/FlashBanner';
@@ -18,47 +16,15 @@ import DeleteScheduleModal from '@/Components/Schedules/DeleteScheduleModal';
 import AttendanceModal from '@/Components/Schedules/AttendanceModal';
 import { cleanParams, formatWeekRange } from '@/Components/Schedules/constants';
 
-function ExportMenu({ exportUrl, pdfUrl }) {
-    const [open, setOpen] = useState(false);
-
+function ExportButton({ pdfUrl }) {
     return (
-        <div className="relative">
-            <button
-                type="button"
-                onClick={() => setOpen((v) => !v)}
-                onBlur={() => setTimeout(() => setOpen(false), 150)}
-                className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 shadow-sm hover:bg-slate-50"
-            >
-                <Download className="h-4 w-4" />
-                Ekspor Jadwal
-                <ChevronDown className="h-4 w-4 text-slate-400" />
-            </button>
-
-            {open && (
-                <div className="absolute right-0 z-30 mt-2 w-56 overflow-hidden rounded-xl border border-slate-100 bg-white py-1 shadow-lg">
-                    <a
-                        href={exportUrl}
-                        download="jadwal-belajar.csv"
-                        onMouseDown={(event) => event.preventDefault()}
-                        onClick={() => setOpen(false)}
-                        className="flex items-center gap-2 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50"
-                    >
-                        <FileSpreadsheet className="h-4 w-4 text-slate-400" />
-                        Unduh CSV (Excel)
-                    </a>
-
-                    <a
-                        href={pdfUrl}
-                        onMouseDown={(event) => event.preventDefault()}
-                        onClick={() => setOpen(false)}
-                        className="flex items-center gap-2 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50"
-                    >
-                        <Download className="h-4 w-4 text-red-700" />
-                        Unduh PDF
-                    </a>
-                </div>
-            )}
-        </div>
+        <a
+            href={pdfUrl}
+            className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 shadow-sm hover:bg-slate-50"
+        >
+            <Download className="h-4 w-4 text-red-700" />
+            Unduh PDF
+        </a>
     );
 }
 
@@ -100,11 +66,6 @@ export default function Index({ semester, week, filters, schedules, options }) {
     };
 
     const openAttendance = (schedule, date) => setAttendance({ schedule, date });
-
-    const exportUrl = route(
-        'admin.schedules.export',
-        cleanParams({ ...filters })
-    );
 
     const pdfUrl = route(
         'admin.schedules.pdf',
@@ -149,10 +110,7 @@ export default function Index({ semester, week, filters, schedules, options }) {
                 </div>
 
                 <div className="flex flex-wrap items-center gap-3 print:hidden">
-                    <ExportMenu
-                        exportUrl={exportUrl}
-                        pdfUrl={pdfUrl}
-                    />
+                    <ExportButton pdfUrl={pdfUrl} />
 
                     <button
                         type="button"

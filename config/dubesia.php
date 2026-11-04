@@ -10,6 +10,14 @@ return [
     ],
 
     /*
+    | Jeda pengiriman email pengingat pembayaran bagi calon murid yang belum
+    | melanjutkan pembayaran. Tahap percobaan memakai jeda harian.
+    */
+    'payment_reminder' => [
+        'interval_days' => (int) env('PAYMENT_REMINDER_INTERVAL_DAYS', 1),
+    ],
+
+    /*
     | Hari belajar yang ditampilkan di kalender (1 = Senin ... 6 = Sabtu).
     */
     'days' => [

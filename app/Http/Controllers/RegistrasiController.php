@@ -10,34 +10,76 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 use Inertia\Inertia;
+use Inertia\Response;
 use Throwable;
 
 class RegistrasiController extends Controller
 {
-    public function edit(Request $request)
+    public function create(): Response
+    {
+        return Inertia::render('Registrasi/Create', [
+            ...$this->formOptions(),
+            'editMode' => false,
+        ]);
+    }
+
+    public function store(StoreRegistrasiRequest $request): RedirectResponse
+    {
+        $data = $request->validated();
+
+        try {
+            $user = DB::transaction(function () use ($data): User {
+                $user = User::create([
+                    'name' => $data['nama_lengkap'],
+                    'email' => $data['email'],
+                    'password' => $data['password'],
+                    'no_hp' => '+62'.$data['no_whatsapp'],
+                    'role' => User::ROLE_STUDENT,
+                    'is_active' => false, // aktif setelah Admin memverifikasi pembayaran
+                ]);
+
+                Pendaftaran::create([
+                    'user_id' => $user->id,
+                    'nama_lengkap' => $data['nama_lengkap'],
+                    'tanggal_lahir' => $data['tanggal_lahir'],
+                    'email' => $data['email'],
+                    'no_whatsapp' => '62'.$data['no_whatsapp'],
+                    'alamat' => $data['alamat'],
+                    'asal_institusi' => $data['asal_institusi'],
+                    'pendidikan_terakhir' => $data['pendidikan_terakhir'],
+                    'program' => $data['program'],
+                    'pesan_motivasi' => $data['pesan_motivasi'] ?? null,
+                    'biaya' => Pendaftaran::biayaUntuk($data['program']),
+                    'status' => Pendaftaran::STATUS_MENUNGGU_PEMBAYARAN,
+                ]);
+
+                return $user;
+            });
+        } catch (Throwable $e) {
+            report($e);
+
+            return back()->withInput()->withErrors([
+                'umum' => 'Pendaftaran gagal disimpan, silakan coba lagi.',
+            ]);
+        }
+
+        Auth::login($user);
+        $request->session()->regenerate();
+
+        return redirect()->route('pembayaran.show')
+            ->with('sukses', 'Akun Anda dibuat. Selesaikan pembayaran untuk mengaktifkan pendaftaran.');
+    }
+
+    public function edit(Request $request): Response
     {
         $pendaftaran = $request->user()->pendaftaran;
         abort_unless($pendaftaran && $pendaftaran->status === Pendaftaran::STATUS_DITOLAK, 403);
 
         return Inertia::render('Registrasi/Create', [
+            ...$this->formOptions(),
             'editMode' => true,
-            'programs' => collect(Pendaftaran::PROGRAMS)
-                ->map(fn ($label, $value) => [
-                    'value' => $value,
-                    'label' => $label,
-                    'deskripsi' => Pendaftaran::PROGRAM_DESKRIPSI[$value] ?? '',
-                    'biaya' => Pendaftaran::biayaUntuk($value),
-                ])
-                ->values(),
-            'biaya' => Pendaftaran::BIAYA_DEFAULT,
-            'rekening' => [
-                ['bank' => 'Bank Mandiri', 'nomor' => '137-00-1982736-4', 'atas_nama' => 'Yayasan Duta Bahasa Edukasi'],
-                ['bank' => 'Bank Central Asia (BCA)', 'nomor' => '542-098-1120', 'atas_nama' => 'Yayasan Duta Bahasa Edukasi'],
-            ],
             'pendaftaran' => [
                 'nama_lengkap' => $pendaftaran->nama_lengkap,
                 'tanggal_lahir' => $pendaftaran->tanggal_lahir->format('Y-m-d'),
@@ -45,6 +87,7 @@ class RegistrasiController extends Controller
                 'no_whatsapp' => preg_replace('/^62/', '', $pendaftaran->no_whatsapp),
                 'alamat' => $pendaftaran->alamat,
                 'asal_institusi' => $pendaftaran->asal_institusi,
+                'pendidikan_terakhir' => $pendaftaran->pendidikan_terakhir,
                 'program' => $pendaftaran->program,
                 'pesan_motivasi' => $pendaftaran->pesan_motivasi,
                 'catatan_verifikasi' => $pendaftaran->catatan_verifikasi,
@@ -63,9 +106,10 @@ class RegistrasiController extends Controller
         $data = $request->validated();
         $newPath = $request->file('bukti_pembayaran')?->store('bukti-pembayaran', 'public');
         $oldPath = $pendaftaran->bukti_pembayaran;
+        $hasBukti = filled($newPath) || $pendaftaran->hasBuktiPembayaran();
 
         try {
-            DB::transaction(function () use ($data, $newPath, $user, $pendaftaran) {
+            DB::transaction(function () use ($data, $newPath, $hasBukti, $user, $pendaftaran) {
                 $user->update([
                     'name' => $data['nama_lengkap'],
                     'email' => $data['email'],
@@ -79,11 +123,12 @@ class RegistrasiController extends Controller
                     'no_whatsapp' => '62'.$data['no_whatsapp'],
                     'alamat' => $data['alamat'],
                     'asal_institusi' => $data['asal_institusi'],
+                    'pendidikan_terakhir' => $data['pendidikan_terakhir'],
                     'program' => $data['program'],
                     'pesan_motivasi' => $data['pesan_motivasi'] ?? null,
                     'biaya' => Pendaftaran::biayaUntuk($data['program']),
                     'bukti_pembayaran' => $newPath ?? $pendaftaran->bukti_pembayaran,
-                    'status' => Pendaftaran::STATUS_MENUNGGU,
+                    'status' => $hasBukti ? Pendaftaran::STATUS_MENUNGGU : Pendaftaran::STATUS_MENUNGGU_PEMBAYARAN,
                     'catatan_verifikasi' => null,
                     'verified_by' => null,
                     'verified_at' => null,
@@ -106,121 +151,25 @@ class RegistrasiController extends Controller
             Storage::disk('public')->delete($oldPath);
         }
 
-        Auth::logout();
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
-
-        return redirect()->route('login')
-            ->with('status', 'Perbaikan berhasil dikirim. Pendaftaran Anda kembali menunggu verifikasi admin.');
+        return redirect()->route('pembayaran.show')
+            ->with('sukses', 'Perbaikan berhasil dikirim.');
     }
 
-    public function create()
+    /**
+     * @return array<string, mixed>
+     */
+    private function formOptions(): array
     {
-        return Inertia::render('Registrasi/Create', [
+        return [
             'programs' => collect(Pendaftaran::PROGRAMS)
                 ->map(fn ($label, $value) => [
-                    'value'     => $value,
-                    'label'     => $label,
+                    'value' => $value,
+                    'label' => $label,
                     'deskripsi' => Pendaftaran::PROGRAM_DESKRIPSI[$value] ?? '',
                     'biaya' => Pendaftaran::biayaUntuk($value),
                 ])
                 ->values(),
-            'biaya'    => Pendaftaran::BIAYA_DEFAULT,
-            'rekening' => [
-                ['bank' => 'Bank Mandiri',            'nomor' => '137-00-1982736-4', 'atas_nama' => 'Yayasan Duta Bahasa Edukasi'],
-                ['bank' => 'Bank Central Asia (BCA)', 'nomor' => '542-098-1120',     'atas_nama' => 'Yayasan Duta Bahasa Edukasi'],
-            ],
-            'sukses'   => session('sukses'),
-        ]);
-    }
-
-    public function store(StoreRegistrasiRequest $request)
-    {
-        $data = $request->validated();
-        $path = $request->file('bukti_pembayaran')->store('bukti-pembayaran', 'public');
-        $oldPath = null;
-
-        try {
-            $isResubmission = DB::transaction(function () use ($data, $path, &$oldPath) {
-                $rejectedUser = User::query()
-                    ->where('email', $data['email'])
-                    ->whereHas('pendaftaran', fn ($query) => $query->where('status', Pendaftaran::STATUS_DITOLAK))
-                    ->with('pendaftaran')
-                    ->first();
-
-                if ($rejectedUser) {
-                    $pendaftaran = $rejectedUser->pendaftaran;
-                    $oldPath = $pendaftaran->bukti_pembayaran;
-
-                    $rejectedUser->update([
-                        'name' => $data['nama_lengkap'],
-                        'email' => $data['email'],
-                        'no_hp' => '+62'.$data['no_whatsapp'],
-                        'is_active' => false,
-                    ]);
-
-                    $pendaftaran->update([
-                        'nama_lengkap' => $data['nama_lengkap'],
-                        'tanggal_lahir' => $data['tanggal_lahir'],
-                        'email' => $data['email'],
-                        'no_whatsapp' => '62'.$data['no_whatsapp'],
-                        'alamat' => $data['alamat'],
-                        'asal_institusi' => $data['asal_institusi'],
-                        'program' => $data['program'],
-                        'pesan_motivasi' => $data['pesan_motivasi'] ?? null,
-                        'bukti_pembayaran' => $path,
-                        'biaya' => Pendaftaran::biayaUntuk($data['program']),
-                        'status' => Pendaftaran::STATUS_MENUNGGU,
-                        'catatan_verifikasi' => null,
-                        'verified_by' => null,
-                        'verified_at' => null,
-                        'resubmitted_at' => now(),
-                    ]);
-
-                    return true;
-                }
-                $user = User::create([
-                    'name'      => $data['nama_lengkap'],
-                    'email'     => $data['email'],
-                    'password'  => Hash::make(Str::random(64)),
-                    'no_hp'     => '+62'.$data['no_whatsapp'],
-                    'role'      => 'student',
-                    'is_active' => false, // aktif setelah diverifikasi Admin
-                ]);
-
-                Pendaftaran::create([
-                    'user_id'          => $user->id,
-                    'nama_lengkap'     => $data['nama_lengkap'],
-                    'tanggal_lahir'    => $data['tanggal_lahir'],
-                    'email'            => $data['email'],
-                    'no_whatsapp'      => '62'.$data['no_whatsapp'],
-                    'alamat'           => $data['alamat'],
-                    'asal_institusi'   => $data['asal_institusi'],
-                    'program'          => $data['program'],
-                    'pesan_motivasi'   => $data['pesan_motivasi'] ?? null,
-                    'bukti_pembayaran' => $path,
-                    'biaya'            => Pendaftaran::biayaUntuk($data['program']),
-                    'status'           => Pendaftaran::STATUS_MENUNGGU,
-                ]);
-
-                return false;
-            });
-        } catch (Throwable $e) {
-            Storage::disk('public')->delete($path);
-            report($e);
-
-            return back()->withInput()->withErrors([
-                'umum' => 'Pendaftaran gagal disimpan, silakan coba lagi.',
-            ]);
-        }
-
-        if ($oldPath) {
-            Storage::disk('public')->delete($oldPath);
-        }
-
-        return redirect('/registrasi')
-            ->with('sukses', $isResubmission
-                ? 'Pendaftaran ulang berhasil dikirim dan menunggu verifikasi Admin.'
-                : 'Bukti pembayaran berhasil dikirim, menunggu verifikasi Admin.');
+            'pendidikanOptions' => Pendaftaran::PENDIDIKAN_TERAKHIR,
+        ];
     }
 }

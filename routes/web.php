@@ -2,9 +2,11 @@
 
 use App\Http\Controllers\Admin\CalonMuridController;
 use App\Http\Controllers\Admin\FeedbackController as AdminFeedbackController;
+use App\Http\Controllers\Admin\PembayaranMasukController;
 use App\Http\Controllers\AdminUserController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\LandingController;
+use App\Http\Controllers\PembayaranController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RegistrasiController;
 use App\Http\Controllers\Student\FeedbackController;
@@ -114,6 +116,11 @@ Route::middleware(['auth', 'verified', 'role:tutor'])
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::post('/profile/photo', [ProfileController::class, 'updatePhoto'])->name('profile.photo.update');
+
+    // Halaman pembayaran calon murid: boleh ditinggal lalu dilanjutkan kapan saja.
+    Route::get('/pembayaran', [PembayaranController::class, 'show'])->name('pembayaran.show');
+    Route::post('/pembayaran', [PembayaranController::class, 'store'])->name('pembayaran.store');
+
     Route::get('/pendaftaran/perbaiki', [RegistrasiController::class, 'edit'])->name('registrasi.edit');
     Route::put('/pendaftaran/perbaiki', [RegistrasiController::class, 'update'])->name('registrasi.update');
 
@@ -138,6 +145,9 @@ Route::middleware('auth')->group(function () {
 Route::post('/registrasi', [RegistrasiController::class, 'store'])->name('registrasi.store');
 
 Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/pembayaran', [PembayaranMasukController::class, 'index'])->name('pembayaran.index');
+    Route::get('/pembayaran/pdf', [PembayaranMasukController::class, 'pdf'])->name('pembayaran.pdf');
+
     Route::get('/calon-murid', [CalonMuridController::class, 'index'])->name('calon-murid.index');
     Route::get('/calon-murid/{pendaftaran}/bukti-pembayaran', [CalonMuridController::class, 'buktiPembayaran'])->name('calon-murid.bukti');
     Route::get('/calon-murid/{pendaftaran}', [CalonMuridController::class, 'show'])->name('calon-murid.show');

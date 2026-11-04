@@ -170,6 +170,14 @@ class AdminUserManagementTest extends TestCase
         $this->assertDatabaseHas('users', ['id' => $otherAdmin->id, 'role' => 'admin']);
     }
 
+    public function test_data_pengguna_dapat_diunduh_sebagai_pdf(): void
+    {
+        $response = $this->actingAs($this->admin)->get(route('admin.data-pengguna.export'));
+
+        $response->assertOk();
+        $this->assertStringContainsString('application/pdf', $response->headers->get('Content-Type'));
+    }
+
     public function test_default_password_generation(): void
     {
         $password = User::generateDefaultPassword('Nadia Safira');

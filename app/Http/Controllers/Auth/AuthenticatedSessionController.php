@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Models\HasilTes;
+use App\Models\Pendaftaran;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -32,19 +33,25 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
-        if ($request->user()->pendaftaran?->status === 'ditolak') {
+        $user = $request->user();
+        $status = $user->pendaftaran?->status;
+
+        if ($status === Pendaftaran::STATUS_DITOLAK) {
             return redirect()->route('registrasi.edit');
         }
 
-        $role = $request->user()->role;
+        // Calon murid yang belum membayar langsung diarahkan ke halaman pembayaran.
+        if ($status === Pendaftaran::STATUS_MENUNGGU_PEMBAYARAN) {
+            return redirect()->route('pembayaran.show');
+        }
 
-        if ($role === 'student'
-            && $request->user()->pendaftaran?->status === 'terverifikasi'
-            && ! HasilTes::where('id_murid', $request->user()->id)->where('status_hasil', 'completed')->exists()) {
+        if ($user->role === 'student'
+            && $status === Pendaftaran::STATUS_TERVERIFIKASI
+            && ! HasilTes::where('id_murid', $user->id)->where('status_hasil', 'completed')->exists()) {
             return redirect()->route('tes-level.index');
         }
 
-        $redirect = match ($role) {
+        $redirect = match ($user->role) {
             'admin' => route('admin.dashboard', absolute: false),
             'tutor' => route('tutor.dashboard', absolute: false),
             default => route('dashboard', absolute: false),

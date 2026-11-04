@@ -164,9 +164,12 @@ export default function Login({ status }) {
                                                     <span>
                                                         Kata Sandi (Password)
                                                     </span>
-                                                    <span className="font-label-sm text-label-sm text-on-surface-variant">
-                                                        Wajib diisi
-                                                    </span>
+                                                    <Link
+                                                        href={route('password.request')}
+                                                        className="font-label-sm text-label-sm font-semibold text-secondary hover:underline"
+                                                    >
+                                                        Lupa kata sandi?
+                                                    </Link>
                                                 </label>
                                                 <div className="relative flex items-center">
                                                     <span className="material-symbols-outlined pointer-events-none absolute left-3.5 text-xl text-on-surface-variant">

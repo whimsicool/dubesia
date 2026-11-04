@@ -1,9 +1,8 @@
-
 import { useEffect, useRef, useState } from 'react';
-import { Head, Link, useForm } from '@inertiajs/react';
+import { Link, useForm } from '@inertiajs/react';
+import AdmisiShell from '@/Components/Registrasi/AdmisiShell';
 
-const rupiah = (value) =>
-  `Rp ${Number(value ?? 0).toLocaleString('id-ID')}`;
+const rupiah = (value) => `Rp ${Number(value ?? 0).toLocaleString('id-ID')}`;
 
 const inputClass =
   'w-full min-w-0 rounded-lg border border-slate-200 bg-white px-3.5 py-3 text-sm text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-dubesia-red focus:ring-2 focus:ring-dubesia-red/15';
@@ -14,8 +13,11 @@ const FIELD_LABELS = {
   email: 'Email',
   no_whatsapp: 'Nomor WhatsApp',
   asal_institusi: 'Asal institusi',
+  pendidikan_terakhir: 'Pendidikan terakhir',
   alamat: 'Alamat',
   program: 'Program kursus',
+  password: 'Kata sandi',
+  password_confirmation: 'Konfirmasi kata sandi',
   bukti_pembayaran: 'Bukti pembayaran',
   setuju: 'Persetujuan',
 };
@@ -48,131 +50,14 @@ function SectionTitle({ title, description }) {
     <div className="mb-5 border-b border-slate-100 pb-3">
       <h2 className="text-base font-bold text-slate-900">{title}</h2>
 
-      {description && (
-        <p className="mt-1 text-sm leading-5 text-slate-500">
-          {description}
-        </p>
-      )}
-    </div>
-  );
-}
-
-function Shell({ children, editMode = false }) {
-  return (
-    <div className="min-h-screen bg-slate-50 text-slate-800">
-      <Head title={`${editMode ? 'Perbaikan Pendaftaran' : 'Registrasi Calon Murid'} | DUBESIA`}>
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link
-          rel="preconnect"
-          href="https://fonts.gstatic.com"
-          crossOrigin="anonymous"
-        />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&display=swap"
-          rel="stylesheet"
-        />
-      </Head>
-
-      <header className="sticky top-0 z-20 border-b border-slate-200 bg-white/95 backdrop-blur">
-        <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-8">
-          {/* Logo DUBESIA hanya tampilan, tidak bisa diklik */}
-          <div className="flex min-w-0 items-center gap-3" aria-label="DUBESIA">
-            <img
-              src="/images/dubesia-logo.png"
-              alt="Logo DUBESIA"
-              className="h-11 w-11 shrink-0 rounded-full object-contain"
-            />
-
-            <span className="min-w-0 leading-tight">
-              <span className="block text-lg font-extrabold tracking-tight text-slate-900">
-                DUBESIA
-              </span>
-              <span className="block text-[10px] font-semibold uppercase tracking-wide text-slate-500">
-                Duta Bahasa Edukasi
-              </span>
-            </span>
-          </div>
-
-          <nav className="flex items-center gap-2 text-sm sm:gap-5">
-            <Link
-              href={route('bantuan-admisi')}
-              className="hidden text-slate-600 transition hover:text-dubesia-red md:inline"
-            >
-              Bantuan Admisi
-            </Link>
-
-            <Link
-              href={route('panduan-pendaftaran')}
-              className="hidden text-slate-600 transition hover:text-dubesia-red md:inline"
-            >
-              Panduan Pendaftaran
-            </Link>
-
-            {editMode ? (
-              <Link href={route('logout')} method="post" as="button" className="rounded-lg bg-dubesia-red-soft px-3 py-2 text-center text-xs font-semibold text-dubesia-red transition hover:bg-dubesia-red/10 sm:px-4 sm:text-sm">
-                Keluar
-              </Link>
-            ) : (
-              <Link
-                href="/login"
-                className="rounded-lg bg-dubesia-red-soft px-3 py-2 text-center text-xs font-semibold text-dubesia-red transition hover:bg-dubesia-red/10 sm:px-4 sm:text-sm"
-              >
-                Masuk
-              </Link>
-            )}
-          </nav>
-        </div>
-      </header>
-
-      <main className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 sm:py-9 lg:px-8">
-        {children}
-      </main>
-
-      <footer className="mt-8 border-t border-slate-200 bg-white">
-        <div className="mx-auto flex max-w-7xl flex-col gap-4 px-4 py-6 sm:px-6 md:flex-row md:items-center md:justify-between lg:px-8">
-          <div>
-            <p className="font-extrabold text-slate-900">
-              DUBESIA
-              <span className="ml-2 border-l border-slate-300 pl-2 text-xs font-medium text-slate-500">
-                Portal Admisi Calon Murid
-              </span>
-            </p>
-
-            <p className="mt-2 max-w-xl text-xs leading-5 text-slate-500">
-              Pusat Pelatihan dan Penguasaan Bahasa Internasional, Etiket
-              Diplomatik, dan Retorika Semesta.
-            </p>
-          </div>
-
-          <div className="flex flex-wrap gap-4 text-xs font-semibold text-slate-600">
-            <Link
-              href={route('panduan-pendaftaran')}
-              className="hover:text-dubesia-red"
-            >
-              Panduan Pendaftaran
-            </Link>
-
-            <Link href={route('bantuan-admisi')} className="hover:text-dubesia-red">
-              Bantuan Admisi
-            </Link>
-          </div>
-        </div>
-
-        <div className="bg-slate-100 px-4 py-3 text-center text-xs leading-5 text-slate-500">
-          © {new Date().getFullYear()} DUBESIA (Duta Bahasa Edukasi Semesta).
-          Hak Cipta Dilindungi Undang-Undang.
-        </div>
-      </footer>
+      {description && <p className="mt-1 text-sm leading-5 text-slate-500">{description}</p>}
     </div>
   );
 }
 
 export default function Create({
   programs = [],
-  biaya = 250000,
-  rekening = [],
-  sukses,
+  pendidikanOptions = [],
   editMode = false,
   pendaftaran = null,
 }) {
@@ -182,23 +67,25 @@ export default function Create({
     email: pendaftaran?.email ?? '',
     no_whatsapp: pendaftaran?.no_whatsapp ?? '',
     asal_institusi: pendaftaran?.asal_institusi ?? '',
+    pendidikan_terakhir: pendaftaran?.pendidikan_terakhir ?? '',
     alamat: pendaftaran?.alamat ?? '',
     pesan_motivasi: pendaftaran?.pesan_motivasi ?? '',
     program: programs.some((item) => item.value === pendaftaran?.program)
       ? pendaftaran.program
       : programs[0]?.value ?? '',
+    password: '',
+    password_confirmation: '',
     bukti_pembayaran: null,
     setuju: editMode,
   });
 
   const [dragging, setDragging] = useState(false);
   const [fileError, setFileError] = useState('');
-  const [copied, setCopied] = useState('');
   const [clientErrors, setClientErrors] = useState({});
 
   const fileInput = useRef(null);
   const selectedProgram = programs.find((program) => program.value === data.program);
-  const selectedBiaya = selectedProgram?.biaya ?? biaya;
+  const selectedBiaya = selectedProgram?.biaya ?? 0;
   const invalidFields = Object.keys(FIELD_LABELS).filter(
     (field) => clientErrors[field] || errors[field],
   );
@@ -206,18 +93,17 @@ export default function Create({
   useEffect(() => {
     const firstInvalidField = Object.keys(errors).find((field) => field !== 'umum');
     if (firstInvalidField) {
-      window.setTimeout(() => document.getElementById(`field-${firstInvalidField}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 0);
+      window.setTimeout(
+        () => document.getElementById(`field-${firstInvalidField}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' }),
+        0,
+      );
     }
   }, [errors]);
 
   const chooseFile = (file) => {
     if (!file) return;
 
-    const allowedTypes = [
-      'image/jpeg',
-      'image/png',
-      'application/pdf',
-    ];
+    const allowedTypes = ['image/jpeg', 'image/png', 'application/pdf'];
 
     if (!allowedTypes.includes(file.type)) {
       setFileError('Format file harus JPG, PNG, atau PDF.');
@@ -239,21 +125,6 @@ export default function Create({
     setData('bukti_pembayaran', file);
   };
 
-  const copyAccount = async (number) => {
-    try {
-      await navigator.clipboard.writeText(
-        String(number).replace(/\D/g, ''),
-      );
-
-      setCopied(number);
-      window.setTimeout(() => setCopied(''), 1500);
-    } catch {
-      setFileError(
-        'Nomor rekening tidak dapat disalin otomatis. Silakan salin secara manual.',
-      );
-    }
-  };
-
   const fieldError = (name) => clientErrors[name] || errors[name];
   const updateField = (name, value) => {
     setData(name, value);
@@ -271,21 +142,34 @@ export default function Create({
     const nextErrors = {};
     if (!data.nama_lengkap.trim()) nextErrors.nama_lengkap = 'Masukkan nama lengkap sesuai identitas.';
     if (!data.tanggal_lahir) nextErrors.tanggal_lahir = 'Pilih tanggal lahir Anda.';
-    else if (new Date(`${data.tanggal_lahir}T00:00:00`) >= new Date(new Date().toDateString())) nextErrors.tanggal_lahir = 'Tanggal lahir harus sebelum hari ini.';
+    else if (new Date(`${data.tanggal_lahir}T00:00:00`) >= new Date(new Date().toDateString()))
+      nextErrors.tanggal_lahir = 'Tanggal lahir harus sebelum hari ini.';
     if (!data.email.trim()) nextErrors.email = 'Masukkan alamat email yang aktif.';
-    else if (!/^[^\s@]+@gmail\.com$/i.test(data.email.trim())) nextErrors.email = 'Gunakan alamat email Gmail yang berakhiran @gmail.com.';
+    else if (!/^[^\s@]+@gmail\.com$/i.test(data.email.trim()))
+      nextErrors.email = 'Gunakan alamat email Gmail yang berakhiran @gmail.com.';
     const phoneDigits = String(data.no_whatsapp).trim();
     if (!phoneDigits) nextErrors.no_whatsapp = 'Masukkan nomor WhatsApp yang aktif tanpa kode negara.';
-    else if (!/^[0-9]+$/.test(phoneDigits)) nextErrors.no_whatsapp = 'Nomor WhatsApp hanya boleh berisi angka. Hapus huruf atau simbol.';
-    if (!data.asal_institusi.trim()) nextErrors.asal_institusi = 'Masukkan nama sekolah, universitas, perusahaan, atau institusi asal.';
+    else if (!/^[0-9]+$/.test(phoneDigits))
+      nextErrors.no_whatsapp = 'Nomor WhatsApp hanya boleh berisi angka. Hapus huruf atau simbol.';
+    if (!data.asal_institusi.trim())
+      nextErrors.asal_institusi = 'Masukkan nama sekolah, universitas, perusahaan, atau institusi asal.';
+    if (!data.pendidikan_terakhir) nextErrors.pendidikan_terakhir = 'Pilih jenjang pendidikan terakhir Anda.';
     if (!data.alamat.trim()) nextErrors.alamat = 'Masukkan alamat lengkap, termasuk kota/kabupaten.';
     if (!data.program) nextErrors.program = 'Pilih salah satu program kursus.';
-    if (!data.bukti_pembayaran && !(editMode && pendaftaran?.bukti_url)) nextErrors.bukti_pembayaran = 'Unggah bukti pembayaran sebelum mengirim formulir.';
+    if (!editMode) {
+      if (!data.password) nextErrors.password = 'Buat kata sandi untuk akun Anda.';
+      else if (data.password.length < 8) nextErrors.password = 'Kata sandi minimal 8 karakter.';
+      if (data.password !== data.password_confirmation)
+        nextErrors.password_confirmation = 'Ulangi kata sandi dengan nilai yang sama.';
+    }
     if (!data.setuju) nextErrors.setuju = 'Centang persetujuan setelah memastikan data yang diisi sudah benar.';
     setClientErrors(nextErrors);
     if (Object.keys(nextErrors).length) {
       const firstInvalidField = Object.keys(nextErrors)[0];
-      window.setTimeout(() => document.getElementById(`field-${firstInvalidField}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 0);
+      window.setTimeout(
+        () => document.getElementById(`field-${firstInvalidField}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' }),
+        0,
+      );
       return;
     }
 
@@ -294,52 +178,11 @@ export default function Create({
       return;
     }
 
-    post('/registrasi', {
-      forceFormData: true,
-    });
+    post('/registrasi');
   };
 
-  if (sukses) {
-    return (
-      <Shell>
-        <Head title="Pendaftaran Terkirim | DUBESIA" />
-
-        <section className="mx-auto mt-8 max-w-xl rounded-2xl border border-slate-100 bg-white px-6 py-12 text-center shadow-sm sm:px-10">
-          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-emerald-50 text-3xl font-bold text-emerald-600">
-            ✓
-          </div>
-
-          <h1 className="mt-5 text-2xl font-extrabold text-slate-900">
-            Pendaftaran Terkirim
-          </h1>
-
-          <p className="mt-3 text-sm leading-6 text-slate-600">{sukses}</p>
-
-          <p className="mt-2 text-sm leading-6 text-slate-500">
-            Akun Anda akan aktif setelah Admin memverifikasi data dan bukti
-            pembayaran.
-          </p>
-
-          <p className="mt-2 text-sm leading-6 text-slate-500">
-            Tunggu kiriman email dari kami di alamat yang Anda daftarkan.
-            Setelah pendaftaran diverifikasi, detail akun dan kata sandi
-            sementara dikirim ke email tersebut. Periksa juga folder Spam atau
-            Promosi.
-          </p>
-
-          <Link
-            href="/login"
-            className="mt-6 inline-flex rounded-lg bg-dubesia-red px-5 py-3 text-sm font-semibold text-white transition hover:bg-dubesia-navy"
-          >
-            Kembali ke halaman masuk
-          </Link>
-        </section>
-      </Shell>
-    );
-  }
-
   return (
-    <Shell editMode={editMode}>
+    <AdmisiShell title={editMode ? 'Perbaikan Pendaftaran' : 'Registrasi Calon Murid'} showLogout={editMode}>
       <section className="mb-6 overflow-hidden rounded-2xl bg-gradient-to-r from-dubesia-red via-dubesia-red to-dubesia-navy px-5 py-7 text-white shadow-sm sm:px-8 sm:py-9">
         <p className="text-xs font-bold uppercase tracking-[0.18em] text-white/80">
           {editMode ? 'Perbaikan Pendaftaran' : 'Pendaftaran Calon Murid'}
@@ -352,7 +195,7 @@ export default function Create({
         <p className="mt-3 max-w-2xl text-sm leading-6 text-white/85">
           {editMode
             ? 'Periksa catatan admin, perbaiki bagian yang diperlukan, lalu kirim kembali untuk diverifikasi.'
-            : 'Lengkapi data diri Anda untuk menjadi bagian dari DUBESIA. Bersama kami, wujudkan masa depan global Anda.'}
+            : 'Lengkapi data diri Anda. Setelah formulir dikirim, Anda langsung masuk ke halaman pembayaran.'}
         </p>
       </section>
 
@@ -371,13 +214,8 @@ export default function Create({
           )}
 
           {invalidFields.length > 0 && (
-            <div
-              role="alert"
-              className="mb-5 rounded-xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-800"
-            >
-              <p className="font-bold">
-                {invalidFields.length} bagian belum benar
-              </p>
+            <div role="alert" className="mb-5 rounded-xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-800">
+              <p className="font-bold">{invalidFields.length} bagian belum benar</p>
 
               <ul className="mt-2 space-y-1">
                 {invalidFields.map((field) => (
@@ -397,19 +235,13 @@ export default function Create({
           )}
 
           {errors.umum && (
-            <div
-              role="alert"
-              className="mb-5 rounded-lg border border-rose-200 bg-rose-50 p-3 text-sm text-rose-700"
-            >
+            <div role="alert" className="mb-5 rounded-lg border border-rose-200 bg-rose-50 p-3 text-sm text-rose-700">
               {errors.umum}
             </div>
           )}
 
           <section>
-            <SectionTitle
-              title="Data Diri"
-              description="Masukkan informasi pribadi yang benar dan masih aktif."
-            />
+            <SectionTitle title="Data Diri" description="Masukkan informasi pribadi yang benar dan masih aktif." />
 
             <div className="grid gap-4 sm:grid-cols-2">
               <Field id="field-nama_lengkap" label="Nama Lengkap" required error={fieldError('nama_lengkap')}>
@@ -423,12 +255,7 @@ export default function Create({
                 />
               </Field>
 
-              <Field
-                id="field-tanggal_lahir"
-                label="Tanggal Lahir"
-                required
-                error={fieldError('tanggal_lahir')}
-              >
+              <Field id="field-tanggal_lahir" label="Tanggal Lahir" required error={fieldError('tanggal_lahir')}>
                 <input
                   required
                   type="date"
@@ -451,12 +278,7 @@ export default function Create({
                 />
               </Field>
 
-              <Field
-                id="field-no_whatsapp"
-                label="Nomor WhatsApp"
-                required
-                error={fieldError('no_whatsapp')}
-              >
+              <Field id="field-no_whatsapp" label="Nomor WhatsApp" required error={fieldError('no_whatsapp')}>
                 <div className="flex min-w-0 rounded-lg border border-slate-200 focus-within:border-dubesia-red focus-within:ring-2 focus-within:ring-dubesia-red/15">
                   <span className="flex items-center rounded-l-lg bg-slate-100 px-3 text-sm font-semibold text-slate-600">
                     +62
@@ -474,18 +296,32 @@ export default function Create({
                 </div>
               </Field>
 
-              <div className="sm:col-span-2">
-                <Field id="field-asal_institusi" label="Asal Institusi" required error={fieldError('asal_institusi')}>
-                  <input
-                    required
-                    autoComplete="organization"
-                    className={`${inputClass} ${fieldError('asal_institusi') ? 'border-rose-400 bg-rose-50/40' : ''}`}
-                    value={data.asal_institusi}
-                    onChange={(e) => updateField('asal_institusi', e.target.value)}
-                    placeholder="Nama sekolah, universitas, perusahaan, atau institusi"
-                  />
-                </Field>
-              </div>
+              <Field id="field-asal_institusi" label="Asal Institusi" required error={fieldError('asal_institusi')}>
+                <input
+                  required
+                  autoComplete="organization"
+                  className={`${inputClass} ${fieldError('asal_institusi') ? 'border-rose-400 bg-rose-50/40' : ''}`}
+                  value={data.asal_institusi}
+                  onChange={(e) => updateField('asal_institusi', e.target.value)}
+                  placeholder="Nama sekolah, universitas, atau perusahaan"
+                />
+              </Field>
+
+              <Field id="field-pendidikan_terakhir" label="Pendidikan Terakhir" required error={fieldError('pendidikan_terakhir')}>
+                <select
+                  required
+                  className={`${inputClass} ${fieldError('pendidikan_terakhir') ? 'border-rose-400 bg-rose-50/40' : ''}`}
+                  value={data.pendidikan_terakhir}
+                  onChange={(e) => updateField('pendidikan_terakhir', e.target.value)}
+                >
+                  <option value="">Pilih pendidikan terakhir</option>
+                  {pendidikanOptions.map((option) => (
+                    <option key={option} value={option}>
+                      {option}
+                    </option>
+                  ))}
+                </select>
+              </Field>
 
               <div className="sm:col-span-2">
                 <Field id="field-alamat" label="Alamat Lengkap" required error={fieldError('alamat')}>
@@ -503,10 +339,7 @@ export default function Create({
           </section>
 
           <section className="mt-8 border-t border-slate-100 pt-6">
-            <SectionTitle
-              title="Program Kursus"
-              description="Pilih program yang ingin Anda ikuti."
-            />
+            <SectionTitle title="Program Kursus" description="Pilih program yang ingin Anda ikuti." />
 
             <Field id="field-program" label="Pilihan Program" required error={fieldError('program')}>
               <div className="grid gap-3 sm:grid-cols-2">
@@ -530,15 +363,9 @@ export default function Create({
                     />
 
                     <span className="flex-1">
-                      <span className="block text-sm font-bold text-slate-900">
-                        {program.label}
-                      </span>
-                      <span className="mt-1 block text-xs leading-5 text-slate-500">
-                        {program.deskripsi}
-                      </span>
-                      <span className="mt-2 block text-sm font-bold text-dubesia-red">
-                        {rupiah(program.biaya)}
-                      </span>
+                      <span className="block text-sm font-bold text-slate-900">{program.label}</span>
+                      <span className="mt-1 block text-xs leading-5 text-slate-500">{program.deskripsi}</span>
+                      <span className="mt-2 block text-sm font-bold text-dubesia-red">{rupiah(program.biaya)}</span>
                     </span>
                   </label>
                 ))}
@@ -546,117 +373,140 @@ export default function Create({
             </Field>
 
             <div className="mt-4 rounded-xl bg-dubesia-red-soft p-4 sm:flex sm:items-center sm:justify-between">
-              <div>
-                <p className="text-sm font-semibold text-slate-700">
-                  Biaya Pendaftaran
-                </p>
-                <p className="mt-1 text-xs text-slate-500">
-                  Periksa informasi pembayaran sebelum mengirim formulir.
-                </p>
-              </div>
+              <p className="text-sm font-semibold text-slate-700">Biaya Kursus</p>
 
-              <p className="mt-2 text-2xl font-extrabold text-dubesia-red sm:mt-0">
-                {rupiah(selectedBiaya)}
-              </p>
+              <p className="mt-2 text-2xl font-extrabold text-dubesia-red sm:mt-0">{rupiah(selectedBiaya)}</p>
             </div>
           </section>
 
-          <section className="mt-8 border-t border-slate-100 pt-6">
-            <SectionTitle
-              title="Bukti Pembayaran"
-              description="Format JPG, PNG, atau PDF dengan ukuran maksimal 5 MB."
-            />
+          {!editMode && (
+            <section className="mt-8 border-t border-slate-100 pt-6">
+              <SectionTitle
+                title="Akun Anda"
+                description="Kata sandi ini dipakai untuk masuk dan melanjutkan pembayaran kapan saja."
+              />
 
-            <Field
-              id="field-bukti_pembayaran"
-              label="Upload Bukti Pembayaran"
-              required
-              error={fileError || fieldError('bukti_pembayaran')}
-            >
-              <div
-                onDragOver={(event) => {
-                  event.preventDefault();
-                  setDragging(true);
-                }}
-                onDragLeave={() => setDragging(false)}
-                onDrop={(event) => {
-                  event.preventDefault();
-                  setDragging(false);
-                  chooseFile(event.dataTransfer.files?.[0]);
-                }}
-                className={`rounded-xl border-2 border-dashed p-6 text-center transition sm:p-8 ${
-                  dragging
-                    ? 'border-dubesia-red bg-dubesia-red-soft'
-                    : 'border-slate-200 bg-slate-50 hover:border-dubesia-red/50'
-                }`}
+              <div className="grid gap-4 sm:grid-cols-2">
+                <Field id="field-password" label="Kata Sandi" required error={fieldError('password')}>
+                  <input
+                    required
+                    type="password"
+                    autoComplete="new-password"
+                    className={`${inputClass} ${fieldError('password') ? 'border-rose-400 bg-rose-50/40' : ''}`}
+                    value={data.password}
+                    onChange={(e) => updateField('password', e.target.value)}
+                    placeholder="Minimal 8 karakter"
+                  />
+                </Field>
+
+                <Field
+                  id="field-password_confirmation"
+                  label="Konfirmasi Kata Sandi"
+                  required
+                  error={fieldError('password_confirmation')}
+                >
+                  <input
+                    required
+                    type="password"
+                    autoComplete="new-password"
+                    className={`${inputClass} ${fieldError('password_confirmation') ? 'border-rose-400 bg-rose-50/40' : ''}`}
+                    value={data.password_confirmation}
+                    onChange={(e) => updateField('password_confirmation', e.target.value)}
+                    placeholder="Ulangi kata sandi"
+                  />
+                </Field>
+              </div>
+            </section>
+          )}
+
+          {editMode && (
+            <section className="mt-8 border-t border-slate-100 pt-6">
+              <SectionTitle
+                title="Bukti Pembayaran"
+                description="Ganti berkas hanya jika admin meminta perbaikan bukti pembayaran."
+              />
+
+              <Field
+                id="field-bukti_pembayaran"
+                label="Bukti Pembayaran"
+                hint="Opsional"
+                error={fileError || fieldError('bukti_pembayaran')}
               >
-                <input
-                  ref={fileInput}
-                  required={!editMode && !data.bukti_pembayaran}
-                  type="file"
-                  accept=".jpg,.jpeg,.png,.pdf,image/jpeg,image/png,application/pdf"
-                  className="sr-only"
-                  onChange={(event) =>
-                    chooseFile(event.target.files?.[0])
-                  }
-                />
+                <div
+                  onDragOver={(event) => {
+                    event.preventDefault();
+                    setDragging(true);
+                  }}
+                  onDragLeave={() => setDragging(false)}
+                  onDrop={(event) => {
+                    event.preventDefault();
+                    setDragging(false);
+                    chooseFile(event.dataTransfer.files?.[0]);
+                  }}
+                  className={`rounded-xl border-2 border-dashed p-6 text-center transition sm:p-8 ${
+                    dragging ? 'border-dubesia-red bg-dubesia-red-soft' : 'border-slate-200 bg-slate-50 hover:border-dubesia-red/50'
+                  }`}
+                >
+                  <input
+                    ref={fileInput}
+                    type="file"
+                    accept=".jpg,.jpeg,.png,.pdf,image/jpeg,image/png,application/pdf"
+                    className="sr-only"
+                    onChange={(event) => chooseFile(event.target.files?.[0])}
+                  />
 
-                <div className="text-3xl text-dubesia-red">↑</div>
+                  <div className="text-3xl text-dubesia-red">↑</div>
 
-                {data.bukti_pembayaran ? (
-                  <p className="mt-2 break-all text-sm font-semibold text-slate-800">
-                    {data.bukti_pembayaran.name}
-                  </p>
-                ) : editMode && pendaftaran?.bukti_url ? (
-                  <div className="mt-2 space-y-1">
-                    <p className="text-sm font-semibold text-slate-800">Bukti pembayaran saat ini tetap digunakan</p>
-                    <a href={pendaftaran.bukti_url} target="_blank" rel="noreferrer" className="text-xs font-semibold text-dubesia-red underline">
-                      Lihat bukti yang tersimpan{pendaftaran.bukti_is_pdf ? ' (PDF)' : ''}
-                    </a>
-                  </div>
-                ) : (
-                  <p className="mt-2 text-sm font-semibold text-slate-800">
-                    Seret file ke sini atau pilih dari perangkat
-                  </p>
-                )}
+                  {data.bukti_pembayaran ? (
+                    <p className="mt-2 break-all text-sm font-semibold text-slate-800">{data.bukti_pembayaran.name}</p>
+                  ) : pendaftaran?.bukti_url ? (
+                    <div className="mt-2 space-y-1">
+                      <p className="text-sm font-semibold text-slate-800">Bukti pembayaran saat ini tetap digunakan</p>
+                      <a
+                        href={pendaftaran.bukti_url}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="text-xs font-semibold text-dubesia-red underline"
+                      >
+                        Lihat bukti yang tersimpan{pendaftaran.bukti_is_pdf ? ' (PDF)' : ''}
+                      </a>
+                    </div>
+                  ) : (
+                    <p className="mt-2 text-sm font-semibold text-slate-800">Belum ada bukti pembayaran tersimpan</p>
+                  )}
 
-                <p className="mt-1 text-xs text-slate-500">
-                  JPG, PNG, atau PDF · Maksimal 5 MB
-                </p>
+                  <p className="mt-1 text-xs text-slate-500">JPG, PNG, atau PDF · Maksimal 5 MB</p>
 
-                <div className="mt-4 flex flex-wrap justify-center gap-2">
-                  <button
-                    type="button"
-                    onClick={() => fileInput.current?.click()}
-                    className="rounded-lg bg-dubesia-red px-4 py-2 text-sm font-semibold text-white transition hover:bg-dubesia-navy"
-                  >
-                    Pilih File
-                  </button>
-
-                  {data.bukti_pembayaran && (
+                  <div className="mt-4 flex flex-wrap justify-center gap-2">
                     <button
                       type="button"
-                      onClick={() => {
-                        setData('bukti_pembayaran', null);
-                        setFileError('');
-                        if (fileInput.current) fileInput.current.value = '';
-                      }}
-                      className="rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100"
+                      onClick={() => fileInput.current?.click()}
+                      className="rounded-lg bg-dubesia-red px-4 py-2 text-sm font-semibold text-white transition hover:bg-dubesia-navy"
                     >
-                      Hapus File
+                      Pilih File
                     </button>
-                  )}
+
+                    {data.bukti_pembayaran && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setData('bukti_pembayaran', null);
+                          setFileError('');
+                          if (fileInput.current) fileInput.current.value = '';
+                        }}
+                        className="rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100"
+                      >
+                        Hapus File
+                      </button>
+                    )}
+                  </div>
                 </div>
-              </div>
-            </Field>
-          </section>
+              </Field>
+            </section>
+          )}
 
           <section className="mt-8 border-t border-slate-100 pt-6">
-            <Field
-              label="Pesan / Motivasi Belajar"
-              hint="Opsional"
-              error={fieldError('pesan_motivasi')}
-            >
+            <Field label="Pesan / Motivasi Belajar" hint="Opsional" error={fieldError('pesan_motivasi')}>
               <textarea
                 rows={3}
                 className={`${inputClass} resize-y`}
@@ -676,14 +526,13 @@ export default function Create({
                   className="mt-1 h-4 w-4 shrink-0 accent-dubesia-red"
                 />
 
-                <span>
-                  Saya menyatakan bahwa data yang diberikan benar dan
-                  menyetujui ketentuan serta kebijakan privasi DUBESIA.
-                </span>
+                <span>Saya menyatakan bahwa data yang diberikan benar dan menyetujui ketentuan serta kebijakan privasi DUBESIA.</span>
               </label>
 
               {fieldError('setuju') && (
-                <p id="field-setuju" className="mt-1.5 text-xs text-rose-600">{fieldError('setuju')}</p>
+                <p id="field-setuju" className="mt-1.5 text-xs text-rose-600">
+                  {fieldError('setuju')}
+                </p>
               )}
             </div>
 
@@ -693,74 +542,59 @@ export default function Create({
               className="mt-6 flex w-full items-center justify-center rounded-lg bg-dubesia-red px-5 py-3.5 text-sm font-bold text-white transition hover:bg-dubesia-navy disabled:cursor-not-allowed disabled:opacity-60"
             >
               {processing
-                ? (editMode ? 'Mengirim perbaikan...' : 'Mengirim pendaftaran...')
-                : (editMode ? 'Kirim Ulang untuk Verifikasi' : 'Daftar Sekarang')}
+                ? editMode
+                  ? 'Mengirim perbaikan...'
+                  : 'Mendaftarkan akun...'
+                : editMode
+                  ? 'Kirim Ulang untuk Verifikasi'
+                  : 'Daftar dan Lanjut ke Pembayaran'}
             </button>
 
-            {!editMode && <p className="mt-4 text-center text-sm text-slate-500">
-              Sudah memiliki akun?{' '}
-              <Link href="/login" className="font-semibold text-dubesia-red hover:underline">
-                Masuk di sini
-              </Link>
-            </p>}
+            {!editMode && (
+              <p className="mt-4 text-center text-sm text-slate-500">
+                Sudah memiliki akun?{' '}
+                <Link href="/login" className="font-semibold text-dubesia-red hover:underline">
+                  Masuk di sini
+                </Link>
+              </p>
+            )}
           </section>
         </form>
 
         <aside className="space-y-5 lg:sticky lg:top-24">
           <section className="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm sm:p-6">
-            <h2 className="text-base font-bold text-slate-900">
-              {editMode ? 'Informasi Perbaikan' : 'Informasi Pembayaran'}
-            </h2>
+            <h2 className="text-base font-bold text-slate-900">Ringkasan Pendaftaran</h2>
 
-            <p className="mt-1 text-sm leading-6 text-slate-500">
-              {editMode
-                ? 'Tidak perlu membayar ulang. Bukti pembayaran lama tetap digunakan kecuali Anda mengganti file yang diminta admin.'
-                : 'Transfer biaya pendaftaran ke salah satu rekening resmi berikut.'}
-            </p>
+            <dl className="mt-4 space-y-3 text-sm">
+              <div className="flex items-start justify-between gap-3">
+                <dt className="text-slate-500">Program</dt>
+                <dd className="text-right font-semibold text-slate-900">{selectedProgram?.label ?? '-'}</dd>
+              </div>
+
+              <div className="flex items-start justify-between gap-3">
+                <dt className="text-slate-500">Biaya kursus</dt>
+                <dd className="text-right font-semibold text-dubesia-red">{rupiah(selectedBiaya)}</dd>
+              </div>
+
+              {editMode && (
+                <div className="flex items-start justify-between gap-3">
+                  <dt className="text-slate-500">Status</dt>
+                  <dd className="text-right font-semibold text-slate-900">{pendaftaran?.status ?? '-'}</dd>
+                </div>
+              )}
+            </dl>
 
             {!editMode && (
-              <>
-                <p className="mt-4 text-2xl font-extrabold text-dubesia-red">{rupiah(selectedBiaya)}</p>
-
-                <div className="mt-4 space-y-3">
-                  {rekening.map((account) => (
-                <div
-                  key={`${account.bank}-${account.nomor}`}
-                  className="rounded-xl border border-slate-200 p-4"
-                >
-                  <p className="text-xs font-bold uppercase tracking-wide text-slate-500">
-                    {account.bank}
-                  </p>
-
-                  <div className="mt-1 flex items-center justify-between gap-3">
-                    <p className="break-all text-lg font-extrabold text-slate-900">
-                      {account.nomor}
-                    </p>
-
-                    <button
-                      type="button"
-                      onClick={() => copyAccount(account.nomor)}
-                      className="shrink-0 rounded-md border border-slate-200 px-2.5 py-1.5 text-xs font-semibold text-dubesia-red hover:bg-dubesia-red-soft"
-                    >
-                      {copied === account.nomor ? 'Tersalin' : 'Salin'}
-                    </button>
-                  </div>
-
-                  <p className="mt-1 text-xs text-slate-500">
-                    a.n. {account.atas_nama}
-                  </p>
-                </div>
-                  ))}
-                </div>
-              </>
+              <p className="mt-4 rounded-lg bg-dubesia-red-soft p-3 text-xs leading-5 text-slate-700">
+                Rekening tujuan transfer dan unggah bukti pembayaran tersedia di halaman berikutnya.
+              </p>
             )}
           </section>
 
           <section className="rounded-2xl border border-emerald-100 bg-emerald-50 p-5 sm:p-6">
             <h2 className="font-bold text-emerald-900">Data Anda Aman</h2>
             <p className="mt-2 text-sm leading-6 text-emerald-800">
-              Data pendaftaran digunakan untuk proses administrasi dan
-              verifikasi oleh DUBESIA.
+              Data pendaftaran digunakan untuk proses administrasi dan verifikasi oleh DUBESIA.
             </p>
           </section>
 
@@ -775,7 +609,7 @@ export default function Create({
                 <span>
                   <strong className="text-slate-800">{editMode ? 'Perbaiki data' : 'Isi formulir'}</strong>
                   <br />
-                  {editMode ? 'Perbarui bagian yang dijelaskan admin.' : 'Lengkapi data diri dan bukti pembayaran.'}
+                  {editMode ? 'Perbarui bagian yang dijelaskan admin.' : 'Lengkapi data diri dan buat kata sandi.'}
                 </span>
               </li>
 
@@ -784,9 +618,9 @@ export default function Create({
                   2
                 </span>
                 <span>
-                  <strong className="text-slate-800">{editMode ? 'Kirim ulang formulir' : 'Kirim bukti pembayaran'}</strong>
+                  <strong className="text-slate-800">{editMode ? 'Kirim ulang formulir' : 'Selesaikan pembayaran'}</strong>
                   <br />
-                  {editMode ? 'Data Anda dikirim kembali untuk diperiksa.' : 'Unggah file sesuai format.'}
+                  {editMode ? 'Data Anda dikirim kembali untuk diperiksa.' : 'Transfer sesuai biaya program, lalu unggah bukti.'}
                 </span>
               </li>
 
@@ -795,15 +629,15 @@ export default function Create({
                   3
                 </span>
                 <span>
-                  <strong className="text-slate-800">{editMode ? 'Menunggu verifikasi ulang' : 'Tunggu verifikasi admin'}</strong>
+                  <strong className="text-slate-800">Tunggu verifikasi admin</strong>
                   <br />
-                  Akun diproses sesuai hasil pemeriksaan.
+                  Akun aktif setelah pembayaran diverifikasi.
                 </span>
               </li>
             </ol>
           </section>
         </aside>
       </div>
-    </Shell>
+    </AdmisiShell>
   );
 }

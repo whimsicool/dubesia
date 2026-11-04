@@ -12,7 +12,6 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Throwable;
 
@@ -79,6 +78,7 @@ class CalonMuridController extends Controller
                 'no_whatsapp' => '+'.$pendaftaran->no_whatsapp,
                 'alamat' => $pendaftaran->alamat,
                 'asal_institusi' => $pendaftaran->asal_institusi,
+                'pendidikan_terakhir' => $pendaftaran->pendidikan_terakhir,
                 'program' => Pendaftaran::labelProgram($pendaftaran->program),
                 'pesan_motivasi' => $pendaftaran->pesan_motivasi,
                 'biaya' => $pendaftaran->biaya,
@@ -87,6 +87,7 @@ class CalonMuridController extends Controller
                 'status_label' => Pendaftaran::STATUS_LABEL[$pendaftaran->status] ?? $pendaftaran->status,
                 'perbaikan_baru' => $pendaftaran->status === Pendaftaran::STATUS_MENUNGGU && $pendaftaran->resubmitted_at !== null,
                 'dikirim_ulang_pada' => $pendaftaran->resubmitted_at?->format('d M Y, H:i'),
+                'has_bukti' => $pendaftaran->hasBuktiPembayaran(),
                 'bukti_url' => route('admin.calon-murid.bukti', $pendaftaran),
                 'bukti_is_pdf' => $pendaftaran->bukti_is_pdf,
                 'catatan_verifikasi' => $pendaftaran->catatan_verifikasi,
@@ -101,13 +102,15 @@ class CalonMuridController extends Controller
     // Berkas bukti pembayaran disajikan lewat route terproteksi admin.
     public function buktiPembayaran(Pendaftaran $pendaftaran)
     {
+        abort_unless($pendaftaran->hasBuktiPembayaran(), 404, 'Bukti pembayaran tidak ditemukan.');
+
         $disk = Storage::disk('public');
         abort_unless($disk->exists($pendaftaran->bukti_pembayaran), 404, 'Bukti pembayaran tidak ditemukan.');
 
         return $disk->response($pendaftaran->bukti_pembayaran, basename($pendaftaran->bukti_pembayaran), [], 'inline');
     }
 
-    // Sequence 3: setujui pendaftaran, aktifkan akun, lalu kirim kredensial sementara.
+    // Sequence 3: setujui pendaftaran, aktifkan akun, lalu kirim notifikasi.
     public function verifikasi(Request $request, Pendaftaran $pendaftaran)
     {
         try {
@@ -118,7 +121,6 @@ class CalonMuridController extends Controller
                     return false;
                 }
 
-                $temporaryPassword = Str::random(16);
                 $user = $p->user;
 
                 if (! $user) {
@@ -132,13 +134,13 @@ class CalonMuridController extends Controller
                     'verified_at' => now(),
                 ]);
                 $user->update([
-                    'password' => $temporaryPassword,
                     'is_active' => true,
+                    'email_verified_at' => $user->email_verified_at ?? now(),
                     'no_hp' => '+'.$p->no_whatsapp,
                 ]);
 
                 Log::info('Dispatching registration approval email.', ['registration_id' => $p->id]);
-                Mail::to($p->email)->send(new KirimEmail($p, $temporaryPassword));
+                Mail::to($p->email)->send(new KirimEmail($p));
                 Log::info('Registration approval email accepted by the configured mail transport.', ['registration_id' => $p->id]);
 
                 return true;
@@ -154,7 +156,7 @@ class CalonMuridController extends Controller
         }
 
         return redirect()->route('admin.calon-murid.index')
-            ->with('sukses', 'Pendaftaran disetujui. Akun diaktifkan dan kredensial sementara telah dikirim ke email murid.');
+            ->with('sukses', 'Pendaftaran disetujui. Akun diaktifkan dan notifikasi dikirim ke email murid.');
     }
 
     // Alternate flow: simpan alasan penolakan dan kirimkan kepada calon murid.

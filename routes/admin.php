@@ -15,7 +15,6 @@ Route::middleware(['auth', 'verified', 'role:admin'])
     ->group(function () {
         Route::prefix('schedules')->name('schedules.')->controller(ScheduleController::class)->group(function () {
             Route::get('/', 'index')->name('index');
-            Route::get('/export', 'export')->name('export');
             Route::post('/', 'store')->name('store');
             Route::post('/check-conflict', 'checkConflict')->name('check-conflict');
             Route::get('/{schedule}/attendance', 'attendanceData')->whereNumber('schedule')->name('attendance');

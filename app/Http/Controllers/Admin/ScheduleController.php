@@ -24,7 +24,6 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
-use Symfony\Component\HttpFoundation\StreamedResponse;
 use Throwable;
 
 class ScheduleController extends Controller
@@ -278,41 +277,6 @@ class ScheduleController extends Controller
         $userIds = CourseClass::with('students:id')->find($classId)?->students->pluck('id')->map(fn ($id) => (int) $id)->all() ?? [];
 
         return Student::whereIn('user_id', $userIds)->pluck('id')->map(fn ($id) => (int) $id)->all();
-    }
-
-    /* ---------------------------------------------------------------------
-     |  Ekspor CSV (mengikuti filter yang sedang aktif)
-     | ------------------------------------------------------------------- */
-    public function export(Request $request): StreamedResponse
-    {
-        $semester = Semester::active()->first();
-        $rows = $semester ? $this->filteredQuery($request, $semester)->get() : collect();
-        $days = config('dubesia.days');
-
-        return response()->streamDownload(function () use ($rows, $days, $semester) {
-            $out = fopen('php://output', 'w');
-            fwrite($out, "\xEF\xBB\xBF"); // BOM agar Excel membaca UTF-8 dengan benar
-
-            fputcsv($out, ['Semester', 'Tanggal', 'Hari', 'Mulai', 'Selesai', 'Sesi', 'Kelas', 'Program', 'Instruktur', 'Ruang', 'Peserta']);
-
-            foreach ($rows as $s) {
-                fputcsv($out, [
-                    $semester?->name,
-                    $s->scheduled_date?->toDateString() ?? 'Berulang mingguan',
-                    $days[$s->day_of_week] ?? $s->day_of_week,
-                    substr($s->start_time, 0, 5),
-                    substr($s->end_time, 0, 5),
-                    $s->title,
-                    $s->class_name,
-                    $s->program?->name ?? '',
-                    $s->instructor->name,
-                    $s->room->name,
-                    $s->students->count(),
-                ]);
-            }
-
-            fclose($out);
-        }, 'jadwal-belajar-'.now()->format('Ymd-His').'.csv', ['Content-Type' => 'text/csv; charset=UTF-8']);
     }
 
     /* ---------------------------------------------------------------------

@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Auth;
 
+use App\Models\Pendaftaran;
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
@@ -50,7 +51,8 @@ class LoginRequest extends FormRequest
             ]);
         }
         $user = Auth::user();
-        if (! $user->is_active && $user->pendaftaran?->status !== 'ditolak') {
+        $status = $user->pendaftaran?->status;
+        if (! $user->is_active && ! in_array($status, [Pendaftaran::STATUS_DITOLAK, Pendaftaran::STATUS_MENUNGGU_PEMBAYARAN], true)) {
             Auth::logout();
 
             throw ValidationException::withMessages([

@@ -308,14 +308,13 @@ class ScheduleManagementTest extends TestCase
             ->assertJsonCount(2, 'conflicts');
     }
 
-    public function test_export_returns_csv(): void
+    public function test_jadwal_dapat_diunduh_sebagai_pdf(): void
     {
         $this->makeSchedule(['title' => 'Sesi Existing']);
 
-        $response = $this->actingAs($this->admin())->get(route('admin.schedules.export'));
+        $response = $this->actingAs($this->admin())->get(route('admin.schedules.pdf'));
 
         $response->assertOk();
-        $this->assertStringContainsString('text/csv', $response->headers->get('Content-Type'));
-        $this->assertStringContainsString('Sesi Existing', $response->streamedContent());
+        $this->assertStringContainsString('application/pdf', $response->headers->get('Content-Type'));
     }
 }

@@ -2,15 +2,17 @@
 
 namespace App\Http\Controllers;
 
-use App\Exports\UsersExport;
+use App\Mail\AkunTutorMail;
 use App\Models\Pendaftaran;
 use App\Models\User;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
-use Maatwebsite\Excel\Facades\Excel;
+use Throwable;
 
 class AdminUserController extends Controller
 {
@@ -20,39 +22,7 @@ class AdminUserController extends Controller
      */
     public function index(Request $request)
     {
-        $query = $this->visibleUsersQuery();
-
-        // Filter berdasarkan tab/role
-        if ($request->filled('role') && in_array($request->role, ['student', 'tutor'])) {
-            $query->where('role', $request->role);
-        }
-
-        // Filter berdasarkan status akun
-        if ($request->filled('status')) {
-            $query->where('status_akun', $request->status);
-        }
-
-        // Pencarian berdasarkan nama, email, nomor HP
-        if ($request->filled('search')) {
-            $search = $request->search;
-            $query->where(function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                    ->orWhere('email', 'like', "%{$search}%")
-                    ->orWhere('no_hp', 'like', "%{$search}%");
-            });
-        }
-
-        // Sorting
-        $sortBy = $request->input('sort_by', 'created_at');
-        $sortDir = $request->input('sort_dir', 'desc');
-        $allowedSorts = ['name', 'email', 'role', 'created_at', 'status_akun'];
-
-        if (in_array($sortBy, $allowedSorts)) {
-            $query->orderBy($sortBy, $sortDir === 'asc' ? 'asc' : 'desc');
-        }
-
-        $perPage = $request->input('per_page', 10);
-        $users = $query->paginate($perPage)->withQueryString();
+        $users = $this->filteredUsersQuery($request)->paginate($request->input('per_page', 10))->withQueryString();
 
         // Statistik ringkasan
         $totalPengguna = $this->visibleUsersQuery()->count();
@@ -74,25 +44,9 @@ class AdminUserController extends Controller
         ]);
     }
 
-    /** Murid menunggu atau ditolak tidak ditampilkan sebagai data murid aktif. */
-    private function visibleUsersQuery()
-    {
-        return User::query()
-            ->where('role', '!=', 'admin')
-            ->where(function ($query) {
-                $query->whereDoesntHave('pendaftaran')
-                    ->orWhereHas('pendaftaran', fn ($registration) => $registration->where('status', Pendaftaran::STATUS_TERVERIFIKASI));
-            });
-    }
-
     /**
      * Menyimpan data tutor baru (Tambah Akun).
-     * Sequence Diagram:
-     *   2. KlikButton("TambahAkun")
-     *   3. InputDataPengguna()
-     *   4. KlikButton("Simpan") → 4.1 KirimDataAkunBaru()
-     *     → 4.1.1 SimpanDataAkun() → 4.1.2 ReturnStatus(simpan)
-     *   4.2 DisplayAkunBerhasilDitambahkan()
+     * Kata sandi dibuat sistem dan dikirim ke email tutor.
      */
     public function store(Request $request)
     {
@@ -104,25 +58,35 @@ class AdminUserController extends Controller
 
         $defaultPassword = User::generateDefaultPassword($validated['name']);
 
-        $user = User::create([
-            'name' => $validated['name'],
-            'email' => $validated['email'],
-            'password' => Hash::make($defaultPassword),
-            'role' => 'tutor', // Hanya tutor yang bisa ditambahkan
-            'no_hp' => $validated['no_hp'] ?? null,
-            'status_akun' => 'aktif',
-            'email_verified_at' => now(),
-        ]);
+        try {
+            $user = DB::transaction(function () use ($validated, $defaultPassword): User {
+                $user = User::create([
+                    'name' => $validated['name'],
+                    'email' => $validated['email'],
+                    'password' => $defaultPassword,
+                    'role' => User::ROLE_TUTOR,
+                    'no_hp' => $validated['no_hp'] ?? null,
+                    'status_akun' => 'aktif',
+                    'is_active' => true,
+                    'email_verified_at' => now(),
+                ]);
 
-        return redirect()->route('admin.data-pengguna.index')->with('success', "Akun tutor \"{$user->name}\" berhasil ditambahkan. Password default: {$defaultPassword}");
+                Mail::to($user->email)->send(new AkunTutorMail($user, $defaultPassword));
+
+                return $user;
+            });
+        } catch (Throwable $e) {
+            report($e);
+
+            return back()->with('error', 'Akun tutor gagal dibuat karena email kredensial tidak terkirim. Periksa konfigurasi email lalu coba lagi.');
+        }
+
+        return redirect()->route('admin.data-pengguna.index')
+            ->with('success', "Akun tutor \"{$user->name}\" berhasil dibuat. Kredensial telah dikirim ke {$user->email}.");
     }
 
     /**
      * Mengambil detail satu pengguna (Lihat Detail).
-     * Sequence Diagram:
-     *   9. KlikButton("Detail") → 9.1 GetDataPengguna()
-     *     → 9.1.1 GetDetailDataUser() → 9.1.2 ReturnDataDetailUser()
-     *   9.2 DisplayDetailPengguna()
      */
     public function show(User $user)
     {
@@ -134,11 +98,6 @@ class AdminUserController extends Controller
 
     /**
      * Memperbarui data pengguna (Edit Data).
-     * Sequence Diagram:
-     *   5. KlikButton("Edit")
-     *   6. KlikButton("Simpan") → 6.1 KirimDataPerubahan()
-     *     → 6.1.1 UpdateDataUser() → 6.1.2 ReturnStatus(update)
-     *   6.2 DisplayInfoDataBerhasilDiperbarui()
      */
     public function update(Request $request, User $user)
     {
@@ -158,12 +117,7 @@ class AdminUserController extends Controller
     }
 
     /**
-     * Menghapus data pengguna (Hapus Data).
-     * Sequence Diagram:
-     *   7. KlikButton("Hapus")
-     *   8. KlikButton("YaHapus") → 8.1 KirimPermintaanHapus()
-     *     → 8.1.1 DeleteDataUser() → 8.1.2 ReturnStatus(hapus)
-     *   8.2 DisplayInfoAkunBerhasilDihapus()
+     * Menghapus data pengguna secara massal (Hapus Data).
      */
     public function bulkDestroy(Request $request)
     {
@@ -201,44 +155,72 @@ class AdminUserController extends Controller
         return redirect()->route('admin.data-pengguna.index')->with('success', "Akun \"{$name}\" berhasil dihapus.");
     }
 
+    /** Unduh data pengguna sebagai PDF, mengikuti filter yang sedang aktif. */
     public function export(Request $request)
     {
-        $query = $this->visibleUsersQuery()
-            ->with('pendaftaran');
+        $rows = $this->filteredUsersQuery($request)->get()->map(fn (User $user): array => [
+            'name' => $user->name,
+            'email' => $user->email,
+            'no_hp' => $user->no_hp,
+            'role' => match ($user->role) {
+                User::ROLE_STUDENT => 'Murid',
+                User::ROLE_TUTOR => 'Tutor',
+                default => ucfirst($user->role),
+            },
+            'status_akun' => $user->status_akun,
+            'created_at' => $user->created_at,
+        ]);
 
-        // Filter berdasarkan role
-        if ($request->filled('role') && in_array($request->role, ['student', 'tutor'])) {
+        return Pdf::loadView('pdf.data-pengguna', [
+            'rows' => $rows,
+            'filters' => $request->only(['role', 'status', 'search']),
+            'generatedAt' => now(),
+        ])
+            ->setPaper('a4', 'landscape')
+            ->download('data-pengguna-'.now()->format('Y-m-d_H-i-s').'.pdf');
+    }
+
+    /** Murid menunggu atau ditolak tidak ditampilkan sebagai data murid aktif. */
+    private function visibleUsersQuery(): Builder
+    {
+        return User::query()
+            ->where('role', '!=', User::ROLE_ADMIN)
+            ->where(function (Builder $query) {
+                $query->whereDoesntHave('pendaftaran')
+                    ->orWhereHas('pendaftaran', fn (Builder $registration) => $registration->where('status', Pendaftaran::STATUS_TERVERIFIKASI));
+            });
+    }
+
+    /** Daftar pengguna dengan filter, pencarian, dan urutan yang sama untuk halaman dan PDF. */
+    private function filteredUsersQuery(Request $request): Builder
+    {
+        $query = $this->visibleUsersQuery();
+
+        if ($request->filled('role') && in_array($request->role, ['student', 'tutor'], true)) {
             $query->where('role', $request->role);
         }
 
-        // Filter berdasarkan status akun
         if ($request->filled('status')) {
             $query->where('status_akun', $request->status);
         }
 
-        // Pencarian
         if ($request->filled('search')) {
             $search = $request->search;
-
-            $query->where(function ($q) use ($search) {
+            $query->where(function (Builder $q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
                     ->orWhere('email', 'like', "%{$search}%")
                     ->orWhere('no_hp', 'like', "%{$search}%");
             });
         }
 
-        // Sorting
         $sortBy = $request->input('sort_by', 'created_at');
         $sortDir = $request->input('sort_dir', 'desc');
-
         $allowedSorts = ['name', 'email', 'role', 'created_at', 'status_akun'];
 
-        if (in_array($sortBy, $allowedSorts)) {
+        if (in_array($sortBy, $allowedSorts, true)) {
             $query->orderBy($sortBy, $sortDir === 'asc' ? 'asc' : 'desc');
         }
 
-        $filename = 'data-pengguna-'.now()->format('Y-m-d_H-i-s').'.xlsx';
-
-        return Excel::download(new UsersExport($query), $filename);
+        return $query;
     }
 }

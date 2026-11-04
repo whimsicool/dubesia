@@ -2,20 +2,33 @@
 
 namespace App\Models;
 
+use Database\Factories\PendaftaranFactory;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Facades\Storage;
 
 class Pendaftaran extends Model
 {
+    /** @use HasFactory<PendaftaranFactory> */
+    use HasFactory;
+
+    /** Calon murid sudah membuat akun tetapi belum mengunggah bukti pembayaran. */
+    public const STATUS_MENUNGGU_PEMBAYARAN = 'menunggu_pembayaran';
+
     public const STATUS_MENUNGGU = 'menunggu_verifikasi';
+
     public const STATUS_TERVERIFIKASI = 'terverifikasi';
+
     public const STATUS_DITOLAK = 'ditolak';
-    
+
     public const STATUS_LABEL = [
-    self::STATUS_MENUNGGU      => 'Menunggu Verifikasi',
-    self::STATUS_TERVERIFIKASI => 'Terverifikasi',
-    self::STATUS_DITOLAK       => 'Ditolak',
-];
+        self::STATUS_MENUNGGU_PEMBAYARAN => 'Menunggu Pembayaran',
+        self::STATUS_MENUNGGU => 'Menunggu Verifikasi',
+        self::STATUS_TERVERIFIKASI => 'Terverifikasi',
+        self::STATUS_DITOLAK => 'Ditolak',
+    ];
+
     public const PROGRAMS = [
         'reguler' => 'Reguler',
         'private' => 'Private',
@@ -36,12 +49,40 @@ class Pendaftaran extends Model
         'employee' => 'Program untuk karyawan dengan jadwal yang lebih fleksibel.',
     ];
 
+    public const PENDIDIKAN_TERAKHIR = [
+        'SMA/SMK',
+        'D3',
+        'S1',
+        'S2',
+        'S3',
+        'Lainnya',
+    ];
+
+    public const REKENING = [
+        ['bank' => 'Bank Mandiri', 'nomor' => '137-00-1982736-4', 'atas_nama' => 'Yayasan Duta Bahasa Edukasi'],
+        ['bank' => 'Bank Central Asia (BCA)', 'nomor' => '542-098-1120', 'atas_nama' => 'Yayasan Duta Bahasa Edukasi'],
+    ];
+
     public const BIAYA_DEFAULT = 1000000;
 
     public const BIAYA_PER_PROGRAM = [
         'reguler' => 1000000,
         'private' => 1500000,
         'employee' => 1700000,
+    ];
+
+    protected $fillable = [
+        'user_id', 'nama_lengkap', 'tanggal_lahir', 'email', 'no_whatsapp',
+        'alamat', 'asal_institusi', 'pendidikan_terakhir', 'program', 'pesan_motivasi',
+        'bukti_pembayaran', 'biaya', 'status', 'catatan_verifikasi', 'verified_by',
+        'verified_at', 'resubmitted_at', 'last_reminder_sent_at',
+    ];
+
+    protected $casts = [
+        'tanggal_lahir' => 'date',
+        'verified_at' => 'datetime',
+        'resubmitted_at' => 'datetime',
+        'last_reminder_sent_at' => 'datetime',
     ];
 
     public static function biayaUntuk(string $program): int
@@ -54,33 +95,36 @@ class Pendaftaran extends Model
         return self::PROGRAMS[$program] ?? self::PROGRAMS_LAMA[$program] ?? ($program ?: '-');
     }
 
-    protected $fillable = [
-        'user_id', 'nama_lengkap', 'tanggal_lahir', 'email', 'no_whatsapp',
-        'alamat', 'asal_institusi', 'program', 'pesan_motivasi', 'bukti_pembayaran', 'biaya',
-        'status', 'catatan_verifikasi', 'verified_by', 'verified_at', 'resubmitted_at',
-    ];
-
-    protected $casts = [
-        'tanggal_lahir' => 'date',
-        'verified_at'   => 'datetime',
-        'resubmitted_at' => 'datetime',
-    ];
-
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
+
     public function verifikator(): BelongsTo
     {
-    return $this->belongsTo(User::class, 'verified_by');
+        return $this->belongsTo(User::class, 'verified_by');
     }
 
-    public function getBuktiUrlAttribute(): string
+    public function hasBuktiPembayaran(): bool
     {
-    return \Illuminate\Support\Facades\Storage::disk('public')->url($this->bukti_pembayaran);
+        return filled($this->bukti_pembayaran);
     }
+
+    public function getBuktiUrlAttribute(): ?string
+    {
+        if (! $this->hasBuktiPembayaran()) {
+            return null;
+        }
+
+        return Storage::disk('public')->url($this->bukti_pembayaran);
+    }
+
     public function getBuktiIsPdfAttribute(): bool
     {
-    return strtolower(pathinfo($this->bukti_pembayaran, PATHINFO_EXTENSION)) === 'pdf';
+        if (! $this->hasBuktiPembayaran()) {
+            return false;
+        }
+
+        return strtolower(pathinfo($this->bukti_pembayaran, PATHINFO_EXTENSION)) === 'pdf';
     }
 }

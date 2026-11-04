@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -14,24 +13,6 @@
             font-family: DejaVu Sans, sans-serif;
             font-size: 10px;
             color: #263247;
-        }
-
-        .header {
-            text-align: center;
-            border-bottom: 2px solid #263247;
-            padding-bottom: 15px;
-            margin-bottom: 20px;
-        }
-
-        .header h1 {
-            font-size: 20px;
-            margin: 0 0 5px;
-            letter-spacing: 1px;
-        }
-
-        .header p {
-            margin: 3px 0;
-            color: #64748b;
         }
 
         .student-info {
@@ -96,11 +77,10 @@
 </head>
 
 <body>
-    <div class="header">
-        <h1>DUBESIA</h1>
-        <p>LAPORAN HASIL BELAJAR SISWA</p>
-        <p>Rekapitulasi Nilai Akademik</p>
-    </div>
+    @include('pdf.partials.kop')
+
+    <p class="kop-title">LAPORAN HASIL BELAJAR SISWA</p>
+    <p class="kop-meta">Rekapitulasi Nilai Akademik</p>
 
     <table class="student-info">
         <tr>

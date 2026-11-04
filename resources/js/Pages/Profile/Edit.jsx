@@ -9,8 +9,9 @@ import UpdatePasswordForm from './Partials/UpdatePasswordForm';
 const ROLE_LABEL = { admin: 'Admin', tutor: 'Tutor', student: 'Murid' };
 
 const STATUS_STYLE = {
-    terverifikasi: 'bg-emerald-50 text-emerald-700',
+    menunggu_pembayaran: 'bg-sky-50 text-sky-700',
     menunggu_verifikasi: 'bg-amber-50 text-amber-700',
+    terverifikasi: 'bg-emerald-50 text-emerald-700',
     ditolak: 'bg-rose-50 text-rose-700',
 };
 
@@ -165,10 +166,20 @@ export default function Edit({ profile, pendaftaran }) {
                                 <div className="grid gap-x-5 gap-y-5 sm:grid-cols-2">
                                     <InfoRow label="Tanggal lahir" value={formatDate(pendaftaran.tanggal_lahir)} />
                                     <InfoRow label="Asal institusi" value={pendaftaran.asal_institusi} />
+                                    <InfoRow label="Pendidikan terakhir" value={pendaftaran.pendidikan_terakhir} />
                                     <InfoRow label="Program" value={pendaftaran.program} />
                                     <InfoRow label="Biaya pendaftaran" value={rupiah(pendaftaran.biaya)} />
                                     <div className="sm:col-span-2"><InfoRow label="Alamat" value={pendaftaran.alamat} /></div>
                                 </div>
+
+                                {pendaftaran.status === 'menunggu_pembayaran' && (
+                                    <a
+                                        href={route('pembayaran.show')}
+                                        className="mt-4 inline-flex rounded-xl bg-dubesia-red px-4 py-2.5 text-sm font-bold text-white transition hover:bg-dubesia-navy"
+                                    >
+                                        Lanjutkan Pembayaran
+                                    </a>
+                                )}
 
                                 {pendaftaran.catatan_verifikasi && (
                                     <div className="mt-4 rounded-xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-800">
