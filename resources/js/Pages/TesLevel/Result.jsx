@@ -219,7 +219,7 @@ export default function Result({ hasilTes, totalSoal }) {
                             {/* Footer Notice */}
                             <div className="mt-5 pt-4 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-400 gap-3">
                                 <span>ID Verifikasi Hasil: #DTES-{hasilTes.id_hasil}-{hasilTes.id_murid}</span>
-                                <span>DUBESIA English Assessment Engine</span>
+                                <span>DUBESIA English Placement Test</span>
                             </div>
                         </div>
                     </div>

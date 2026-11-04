@@ -99,7 +99,7 @@ class ScheduleViewController extends Controller
             'user' => $user,
             'semester' => $semester,
             'days' => $days,
-            'audience' => $user->isTutor() ? 'Tutor' : 'Siswa',
+            'audience' => $user->isTutor() ? 'Tutor' : 'Murid',
             'generatedAt' => now(),
         ])
             ->setPaper('a4', 'landscape')

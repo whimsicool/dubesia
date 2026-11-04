@@ -47,7 +47,7 @@ export default function Login({ status }) {
                                     DUBESIA
                                 </span>
                                 <span className="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant">
-                                    Portal Masuk Siswa &amp; Pembelajar
+                                    Portal Masuk Murid &amp; Tutor
                                 </span>
                             </span>
                         </Link>
@@ -222,7 +222,7 @@ export default function Login({ status }) {
                                                 how_to_reg
                                             </span>
                                             <span className="font-body-sm text-body-sm text-on-surface-variant">
-                                                Belum memiliki akun siswa
+                                                Belum memiliki akun murid
                                                 aktif?
                                             </span>
                                         </div>
@@ -252,7 +252,7 @@ export default function Login({ status }) {
                                 Hak Cipta Dilindungi Undang-Undang.
                             </p>
                             <p className="text-center font-body-sm text-body-sm text-on-surface-variant md:text-left">
-                                Terakreditasi Lembaga Standarisasi Bahasa &amp;
+                                Terakreditasi Lembaga Standardisasi Bahasa &amp;
                                 Pendidikan Karakter Internasional.
                             </p>
                         </div>
@@ -261,7 +261,7 @@ export default function Login({ status }) {
                                 verified_user
                             </span>
                             <span className="font-label-sm text-label-sm font-medium">
-                                Enkripsi SSL 256-bit Standar Akademik
+                                Enkripsi SSL 256-bit
                             </span>
                         </div>
                     </div>

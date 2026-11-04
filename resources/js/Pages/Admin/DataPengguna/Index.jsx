@@ -7,7 +7,7 @@ import { useEffect, useRef, useState } from 'react';
 
 /* ═══════════════════════════════════════════════
    HALAMAN KELOLA DATA PENGGUNA (ADMIN)
-   Sesuai desain mockup DUBESIA Portal Akademik
+   Sesuai desain mockup DUBESIA Portal Kursus
    ═══════════════════════════════════════════════ */
 
 export default function Index({ users, filters, stats }) {
@@ -217,7 +217,7 @@ export default function Index({ users, filters, stats }) {
                     />
                     <h1 className="kdp-header__title">Kelola Data Pengguna (Murid & Tutor)</h1>
                     <p className="kdp-header__desc">
-                        Kelola basis data akun, penerbitan kredensial akses, hak peran pengajar dan siswa di portal akademik DUBESIA.
+                        Kelola basis data akun, penerbitan kredensial akses, hak peran tutor dan murid di portal kursus DUBESIA.
                     </p>
                 </div>
                 <div className="kdp-header__actions">
@@ -250,7 +250,7 @@ export default function Index({ users, filters, stats }) {
 
                 <div className="kdp-stat-card">
                     <div className="kdp-stat-card__top">
-                        <span className="kdp-stat-card__label">Murid / Siswa</span>
+                        <span className="kdp-stat-card__label">Murid</span>
                         <div className="kdp-stat-card__icon kdp-stat-card__icon--blue">
                             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" />
@@ -264,7 +264,7 @@ export default function Index({ users, filters, stats }) {
 
                 <div className="kdp-stat-card">
                     <div className="kdp-stat-card__top">
-                        <span className="kdp-stat-card__label">Tutor & Mentor</span>
+                        <span className="kdp-stat-card__label">Tutor</span>
                         <div className="kdp-stat-card__icon kdp-stat-card__icon--amber">
                             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />

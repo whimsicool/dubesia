@@ -82,7 +82,7 @@
     @include('pdf.partials.kop')
 
     <p class="kop-title">LAPORAN JADWAL BELAJAR</p>
-    <p class="kop-meta">{{ $semester?->name ?? 'Tidak ada semester aktif' }}</p>
+    <p class="kop-meta">{{ $semester?->name ?? 'Tidak ada periode aktif' }}</p>
 
     <table class="info">
         <tr>
@@ -112,7 +112,7 @@
                     <th width="12%">Waktu</th>
                     <th width="20%">Sesi / Kelas</th>
                     <th width="17%">Program</th>
-                    <th width="17%">Instruktur</th>
+                    <th width="17%">Tutor</th>
                     <th width="15%">Ruangan</th>
                     @if ($audience === 'Administrator')
                     <th width="10%">Peserta</th>
@@ -159,7 +159,7 @@
                         @endif
                     </td>
                     @if ($audience === 'Administrator')
-                    <td>{{ $schedule['participants'] ?? 0 }} siswa</td>
+                    <td>{{ $schedule['participants'] ?? 0 }} murid</td>
                     @endif
                 </tr>
                 @empty

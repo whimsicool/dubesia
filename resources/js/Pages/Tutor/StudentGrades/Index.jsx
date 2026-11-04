@@ -72,7 +72,7 @@ export default function Index({ grades }) {
     };
 
     const handleDelete = (gradeId) => {
-        if (!window.confirm('Hapus data nilai siswa ini?')) {
+        if (!window.confirm('Hapus data nilai murid ini?')) {
             return;
         }
 
@@ -103,11 +103,11 @@ export default function Index({ grades }) {
                                     <circle cx="11" cy="11" r="7" />
                                     <path d="m20 20-4-4" />
                                 </svg>
-                                <span className="sr-only">Cari siswa atau mata pelajaran</span>
+                                <span className="sr-only">Cari murid atau program</span>
                                 <input
                                     value={search}
                                     onChange={(event) => setSearch(event.target.value)}
-                                    placeholder="Cari nama siswa, email, atau mata pelajaran..."
+                                    placeholder="Cari nama murid, email, atau program..."
                                     className="w-full border-0 bg-transparent p-0 text-sm text-slate-900 placeholder:text-slate-500 focus:ring-0"
                                 />
                             </label>
@@ -118,7 +118,7 @@ export default function Index({ grades }) {
                                         <circle cx="12" cy="12" r="9" />
                                         <path d="M12 11v5m0-8h.01" />
                                     </svg>
-                                    Pilih siswa untuk melihat aksi
+                                    Pilih murid untuk melihat aksi
                                 </span>
                                 <button
                                     type="button"
@@ -158,9 +158,9 @@ export default function Index({ grades }) {
                                             />
                                         </th>
                                         <th className="px-3 py-4">No</th>
-                                        <th className="min-w-64 px-4 py-4">Nama Siswa</th>
+                                        <th className="min-w-64 px-4 py-4">Nama Murid</th>
                                         <th className="min-w-40 px-4 py-4">Status Input</th>
-                                        <th className="min-w-36 px-4 py-4 text-center">Mata Pelajaran</th>
+                                        <th className="min-w-36 px-4 py-4 text-center">Program</th>
                                         <th className="min-w-32 px-4 py-4 text-center">Nilai Akhir</th>
                                         <th className="min-w-32 px-4 py-4 text-center">Predikat</th>
                                         {showFeedback && <th className="min-w-52 px-4 py-4">Umpan Balik</th>}
@@ -183,7 +183,7 @@ export default function Index({ grades }) {
                                                             type="checkbox"
                                                             checked={selectedGrades.includes(grade.id)}
                                                             onChange={() => toggleGrade(grade.id)}
-                                                            aria-label={`Pilih nilai ${grade.student?.name ?? 'siswa'}`}
+                                                            aria-label={`Pilih nilai ${grade.student?.name ?? 'murid'}`}
                                                             className="h-4 w-4 rounded border-slate-300 text-slate-900 focus:ring-slate-500"
                                                         />
                                                     </td>
@@ -196,8 +196,8 @@ export default function Index({ grades }) {
                                                                 {getInitials(grade.student?.name)}
                                                             </span>
                                                             <div className="min-w-0">
-                                                                <p className="truncate font-semibold text-slate-900">{grade.student?.name ?? 'Siswa tidak ditemukan'}</p>
-                                                                <p className="mt-0.5 truncate text-xs text-slate-500">{grade.student?.email ?? 'Informasi siswa tidak tersedia'}</p>
+                                                                <p className="truncate font-semibold text-slate-900">{grade.student?.name ?? 'Murid tidak ditemukan'}</p>
+                                                                <p className="mt-0.5 truncate text-xs text-slate-500">{grade.student?.email ?? 'Informasi murid tidak tersedia'}</p>
                                                             </div>
                                                         </div>
                                                     </td>

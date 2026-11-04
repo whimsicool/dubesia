@@ -43,7 +43,7 @@ export default function ForgotPassword({ status }) {
                                     DUBESIA
                                 </span>
                                 <span className="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant">
-                                    Portal Masuk Siswa &amp; Pembelajar
+                                    Portal Masuk Murid &amp; Tutor
                                 </span>
                             </span>
                         </Link>
