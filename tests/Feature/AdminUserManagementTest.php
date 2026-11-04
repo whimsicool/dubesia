@@ -131,7 +131,7 @@ class AdminUserManagementTest extends TestCase
         $this->assertDatabaseHas('users', [
             'id' => $tutor->id,
             'name' => 'Nama Baru Updated',
-            'no_hp' => '+62 821-9999-8888',
+            'no_hp' => '+6282199998888',
         ]);
     }
 

@@ -32,7 +32,7 @@ class UpdateRegistrasiRequest extends FormRequest
 
         return [
             'nama_lengkap' => ['required', 'string', 'max:255'],
-            'tanggal_lahir' => ['required', 'date', 'before:today'],
+            'tanggal_lahir' => ['required', 'date', 'before:today', 'before_or_equal:2020-12-31'],
             'email' => ['required', 'email:rfc', 'regex:/^[^@\s]+@gmail\.com$/i', 'max:255', Rule::unique('users', 'email')->ignore($userId)],
             'no_whatsapp' => ['required', 'regex:/^[0-9]+$/'],
             'alamat' => ['required', 'string', 'max:1000'],
@@ -53,6 +53,7 @@ class UpdateRegistrasiRequest extends FormRequest
             'email.regex' => 'Email harus menggunakan domain @gmail.com.',
             'email.max' => 'Alamat email maksimal 255 karakter.',
             'tanggal_lahir.before' => 'Tanggal lahir harus sebelum hari ini.',
+            'tanggal_lahir.before_or_equal' => 'Tanggal lahir maksimal 31 Desember 2020.',
             'nama_lengkap.max' => 'Nama lengkap maksimal 255 karakter.',
             'asal_institusi.max' => 'Asal institusi maksimal 255 karakter.',
             'alamat.max' => 'Alamat maksimal 1.000 karakter.',

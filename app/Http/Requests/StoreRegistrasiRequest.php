@@ -32,7 +32,7 @@ class StoreRegistrasiRequest extends FormRequest
     {
         return [
             'nama_lengkap' => ['required', 'string', 'max:255'],
-            'tanggal_lahir' => ['required', 'date', 'before:today'],
+            'tanggal_lahir' => ['required', 'date', 'before:today', 'before_or_equal:2020-12-31'],
             'email' => ['required', 'email:rfc', 'regex:/^[^@\s]+@gmail\.com$/i', 'max:255', Rule::unique('users', 'email')],
             'no_whatsapp' => ['required', 'regex:/^[0-9]+$/'],
             'alamat' => ['required', 'string', 'max:1000'],

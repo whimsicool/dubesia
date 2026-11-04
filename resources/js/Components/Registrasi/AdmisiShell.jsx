@@ -32,7 +32,7 @@ export default function AdmisiShell({ title, description, children, showLogout =
 
           <nav className="flex items-center gap-2 text-sm sm:gap-5">
             <Link href={route('bantuan-admisi')} className="hidden text-slate-600 transition hover:text-dubesia-red md:inline">
-              Bantuan Admisi
+              FAQ
             </Link>
 
             <Link href={route('panduan-pendaftaran')} className="hidden text-slate-600 transition hover:text-dubesia-red md:inline">
@@ -87,7 +87,7 @@ export default function AdmisiShell({ title, description, children, showLogout =
             </Link>
 
             <Link href={route('bantuan-admisi')} className="hover:text-dubesia-red">
-              Bantuan Admisi
+              FAQ
             </Link>
           </div>
         </div>

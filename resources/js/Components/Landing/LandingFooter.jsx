@@ -8,7 +8,7 @@ const PORTAL_LINKS = [
 
 const INFO_LINKS = [
     { label: 'Panduan Pendaftaran', route: 'panduan-pendaftaran' },
-    { label: 'Bantuan Admisi', route: 'bantuan-admisi' },
+    { label: 'FAQ', route: 'bantuan-admisi' },
 ];
 
 const MAPS_URL =
