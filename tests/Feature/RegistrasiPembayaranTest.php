@@ -103,7 +103,7 @@ class RegistrasiPembayaranTest extends TestCase
             ->assertRedirect(route('pembayaran.show'));
     }
 
-    public function test_calon_murid_menunggu_verifikasi_diarahkan_dari_dashboard_ke_profil(): void
+    public function test_calon_murid_menunggu_verifikasi_diarahkan_dari_dashboard_ke_halaman_pembayaran(): void
     {
         $user = User::factory()->create(['is_active' => false]);
         Pendaftaran::factory()->for($user)->create([
@@ -114,7 +114,34 @@ class RegistrasiPembayaranTest extends TestCase
 
         $this->actingAs($user)
             ->get('/dashboard')
-            ->assertRedirect(route('profile.edit'));
+            ->assertRedirect(route('pembayaran.show'));
+    }
+
+    public function test_calon_murid_belum_terverifikasi_tidak_dapat_membuka_halaman_profil(): void
+    {
+        foreach ([Pendaftaran::STATUS_MENUNGGU_PEMBAYARAN, Pendaftaran::STATUS_MENUNGGU] as $status) {
+            $user = User::factory()->create(['is_active' => false]);
+            Pendaftaran::factory()->for($user)->create([
+                'email' => $user->email,
+                'status' => $status,
+                'bukti_pembayaran' => 'bukti-pembayaran/contoh.pdf',
+            ]);
+
+            $this->actingAs($user)
+                ->get('/profile')
+                ->assertRedirect(route('pembayaran.show'));
+        }
+    }
+
+    public function test_akun_nonaktif_tanpa_pendaftaran_keluar_dan_kembali_ke_login(): void
+    {
+        $user = User::factory()->create(['is_active' => false]);
+
+        $this->actingAs($user)
+            ->get('/dashboard')
+            ->assertRedirect(route('login'));
+
+        $this->assertGuest();
     }
 
     public function test_unggah_bukti_pembayaran_mengubah_status_menjadi_menunggu_verifikasi(): void
