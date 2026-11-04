@@ -615,13 +615,18 @@ export default function Index({ users, filters, stats }) {
                             {/* No HP */}
                             <div className="kdp-field">
                                 <label className="kdp-field__label">Nomor WhatsApp / HP Aktif</label>
-                                <input
-                                    type="text"
-                                    value={form.data.no_hp}
-                                    onChange={(e) => form.setData('no_hp', e.target.value)}
-                                    placeholder="+62 812-xxxx-xxxx"
-                                    className="kdp-field__input"
-                                />
+                                <div style={{ display: 'flex', alignItems: 'stretch' }}>
+                                    <span style={{ display: 'inline-flex', alignItems: 'center', padding: '0 14px', border: '1px solid #dbe3ef', borderRight: 0, borderRadius: '10px 0 0 10px', background: '#f1f5f9', color: '#475569', fontWeight: 600 }}>+62</span>
+                                    <input
+                                        type="tel"
+                                        inputMode="numeric"
+                                        value={(form.data.no_hp || '').replace(/^\+62\s*/, '')}
+                                        onChange={(e) => form.setData('no_hp', e.target.value ? `+62${e.target.value.replace(/\D/g, '')}` : '')}
+                                        placeholder="812xxxxxxxx"
+                                        className="kdp-field__input"
+                                        style={{ borderTopLeftRadius: 0, borderBottomLeftRadius: 0 }}
+                                    />
+                                </div>
                                 {form.errors.no_hp && <p className="kdp-field__error">{form.errors.no_hp}</p>}
                             </div>
 

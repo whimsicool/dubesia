@@ -417,7 +417,7 @@ export default function Landing({ programs }) {
                                         href={route('bantuan-admisi')}
                                         className="flex items-center gap-2 rounded-xl px-5 py-2.5 font-label-lg text-label-lg text-on-surface-variant transition-colors hover:text-on-surface"
                                     >
-                                        Bantuan admisi
+                                        FAQ
                                         <ArrowRight className="h-4 w-4" />
                                     </Link>
                                 </div>

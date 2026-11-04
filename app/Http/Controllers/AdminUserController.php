@@ -102,6 +102,8 @@ class AdminUserController extends Controller
             'no_hp' => 'nullable|string|max:20',
         ]);
 
+        $validated['no_hp'] = $this->normalizePhoneNumber($validated['no_hp'] ?? null);
+
         $defaultPassword = User::generateDefaultPassword($validated['name']);
 
         $user = User::create([
@@ -152,9 +154,23 @@ class AdminUserController extends Controller
             'status_akun' => ['required', Rule::in(['aktif', 'nonaktif'])],
         ]);
 
+        $validated['no_hp'] = $this->normalizePhoneNumber($validated['no_hp'] ?? null);
+
         $user->update($validated);
 
         return redirect()->route('admin.data-pengguna.index')->with('success', "Data pengguna \"{$user->name}\" berhasil diperbarui.");
+    }
+
+    private function normalizePhoneNumber(?string $phone): ?string
+    {
+        if ($phone === null || trim($phone) === '') {
+            return null;
+        }
+
+        $digits = preg_replace('/\\D+/', '', $phone);
+        $digits = preg_replace('/^62/', '', $digits);
+
+        return $digits === '' ? null : '+62'.$digits;
     }
 
     /**

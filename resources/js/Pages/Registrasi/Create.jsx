@@ -99,7 +99,7 @@ function Shell({ children, editMode = false }) {
               href={route('bantuan-admisi')}
               className="hidden text-slate-600 transition hover:text-blue-700 md:inline"
             >
-              Bantuan Admisi
+              FAQ
             </Link>
 
             <Link
@@ -154,7 +154,7 @@ function Shell({ children, editMode = false }) {
             </Link>
 
             <Link href={route('bantuan-admisi')} className="hover:text-blue-700">
-              Bantuan Admisi
+              FAQ
             </Link>
           </div>
         </div>
@@ -271,7 +271,7 @@ export default function Create({
     const nextErrors = {};
     if (!data.nama_lengkap.trim()) nextErrors.nama_lengkap = 'Masukkan nama lengkap sesuai identitas.';
     if (!data.tanggal_lahir) nextErrors.tanggal_lahir = 'Pilih tanggal lahir Anda.';
-    else if (new Date(`${data.tanggal_lahir}T00:00:00`) >= new Date(new Date().toDateString())) nextErrors.tanggal_lahir = 'Tanggal lahir harus sebelum hari ini.';
+    else if (data.tanggal_lahir > '2020-12-31') nextErrors.tanggal_lahir = 'Tanggal lahir maksimal 31 Desember 2020.';
     if (!data.email.trim()) nextErrors.email = 'Masukkan alamat email yang aktif.';
     else if (!/^[^\s@]+@gmail\.com$/i.test(data.email.trim())) nextErrors.email = 'Gunakan alamat email Gmail yang berakhiran @gmail.com.';
     const phoneDigits = String(data.no_whatsapp).trim();
@@ -432,7 +432,7 @@ export default function Create({
                 <input
                   required
                   type="date"
-                  max={new Date().toISOString().slice(0, 10)}
+                  max="2020-12-31"
                   className={`${inputClass} ${fieldError('tanggal_lahir') ? 'border-rose-400 bg-rose-50/40' : ''}`}
                   value={data.tanggal_lahir}
                   onChange={(e) => updateField('tanggal_lahir', e.target.value)}

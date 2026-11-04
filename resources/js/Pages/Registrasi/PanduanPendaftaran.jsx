@@ -45,7 +45,7 @@ export default function PanduanPendaftaran() {
                             </div>
                         </div>
                         <Link href={route('bantuan-admisi')} className="text-sm font-semibold text-slate-600 hover:text-slate-900">
-                            Bantuan Admisi
+                            FAQ
                         </Link>
                     </div>
                 </header>
