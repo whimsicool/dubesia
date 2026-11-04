@@ -7,6 +7,7 @@ use App\Models\Pendaftaran;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
@@ -30,6 +31,10 @@ class PembayaranController extends Controller
 
         if ($pendaftaran->status === Pendaftaran::STATUS_DITOLAK) {
             return redirect()->route('registrasi.edit');
+        }
+
+        if ($pendaftaran->status === Pendaftaran::STATUS_MENUNGGU) {
+            return redirect()->route('pembayaran.terkirim');
         }
 
         return Inertia::render('Registrasi/Pembayaran', [
@@ -56,10 +61,7 @@ class PembayaranController extends Controller
     {
         $pendaftaran = $request->user()->pendaftaran;
 
-        abort_unless(
-            $pendaftaran && in_array($pendaftaran->status, [Pendaftaran::STATUS_MENUNGGU_PEMBAYARAN, Pendaftaran::STATUS_MENUNGGU], true),
-            403,
-        );
+        abort_unless($pendaftaran && $pendaftaran->status === Pendaftaran::STATUS_MENUNGGU_PEMBAYARAN, 403);
 
         if ($pendaftaran->hasBuktiPembayaran()) {
             return back()->withErrors([
@@ -83,18 +85,18 @@ class PembayaranController extends Controller
             ]);
         }
 
-        return redirect()->route('pembayaran.show')
-            ->with('sukses', 'Bukti pembayaran diterima. Mohon tunggu verifikasi admin.');
+        Auth::logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return redirect()->route('pembayaran.terkirim');
     }
 
     public function destroyBukti(Request $request): RedirectResponse
     {
         $pendaftaran = $request->user()->pendaftaran;
 
-        abort_unless(
-            $pendaftaran && in_array($pendaftaran->status, [Pendaftaran::STATUS_MENUNGGU_PEMBAYARAN, Pendaftaran::STATUS_MENUNGGU], true),
-            403,
-        );
+        abort_unless($pendaftaran && $pendaftaran->status === Pendaftaran::STATUS_MENUNGGU_PEMBAYARAN, 403);
 
         $path = $pendaftaran->bukti_pembayaran;
 

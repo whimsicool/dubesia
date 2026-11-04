@@ -32,6 +32,9 @@ Route::get('/dashboard', [DashboardController::class, 'index'])
 
 Route::get('/registrasi', [RegistrasiController::class, 'create'])->name('registrasi.create');
 
+Route::get('/pembayaran/terkirim', fn () => Inertia::render('Registrasi/PembayaranTerkirim'))
+    ->name('pembayaran.terkirim');
+
 Route::get('/panduan-pendaftaran', function () {
     return Inertia::render('Registrasi/PanduanPendaftaran');
 })->name('panduan-pendaftaran');
