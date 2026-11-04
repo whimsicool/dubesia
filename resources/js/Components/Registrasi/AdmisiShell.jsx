@@ -3,7 +3,7 @@ import { Head, Link } from '@inertiajs/react';
 export default function AdmisiShell({ title, description, children, showLogout = false }) {
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800">
-      <Head title={`${title} | DUBESIA`}>
+      <Head title={title}>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />

@@ -6,6 +6,10 @@
 
         <title inertia>{{ config('app.name', 'Dubesia') }}</title>
 
+        <!-- Icons -->
+        <link rel="icon" href="/favicon.ico" sizes="any">
+        <link rel="apple-touch-icon" href="/images/apple-touch-icon.png">
+
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>

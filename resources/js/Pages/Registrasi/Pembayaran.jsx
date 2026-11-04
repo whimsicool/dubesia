@@ -79,7 +79,7 @@ export default function Pembayaran({ pendaftaran, rekening = [], flash }) {
 
   return (
     <AdmisiShell title="Pembayaran Pendaftaran" showLogout>
-      <Head title="Pembayaran Pendaftaran | DUBESIA" />
+      <Head title="Pembayaran Pendaftaran" />
 
       <section className="overflow-hidden rounded-2xl bg-gradient-to-r from-dubesia-navy via-dubesia-navy to-dubesia-red px-5 py-7 text-white shadow-sm sm:px-8 sm:py-9">
         <p className="text-xs font-bold uppercase tracking-[0.18em] text-white/75">
