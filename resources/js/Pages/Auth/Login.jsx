@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Head, Link, useForm } from '@inertiajs/react';
+import { KeyRound } from 'lucide-react';
 
 export default function Login({ status }) {
     const [showPassword, setShowPassword] = useState(false);
@@ -166,8 +167,9 @@ export default function Login({ status }) {
                                                     </span>
                                                     <Link
                                                         href={route('password.request')}
-                                                        className="font-label-sm text-label-sm font-semibold text-secondary hover:underline"
+                                                        className="inline-flex items-center gap-1 font-label-sm text-label-sm font-semibold text-secondary hover:underline"
                                                     >
+                                                        <KeyRound className="h-3.5 w-3.5" aria-hidden="true" />
                                                         Lupa kata sandi?
                                                     </Link>
                                                 </label>

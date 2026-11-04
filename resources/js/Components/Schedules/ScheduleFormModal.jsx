@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useForm } from '@inertiajs/react';
-import { TriangleAlert } from 'lucide-react';
+import { Save, TriangleAlert, X } from 'lucide-react';
 import Modal from '@/Components/Admin/Modal';
 const BLANK = {
     class_id: '',
@@ -213,14 +213,14 @@ export default function ScheduleFormModal({ open, onClose, schedule, options, de
                         onClick={onClose}
                         className="rounded-lg border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"
                     >
-                        Batal
+                        <span className="inline-flex items-center gap-2"><X aria-hidden="true" className="h-4 w-4" />Batal</span>
                     </button>
                     <button
                         type="submit"
                         disabled={processing}
                         className="rounded-lg bg-slate-900 px-5 py-2 text-sm font-semibold text-white hover:bg-slate-800 disabled:opacity-60"
                     >
-                        {processing ? 'Menyimpan…' : isEdit ? 'Simpan Perubahan' : 'Simpan Jadwal'}
+                        <span className="inline-flex items-center gap-2"><Save aria-hidden="true" className="h-4 w-4" />{processing ? 'Menyimpan…' : isEdit ? 'Simpan Perubahan' : 'Simpan Jadwal'}</span>
                     </button>
                 </div>
             </form>

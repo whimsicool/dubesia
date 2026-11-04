@@ -1,5 +1,6 @@
 import AdminLayout from '@/Layouts/AdminLayout';
 import { Head, Link, useForm } from '@inertiajs/react';
+import { Save, X } from 'lucide-react';
 
 export default function Create({ classes, students }) {
     const { data, setData, post, processing, errors } = useForm({
@@ -252,7 +253,7 @@ export default function Create({ classes, students }) {
                                         )}
                                         className="rounded-md bg-gray-200 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-300"
                                     >
-                                        Cancel
+                                        <X className="mr-2 inline h-4 w-4" aria-hidden="true" />Cancel
                                     </Link>
 
                                     <button
@@ -260,7 +261,7 @@ export default function Create({ classes, students }) {
                                         disabled={processing}
                                         className="rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-50"
                                     >
-                                        {processing
+                                        <Save className="mr-2 inline h-4 w-4" aria-hidden="true" />{processing
                                             ? 'Saving...'
                                             : 'Save Grade'}
                                     </button>

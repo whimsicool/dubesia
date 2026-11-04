@@ -1,4 +1,5 @@
 import { Head, Link } from '@inertiajs/react';
+import { BookOpen, CircleHelp, LogIn, LogOut } from 'lucide-react';
 
 export default function AdmisiShell({ title, description, children, showLogout = false }) {
   return (
@@ -31,11 +32,13 @@ export default function AdmisiShell({ title, description, children, showLogout =
           </div>
 
           <nav className="flex items-center gap-2 text-sm sm:gap-5">
-            <Link href={route('bantuan-admisi')} className="hidden text-slate-600 transition hover:text-dubesia-red md:inline">
+            <Link href={route('bantuan-admisi')} className="hidden items-center gap-2 text-slate-600 transition hover:text-dubesia-red md:inline-flex">
+              <CircleHelp aria-hidden="true" className="h-4 w-4" />
               FAQ
             </Link>
 
-            <Link href={route('panduan-pendaftaran')} className="hidden text-slate-600 transition hover:text-dubesia-red md:inline">
+            <Link href={route('panduan-pendaftaran')} className="hidden items-center gap-2 text-slate-600 transition hover:text-dubesia-red md:inline-flex">
+              <BookOpen aria-hidden="true" className="h-4 w-4" />
               Panduan Pendaftaran
             </Link>
 
@@ -44,15 +47,17 @@ export default function AdmisiShell({ title, description, children, showLogout =
                 href={route('logout')}
                 method="post"
                 as="button"
-                className="rounded-lg bg-dubesia-red-soft px-3 py-2 text-center text-xs font-semibold text-dubesia-red transition hover:bg-dubesia-red/10 sm:px-4 sm:text-sm"
+                className="inline-flex items-center justify-center gap-2 rounded-lg bg-dubesia-red-soft px-3 py-2 text-center text-xs font-semibold text-dubesia-red transition hover:bg-dubesia-red/10 sm:px-4 sm:text-sm"
               >
+                <LogOut aria-hidden="true" className="h-4 w-4" />
                 Keluar
               </Link>
             ) : (
               <Link
                 href="/login"
-                className="rounded-lg bg-dubesia-red-soft px-3 py-2 text-center text-xs font-semibold text-dubesia-red transition hover:bg-dubesia-red/10 sm:px-4 sm:text-sm"
+                className="inline-flex items-center justify-center gap-2 rounded-lg bg-dubesia-red-soft px-3 py-2 text-center text-xs font-semibold text-dubesia-red transition hover:bg-dubesia-red/10 sm:px-4 sm:text-sm"
               >
+                <LogIn aria-hidden="true" className="h-4 w-4" />
                 Masuk
               </Link>
             )}
@@ -82,11 +87,13 @@ export default function AdmisiShell({ title, description, children, showLogout =
           </div>
 
           <div className="flex flex-wrap gap-4 text-xs font-semibold text-slate-600">
-            <Link href={route('panduan-pendaftaran')} className="hover:text-dubesia-red">
+            <Link href={route('panduan-pendaftaran')} className="inline-flex items-center gap-2 hover:text-dubesia-red">
+              <BookOpen aria-hidden="true" className="h-4 w-4" />
               Panduan Pendaftaran
             </Link>
 
-            <Link href={route('bantuan-admisi')} className="hover:text-dubesia-red">
+            <Link href={route('bantuan-admisi')} className="inline-flex items-center gap-2 hover:text-dubesia-red">
+              <CircleHelp aria-hidden="true" className="h-4 w-4" />
               FAQ
             </Link>
           </div>

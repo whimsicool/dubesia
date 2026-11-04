@@ -1,6 +1,7 @@
 import PrimaryButton from '@/Components/PrimaryButton';
 import GuestLayout from '@/Layouts/GuestLayout';
 import { Head, Link, useForm } from '@inertiajs/react';
+import { LogOut, MailCheck } from 'lucide-react';
 
 export default function VerifyEmail({ status }) {
     const { post, processing } = useForm({});
@@ -32,7 +33,7 @@ export default function VerifyEmail({ status }) {
             <form onSubmit={submit}>
                 <div className="mt-4 flex items-center justify-between">
                     <PrimaryButton disabled={processing}>
-                        Resend Verification Email
+                        <span className="inline-flex items-center gap-1.5"><MailCheck className="h-4 w-4" aria-hidden="true" />Resend Verification Email</span>
                     </PrimaryButton>
 
                     <Link
@@ -41,7 +42,7 @@ export default function VerifyEmail({ status }) {
                         as="button"
                         className="rounded-md text-sm text-gray-600 underline hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
                     >
-                        Log Out
+                        <span className="inline-flex items-center gap-1.5"><LogOut className="h-4 w-4" aria-hidden="true" />Log Out</span>
                     </Link>
                 </div>
             </form>

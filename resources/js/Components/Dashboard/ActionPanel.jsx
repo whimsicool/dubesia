@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link } from '@inertiajs/react';
+import { ArrowRight, ChevronRight, ListChecks } from 'lucide-react';
 
 const TONES = {
     attention: 'bg-red-50 text-red-700',
@@ -38,6 +39,7 @@ export default function ActionPanel({ panel }) {
                                         : 'border-transparent text-slate-500 hover:text-slate-800'
                                 }`}
                             >
+                                <ListChecks aria-hidden="true" className="h-4 w-4" />
                                 {item.label}
                                 {item.count > 0 && (
                                     <span
@@ -80,8 +82,9 @@ export default function ActionPanel({ panel }) {
                         return (
                             <li key={item.id}>
                                 {item.href ? (
-                                    <Link href={item.href} className="block px-4 py-3 transition hover:bg-slate-50">
+                                    <Link href={item.href} className="flex items-center justify-between gap-3 px-4 py-3 transition hover:bg-slate-50">
                                         {content}
+                                        <ChevronRight aria-hidden="true" className="h-4 w-4 shrink-0 text-slate-400" />
                                     </Link>
                                 ) : (
                                     <div className="px-4 py-3">{content}</div>
@@ -95,7 +98,7 @@ export default function ActionPanel({ panel }) {
             {tab.footer && (
                 <div className="border-t border-slate-100 px-4 py-3">
                     <Link href={tab.footer.href} className="text-xs font-semibold text-red-700 hover:text-red-900">
-                        {tab.footer.label} →
+                        <span className="inline-flex items-center gap-2"><ArrowRight aria-hidden="true" className="h-4 w-4" />{tab.footer.label}</span>
                     </Link>
                 </div>
             )}

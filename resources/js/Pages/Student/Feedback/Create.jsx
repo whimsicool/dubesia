@@ -1,5 +1,6 @@
 import AdminLayout from '@/Layouts/AdminLayout';
 import { Head, useForm } from '@inertiajs/react';
+import { Send } from 'lucide-react';
 
 export default function Create({ feedbackEntries, flash }) {
     const { data, setData, post, processing, errors, reset } = useForm({
@@ -62,8 +63,9 @@ export default function Create({ feedbackEntries, flash }) {
                             <button
                                 type="submit"
                                 disabled={processing}
-                                className="rounded-xl bg-red-700 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-red-800 disabled:cursor-not-allowed disabled:opacity-60"
+                                className="inline-flex items-center gap-2 rounded-xl bg-red-700 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-red-800 disabled:cursor-not-allowed disabled:opacity-60"
                             >
+                                <Send aria-hidden="true" className="h-4 w-4" />
                                 {processing ? 'Mengirimâ€¦' : 'Kirim masukan'}
                             </button>
                         </div>

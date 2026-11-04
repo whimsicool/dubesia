@@ -1,6 +1,7 @@
 import InputError from '@/Components/InputError';
 import { useForm } from '@inertiajs/react';
 import { useRef } from 'react';
+import { Save } from 'lucide-react';
 
 export default function UpdatePasswordForm() {
     const passwordInput = useRef();
@@ -90,7 +91,7 @@ export default function UpdatePasswordForm() {
                     disabled={processing}
                     className="rounded-xl bg-red-800 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-60"
                 >
-                    Simpan kata sandi
+                    <span className="inline-flex items-center gap-2"><Save className="h-4 w-4" />Simpan kata sandi</span>
                 </button>
 
                 {recentlySuccessful && <p className="text-sm text-emerald-700">Kata sandi diperbarui.</p>}

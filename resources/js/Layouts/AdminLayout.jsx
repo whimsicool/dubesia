@@ -10,6 +10,7 @@ import {
     GraduationCap,
     LayoutGrid,
     ListChecks,
+    LogOut,
     Menu,
     MessageSquare,
     UserCheck,
@@ -237,7 +238,8 @@ function UserMenu({ user }) {
             {open && (
                 <div className="absolute right-0 z-50 mt-2 w-44 overflow-hidden rounded-xl border border-slate-100 bg-white py-1 shadow-lg">
                     {hasRoute('profile.edit') && (
-                        <Link href={route('profile.edit')} className="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-50">
+                        <Link href={route('profile.edit')} className="flex items-center gap-2 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50">
+                            <UserRound className="h-4 w-4" aria-hidden="true" />
                             Profil
                         </Link>
                     )}
@@ -245,8 +247,9 @@ function UserMenu({ user }) {
                         href={route('logout')}
                         method="post"
                         as="button"
-                        className="block w-full px-4 py-2 text-left text-sm text-slate-700 hover:bg-slate-50"
+                        className="flex w-full items-center gap-2 px-4 py-2 text-left text-sm text-slate-700 hover:bg-slate-50"
                     >
+                        <LogOut className="h-4 w-4" aria-hidden="true" />
                         Keluar
                     </Link>
                 </div>

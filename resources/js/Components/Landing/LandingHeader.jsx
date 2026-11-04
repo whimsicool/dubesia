@@ -1,12 +1,13 @@
 import { Link } from '@inertiajs/react';
 import { motion, useReducedMotion } from 'motion/react';
+import { BookOpen, CircleHelp, LogIn, MapPin, UserRoundPlus } from 'lucide-react';
 
 import { MOTION_DURATION, MOTION_EASE } from './motion';
 
 const NAV_LINKS = [
-    { href: '#program', label: 'Program' },
-    { href: '#fitur', label: 'Fitur' },
-    { href: '#lokasi', label: 'Lokasi' },
+    { href: '#program', label: 'Program', icon: BookOpen },
+    { href: '#fitur', label: 'Fitur', icon: CircleHelp },
+    { href: '#lokasi', label: 'Lokasi', icon: MapPin },
 ];
 
 export default function LandingHeader() {
@@ -43,8 +44,9 @@ export default function LandingHeader() {
                         <a
                             key={link.href}
                             href={link.href}
-                            className="font-label-lg text-label-lg text-on-surface-variant transition-colors hover:text-on-surface"
+                            className="inline-flex items-center gap-2 font-label-lg text-label-lg text-on-surface-variant transition-colors hover:text-on-surface"
                         >
+                            <link.icon aria-hidden="true" className="h-4 w-4" />
                             {link.label}
                         </a>
                     ))}
@@ -53,14 +55,16 @@ export default function LandingHeader() {
                 <div className="flex items-center gap-2 sm:gap-3">
                     <Link
                         href={route('login')}
-                        className="rounded-lg px-3 py-2 font-label-lg text-label-lg text-on-surface transition-colors hover:bg-surface-container sm:px-4"
+                        className="inline-flex items-center gap-2 rounded-lg px-3 py-2 font-label-lg text-label-lg text-on-surface transition-colors hover:bg-surface-container sm:px-4"
                     >
+                        <LogIn aria-hidden="true" className="h-4 w-4" />
                         Masuk
                     </Link>
                     <Link
                         href={route('registrasi.create')}
-                        className="rounded-lg bg-secondary px-4 py-2.5 font-label-lg text-label-lg text-white shadow-sm transition-colors hover:bg-primary-container"
+                        className="inline-flex items-center gap-2 rounded-lg bg-secondary px-4 py-2.5 font-label-lg text-label-lg text-white shadow-sm transition-colors hover:bg-primary-container"
                     >
+                        <UserRoundPlus aria-hidden="true" className="h-4 w-4" />
                         Daftar
                     </Link>
                 </div>

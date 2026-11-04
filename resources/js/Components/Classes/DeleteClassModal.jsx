@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { router } from '@inertiajs/react';
-import { TriangleAlert } from 'lucide-react';
+import { Trash2, TriangleAlert, X } from 'lucide-react';
 import Modal from '@/Components/Admin/Modal';
 
 export default function DeleteClassModal({ open, courseClass, onClose }) {
@@ -40,7 +40,7 @@ export default function DeleteClassModal({ open, courseClass, onClose }) {
                         onClick={onClose}
                         className="rounded-lg border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"
                     >
-                        Batal
+                        <span className="inline-flex items-center gap-2"><X aria-hidden="true" className="h-4 w-4" />Batal</span>
                     </button>
                     {!isUsed && (
                         <button
@@ -49,7 +49,7 @@ export default function DeleteClassModal({ open, courseClass, onClose }) {
                             disabled={processing}
                             className="rounded-lg bg-red-700 px-4 py-2 text-sm font-semibold text-white hover:bg-red-800 disabled:cursor-not-allowed disabled:opacity-60"
                         >
-                            {processing ? 'Menghapus…' : 'Ya, hapus kelas'}
+                            <span className="inline-flex items-center gap-2"><Trash2 aria-hidden="true" className="h-4 w-4" />{processing ? 'Menghapus…' : 'Ya, hapus kelas'}</span>
                         </button>
                     )}
                 </>

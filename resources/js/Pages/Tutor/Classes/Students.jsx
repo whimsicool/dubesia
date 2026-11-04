@@ -1,6 +1,7 @@
 import AdminLayout from '@/Layouts/AdminLayout';
 import { Head, Link, useForm, usePage } from '@inertiajs/react';
 import { useMemo, useState } from 'react';
+import { GraduationCap, LayoutDashboard, SlidersHorizontal } from 'lucide-react';
 
 const initials = (name = '') =>
     name
@@ -121,9 +122,9 @@ export default function Students({ courseClass, students, components }) {
                     <div className="mb-5 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
                         <div>
                             <nav aria-label="Breadcrumb" className="mb-5 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
-                                <Link href={route('tutor.dashboard')} className="transition hover:text-red-700">Dashboard</Link>
+                                <Link href={route('tutor.dashboard')} className="inline-flex items-center gap-1.5 transition hover:text-red-700"><LayoutDashboard className="h-3.5 w-3.5" aria-hidden="true" />Dashboard</Link>
                                 <span aria-hidden="true">›</span>
-                                <Link href={route('tutor.classes.index')} className="transition hover:text-red-700">Kelas Saya</Link>
+                                <Link href={route('tutor.classes.index')} className="inline-flex items-center gap-1.5 transition hover:text-red-700"><GraduationCap className="h-3.5 w-3.5" aria-hidden="true" />Kelas Saya</Link>
                                 <span aria-hidden="true">›</span>
                                 <span aria-current="page" className="text-red-700">Kelola Nilai</span>
                             </nav>
@@ -141,6 +142,7 @@ export default function Students({ courseClass, students, components }) {
                                 href={route('tutor.classes.grade-components.index', courseClass.id)}
                                 className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 shadow-sm transition hover:bg-slate-50"
                             >
+                                <SlidersHorizontal className="h-4 w-4" aria-hidden="true" />
                                 Atur Komponen Nilai
                             </Link>
                             <div className={`rounded-xl px-4 py-2.5 text-sm font-semibold ${Math.abs(totalWeight - 100) < 0.01 ? 'bg-red-100 text-red-950' : 'bg-red-100 text-red-900'}`}>

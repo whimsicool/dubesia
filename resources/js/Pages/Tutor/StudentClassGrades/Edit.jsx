@@ -1,5 +1,6 @@
 import AdminLayout from '@/Layouts/AdminLayout';
 import { Head, Link, useForm } from '@inertiajs/react';
+import { ArrowUpRight, GraduationCap, LayoutDashboard, Save, Users, X } from 'lucide-react';
 
 const formatNumber = (value, digits = 0) =>
     Number(value ?? 0).toLocaleString(undefined, {
@@ -78,14 +79,14 @@ export default function Edit({
             <main>
                 <div className="mx-auto max-w-6xl">
                     <nav aria-label="Breadcrumb" className="mb-5 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
-                        <Link href={route('tutor.dashboard')} className="transition hover:text-red-700">Dashboard</Link>
+                        <Link href={route('tutor.dashboard')} className="inline-flex items-center gap-1.5 transition hover:text-red-700"><LayoutDashboard className="h-3.5 w-3.5" aria-hidden="true" />Dashboard<ArrowUpRight className="h-3 w-3" aria-hidden="true" /></Link>
                         <span aria-hidden="true">›</span>
-                        <Link href={route('tutor.classes.index')} className="transition hover:text-red-700">Kelas Saya</Link>
+                        <Link href={route('tutor.classes.index')} className="inline-flex items-center gap-1.5 transition hover:text-red-700"><GraduationCap className="h-3.5 w-3.5" aria-hidden="true" />Kelas Saya<ArrowUpRight className="h-3 w-3" aria-hidden="true" /></Link>
                         <span aria-hidden="true">›</span>
                         <Link
                             href={route('tutor.classes.students.index', { courseClass: courseClass.id })}
                             className="transition hover:text-red-700"
-                        >Kelola Nilai</Link>
+                        ><Users className="mr-1 inline h-3.5 w-3.5" aria-hidden="true" />Kelola Nilai<ArrowUpRight className="ml-1 inline h-3 w-3" aria-hidden="true" /></Link>
                         <span aria-hidden="true">›</span>
                         <span aria-current="page" className="text-red-700">Detail Nilai</span>
                     </nav>
@@ -242,14 +243,14 @@ export default function Edit({
                                 href={route('tutor.classes.students.index', { courseClass: courseClass.id })}
                                 className="inline-flex justify-center rounded-xl border border-slate-300 bg-white px-5 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 focus:outline-none focus:ring-4 focus:ring-slate-200"
                             >
-                                Batal
+                                <X className="mr-2 h-4 w-4" aria-hidden="true" />Batal
                             </Link>
                             <button
                                 type="submit"
                                 disabled={processing || components.length === 0}
                                 className="inline-flex justify-center rounded-xl bg-red-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-red-700 focus:outline-none focus:ring-4 focus:ring-red-200 disabled:cursor-not-allowed disabled:opacity-60"
                             >
-                                {processing ? 'Menyimpan nilai...' : 'Simpan Nilai'}
+                                <Save className="mr-2 h-4 w-4" aria-hidden="true" />{processing ? 'Menyimpan nilai...' : 'Simpan Nilai'}
                             </button>
                         </div>
                     </form>

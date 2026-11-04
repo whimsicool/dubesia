@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { ClipboardCheck } from 'lucide-react';
+import { ClipboardCheck, X } from 'lucide-react';
 import Modal from '@/Components/Admin/Modal';
 
 const STATUS = {
@@ -47,7 +47,7 @@ export default function StudentAttendanceModal({ schedule, date, onClose }) {
 
     const footer = (
         <button type="button" onClick={onClose} className="rounded-lg border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700">
-            Tutup
+            <span className="inline-flex items-center gap-2"><X aria-hidden="true" className="h-4 w-4" />Tutup</span>
         </button>
     );
 

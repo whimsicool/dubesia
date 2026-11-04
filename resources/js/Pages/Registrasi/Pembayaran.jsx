@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Head, useForm } from '@inertiajs/react';
+import { Check, Copy, FileUp, Send } from 'lucide-react';
 import AdmisiShell from '@/Components/Registrasi/AdmisiShell';
 
 const rupiah = (value) => `Rp ${Number(value ?? 0).toLocaleString('id-ID')}`;
@@ -132,6 +133,7 @@ export default function Pembayaran({ pendaftaran, rekening = [], flash }) {
                       onClick={() => copyAccount(account.nomor)}
                       className="shrink-0 rounded-md border border-slate-200 px-2.5 py-1.5 text-xs font-semibold text-dubesia-red hover:bg-dubesia-red-soft"
                     >
+                      {copied === account.nomor ? <Check className="h-3.5 w-3.5" aria-hidden="true" /> : <Copy className="h-3.5 w-3.5" aria-hidden="true" />}
                       {copied === account.nomor ? 'Tersalin' : 'Salin'}
                     </button>
                   </div>
@@ -172,7 +174,7 @@ export default function Pembayaran({ pendaftaran, rekening = [], flash }) {
                   onChange={(event) => chooseFile(event.target.files?.[0])}
                 />
 
-                <div className="text-3xl text-dubesia-red">↑</div>
+                <FileUp className="mx-auto h-8 w-8 text-dubesia-red" aria-hidden="true" />
 
                 {data.bukti_pembayaran ? (
                   <p className="mt-2 break-all text-sm font-semibold text-slate-800">{data.bukti_pembayaran.name}</p>
@@ -184,6 +186,7 @@ export default function Pembayaran({ pendaftaran, rekening = [], flash }) {
                   htmlFor="bukti_pembayaran"
                   className="mt-4 inline-flex cursor-pointer rounded-lg bg-dubesia-red px-4 py-2 text-sm font-semibold text-white transition hover:bg-dubesia-navy"
                 >
+                  <FileUp className="mr-2 h-4 w-4" aria-hidden="true" />
                   Pilih File
                 </label>
               </div>
@@ -199,6 +202,7 @@ export default function Pembayaran({ pendaftaran, rekening = [], flash }) {
                 disabled={processing}
                 className="flex w-full items-center justify-center rounded-lg bg-dubesia-red px-5 py-3.5 text-sm font-bold text-white transition hover:bg-dubesia-navy disabled:cursor-not-allowed disabled:opacity-60"
               >
+                {processing ? <FileUp className="mr-2 h-4 w-4 animate-bounce" aria-hidden="true" /> : <Send className="mr-2 h-4 w-4" aria-hidden="true" />}
                 {processing ? 'Mengunggah...' : sudahKirimBukti ? 'Kirim Bukti Baru' : 'Kirim Bukti Pembayaran'}
               </button>
             </form>

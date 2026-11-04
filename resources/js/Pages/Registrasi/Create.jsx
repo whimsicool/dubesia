@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, useForm } from '@inertiajs/react';
 import AdmisiShell from '@/Components/Registrasi/AdmisiShell';
+import { ArrowRight, ExternalLink, FileUp, LogIn, Trash2 } from 'lucide-react';
 
 const rupiah = (value) => `Rp ${Number(value ?? 0).toLocaleString('id-ID')}`;
 
@@ -225,7 +226,7 @@ export default function Create({
                       onClick={() => document.getElementById(`field-${field}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' })}
                       className="font-semibold underline decoration-rose-300 underline-offset-2 hover:text-rose-950"
                     >
-                      {FIELD_LABELS[field]}
+                      <span className="inline-flex items-center gap-1"><ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />{FIELD_LABELS[field]}</span>
                     </button>
                     <span className="text-rose-700"> — {fieldError(field)}</span>
                   </li>
@@ -468,7 +469,7 @@ export default function Create({
                         rel="noreferrer"
                         className="text-xs font-semibold text-dubesia-red underline"
                       >
-                        Lihat bukti yang tersimpan{pendaftaran.bukti_is_pdf ? ' (PDF)' : ''}
+                        <span className="inline-flex items-center gap-1"><ExternalLink className="h-3.5 w-3.5" aria-hidden="true" />Lihat bukti yang tersimpan{pendaftaran.bukti_is_pdf ? ' (PDF)' : ''}</span>
                       </a>
                     </div>
                   ) : (
@@ -483,7 +484,7 @@ export default function Create({
                       onClick={() => fileInput.current?.click()}
                       className="rounded-lg bg-dubesia-red px-4 py-2 text-sm font-semibold text-white transition hover:bg-dubesia-navy"
                     >
-                      Pilih File
+                      <span className="inline-flex items-center gap-1.5"><FileUp className="h-4 w-4" aria-hidden="true" />Pilih File</span>
                     </button>
 
                     {data.bukti_pembayaran && (
@@ -496,7 +497,7 @@ export default function Create({
                         }}
                         className="rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100"
                       >
-                        Hapus File
+                        <span className="inline-flex items-center gap-1.5"><Trash2 className="h-4 w-4" aria-hidden="true" />Hapus File</span>
                       </button>
                     )}
                   </div>
@@ -541,6 +542,7 @@ export default function Create({
               disabled={processing}
               className="mt-6 flex w-full items-center justify-center rounded-lg bg-dubesia-red px-5 py-3.5 text-sm font-bold text-white transition hover:bg-dubesia-navy disabled:cursor-not-allowed disabled:opacity-60"
             >
+              {processing ? <FileUp className="h-4 w-4" aria-hidden="true" /> : <ArrowRight className="h-4 w-4" aria-hidden="true" />}
               {processing
                 ? editMode
                   ? 'Mengirim perbaikan...'
@@ -554,7 +556,7 @@ export default function Create({
               <p className="mt-4 text-center text-sm text-slate-500">
                 Sudah memiliki akun?{' '}
                 <Link href="/login" className="font-semibold text-dubesia-red hover:underline">
-                  Masuk di sini
+                  <span className="inline-flex items-center gap-1"><LogIn className="h-4 w-4" aria-hidden="true" />Masuk di sini</span>
                 </Link>
               </p>
             )}
