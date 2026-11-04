@@ -46,6 +46,14 @@ class RegistrasiTest extends TestCase
         $this->assertNull($pendaftaran->bukti_pembayaran);
     }
 
+    public function test_email_non_gmail_diterima(): void
+    {
+        $this->post('/registrasi', $this->payload(['email' => 'siti.aminah@yahoo.com']))
+            ->assertRedirect(route('pembayaran.show'));
+
+        $this->assertDatabaseHas('users', ['email' => 'siti.aminah@yahoo.com']);
+    }
+
     public function test_tanggal_lahir_dibatasi_sampai_2020(): void
     {
         $this->post('/registrasi', $this->payload(['tanggal_lahir' => '2021-01-01']))
@@ -61,6 +69,21 @@ class RegistrasiTest extends TestCase
         $this->post('/registrasi', $this->payload())
             ->assertSessionHasErrors('email');
 
+        $this->assertDatabaseCount('pendaftarans', 0);
+    }
+
+    public function test_email_tutor_tidak_dapat_dipakai_untuk_mendaftar_murid(): void
+    {
+        User::factory()->create([
+            'email' => 'siti.aminah@gmail.com',
+            'role' => User::ROLE_TUTOR,
+        ]);
+
+        $this->post('/registrasi', $this->payload([
+            'email' => 'Siti.Aminah@Gmail.com',
+        ]))->assertSessionHasErrors('email');
+
+        $this->assertDatabaseCount('users', 1);
         $this->assertDatabaseCount('pendaftarans', 0);
     }
 

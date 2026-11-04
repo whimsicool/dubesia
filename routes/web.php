@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\CalonMuridController;
 use App\Http\Controllers\Admin\FeedbackController as AdminFeedbackController;
 use App\Http\Controllers\Admin\PembayaranMasukController;
 use App\Http\Controllers\AdminUserController;
+use App\Http\Controllers\CekEmailController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\LandingController;
 use App\Http\Controllers\PembayaranController;
@@ -31,6 +32,11 @@ Route::get('/dashboard', [DashboardController::class, 'index'])
     ->name('dashboard');
 
 Route::get('/registrasi', [RegistrasiController::class, 'create'])->name('registrasi.create');
+
+// Pemeriksaan email langsung ke database sebelum formulir dikirim.
+Route::get('/cek-email', CekEmailController::class)
+    ->middleware('throttle:60,1')
+    ->name('email.cek');
 
 Route::get('/pembayaran/terkirim', fn () => Inertia::render('Registrasi/PembayaranTerkirim'))
     ->name('pembayaran.terkirim');
@@ -166,7 +172,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
 
         Route::post('/bulk-delete', [AdminUserController::class, 'bulkDestroy'])->name('bulk-destroy');
         Route::get('/{user}', [AdminUserController::class, 'show'])->name('show');
-        Route::put('/{user}', [AdminUserController::class, 'update'])->name('update');
+        Route::patch('/{user}/status', [AdminUserController::class, 'updateStatus'])->name('status.update');
         Route::delete('/{user}', [AdminUserController::class, 'destroy'])->name('destroy');
     });
 });

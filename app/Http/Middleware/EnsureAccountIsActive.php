@@ -5,6 +5,7 @@ namespace App\Http\Middleware;
 use App\Models\Pendaftaran;
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -33,7 +34,22 @@ class EnsureAccountIsActive
     {
         $user = $request->user();
 
-        if (! $user || $user->is_active) {
+        if (! $user) {
+            return $next($request);
+        }
+
+        // Akun yang dinonaktifkan admin langsung kehilangan sesinya.
+        if ($user->status_akun === 'nonaktif') {
+            Auth::logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+
+            return redirect()->route('login')->withErrors([
+                'email' => 'Akun Anda nonaktif. Hubungi admin DUBESIA.',
+            ]);
+        }
+
+        if ($user->is_active) {
             return $next($request);
         }
 

@@ -3,17 +3,21 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Mail\PasswordBaruMail;
+use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Password;
-use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
+use Throwable;
 
 class PasswordResetLinkController extends Controller
 {
     /**
-     * Display the password reset link request view.
+     * Display the password reset request view.
      */
     public function create(): Response
     {
@@ -23,29 +27,38 @@ class PasswordResetLinkController extends Controller
     }
 
     /**
-     * Handle an incoming password reset link request.
-     *
-     * @throws ValidationException
+     * Buat kata sandi baru dan kirim ke email pengguna.
      */
     public function store(Request $request): RedirectResponse
     {
-        $request->validate([
-            'email' => 'required|email',
+        $validated = $request->validate([
+            'email' => ['required', 'email', 'max:255'],
         ]);
 
-        // We will send the password reset link to this user. Once we have attempted
-        // to send the link, we will examine the response then see the message we
-        // need to show to the user. Finally, we'll send out a proper response.
-        $status = Password::sendResetLink(
-            $request->only('email')
-        );
+        $email = mb_strtolower(trim($validated['email']));
+        $user = User::query()->whereRaw('LOWER(email) = ?', [$email])->first();
 
-        if ($status == Password::RESET_LINK_SENT) {
-            return back()->with('status', __($status));
+        if ($user) {
+            $password = Str::password(10, symbols: false);
+
+            try {
+                DB::transaction(function () use ($user, $password): void {
+                    // Cast "hashed" pada model menyandikan kata sandi ini.
+                    $user->update(['password' => $password]);
+
+                    Mail::to($user->email)->send(new PasswordBaruMail($user, $password));
+                });
+            } catch (Throwable $e) {
+                report($e);
+
+                return back()->withInput()->withErrors([
+                    'email' => 'Kata sandi baru gagal dikirim. Periksa koneksi lalu coba lagi.',
+                ]);
+            }
         }
 
-        throw ValidationException::withMessages([
-            'email' => [trans($status)],
-        ]);
+        // Pesan yang sama untuk email terdaftar maupun tidak, agar email akun
+        // tidak dapat ditebak dari halaman ini.
+        return back()->with('status', 'Jika email terdaftar, kata sandi baru sudah dikirim. Periksa kotak masuk dan folder spam.');
     }
 }

@@ -24,7 +24,7 @@ export default function Form({ material, options, routePrefix = 'tutor.materials
     const isEdit = !!material;
     const [preview, setPreview] = useState(false);
 
-    const { data, setData, post, processing, errors, progress, transform } = useForm({
+    const { data, setData, post, processing, errors, progress, transform, clearErrors } = useForm({
         _method: isEdit ? 'put' : 'post',
         type: material?.type ?? 'document',
         title: material?.title ?? '',
@@ -44,6 +44,28 @@ export default function Form({ material, options, routePrefix = 'tutor.materials
     const isArticle = data.type === 'article';
     const isLink = data.type === 'link';
     const existingFile = isEdit && material.type === data.type ? material.file : null;
+
+    // Ganti jenis materi mengosongkan seluruh isian di bawah pemilih jenis,
+    // supaya sisa isian iseng tidak ikut terkirim bersama jenis yang baru.
+    const changeType = (nextType) => {
+        if (nextType === data.type) return;
+
+        setData((current) => ({
+            ...current,
+            type: nextType,
+            title: '',
+            description: '',
+            level: '',
+            body: '',
+            external_url: '',
+            duration_minutes: '',
+            page_count: '',
+            is_featured: false,
+            file: null,
+        }));
+        clearErrors('type', 'file', 'external_url', 'body', 'duration_minutes', 'page_count');
+        setPreview(false);
+    };
 
     const submit = (status) => (e) => {
         e?.preventDefault();
@@ -93,7 +115,7 @@ export default function Form({ material, options, routePrefix = 'tutor.materials
                                     type="button"
                                     role="radio"
                                     aria-checked={selected}
-                                    onClick={() => setData('type', t.value)}
+                                    onClick={() => changeType(t.value)}
                                     className={`flex flex-col items-center gap-2 rounded-xl border-2 p-4 text-sm font-semibold transition ${
                                         selected ? 'border-slate-900 bg-slate-50 text-slate-900' : 'border-slate-200 text-slate-600 hover:border-slate-300'
                                     }`}
@@ -141,6 +163,7 @@ export default function Form({ material, options, routePrefix = 'tutor.materials
                         <>
                             <Field label={`Berkas ${typeOpt.label.toLowerCase()}`} error={null}>
                                 <FileDropzone
+                                    key={data.type}
                                     file={data.file}
                                     onFile={(f) => setData('file', f)}
                                     extensions={typeOpt.extensions}

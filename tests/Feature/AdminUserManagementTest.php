@@ -114,24 +114,64 @@ class AdminUserManagementTest extends TestCase
         $response->assertSessionHasErrors(['email']);
     }
 
-    public function test_admin_can_update_user(): void
+    public function test_store_menolak_email_yang_sama_dengan_huruf_besar(): void
     {
-        $tutor = User::factory()->create(['role' => 'tutor', 'status_akun' => 'aktif']);
+        $response = $this->actingAs($this->admin)->post('/admin/data-pengguna', [
+            'name' => 'Duplicate Email Kapital',
+            'email' => strtoupper($this->student->email),
+        ]);
 
-        $response = $this->actingAs($this->admin)->put("/admin/data-pengguna/{$tutor->id}", [
-            'name' => 'Nama Baru Updated',
-            'email' => $tutor->email,
-            'no_hp' => '+62 821-9999-8888',
+        $response->assertSessionHasErrors(['email']);
+        $this->assertDatabaseCount('users', 2);
+    }
+
+    public function test_admin_dapat_menonaktifkan_dan_mengaktifkan_akun(): void
+    {
+        $tutor = User::factory()->create([
             'role' => 'tutor',
+            'status_akun' => 'aktif',
+            'is_active' => true,
+        ]);
+
+        $this->actingAs($this->admin)
+            ->patch(route('admin.data-pengguna.status.update', $tutor->id), ['status_akun' => 'nonaktif'])
+            ->assertRedirect(route('admin.data-pengguna.index'));
+
+        $tutor->refresh();
+        $this->assertSame('nonaktif', $tutor->status_akun);
+        $this->assertFalse($tutor->is_active);
+
+        $this->actingAs($this->admin)
+            ->patch(route('admin.data-pengguna.status.update', $tutor->id), ['status_akun' => 'aktif'])
+            ->assertRedirect(route('admin.data-pengguna.index'));
+
+        $tutor->refresh();
+        $this->assertSame('aktif', $tutor->status_akun);
+        $this->assertTrue($tutor->is_active);
+    }
+
+    public function test_admin_tidak_dapat_mengubah_identitas_atau_peran_pengguna(): void
+    {
+        $tutor = User::factory()->create([
+            'role' => 'tutor',
+            'name' => 'Nama Asli',
             'status_akun' => 'aktif',
         ]);
 
-        $response->assertRedirect('/admin/data-pengguna');
+        $this->actingAs($this->admin)
+            ->put("/admin/data-pengguna/{$tutor->id}", [
+                'name' => 'Nama Palsu',
+                'email' => 'palsu@dubesia.id',
+                'role' => 'student',
+                'status_akun' => 'nonaktif',
+            ])
+            ->assertStatus(405);
 
         $this->assertDatabaseHas('users', [
             'id' => $tutor->id,
-            'name' => 'Nama Baru Updated',
-            'no_hp' => '+6282199998888',
+            'name' => 'Nama Asli',
+            'role' => 'tutor',
+            'status_akun' => 'aktif',
         ]);
     }
 
@@ -159,15 +199,13 @@ class AdminUserManagementTest extends TestCase
     {
         $otherAdmin = User::factory()->create(['role' => 'admin', 'status_akun' => 'aktif']);
 
-        $response = $this->actingAs($this->admin)->put("/admin/data-pengguna/{$otherAdmin->id}", [
-            'name' => 'Admin Lain',
-            'email' => $otherAdmin->email,
-            'role' => 'student',
-            'status_akun' => 'aktif',
-        ]);
+        $response = $this->actingAs($this->admin)->patch(
+            route('admin.data-pengguna.status.update', $otherAdmin->id),
+            ['status_akun' => 'nonaktif'],
+        );
 
         $response->assertForbidden();
-        $this->assertDatabaseHas('users', ['id' => $otherAdmin->id, 'role' => 'admin']);
+        $this->assertDatabaseHas('users', ['id' => $otherAdmin->id, 'role' => 'admin', 'status_akun' => 'aktif']);
     }
 
     public function test_data_pengguna_dapat_diunduh_sebagai_pdf(): void

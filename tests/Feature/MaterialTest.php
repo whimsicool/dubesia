@@ -151,6 +151,17 @@ class MaterialTest extends TestCase
         $this->assertSame('materi.mp4', Material::firstOrFail()->file_name);
     }
 
+    public function test_semua_jenis_berkas_dibatasi_lima_puluh_megabyte(): void
+    {
+        $this->actingAs($this->user('tutor'))->post(route('tutor.materials.store'), $this->payload([
+            'type' => 'document',
+            'body' => null,
+            'file' => UploadedFile::fake()->create('modul.pdf', 51201, 'application/pdf'),
+        ]))->assertSessionHasErrors('file');
+
+        $this->assertDatabaseCount('materials', 0);
+    }
+
     public function test_disallowed_file_format_is_rejected(): void
     {
         $this->actingAs($this->user('tutor'))

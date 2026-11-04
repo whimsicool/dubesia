@@ -1,7 +1,9 @@
 
 import { useEffect, useState } from 'react';
-import { Link, useForm } from '@inertiajs/react';
+import { Link, useForm, usePage } from '@inertiajs/react';
+import { AlertTriangle } from 'lucide-react';
 import AdmisiShell from '@/Components/Registrasi/AdmisiShell';
+import useEmailAvailability from '@/Hooks/useEmailAvailability';
 
 const rupiah = (value) =>
   `Rp ${Number(value ?? 0).toLocaleString('id-ID')}`;
@@ -18,6 +20,7 @@ const FIELD_LABELS = {
   alamat: 'Alamat',
   program: 'Program kursus',
   setuju: 'Persetujuan',
+  konfirmasi: 'Konfirmasi data & email',
 };
 
 const DRAFT_KEY = 'dubesia:registrasi-draft';
@@ -116,6 +119,12 @@ export default function Create({
   });
 
   const [clientErrors, setClientErrors] = useState({});
+  const [emailDikonfirmasi, setEmailDikonfirmasi] = useState(false);
+  const authUser = usePage().props.auth?.user ?? null;
+  const emailCheck = useEmailAvailability(
+    data.email,
+    editMode ? authUser?.id : null,
+  );
 
   const selectedProgram = programs.find((program) => program.value === data.program);
   const selectedBiaya = selectedProgram?.biaya ?? biaya;
@@ -149,10 +158,26 @@ export default function Create({
   const updateField = (name, value) => {
     setData(name, value);
     clearErrors(name);
+
+    // Email yang berubah harus dikonfirmasi ulang sebelum formulir dikirim.
+    if (name === 'email') {
+      setEmailDikonfirmasi(false);
+    }
+
     setClientErrors((current) => {
       if (!current[name]) return current;
       const next = { ...current };
       delete next[name];
+      return next;
+    });
+  };
+
+  const updateEmailConfirmation = (checked) => {
+    setEmailDikonfirmasi(checked);
+    setClientErrors((current) => {
+      if (!current.konfirmasi) return current;
+      const next = { ...current };
+      delete next.konfirmasi;
       return next;
     });
   };
@@ -164,7 +189,8 @@ export default function Create({
     if (!data.tanggal_lahir) nextErrors.tanggal_lahir = 'Pilih tanggal lahir Anda.';
     else if (data.tanggal_lahir > '2020-12-31') nextErrors.tanggal_lahir = 'Tanggal lahir maksimal 31 Desember 2020.';
     if (!data.email.trim()) nextErrors.email = 'Masukkan alamat email yang aktif.';
-    else if (!/^[^\s@]+@gmail\.com$/i.test(data.email.trim())) nextErrors.email = 'Gunakan alamat email Gmail yang berakhiran @gmail.com.';
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email.trim())) nextErrors.email = 'Format email tidak valid.';
+    else if (emailCheck.status === 'taken') nextErrors.email = emailCheck.message;
     const phoneDigits = String(data.no_whatsapp).trim();
     if (!phoneDigits) nextErrors.no_whatsapp = 'Masukkan nomor WhatsApp yang aktif tanpa kode negara.';
     else if (!/^[0-9]+$/.test(phoneDigits)) nextErrors.no_whatsapp = 'Nomor WhatsApp hanya boleh berisi angka. Hapus huruf atau simbol.';
@@ -172,6 +198,7 @@ export default function Create({
     if (!data.alamat.trim()) nextErrors.alamat = 'Masukkan alamat lengkap, termasuk kota/kabupaten.';
     if (!data.program) nextErrors.program = 'Pilih salah satu program kursus.';
     if (!data.setuju) nextErrors.setuju = 'Centang persetujuan setelah memastikan data yang diisi sudah benar.';
+    if (!emailDikonfirmasi) nextErrors.konfirmasi = 'Centang pernyataan setelah memastikan data diri dan email sudah benar.';
     setClientErrors(nextErrors);
     if (Object.keys(nextErrors).length) {
       const firstInvalidField = Object.keys(nextErrors)[0];
@@ -300,8 +327,19 @@ export default function Create({
                   className={`${inputClass} ${fieldError('email') ? 'border-rose-400 bg-rose-50/40' : ''}`}
                   value={data.email}
                   onChange={(e) => updateField('email', e.target.value)}
-                  placeholder="nama@gmail.com"
+                  placeholder="nama@email.com"
                 />
+                {!fieldError('email') && emailCheck.status === 'checking' && (
+                  <p className="text-xs text-slate-500">Memeriksa email...</p>
+                )}
+                {!fieldError('email') && emailCheck.status === 'available' && (
+                  <p className="text-xs text-emerald-600">Email tersedia.</p>
+                )}
+                {!fieldError('email') && emailCheck.status === 'taken' && (
+                  <p className="text-xs text-rose-600" role="alert">
+                    {emailCheck.message}
+                  </p>
+                )}
               </Field>
 
               <Field
@@ -440,14 +478,55 @@ export default function Create({
                 />
 
                 <span>
-                  Saya menyatakan bahwa data yang diberikan benar dan
-                  menyetujui ketentuan serta kebijakan privasi DUBESIA.
+                  Saya menyatakan bahwa data yang saya isi benar dan dapat
+                  dipertanggungjawabkan.
                 </span>
               </label>
 
               {fieldError('setuju') && (
                 <p id="field-setuju" className="mt-1.5 text-xs text-rose-600">{fieldError('setuju')}</p>
               )}
+            </div>
+
+            <div id="field-konfirmasi" className="mt-5 rounded-xl border border-amber-300 bg-amber-50 p-4">
+              <div className="flex gap-3">
+                <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-amber-700" aria-hidden="true" />
+
+                <div className="min-w-0">
+                  <p className="text-sm font-bold text-amber-900">
+                    Periksa data diri sebelum mendaftar
+                  </p>
+
+                  <p className="mt-1 text-sm leading-6 text-amber-900">
+                    Pastikan nama dan email di bawah ini benar. Kuitansi
+                    pembayaran, status verifikasi dari admin, dan kata sandi
+                    sementara akun Anda dikirim ke email tersebut. Pastikan
+                    email aktif dan memiliki ruang penyimpanan yang cukup.
+                  </p>
+
+                  <p className="mt-2 break-all text-sm font-semibold text-amber-950">
+                    {data.email || 'Email belum diisi'}
+                  </p>
+
+                  <label className="mt-3 flex cursor-pointer items-start gap-3 text-sm font-semibold leading-6 text-amber-950">
+                    <input
+                      type="checkbox"
+                      checked={emailDikonfirmasi}
+                      onChange={(e) => updateEmailConfirmation(e.target.checked)}
+                      className="mt-1 h-4 w-4 shrink-0 accent-amber-700"
+                    />
+
+                    <span>
+                      Saya sudah memeriksa data diri dan memastikan email aktif
+                      serta memiliki ruang penyimpanan yang cukup.
+                    </span>
+                  </label>
+
+                  {fieldError('konfirmasi') && (
+                    <p className="mt-1.5 text-xs text-rose-600">{fieldError('konfirmasi')}</p>
+                  )}
+                </div>
+              </div>
             </div>
 
             <button

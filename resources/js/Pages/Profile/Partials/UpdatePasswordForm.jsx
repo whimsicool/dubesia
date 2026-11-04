@@ -1,4 +1,5 @@
 import InputError from '@/Components/InputError';
+import PasswordInput from '@/Components/PasswordInput';
 import { useForm } from '@inertiajs/react';
 import { useRef } from 'react';
 
@@ -41,14 +42,13 @@ export default function UpdatePasswordForm() {
                 <label htmlFor="current_password" className="text-sm font-semibold text-slate-800">
                     Kata sandi saat ini
                 </label>
-                <input
+                <PasswordInput
                     id="current_password"
                     ref={currentPasswordInput}
-                    type="password"
                     value={data.current_password}
                     onChange={(event) => setData('current_password', event.target.value)}
                     autoComplete="current-password"
-                    className={inputClass}
+                    inputClassName={inputClass}
                 />
                 <InputError message={errors.current_password} className="mt-2" />
             </div>
@@ -57,14 +57,13 @@ export default function UpdatePasswordForm() {
                 <label htmlFor="password" className="text-sm font-semibold text-slate-800">
                     Kata sandi baru
                 </label>
-                <input
+                <PasswordInput
                     id="password"
                     ref={passwordInput}
-                    type="password"
                     value={data.password}
                     onChange={(event) => setData('password', event.target.value)}
                     autoComplete="new-password"
-                    className={inputClass}
+                    inputClassName={inputClass}
                 />
                 <InputError message={errors.password} className="mt-2" />
             </div>
@@ -73,13 +72,12 @@ export default function UpdatePasswordForm() {
                 <label htmlFor="password_confirmation" className="text-sm font-semibold text-slate-800">
                     Ulangi kata sandi baru
                 </label>
-                <input
+                <PasswordInput
                     id="password_confirmation"
-                    type="password"
                     value={data.password_confirmation}
                     onChange={(event) => setData('password_confirmation', event.target.value)}
                     autoComplete="new-password"
-                    className={inputClass}
+                    inputClassName={inputClass}
                 />
                 <InputError message={errors.password_confirmation} className="mt-2" />
             </div>
