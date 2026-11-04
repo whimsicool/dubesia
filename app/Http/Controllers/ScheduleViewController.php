@@ -6,8 +6,9 @@ use App\Models\Schedule;
 use App\Models\Semester;
 use App\Models\User;
 use Carbon\Constants\UnitValue;
-use Illuminate\Support\Carbon;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Inertia\Inertia;
 use Inertia\Response;
 use Throwable;
@@ -93,7 +94,7 @@ class ScheduleViewController extends Controller
             return $day;
         })->all();
 
-         return app('dompdf.wrapper')->loadView('pdf.schedules', [
+        return app('dompdf.wrapper')->loadView('pdf.schedules', [
             'title' => 'Jadwal Belajar',
             'user' => $user,
             'semester' => $semester,
@@ -110,32 +111,32 @@ class ScheduleViewController extends Controller
         $baseQuery = Schedule::query()->where('semester_id', $semester->id);
 
         if ($user->isTutor()) {
-            $baseQuery->whereHas('instructor', fn($instructor) => $instructor->where(function ($match) use ($user) {
+            $baseQuery->whereHas('instructor', fn ($instructor) => $instructor->where(function ($match) use ($user) {
                 $match->where('user_id', $user->id)->orWhere('email', $user->email);
             }));
         } else {
-            $baseQuery->whereHas('students', fn($student) => $student->where(function ($match) use ($user) {
+            $baseQuery->whereHas('students', fn ($student) => $student->where(function ($match) use ($user) {
                 $match->where('user_id', $user->id)->orWhere('email', $user->email);
             }));
         }
 
         $available = (clone $baseQuery)->with(['program:id,name,category', 'instructor:id,name', 'room:id,name'])->get();
         $options = [
-            'programs' => $available->pluck('program')->unique('id')->sortBy('name')->values()->map(fn($program) => [
+            'programs' => $available->pluck('program')->filter()->unique('id')->sortBy('name')->values()->map(fn ($program) => [
                 'id' => $program->id,
                 'name' => $program->name,
             ]),
-            'instructors' => $available->pluck('instructor')->unique('id')->sortBy('name')->values()->map(fn($instructor) => [
+            'instructors' => $available->pluck('instructor')->unique('id')->sortBy('name')->values()->map(fn ($instructor) => [
                 'id' => $instructor->id,
                 'name' => $instructor->name,
             ]),
-            'rooms' => $available->pluck('room')->unique('id')->sortBy('name')->values()->map(fn($room) => [
+            'rooms' => $available->pluck('room')->unique('id')->sortBy('name')->values()->map(fn ($room) => [
                 'id' => $room->id,
                 'name' => $room->name,
             ]),
         ];
 
-        /** @var \Illuminate\Database\Eloquent\Builder<Schedule> $query */
+        /** @var Builder<Schedule> $query */
         $query = clone $baseQuery;
         $this->applyFilters($query, $filters);
         $schedules = $query->with(['program:id,name,category', 'instructor:id,name', 'room:id,name,type,platform,capacity', 'students:id'])
@@ -154,13 +155,13 @@ class ScheduleViewController extends Controller
         }
 
         if ($filters['q']) {
-            $like = '%' . addcslashes($filters['q'], '%_\\') . '%';
-            $query->where(fn($search) => $search
+            $like = '%'.addcslashes($filters['q'], '%_\\').'%';
+            $query->where(fn ($search) => $search
                 ->where('title', 'like', $like)
                 ->orWhere('class_name', 'like', $like)
-                ->orWhereHas('program', fn($program) => $program->where('name', 'like', $like))
-                ->orWhereHas('instructor', fn($instructor) => $instructor->where('name', 'like', $like))
-                ->orWhereHas('room', fn($room) => $room->where('name', 'like', $like)));
+                ->orWhereHas('program', fn ($program) => $program->where('name', 'like', $like))
+                ->orWhereHas('instructor', fn ($instructor) => $instructor->where('name', 'like', $like))
+                ->orWhereHas('room', fn ($room) => $room->where('name', 'like', $like)));
         }
     }
 
@@ -175,7 +176,10 @@ class ScheduleViewController extends Controller
             'day_name' => config('dubesia.days')[$schedule->day_of_week] ?? 'Hari tidak diketahui',
             'start_time' => substr($schedule->start_time, 0, 5),
             'end_time' => substr($schedule->end_time, 0, 5),
-            'program' => ['name' => $schedule->program->name, 'category' => $schedule->program->category->value],
+            'program' => $schedule->program ? [
+                'name' => $schedule->program->name,
+                'category' => $schedule->program->category->value,
+            ] : null,
             'instructor' => ['name' => $schedule->instructor->name, 'initials' => $schedule->instructor->initials],
             'room' => [
                 'name' => $schedule->room->name,
