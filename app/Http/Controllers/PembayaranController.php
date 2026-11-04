@@ -37,7 +37,6 @@ class PembayaranController extends Controller
                 'nama_lengkap' => $pendaftaran->nama_lengkap,
                 'email' => $pendaftaran->email,
                 'program' => Pendaftaran::labelProgram($pendaftaran->program),
-                'program_value' => $pendaftaran->program,
                 'program_deskripsi' => Pendaftaran::PROGRAM_DESKRIPSI[$pendaftaran->program] ?? '',
                 'biaya' => $pendaftaran->biaya,
                 'status' => $pendaftaran->status,
@@ -62,8 +61,13 @@ class PembayaranController extends Controller
             403,
         );
 
+        if ($pendaftaran->hasBuktiPembayaran()) {
+            return back()->withErrors([
+                'bukti_pembayaran' => 'Hapus bukti pembayaran lama sebelum mengunggah berkas baru.',
+            ]);
+        }
+
         $path = $request->file('bukti_pembayaran')->store('bukti-pembayaran', 'public');
-        $oldPath = $pendaftaran->bukti_pembayaran;
 
         try {
             DB::transaction(fn () => $pendaftaran->update([
@@ -79,11 +83,31 @@ class PembayaranController extends Controller
             ]);
         }
 
-        if ($oldPath) {
-            Storage::disk('public')->delete($oldPath);
-        }
-
         return redirect()->route('pembayaran.show')
             ->with('sukses', 'Bukti pembayaran diterima. Mohon tunggu verifikasi admin.');
+    }
+
+    public function destroyBukti(Request $request): RedirectResponse
+    {
+        $pendaftaran = $request->user()->pendaftaran;
+
+        abort_unless(
+            $pendaftaran && in_array($pendaftaran->status, [Pendaftaran::STATUS_MENUNGGU_PEMBAYARAN, Pendaftaran::STATUS_MENUNGGU], true),
+            403,
+        );
+
+        $path = $pendaftaran->bukti_pembayaran;
+
+        if ($path) {
+            Storage::disk('public')->delete($path);
+        }
+
+        $pendaftaran->update([
+            'bukti_pembayaran' => null,
+            'status' => Pendaftaran::STATUS_MENUNGGU_PEMBAYARAN,
+        ]);
+
+        return redirect()->route('pembayaran.show')
+            ->with('sukses', 'Bukti pembayaran dihapus. Silakan unggah berkas baru.');
     }
 }

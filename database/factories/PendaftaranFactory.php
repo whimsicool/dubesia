@@ -23,19 +23,25 @@ class PendaftaranFactory extends Factory
             'no_whatsapp' => '81234567890',
             'alamat' => 'Jl. Taman Karya, Pekanbaru',
             'asal_institusi' => 'Universitas Riau',
-            'pendidikan_terakhir' => 'S1',
             'program' => 'reguler',
             'biaya' => Pendaftaran::BIAYA_PER_PROGRAM['reguler'],
+            'status' => Pendaftaran::STATUS_MENUNGGU,
+            'bukti_pembayaran' => 'bukti-pembayaran/contoh.pdf',
+        ];
+    }
+
+    public function menungguPembayaran(): static
+    {
+        return $this->state(fn (): array => [
             'status' => Pendaftaran::STATUS_MENUNGGU_PEMBAYARAN,
             'bukti_pembayaran' => null,
-        ];
+        ]);
     }
 
     public function terverifikasi(): static
     {
         return $this->state(fn (): array => [
             'status' => Pendaftaran::STATUS_TERVERIFIKASI,
-            'bukti_pembayaran' => 'bukti-pembayaran/contoh.pdf',
             'verified_at' => now(),
         ]);
     }

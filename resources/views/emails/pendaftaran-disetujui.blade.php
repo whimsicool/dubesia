@@ -10,11 +10,16 @@
         <p style="margin:0;color:#1e3a5f;font-size:13px;font-weight:bold;letter-spacing:2px;">DUBES COMMUNICATIONS</p>
         <h1 style="margin:20px 0 12px;font-size:24px;">Pendaftaran Anda berhasil</h1>
         <p style="font-size:15px;line-height:1.7;">Hai {{ $pendaftaran->nama_lengkap }}, pendaftaran kursus bahasa Inggris Anda di Dubes Communications telah disetujui. Selamat bergabung!</p>
-        <p style="font-size:15px;line-height:1.7;">Masuk ke portal DUBESIA memakai email <strong>{{ $pendaftaran->email }}</strong> dan kata sandi yang Anda buat saat mendaftar.</p>
+        <p style="font-size:15px;line-height:1.7;">Silakan masuk menggunakan email dan kata sandi sementara berikut:</p>
+        <div style="margin:20px 0;padding:16px;border:1px solid #cbd5e1;border-radius:10px;background:#f8fafc;">
+            <p style="margin:0 0 8px;"><strong>Email:</strong> {{ $pendaftaran->email }}</p>
+            <p style="margin:0;"><strong>Kata sandi sementara:</strong> {{ $temporaryPassword }}</p>
+        </div>
+        <p style="font-size:15px;line-height:1.7;">Demi keamanan akun, segera ganti kata sandi setelah berhasil masuk melalui halaman <strong>Profil</strong>.</p>
+        <p style="font-size:15px;line-height:1.7;">Terima kasih telah melakukan pembayaran. Kami dengan senang hati menyertakan kuitansi sebagai konfirmasi transaksi Anda. Mohon simpan kuitansi PDF terlampir sebagai referensi. Jika ada pertanyaan atau membutuhkan bantuan, silakan hubungi tim kami di nomor <strong>+62 8xxxxxxxxxx</strong>. Terima kasih.</p>
         <p style="margin:24px 0;">
             <a href="{{ route('login') }}" style="display:inline-block;padding:12px 20px;border-radius:8px;background:#0f1b2d;color:#fff;text-decoration:none;font-weight:bold;">Masuk ke DUBESIA</a>
         </p>
-        <p style="font-size:15px;line-height:1.7;">Kuitansi pembayaran terlampir dalam bentuk PDF. Mohon simpan sebagai referensi transaksi Anda. Jika lupa kata sandi, gunakan menu <strong>Lupa kata sandi</strong> pada halaman masuk.</p>
         <p style="margin:0;color:#64748b;font-size:12px;line-height:1.6;">Jika Anda tidak merasa mendaftar, abaikan email ini dan hubungi administrator.</p>
     </main>
 </body>

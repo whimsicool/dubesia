@@ -117,10 +117,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::post('/profile/photo', [ProfileController::class, 'updatePhoto'])->name('profile.photo.update');
 
-    // Halaman pembayaran calon murid: boleh ditinggal lalu dilanjutkan kapan saja.
+    // Halaman pembayaran terpisah setelah formulir pendaftaran.
     Route::get('/pembayaran', [PembayaranController::class, 'show'])->name('pembayaran.show');
     Route::post('/pembayaran', [PembayaranController::class, 'store'])->name('pembayaran.store');
-
+    Route::delete('/pembayaran/bukti', [PembayaranController::class, 'destroyBukti'])->name('pembayaran.bukti.destroy');
     Route::get('/pendaftaran/perbaiki', [RegistrasiController::class, 'edit'])->name('registrasi.edit');
     Route::put('/pendaftaran/perbaiki', [RegistrasiController::class, 'update'])->name('registrasi.update');
 

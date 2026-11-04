@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Throwable;
 
@@ -78,7 +79,6 @@ class CalonMuridController extends Controller
                 'no_whatsapp' => '+'.$pendaftaran->no_whatsapp,
                 'alamat' => $pendaftaran->alamat,
                 'asal_institusi' => $pendaftaran->asal_institusi,
-                'pendidikan_terakhir' => $pendaftaran->pendidikan_terakhir,
                 'program' => Pendaftaran::labelProgram($pendaftaran->program),
                 'pesan_motivasi' => $pendaftaran->pesan_motivasi,
                 'biaya' => $pendaftaran->biaya,
@@ -93,7 +93,7 @@ class CalonMuridController extends Controller
                 'catatan_verifikasi' => $pendaftaran->catatan_verifikasi,
                 'diverifikasi_oleh' => $pendaftaran->verifikator?->name,
                 'diverifikasi_pada' => $pendaftaran->verified_at?->format('d M Y, H:i'),
-                'bisa_diproses' => $pendaftaran->status === Pendaftaran::STATUS_MENUNGGU,
+                'bisa_diproses' => $pendaftaran->status === Pendaftaran::STATUS_MENUNGGU && $pendaftaran->hasBuktiPembayaran(),
             ],
             'flash' => ['error' => session('error')],
         ]);
@@ -110,9 +110,13 @@ class CalonMuridController extends Controller
         return $disk->response($pendaftaran->bukti_pembayaran, basename($pendaftaran->bukti_pembayaran), [], 'inline');
     }
 
-    // Sequence 3: setujui pendaftaran, aktifkan akun, lalu kirim notifikasi.
+    // Sequence 3: setujui pendaftaran, aktifkan akun, lalu kirim kredensial sementara.
     public function verifikasi(Request $request, Pendaftaran $pendaftaran)
     {
+        if (! $pendaftaran->hasBuktiPembayaran()) {
+            return back()->with('error', 'Bukti pembayaran belum diunggah. Pendaftaran ini tidak dapat diverifikasi.');
+        }
+
         try {
             $berhasil = DB::transaction(function () use ($request, $pendaftaran) {
                 $p = Pendaftaran::whereKey($pendaftaran->id)->lockForUpdate()->firstOrFail();
@@ -121,6 +125,7 @@ class CalonMuridController extends Controller
                     return false;
                 }
 
+                $temporaryPassword = Str::random(16);
                 $user = $p->user;
 
                 if (! $user) {
@@ -134,13 +139,14 @@ class CalonMuridController extends Controller
                     'verified_at' => now(),
                 ]);
                 $user->update([
+                    'password' => $temporaryPassword,
                     'is_active' => true,
                     'email_verified_at' => $user->email_verified_at ?? now(),
                     'no_hp' => '+'.$p->no_whatsapp,
                 ]);
 
                 Log::info('Dispatching registration approval email.', ['registration_id' => $p->id]);
-                Mail::to($p->email)->send(new KirimEmail($p));
+                Mail::to($p->email)->send(new KirimEmail($p, $temporaryPassword));
                 Log::info('Registration approval email accepted by the configured mail transport.', ['registration_id' => $p->id]);
 
                 return true;
