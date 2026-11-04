@@ -40,7 +40,6 @@ class AuthenticatedSessionController extends Controller
             return redirect()->route('registrasi.edit');
         }
 
-        // Calon murid yang belum membayar langsung diarahkan ke halaman pembayaran.
         if ($status === Pendaftaran::STATUS_MENUNGGU_PEMBAYARAN) {
             return redirect()->route('pembayaran.show');
         }

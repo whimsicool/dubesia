@@ -14,13 +14,13 @@ class VerifikasiPendaftaranTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_verifikasi_mengaktifkan_akun_tanpa_mengubah_kata_sandi_dan_mengirim_email(): void
+    public function test_verifikasi_mengaktifkan_akun_dan_mengirim_kata_sandi_sementara(): void
     {
         Mail::fake();
 
         $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
         $user = User::factory()->create([
-            'password' => 'kataSandiSaya',
+            'password' => 'kataSandiLama',
             'is_active' => false,
         ]);
         $pendaftaran = Pendaftaran::factory()->for($user)->create([
@@ -36,9 +36,28 @@ class VerifikasiPendaftaranTest extends TestCase
         $user->refresh();
 
         $this->assertTrue($user->is_active);
-        $this->assertTrue(Hash::check('kataSandiSaya', $user->password));
+        $this->assertFalse(Hash::check('kataSandiLama', $user->password));
         $this->assertSame(Pendaftaran::STATUS_TERVERIFIKASI, $pendaftaran->fresh()->status);
 
-        Mail::assertSent(KirimEmail::class, fn (KirimEmail $mail): bool => $mail->pendaftaran->is($pendaftaran));
+        Mail::assertSent(KirimEmail::class, fn (KirimEmail $mail): bool => $mail->pendaftaran->is($pendaftaran)
+            && Hash::check($mail->temporaryPassword, $user->password));
+    }
+
+    public function test_pendaftaran_tanpa_bukti_pembayaran_tidak_dapat_diverifikasi(): void
+    {
+        Mail::fake();
+
+        $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
+        $pendaftaran = Pendaftaran::factory()->create([
+            'status' => Pendaftaran::STATUS_MENUNGGU,
+            'bukti_pembayaran' => null,
+        ]);
+
+        $this->actingAs($admin)
+            ->post(route('admin.calon-murid.verifikasi', $pendaftaran))
+            ->assertSessionHas('error');
+
+        $this->assertSame(Pendaftaran::STATUS_MENUNGGU, $pendaftaran->fresh()->status);
+        Mail::assertNothingSent();
     }
 }

@@ -52,7 +52,6 @@ class PendaftaranSeeder extends Seeder
                     'no_whatsapp' => $whatsapp,
                     'alamat' => 'Jl. Contoh Raya No. '.($index + 1).', '.$kota,
                     'asal_institusi' => $institusi,
-                    'pendidikan_terakhir' => str_starts_with($institusi, 'SMA') ? 'SMA/SMK' : 'S1',
                     'program' => $program,
                     'pesan_motivasi' => $motivasi,
                     'bukti_pembayaran' => 'pendaftaran/bukti-demo-'.($index + 1).'.pdf',

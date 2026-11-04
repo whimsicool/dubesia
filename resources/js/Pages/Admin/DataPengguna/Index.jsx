@@ -1,7 +1,8 @@
 import AdminLayout from '@/Layouts/AdminLayout';
 import PageBreadcrumbs from '@/Components/Admin/PageBreadcrumbs';
+import useEmailAvailability from '@/Hooks/useEmailAvailability';
 import { Head, Link, router, useForm, usePage } from '@inertiajs/react';
-import { BookOpenCheck, GraduationCap, Save, Trash2, UsersRound, X } from 'lucide-react';
+import { Power, BookOpenCheck, GraduationCap, Save, Trash2, UsersRound, X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 
 /* ═══════════════════════════════════════════════
@@ -16,16 +17,19 @@ export default function Index({ users, filters, stats }) {
     const [search, setSearch] = useState(filters.search || '');
     const [activeTab, setActiveTab] = useState(filters.role || '');
     const [statusFilter, setStatusFilter] = useState(filters.status || '');
-    const [perPage, setPerPage] = useState(filters.per_page || 6);
+    const [perPage, setPerPage] = useState(filters.per_page || 10);
     const [selectedRows, setSelectedRows] = useState([]);
     const searchTimeout = useRef(null);
 
-    // ── Drawer ──
+    // ── Drawer (hanya untuk menambah akun tutor) ──
     const [drawerOpen, setDrawerOpen] = useState(false);
-    const [editingUser, setEditingUser] = useState(null);
 
     // ── Detail modal ──
     const [detailUser, setDetailUser] = useState(null);
+
+    // ── Konfirmasi status akun ──
+    const [statusTarget, setStatusTarget] = useState(null);
+    const [statusSaving, setStatusSaving] = useState(false);
 
     // ── Delete confirmation ──
     const [deleteTarget, setDeleteTarget] = useState(null);
@@ -48,9 +52,9 @@ export default function Index({ users, filters, stats }) {
         name: '',
         email: '',
         no_hp: '',
-        role: 'tutor',
-        status_akun: 'aktif',
     });
+
+    const emailCheck = useEmailAvailability(form.data.email);
 
     // ── Helpers ──
     const applyFilters = (overrides = {}) => {
@@ -86,41 +90,49 @@ export default function Index({ users, filters, stats }) {
         setSearch('');
         setStatusFilter('');
         setActiveTab('');
-        setPerPage(6);
+        setPerPage(10);
         router.get(route('admin.data-pengguna.index'), {}, { preserveState: true, preserveScroll: true });
     };
 
     // ── Drawer ──
     const openCreateDrawer = () => {
-        setEditingUser(null);
         form.reset();
-        form.setData({ name: '', email: '', no_hp: '', role: 'tutor', status_akun: 'aktif' });
-        form.clearErrors();
-        setDrawerOpen(true);
-    };
-
-    const openEditDrawer = (user) => {
-        setEditingUser(user);
-        form.setData({
-            name: user.name || '', email: user.email || '',
-            no_hp: user.no_hp || '',
-            role: user.role || 'student', status_akun: user.status_akun || 'aktif',
-        });
+        form.setData({ name: '', email: '', no_hp: '' });
         form.clearErrors();
         setDrawerOpen(true);
     };
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        if (editingUser) {
-            form.put(route('admin.data-pengguna.update', editingUser.id), {
-                onSuccess: () => { setDrawerOpen(false); setEditingUser(null); },
-            });
-        } else {
-            form.post(route('admin.data-pengguna.store'), {
-                onSuccess: () => { setDrawerOpen(false); },
-            });
+
+        if (emailCheck.status === 'taken') {
+            form.setError('email', emailCheck.message);
+            return;
         }
+
+        form.post(route('admin.data-pengguna.store'), {
+            onSuccess: () => setDrawerOpen(false),
+        });
+    };
+
+    // ── Status akun ──
+    const nextStatus = (user) => (user.status_akun === 'nonaktif' ? 'aktif' : 'nonaktif');
+
+    const handleStatusChange = () => {
+        if (!statusTarget) return;
+
+        setStatusSaving(true);
+        router.patch(route('admin.data-pengguna.status.update', statusTarget.id), {
+            status_akun: nextStatus(statusTarget),
+        }, {
+            preserveScroll: true,
+            onSuccess: (page) => {
+                setStatusTarget(null);
+                setDetailUser(null);
+                setFlashMsg(page.props.flash?.success || page.props.flash?.error || '');
+            },
+            onFinish: () => setStatusSaving(false),
+        });
     };
 
     // ── Delete ──
@@ -318,6 +330,20 @@ export default function Index({ users, filters, stats }) {
                         <option value={50}>50 Baris</option>
                     </select>
 
+                    <select
+                        value={statusFilter}
+                        onChange={(e) => {
+                            setStatusFilter(e.target.value);
+                            applyFilters({ status: e.target.value });
+                        }}
+                        className="kdp-filter-select"
+                        aria-label="Filter status akun"
+                    >
+                        <option value="">Semua Status</option>
+                        <option value="aktif">Aktif</option>
+                        <option value="nonaktif">Nonaktif</option>
+                    </select>
+
                     <div className="kdp-search-wrap">
                         <svg className="kdp-search-icon h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                             <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -448,19 +474,21 @@ export default function Index({ users, filters, stats }) {
                                                 </button>
                                                 <button
                                                     type="button"
-                                                    onClick={() => openEditDrawer(u)}
-                                                    title="Edit"
+                                                    onClick={() => setStatusTarget(u)}
+                                                    title={u.status_akun === 'nonaktif' ? 'Aktifkan akun' : 'Nonaktifkan akun'}
                                                     style={{
                                                         padding: '6px', borderRadius: '8px', border: 'none',
-                                                        background: 'none', color: '#94a3b8', cursor: 'pointer',
+                                                        background: 'none', cursor: 'pointer',
+                                                        color: u.status_akun === 'nonaktif' ? '#059669' : '#94a3b8',
                                                         transition: 'all 0.2s',
                                                     }}
-                                                    onMouseEnter={e => { e.currentTarget.style.background = '#eff6ff'; e.currentTarget.style.color = '#3b82f6'; }}
-                                                    onMouseLeave={e => { e.currentTarget.style.background = 'none'; e.currentTarget.style.color = '#94a3b8'; }}
+                                                    onMouseEnter={e => { e.currentTarget.style.background = '#ecfdf5'; e.currentTarget.style.color = '#059669'; }}
+                                                    onMouseLeave={e => {
+                                                        e.currentTarget.style.background = 'none';
+                                                        e.currentTarget.style.color = u.status_akun === 'nonaktif' ? '#059669' : '#94a3b8';
+                                                    }}
                                                 >
-                                                    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                                                        <path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                                    </svg>
+                                                    <Power className="h-4 w-4" />
                                                 </button>
                                                 <button
                                                     type="button"
@@ -542,7 +570,7 @@ export default function Index({ users, filters, stats }) {
                             <div className="kdp-modal__header-badge">
                                 <span className="kdp-modal__header-badge-label">FORMULIR</span>
                                 <span className="kdp-modal__header-badge-text">
-                                    {editingUser ? 'Edit Data' : 'Generate Akun'}
+                                    Generate Akun
                                 </span>
                             </div>
                             <button type="button" onClick={() => setDrawerOpen(false)} className="kdp-modal__close">
@@ -554,38 +582,12 @@ export default function Index({ users, filters, stats }) {
 
                         {/* Modal Form */}
                         <form onSubmit={handleSubmit} className="kdp-modal__form">
-                            {/* Role */}
-                            {editingUser ? (
-                                <div className="kdp-field">
-                                    <label className="kdp-field__label">Peran / Hak Akses Portal</label>
-                                    <div className="kdp-role-selector">
-                                        {['student', 'tutor'].map((r) => (
-                                            <button
-                                                key={r}
-                                                type="button"
-                                                onClick={() => form.setData('role', r)}
-                                                className={`kdp-role-option ${form.data.role === r
-                                                    ? r === 'tutor' ? 'kdp-role-option--tutor-active' : 'kdp-role-option--student-active'
-                                                    : ''
-                                                    }`}
-                                            >
-                                                <span className="inline-flex items-center gap-2">
-                                                    {r === 'tutor' ? <BookOpenCheck className="h-4 w-4" aria-hidden="true" /> : <GraduationCap className="h-4 w-4" aria-hidden="true" />}
-                                                    {r === 'tutor' ? 'Tutor' : 'Murid'}
-                                                </span>
-                                            </button>
-                                        ))}
-                                    </div>
-                                    {form.errors.role && <p className="kdp-field__error">{form.errors.role}</p>}
+                            <div className="kdp-role-locked">
+                                <div>
+                                    <p className="kdp-role-locked__text-title">Tutor</p>
+                                    <p className="kdp-role-locked__text-desc">Peran terkunci — Hanya akun tutor yang dapat ditambahkan.</p>
                                 </div>
-                            ) : (
-                                <div className="kdp-role-locked">
-                                    <div>
-                                        <p className="kdp-role-locked__text-title">Tutor</p>
-                                        <p className="kdp-role-locked__text-desc">Peran terkunci — Hanya akun tutor yang dapat ditambahkan.</p>
-                                    </div>
-                                </div>
-                            )}
+                            </div>
 
                             {/* Nama */}
                             <div className="kdp-field">
@@ -615,6 +617,12 @@ export default function Index({ users, filters, stats }) {
                                     className="kdp-field__input"
                                 />
                                 {form.errors.email && <p className="kdp-field__error">{form.errors.email}</p>}
+                                {!form.errors.email && emailCheck.status === 'checking' && (
+                                    <p className="kdp-field__error" style={{ color: '#64748b' }}>Memeriksa email...</p>
+                                )}
+                                {!form.errors.email && emailCheck.status === 'taken' && (
+                                    <p className="kdp-field__error">{emailCheck.message}</p>
+                                )}
                             </div>
 
                             {/* No HP */}
@@ -635,36 +643,19 @@ export default function Index({ users, filters, stats }) {
                                 {form.errors.no_hp && <p className="kdp-field__error">{form.errors.no_hp}</p>}
                             </div>
 
-                            {/* Status (hanya edit) */}
-                            {editingUser && (
-                                <div className="kdp-field">
-                                    <label className="kdp-field__label">Status Akun</label>
-                                    <select
-                                        value={form.data.status_akun}
-                                        onChange={(e) => form.setData('status_akun', e.target.value)}
-                                        className="kdp-field__input"
-                                    >
-                                        <option value="aktif">Aktif</option>
-                                        <option value="nonaktif">Nonaktif</option>
-                                    </select>
+                            {/* Credential info */}
+                            <div className="kdp-credential-box">
+                                <div className="kdp-credential-box__title">
+                                    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                                    </svg>
+                                    Ketentuan Kredensial Otomatis
                                 </div>
-                            )}
-
-                            {/* Credential info (hanya create) */}
-                            {!editingUser && (
-                                <div className="kdp-credential-box">
-                                    <div className="kdp-credential-box__title">
-                                        <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                                            <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                                        </svg>
-                                        Ketentuan Kredensial Otomatis
-                                    </div>
-                                    <p className="kdp-credential-box__desc">
-                                        Username dibuat sesuai format <strong>[peran].[nama].[tahun]</strong>.
-                                        Sandi default sekali pakai akan diberikan setelah akun berhasil dibuat.
-                                    </p>
-                                </div>
-                            )}
+                                <p className="kdp-credential-box__desc">
+                                    Username dibuat sesuai format <strong>[peran].[nama].[tahun]</strong>.
+                                    Sandi default sekali pakai akan diberikan setelah akun berhasil dibuat.
+                                </p>
+                            </div>
                         </form>
 
                         {/* Drawer Footer */}
@@ -674,11 +665,7 @@ export default function Index({ users, filters, stats }) {
                             </button>
                             <button type="button" disabled={form.processing} onClick={handleSubmit} className="btn-submit">
                                 <Save className="h-4 w-4" />
-                                {form.processing ? (
-                                    'Memproses...'
-                                ) : (
-                                    editingUser ? 'Simpan Perubahan' : 'Simpan & Daftarkan Tutor'
-                                )}
+                                {form.processing ? 'Memproses...' : 'Simpan & Daftarkan Tutor'}
                             </button>
                         </div>
                     </div>
@@ -847,13 +834,68 @@ export default function Index({ users, filters, stats }) {
                         </div>
                         {/* Footer */}
                         <div style={{ borderTop: '1px solid #f1f5f9', padding: '16px 24px', display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
-                            <button type="button" onClick={() => { setDetailUser(null); openEditDrawer(detailUser); }} className="btn-submit">
-                                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                                    <path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                </svg>
-                                Edit Data
+                            <button
+                                type="button"
+                                onClick={() => setStatusTarget(detailUser)}
+                                className="btn-submit"
+                                style={detailUser.status_akun === 'nonaktif'
+                                    ? undefined
+                                    : { background: '#b91c1c' }}
+                            >
+                                <Power className="h-4 w-4" />
+                                {detailUser.status_akun === 'nonaktif' ? 'Aktifkan Akun' : 'Nonaktifkan Akun'}
                             </button>
                             <button type="button" onClick={() => setDetailUser(null)} className="btn-cancel"><X className="h-4 w-4" /> Tutup</button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* ═══════ MODAL: Konfirmasi Status Akun ═══════ */}
+            {statusTarget && (
+                <div className="kdp-modal-overlay">
+                    <div className="kdp-modal kdp-modal--sm">
+                        <div style={{ padding: '24px' }}>
+                            <div style={{ display: 'flex', gap: '12px', marginBottom: '16px' }}>
+                                <div style={{
+                                    width: '40px', height: '40px', borderRadius: '10px',
+                                    background: nextStatus(statusTarget) === 'aktif' ? '#ecfdf5' : '#fff7ed',
+                                    color: nextStatus(statusTarget) === 'aktif' ? '#059669' : '#c2410c',
+                                    display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+                                }}>
+                                    <Power className="h-5 w-5" />
+                                </div>
+                                <div>
+                                    <h3 style={{ fontSize: '15px', fontWeight: 700, color: '#0f172a' }}>
+                                        {nextStatus(statusTarget) === 'aktif' ? 'Aktifkan akun?' : 'Nonaktifkan akun?'}
+                                    </h3>
+                                    <p style={{ fontSize: '13px', color: '#64748b', marginTop: '4px' }}>
+                                        {nextStatus(statusTarget) === 'aktif'
+                                            ? <>Akun <strong>{statusTarget.name}</strong> akan berstatus aktif dan dapat masuk lagi.</>
+                                            : <>Akun <strong>{statusTarget.name}</strong> akan berstatus nonaktif dan tidak dapat masuk. Datanya tetap tersimpan sebagai arsip alumni.</>}
+                                    </p>
+                                </div>
+                            </div>
+                            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
+                                <button type="button" disabled={statusSaving} onClick={() => setStatusTarget(null)} className="btn-cancel"><X className="h-4 w-4" /> Batal</button>
+                                <button
+                                    type="button"
+                                    disabled={statusSaving}
+                                    onClick={handleStatusChange}
+                                    style={{
+                                        padding: '9px 18px', borderRadius: '10px', border: 'none',
+                                        background: nextStatus(statusTarget) === 'aktif' ? '#059669' : '#b91c1c',
+                                        color: 'white', fontSize: '13px', fontWeight: 700,
+                                        cursor: statusSaving ? 'wait' : 'pointer', opacity: statusSaving ? 0.65 : 1,
+                                        display: 'inline-flex', alignItems: 'center', gap: '6px',
+                                    }}
+                                >
+                                    <Power className="h-4 w-4" />
+                                    {statusSaving
+                                        ? 'Menyimpan...'
+                                        : nextStatus(statusTarget) === 'aktif' ? 'Ya, Aktifkan' : 'Ya, Nonaktifkan'}
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>

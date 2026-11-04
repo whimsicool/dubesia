@@ -9,10 +9,9 @@ use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * Akun calon murid belum aktif sampai admin memverifikasi pembayaran.
- * Sesi calon murid hanya boleh dipakai untuk menyelesaikan pembayaran,
- * memperbaiki pendaftaran yang ditolak, dan keluar. Profil baru terbuka
- * setelah akun aktif.
+ * Akun calon murid hanya aktif setelah admin memverifikasi pembayaran.
+ * Sampai saat itu, sesi hanya boleh dipakai untuk menyelesaikan pembayaran
+ * dan mengubah profil.
  */
 class EnsureAccountIsActive
 {
@@ -25,6 +24,7 @@ class EnsureAccountIsActive
         'panduan-pendaftaran',
         'bantuan-admisi',
         'pembayaran.*',
+        'profile.*',
         'password.*',
         'registrasi.*',
         'verification.*',
@@ -34,7 +34,22 @@ class EnsureAccountIsActive
     {
         $user = $request->user();
 
-        if (! $user || $user->is_active) {
+        if (! $user) {
+            return $next($request);
+        }
+
+        // Akun yang dinonaktifkan admin langsung kehilangan sesinya.
+        if ($user->status_akun === 'nonaktif') {
+            Auth::logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+
+            return redirect()->route('login')->withErrors([
+                'email' => 'Akun Anda nonaktif. Hubungi admin DUBESIA.',
+            ]);
+        }
+
+        if ($user->is_active) {
             return $next($request);
         }
 
@@ -42,22 +57,10 @@ class EnsureAccountIsActive
             return $next($request);
         }
 
-        $status = $user->pendaftaran?->status;
-
-        if ($status === Pendaftaran::STATUS_DITOLAK) {
-            return redirect()->route('registrasi.edit');
-        }
-
-        if (in_array($status, [Pendaftaran::STATUS_MENUNGGU_PEMBAYARAN, Pendaftaran::STATUS_MENUNGGU], true)) {
-            return redirect()->route('pembayaran.show');
-        }
-
-        // Akun nonaktif tanpa alur pendaftaran yang sah tidak diberi sesi.
-        Auth::logout();
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
-
-        return redirect()->route('login')
-            ->withErrors(['email' => 'Akun Anda tidak aktif. Hubungi admin DUBESIA.']);
+        return redirect()->route(
+            $user->pendaftaran?->status === Pendaftaran::STATUS_MENUNGGU_PEMBAYARAN
+                ? 'pembayaran.show'
+                : 'profile.edit',
+        );
     }
 }

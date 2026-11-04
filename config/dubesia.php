@@ -10,14 +10,6 @@ return [
     ],
 
     /*
-    | Jeda pengiriman email pengingat pembayaran bagi calon murid yang belum
-    | melanjutkan pembayaran. Tahap percobaan memakai jeda harian.
-    */
-    'payment_reminder' => [
-        'interval_days' => (int) env('PAYMENT_REMINDER_INTERVAL_DAYS', 1),
-    ],
-
-    /*
     | Hari belajar yang ditampilkan di kalender (1 = Senin ... 6 = Sabtu).
     */
     'days' => [
@@ -38,11 +30,7 @@ return [
     'materials' => [
         'disk' => 'local',
         'directory' => 'materials',
-        'max_upload_kb' => 512000, // 500 MB — batas bawaan untuk semua jenis berkas
-        // Batas khusus per jenis materi. Video dibatasi 50 MB untuk menghemat storage.
-        'max_upload_kb_by_type' => [
-            'video' => 51200, // 50 MB
-        ],
+        'max_upload_kb' => 51200, // 50 MB — batas yang sama untuk semua jenis berkas
         'levels' => ['Beginner', 'Intermediate low', 'Intermediate', 'Intermediate Up', 'Advanced'],
         'legacy_level_map' => [
             'A1' => 'Beginner',

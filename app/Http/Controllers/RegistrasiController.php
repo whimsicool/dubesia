@@ -10,7 +10,8 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
 use Throwable;
@@ -34,7 +35,7 @@ class RegistrasiController extends Controller
                 $user = User::create([
                     'name' => $data['nama_lengkap'],
                     'email' => $data['email'],
-                    'password' => $data['password'],
+                    'password' => Hash::make(Str::random(64)),
                     'no_hp' => '+62'.$data['no_whatsapp'],
                     'role' => User::ROLE_STUDENT,
                     'is_active' => false, // aktif setelah Admin memverifikasi pembayaran
@@ -48,7 +49,6 @@ class RegistrasiController extends Controller
                     'no_whatsapp' => '62'.$data['no_whatsapp'],
                     'alamat' => $data['alamat'],
                     'asal_institusi' => $data['asal_institusi'],
-                    'pendidikan_terakhir' => $data['pendidikan_terakhir'],
                     'program' => $data['program'],
                     'pesan_motivasi' => $data['pesan_motivasi'] ?? null,
                     'biaya' => Pendaftaran::biayaUntuk($data['program']),
@@ -65,11 +65,12 @@ class RegistrasiController extends Controller
             ]);
         }
 
-        Auth::login($user);
+        // Sesi diingat agar calon murid bisa meninggalkan halaman pembayaran
+        // (misalnya ke m-banking) lalu kembali tanpa kehilangan akses.
+        Auth::login($user, true);
         $request->session()->regenerate();
 
-        return redirect()->route('pembayaran.show')
-            ->with('sukses', 'Akun Anda dibuat. Selesaikan pembayaran untuk mengaktifkan pendaftaran.');
+        return redirect()->route('pembayaran.show');
     }
 
     public function edit(Request $request): Response
@@ -87,12 +88,9 @@ class RegistrasiController extends Controller
                 'no_whatsapp' => preg_replace('/^62/', '', $pendaftaran->no_whatsapp),
                 'alamat' => $pendaftaran->alamat,
                 'asal_institusi' => $pendaftaran->asal_institusi,
-                'pendidikan_terakhir' => $pendaftaran->pendidikan_terakhir,
                 'program' => $pendaftaran->program,
                 'pesan_motivasi' => $pendaftaran->pesan_motivasi,
                 'catatan_verifikasi' => $pendaftaran->catatan_verifikasi,
-                'bukti_url' => $pendaftaran->bukti_url,
-                'bukti_is_pdf' => $pendaftaran->bukti_is_pdf,
             ],
         ]);
     }
@@ -104,12 +102,9 @@ class RegistrasiController extends Controller
         abort_unless($pendaftaran && $pendaftaran->status === Pendaftaran::STATUS_DITOLAK, 403);
 
         $data = $request->validated();
-        $newPath = $request->file('bukti_pembayaran')?->store('bukti-pembayaran', 'public');
-        $oldPath = $pendaftaran->bukti_pembayaran;
-        $hasBukti = filled($newPath) || $pendaftaran->hasBuktiPembayaran();
 
         try {
-            DB::transaction(function () use ($data, $newPath, $hasBukti, $user, $pendaftaran) {
+            DB::transaction(function () use ($data, $user, $pendaftaran) {
                 $user->update([
                     'name' => $data['nama_lengkap'],
                     'email' => $data['email'],
@@ -123,12 +118,10 @@ class RegistrasiController extends Controller
                     'no_whatsapp' => '62'.$data['no_whatsapp'],
                     'alamat' => $data['alamat'],
                     'asal_institusi' => $data['asal_institusi'],
-                    'pendidikan_terakhir' => $data['pendidikan_terakhir'],
                     'program' => $data['program'],
                     'pesan_motivasi' => $data['pesan_motivasi'] ?? null,
                     'biaya' => Pendaftaran::biayaUntuk($data['program']),
-                    'bukti_pembayaran' => $newPath ?? $pendaftaran->bukti_pembayaran,
-                    'status' => $hasBukti ? Pendaftaran::STATUS_MENUNGGU : Pendaftaran::STATUS_MENUNGGU_PEMBAYARAN,
+                    'status' => Pendaftaran::STATUS_MENUNGGU_PEMBAYARAN,
                     'catatan_verifikasi' => null,
                     'verified_by' => null,
                     'verified_at' => null,
@@ -136,10 +129,6 @@ class RegistrasiController extends Controller
                 ]);
             });
         } catch (Throwable $e) {
-            if ($newPath) {
-                Storage::disk('public')->delete($newPath);
-            }
-
             report($e);
 
             return back()->withInput()->withErrors([
@@ -147,12 +136,8 @@ class RegistrasiController extends Controller
             ]);
         }
 
-        if ($newPath && $oldPath) {
-            Storage::disk('public')->delete($oldPath);
-        }
-
         return redirect()->route('pembayaran.show')
-            ->with('sukses', 'Perbaikan berhasil dikirim.');
+            ->with('sukses', 'Perbaikan berhasil dikirim. Lanjutkan pembayaran untuk verifikasi ulang.');
     }
 
     /**
@@ -169,7 +154,7 @@ class RegistrasiController extends Controller
                     'biaya' => Pendaftaran::biayaUntuk($value),
                 ])
                 ->values(),
-            'pendidikanOptions' => Pendaftaran::PENDIDIKAN_TERAKHIR,
+            'biaya' => Pendaftaran::BIAYA_DEFAULT,
         ];
     }
 }

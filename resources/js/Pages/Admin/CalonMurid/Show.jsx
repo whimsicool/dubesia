@@ -70,7 +70,6 @@ export default function Show({ pendaftaran: p, flash }) {
               <Row label="WhatsApp">{p.no_whatsapp}</Row>
               <Row label="Alamat">{p.alamat}</Row>
               <Row label="Asal Institusi">{p.asal_institusi}</Row>
-              <Row label="Pendidikan Terakhir">{p.pendidikan_terakhir}</Row>
               <Row label="Program"><span className="capitalize">{p.program}</span></Row>
               <Row label="Motivasi">{p.pesan_motivasi}</Row>
               <Row label="Tanggal Daftar">{p.tanggal_daftar}</Row>
@@ -110,18 +109,25 @@ export default function Show({ pendaftaran: p, flash }) {
         {/* aksi */}
         <div className="mt-6 flex flex-wrap items-center gap-3">
           {p.bisa_diproses && (
-            <>
             <button onClick={() => setShowVerif(true)}
               className="flex items-center gap-2 rounded-lg bg-[#0f1b2d] px-6 py-3 text-sm font-bold text-white hover:bg-[#16263d]">
               <BadgeCheck className="h-4 w-4" /> Verifikasi
             </button>
+          )}
+          {p.status === 'menunggu_verifikasi' && (
             <button onClick={() => setShowTolak(true)}
               className="flex items-center gap-2 rounded-lg bg-[#b91c1c] px-6 py-3 text-sm font-bold text-white hover:bg-[#991b1b]">
               <XCircle className="h-4 w-4" /> Tolak
             </button>
-            </>
           )}
-          {!p.bisa_diproses && <p className="rounded-lg bg-[#eef3fd] p-3 text-sm text-slate-600">Pendaftaran ini sudah diproses.</p>}
+          {p.status === 'menunggu_verifikasi' && !p.has_bukti && (
+            <p className="rounded-lg bg-[#eef3fd] p-3 text-sm text-slate-600">
+              Bukti pembayaran belum diunggah. Minta calon murid melengkapi berkasnya.
+            </p>
+          )}
+          {p.status !== 'menunggu_verifikasi' && (
+            <p className="rounded-lg bg-[#eef3fd] p-3 text-sm text-slate-600">Pendaftaran ini sudah diproses.</p>
+          )}
         </div>
       </div>
 

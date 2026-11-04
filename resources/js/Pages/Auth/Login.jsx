@@ -1,10 +1,8 @@
-import { useState } from 'react';
 import { Head, Link, useForm } from '@inertiajs/react';
+import PasswordInput from '@/Components/PasswordInput';
 import { KeyRound } from 'lucide-react';
 
 export default function Login({ status }) {
-    const [showPassword, setShowPassword] = useState(false);
-
     const { data, setData, post, processing, errors, reset } = useForm({
         email: '',
         password: '',
@@ -174,18 +172,14 @@ export default function Login({ status }) {
                                                     </Link>
                                                 </label>
                                                 <div className="relative flex items-center">
-                                                    <span className="material-symbols-outlined pointer-events-none absolute left-3.5 text-xl text-on-surface-variant">
+                                                    <span className="material-symbols-outlined pointer-events-none absolute left-3.5 z-10 text-xl text-on-surface-variant">
                                                         lock
                                                     </span>
-                                                    <input
-                                                        className="h-11 w-full rounded-lg bg-surface-container-lowest pl-11 pr-12 font-body-md text-body-md text-on-surface shadow-sm transition-all placeholder:text-outline focus:outline-none focus:ring-2 focus:ring-secondary"
+                                                    <PasswordInput
+                                                        className="w-full"
+                                                        inputClassName="h-11 w-full rounded-lg bg-surface-container-lowest pl-11 font-body-md text-body-md text-on-surface shadow-sm transition-all placeholder:text-outline focus:outline-none focus:ring-2 focus:ring-secondary"
                                                         id="password"
                                                         name="password"
-                                                        type={
-                                                            showPassword
-                                                                ? 'text'
-                                                                : 'password'
-                                                        }
                                                         autoComplete="current-password"
                                                         value={data.password}
                                                         onChange={(e) =>
@@ -197,22 +191,6 @@ export default function Login({ status }) {
                                                         placeholder="Masukkan kata sandi akun"
                                                         required
                                                     />
-                                                    <button
-                                                        aria-label="Tampilkan atau sembunyikan kata sandi"
-                                                        className="absolute right-3 p-1 text-on-surface-variant transition-colors hover:text-on-surface focus:outline-none"
-                                                        onClick={() =>
-                                                            setShowPassword(
-                                                                (prev) => !prev,
-                                                            )
-                                                        }
-                                                        type="button"
-                                                    >
-                                                        <span className="material-symbols-outlined text-xl">
-                                                            {showPassword
-                                                                ? 'visibility_off'
-                                                                : 'visibility'}
-                                                        </span>
-                                                    </button>
                                                 </div>
                                                 {errors.password && (
                                                     <p className="font-body-sm text-body-sm font-medium text-error">

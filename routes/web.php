@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\CalonMuridController;
 use App\Http\Controllers\Admin\FeedbackController as AdminFeedbackController;
 use App\Http\Controllers\Admin\PembayaranMasukController;
 use App\Http\Controllers\AdminUserController;
+use App\Http\Controllers\CekEmailController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\LandingController;
 use App\Http\Controllers\PembayaranController;
@@ -31,6 +32,14 @@ Route::get('/dashboard', [DashboardController::class, 'index'])
     ->name('dashboard');
 
 Route::get('/registrasi', [RegistrasiController::class, 'create'])->name('registrasi.create');
+
+// Pemeriksaan email langsung ke database sebelum formulir dikirim.
+Route::get('/cek-email', CekEmailController::class)
+    ->middleware('throttle:60,1')
+    ->name('email.cek');
+
+Route::get('/pembayaran/terkirim', fn () => Inertia::render('Registrasi/PembayaranTerkirim'))
+    ->name('pembayaran.terkirim');
 
 Route::get('/panduan-pendaftaran', function () {
     return Inertia::render('Registrasi/PanduanPendaftaran');
@@ -117,10 +126,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::post('/profile/photo', [ProfileController::class, 'updatePhoto'])->name('profile.photo.update');
 
-    // Halaman pembayaran calon murid: boleh ditinggal lalu dilanjutkan kapan saja.
+    // Halaman pembayaran terpisah setelah formulir pendaftaran.
     Route::get('/pembayaran', [PembayaranController::class, 'show'])->name('pembayaran.show');
     Route::post('/pembayaran', [PembayaranController::class, 'store'])->name('pembayaran.store');
-
+    Route::delete('/pembayaran/bukti', [PembayaranController::class, 'destroyBukti'])->name('pembayaran.bukti.destroy');
     Route::get('/pendaftaran/perbaiki', [RegistrasiController::class, 'edit'])->name('registrasi.edit');
     Route::put('/pendaftaran/perbaiki', [RegistrasiController::class, 'update'])->name('registrasi.update');
 
@@ -163,7 +172,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
 
         Route::post('/bulk-delete', [AdminUserController::class, 'bulkDestroy'])->name('bulk-destroy');
         Route::get('/{user}', [AdminUserController::class, 'show'])->name('show');
-        Route::put('/{user}', [AdminUserController::class, 'update'])->name('update');
+        Route::patch('/{user}/status', [AdminUserController::class, 'updateStatus'])->name('status.update');
         Route::delete('/{user}', [AdminUserController::class, 'destroy'])->name('destroy');
     });
 });

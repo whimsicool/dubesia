@@ -14,6 +14,7 @@ class KirimEmail extends Mailable
 {
     public function __construct(
         public Pendaftaran $pendaftaran,
+        public string $temporaryPassword,
     ) {}
 
     public function envelope(): Envelope

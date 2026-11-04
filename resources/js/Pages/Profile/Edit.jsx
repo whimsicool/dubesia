@@ -166,7 +166,6 @@ export default function Edit({ profile, pendaftaran }) {
                                 <div className="grid gap-x-5 gap-y-5 sm:grid-cols-2">
                                     <InfoRow label="Tanggal lahir" value={formatDate(pendaftaran.tanggal_lahir)} />
                                     <InfoRow label="Asal institusi" value={pendaftaran.asal_institusi} />
-                                    <InfoRow label="Pendidikan terakhir" value={pendaftaran.pendidikan_terakhir} />
                                     <InfoRow label="Program" value={pendaftaran.program} />
                                     <InfoRow label="Biaya pendaftaran" value={rupiah(pendaftaran.biaya)} />
                                     <div className="sm:col-span-2"><InfoRow label="Alamat" value={pendaftaran.alamat} /></div>
@@ -175,7 +174,7 @@ export default function Edit({ profile, pendaftaran }) {
                                 {pendaftaran.status === 'menunggu_pembayaran' && (
                                     <a
                                         href={route('pembayaran.show')}
-                                        className="mt-4 inline-flex rounded-xl bg-dubesia-red px-4 py-2.5 text-sm font-bold text-white transition hover:bg-dubesia-navy"
+                                        className="mt-4 inline-flex rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-bold text-white transition hover:bg-blue-700"
                                     >
                                         <span className="inline-flex items-center gap-2"><CreditCard className="h-4 w-4" />Lanjutkan Pembayaran</span>
                                     </a>

@@ -51,6 +51,15 @@ class LoginRequest extends FormRequest
             ]);
         }
         $user = Auth::user();
+
+        if ($user->status_akun === 'nonaktif') {
+            Auth::logout();
+
+            throw ValidationException::withMessages([
+                'email' => 'Akun Anda nonaktif. Hubungi admin DUBESIA.',
+            ]);
+        }
+
         $status = $user->pendaftaran?->status;
         if (! $user->is_active && ! in_array($status, [Pendaftaran::STATUS_DITOLAK, Pendaftaran::STATUS_MENUNGGU_PEMBAYARAN], true)) {
             Auth::logout();

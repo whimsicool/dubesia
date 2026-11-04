@@ -13,11 +13,11 @@
         <div style="margin:20px 0;padding:16px;border:1px solid #fecaca;border-radius:10px;background:#fff1f2;color:#991b1b;white-space:pre-line;">
             {{ $pendaftaran->catatan_verifikasi }}
         </div>
-        <p style="font-size:15px;line-height:1.7;">Silakan daftar kembali melalui formulir pendaftaran untuk memperbaiki data dan isi seluruh data dengan benar.</p>
+        <p style="font-size:15px;line-height:1.7;">Silakan masuk ke akun Anda untuk memperbaiki data. Jika belum memiliki kata sandi, gunakan menu <strong>Lupa kata sandi</strong> pada halaman masuk.</p>
         <p style="margin:24px 0;">
-            <a href="{{ route('registrasi.create') }}" style="display:inline-block;padding:12px 20px;border-radius:8px;background:#0f1b2d;color:#fff;text-decoration:none;font-weight:bold;">Daftar Kembali</a>
+            <a href="{{ route('login') }}" style="display:inline-block;padding:12px 20px;border-radius:8px;background:#0f1b2d;color:#fff;text-decoration:none;font-weight:bold;">Masuk ke DUBESIA</a>
         </p>
-        <p style="margin:0;color:#64748b;font-size:12px;line-height:1.6;">Setelah formulir dan bukti pembayaran dikirim, pendaftaran Anda akan kembali menunggu verifikasi admin. Akun hanya dapat digunakan setelah pendaftaran disetujui.</p>
+        <p style="margin:0;color:#64748b;font-size:12px;line-height:1.6;">Setelah data diperbaiki dan bukti pembayaran dikirim ulang, pendaftaran Anda kembali menunggu verifikasi admin.</p>
     </main>
 </body>
 </html>

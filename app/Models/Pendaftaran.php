@@ -49,20 +49,6 @@ class Pendaftaran extends Model
         'employee' => 'Program untuk karyawan dengan jadwal yang lebih fleksibel.',
     ];
 
-    public const PENDIDIKAN_TERAKHIR = [
-        'SMA/SMK',
-        'D3',
-        'S1',
-        'S2',
-        'S3',
-        'Lainnya',
-    ];
-
-    public const REKENING = [
-        ['bank' => 'Bank Mandiri', 'nomor' => '137-00-1982736-4', 'atas_nama' => 'Yayasan Duta Bahasa Edukasi'],
-        ['bank' => 'Bank Central Asia (BCA)', 'nomor' => '542-098-1120', 'atas_nama' => 'Yayasan Duta Bahasa Edukasi'],
-    ];
-
     public const BIAYA_DEFAULT = 1000000;
 
     public const BIAYA_PER_PROGRAM = [
@@ -71,18 +57,22 @@ class Pendaftaran extends Model
         'employee' => 1700000,
     ];
 
+    public const REKENING = [
+        ['bank' => 'Bank Mandiri', 'nomor' => '137-00-1982736-4', 'atas_nama' => 'Yayasan Duta Bahasa Edukasi'],
+        ['bank' => 'Bank Central Asia (BCA)', 'nomor' => '542-098-1120', 'atas_nama' => 'Yayasan Duta Bahasa Edukasi'],
+    ];
+
     protected $fillable = [
         'user_id', 'nama_lengkap', 'tanggal_lahir', 'email', 'no_whatsapp',
-        'alamat', 'asal_institusi', 'pendidikan_terakhir', 'program', 'pesan_motivasi',
+        'alamat', 'asal_institusi', 'program', 'pesan_motivasi',
         'bukti_pembayaran', 'biaya', 'status', 'catatan_verifikasi', 'verified_by',
-        'verified_at', 'resubmitted_at', 'last_reminder_sent_at',
+        'verified_at', 'resubmitted_at',
     ];
 
     protected $casts = [
         'tanggal_lahir' => 'date',
         'verified_at' => 'datetime',
         'resubmitted_at' => 'datetime',
-        'last_reminder_sent_at' => 'datetime',
     ];
 
     public static function biayaUntuk(string $program): int

@@ -50,6 +50,8 @@ class AdminUserController extends Controller
      */
     public function store(Request $request)
     {
+        $request->merge(['email' => mb_strtolower(trim((string) $request->email))]);
+
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|max:255|unique:users,email',
@@ -99,25 +101,31 @@ class AdminUserController extends Controller
     }
 
     /**
-     * Memperbarui data pengguna (Edit Data).
+     * Mengubah status akun. Admin tidak boleh mengubah identitas atau peran
+     * pengguna; hanya status aktif/nonaktif yang dapat diubah dari halaman ini.
      */
-    public function update(Request $request, User $user)
+    public function updateStatus(Request $request, User $user)
     {
         abort_if($user->isAdmin(), 403, 'Akun admin tidak dapat diubah dari halaman ini.');
 
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => ['required', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
-            'no_hp' => 'nullable|string|max:20',
-            'role' => ['required', Rule::in(['student', 'tutor'])],
             'status_akun' => ['required', Rule::in(['aktif', 'nonaktif'])],
         ]);
 
-        $validated['no_hp'] = $this->normalizePhoneNumber($validated['no_hp'] ?? null);
+        $aktif = $validated['status_akun'] === 'aktif';
 
-        $user->update($validated);
+        $user->update([
+            'status_akun' => $validated['status_akun'],
+            // is_active dipakai login dan middleware; keduanya harus sejalan.
+            'is_active' => $aktif,
+        ]);
 
-        return redirect()->route('admin.data-pengguna.index')->with('success', "Data pengguna \"{$user->name}\" berhasil diperbarui.");
+        return redirect()->route('admin.data-pengguna.index')->with(
+            'success',
+            $aktif
+                ? "Akun \"{$user->name}\" diaktifkan kembali."
+                : "Akun \"{$user->name}\" dinonaktifkan. Datanya tetap tersimpan sebagai arsip.",
+        );
     }
 
     private function normalizePhoneNumber(?string $phone): ?string

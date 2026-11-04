@@ -51,4 +51,34 @@ class AuthenticationTest extends TestCase
         $this->assertGuest();
         $response->assertRedirect('/');
     }
+
+    public function test_akun_nonaktif_tidak_dapat_masuk(): void
+    {
+        $user = User::factory()->create([
+            'password' => 'rahasia123',
+            'status_akun' => 'nonaktif',
+            'is_active' => false,
+        ]);
+
+        $this->post('/login', [
+            'email' => $user->email,
+            'password' => 'rahasia123',
+        ])->assertSessionHasErrors('email');
+
+        $this->assertGuest();
+    }
+
+    public function test_sesi_akun_nonaktif_langsung_diakhiri(): void
+    {
+        $user = User::factory()->create([
+            'status_akun' => 'nonaktif',
+            'is_active' => false,
+        ]);
+
+        $this->actingAs($user)
+            ->get('/dashboard')
+            ->assertRedirect(route('login'));
+
+        $this->assertGuest();
+    }
 }

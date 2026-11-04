@@ -1,7 +1,7 @@
 import { Head, Link } from '@inertiajs/react';
 import { BookOpen, CircleHelp, LogIn, LogOut } from 'lucide-react';
 
-export default function AdmisiShell({ title, description, children, showLogout = false }) {
+export default function AdmisiShell({ title, showLogout = false, children }) {
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800">
       <Head title={title}>
@@ -32,12 +32,15 @@ export default function AdmisiShell({ title, description, children, showLogout =
           </div>
 
           <nav className="flex items-center gap-2 text-sm sm:gap-5">
-            <Link href={route('bantuan-admisi')} className="hidden items-center gap-2 text-slate-600 transition hover:text-dubesia-red md:inline-flex">
+            <Link href={route('bantuan-admisi')} className="hidden items-center gap-2 text-slate-600 transition hover:text-blue-700 md:inline-flex">
               <CircleHelp aria-hidden="true" className="h-4 w-4" />
               FAQ
             </Link>
 
-            <Link href={route('panduan-pendaftaran')} className="hidden items-center gap-2 text-slate-600 transition hover:text-dubesia-red md:inline-flex">
+            <Link
+              href={route('panduan-pendaftaran')}
+              className="hidden items-center gap-2 text-slate-600 transition hover:text-blue-700 md:inline-flex"
+            >
               <BookOpen aria-hidden="true" className="h-4 w-4" />
               Panduan Pendaftaran
             </Link>
@@ -47,7 +50,7 @@ export default function AdmisiShell({ title, description, children, showLogout =
                 href={route('logout')}
                 method="post"
                 as="button"
-                className="inline-flex items-center justify-center gap-2 rounded-lg bg-dubesia-red-soft px-3 py-2 text-center text-xs font-semibold text-dubesia-red transition hover:bg-dubesia-red/10 sm:px-4 sm:text-sm"
+                className="inline-flex items-center justify-center gap-2 rounded-lg bg-blue-50 px-3 py-2 text-center text-xs font-semibold text-blue-900 transition hover:bg-blue-100 sm:px-4 sm:text-sm"
               >
                 <LogOut aria-hidden="true" className="h-4 w-4" />
                 Keluar
@@ -55,7 +58,7 @@ export default function AdmisiShell({ title, description, children, showLogout =
             ) : (
               <Link
                 href="/login"
-                className="inline-flex items-center justify-center gap-2 rounded-lg bg-dubesia-red-soft px-3 py-2 text-center text-xs font-semibold text-dubesia-red transition hover:bg-dubesia-red/10 sm:px-4 sm:text-sm"
+                className="inline-flex items-center justify-center gap-2 rounded-lg bg-blue-50 px-3 py-2 text-center text-xs font-semibold text-blue-900 transition hover:bg-blue-100 sm:px-4 sm:text-sm"
               >
                 <LogIn aria-hidden="true" className="h-4 w-4" />
                 Masuk
@@ -65,10 +68,7 @@ export default function AdmisiShell({ title, description, children, showLogout =
         </div>
       </header>
 
-      <main className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 sm:py-9 lg:px-8">
-        {description && <p className="sr-only">{description}</p>}
-        {children}
-      </main>
+      <main className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 sm:py-9 lg:px-8">{children}</main>
 
       <footer className="mt-8 border-t border-slate-200 bg-white">
         <div className="mx-auto flex max-w-7xl flex-col gap-4 px-4 py-6 sm:px-6 md:flex-row md:items-center md:justify-between lg:px-8">
@@ -87,12 +87,12 @@ export default function AdmisiShell({ title, description, children, showLogout =
           </div>
 
           <div className="flex flex-wrap gap-4 text-xs font-semibold text-slate-600">
-            <Link href={route('panduan-pendaftaran')} className="inline-flex items-center gap-2 hover:text-dubesia-red">
+            <Link href={route('panduan-pendaftaran')} className="inline-flex items-center gap-2 hover:text-blue-700">
               <BookOpen aria-hidden="true" className="h-4 w-4" />
               Panduan Pendaftaran
             </Link>
 
-            <Link href={route('bantuan-admisi')} className="inline-flex items-center gap-2 hover:text-dubesia-red">
+            <Link href={route('bantuan-admisi')} className="inline-flex items-center gap-2 hover:text-blue-700">
               <CircleHelp aria-hidden="true" className="h-4 w-4" />
               FAQ
             </Link>
