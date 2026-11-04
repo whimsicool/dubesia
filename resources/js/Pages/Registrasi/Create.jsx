@@ -348,8 +348,8 @@ export default function Create({
                     key={program.value}
                     className={`flex cursor-pointer gap-3 rounded-xl border p-4 transition ${
                       data.program === program.value
-                        ? 'border-dubesia-red bg-dubesia-red-soft ring-1 ring-dubesia-red/20'
-                        : 'border-slate-200 hover:border-dubesia-red/40'
+                        ? 'border-blue-500 bg-blue-50 ring-1 ring-blue-500/20'
+                        : 'border-slate-200 hover:border-blue-300'
                     }`}
                   >
                     <input
@@ -359,23 +359,23 @@ export default function Create({
                       value={program.value}
                       checked={data.program === program.value}
                       onChange={() => updateField('program', program.value)}
-                      className="mt-1 accent-dubesia-red"
+                      className="mt-1 text-blue-600"
                     />
 
                     <span className="flex-1">
                       <span className="block text-sm font-bold text-slate-900">{program.label}</span>
                       <span className="mt-1 block text-xs leading-5 text-slate-500">{program.deskripsi}</span>
-                      <span className="mt-2 block text-sm font-bold text-dubesia-red">{rupiah(program.biaya)}</span>
+                      <span className="mt-2 block text-sm font-bold text-blue-700">{rupiah(program.biaya)}</span>
                     </span>
                   </label>
                 ))}
               </div>
             </Field>
 
-            <div className="mt-4 rounded-xl bg-dubesia-red-soft p-4 sm:flex sm:items-center sm:justify-between">
+            <div className="mt-4 rounded-xl bg-blue-50 p-4 sm:flex sm:items-center sm:justify-between">
               <p className="text-sm font-semibold text-slate-700">Biaya Kursus</p>
 
-              <p className="mt-2 text-2xl font-extrabold text-dubesia-red sm:mt-0">{rupiah(selectedBiaya)}</p>
+              <p className="mt-2 text-2xl font-extrabold text-blue-700 sm:mt-0">{rupiah(selectedBiaya)}</p>
             </div>
           </section>
 
