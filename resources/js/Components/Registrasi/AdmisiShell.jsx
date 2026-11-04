@@ -32,14 +32,14 @@ export default function AdmisiShell({ title, showLogout = false, children }) {
           </div>
 
           <nav className="flex items-center gap-2 text-sm sm:gap-5">
-            <Link href={route('bantuan-admisi')} className="hidden items-center gap-2 text-slate-600 transition hover:text-blue-700 md:inline-flex">
+            <Link href={route('bantuan-admisi')} className="hidden items-center gap-2 text-slate-600 transition hover:text-dubesia-red md:inline-flex">
               <CircleHelp aria-hidden="true" className="h-4 w-4" />
               FAQ
             </Link>
 
             <Link
               href={route('panduan-pendaftaran')}
-              className="hidden items-center gap-2 text-slate-600 transition hover:text-blue-700 md:inline-flex"
+              className="hidden items-center gap-2 text-slate-600 transition hover:text-dubesia-red md:inline-flex"
             >
               <BookOpen aria-hidden="true" className="h-4 w-4" />
               Panduan Pendaftaran
@@ -50,7 +50,7 @@ export default function AdmisiShell({ title, showLogout = false, children }) {
                 href={route('logout')}
                 method="post"
                 as="button"
-                className="inline-flex items-center justify-center gap-2 rounded-lg bg-blue-50 px-3 py-2 text-center text-xs font-semibold text-blue-900 transition hover:bg-blue-100 sm:px-4 sm:text-sm"
+                className="inline-flex items-center justify-center gap-2 rounded-lg bg-rose-50 px-3 py-2 text-center text-xs font-semibold text-rose-700 transition hover:bg-rose-100 sm:px-4 sm:text-sm"
               >
                 <LogOut aria-hidden="true" className="h-4 w-4" />
                 Keluar
@@ -58,7 +58,7 @@ export default function AdmisiShell({ title, showLogout = false, children }) {
             ) : (
               <Link
                 href="/login"
-                className="inline-flex items-center justify-center gap-2 rounded-lg bg-blue-50 px-3 py-2 text-center text-xs font-semibold text-blue-900 transition hover:bg-blue-100 sm:px-4 sm:text-sm"
+                className="inline-flex items-center justify-center gap-2 rounded-lg bg-rose-50 px-3 py-2 text-center text-xs font-semibold text-rose-700 transition hover:bg-rose-100 sm:px-4 sm:text-sm"
               >
                 <LogIn aria-hidden="true" className="h-4 w-4" />
                 Masuk
@@ -87,12 +87,12 @@ export default function AdmisiShell({ title, showLogout = false, children }) {
           </div>
 
           <div className="flex flex-wrap gap-4 text-xs font-semibold text-slate-600">
-            <Link href={route('panduan-pendaftaran')} className="inline-flex items-center gap-2 hover:text-blue-700">
+            <Link href={route('panduan-pendaftaran')} className="inline-flex items-center gap-2 hover:text-dubesia-red">
               <BookOpen aria-hidden="true" className="h-4 w-4" />
               Panduan Pendaftaran
             </Link>
 
-            <Link href={route('bantuan-admisi')} className="inline-flex items-center gap-2 hover:text-blue-700">
+            <Link href={route('bantuan-admisi')} className="inline-flex items-center gap-2 hover:text-dubesia-red">
               <CircleHelp aria-hidden="true" className="h-4 w-4" />
               FAQ
             </Link>

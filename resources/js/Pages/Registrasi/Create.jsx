@@ -10,7 +10,7 @@ const rupiah = (value) =>
   `Rp ${Number(value ?? 0).toLocaleString('id-ID')}`;
 
 const inputClass =
-  'w-full min-w-0 rounded-lg border border-slate-200 bg-white px-3.5 py-3 text-sm text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100';
+  'w-full min-w-0 rounded-lg border border-slate-200 bg-white px-3.5 py-3 text-sm text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-dubesia-red focus:ring-2 focus:ring-rose-100';
 
 const FIELD_LABELS = {
   nama_lengkap: 'Nama lengkap',
@@ -349,7 +349,7 @@ export default function Create({
                 required
                 error={fieldError('no_whatsapp')}
               >
-                <div className="flex min-w-0 rounded-lg border border-slate-200 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-100">
+                <div className="flex min-w-0 rounded-lg border border-slate-200 focus-within:border-dubesia-red focus-within:ring-2 focus-within:ring-rose-100">
                   <span className="flex items-center rounded-l-lg bg-slate-100 px-3 text-sm font-semibold text-slate-600">
                     +62
                   </span>
@@ -407,8 +407,8 @@ export default function Create({
                     key={program.value}
                     className={`flex cursor-pointer gap-3 rounded-xl border p-4 transition ${
                       data.program === program.value
-                        ? 'border-blue-500 bg-blue-50 ring-1 ring-blue-500/20'
-                        : 'border-slate-200 hover:border-blue-200'
+                        ? 'border-dubesia-red bg-rose-50 ring-1 ring-dubesia-red/20'
+                        : 'border-slate-200 hover:border-rose-200'
                     }`}
                   >
                     <input
@@ -418,7 +418,7 @@ export default function Create({
                       value={program.value}
                       checked={data.program === program.value}
                       onChange={() => updateField('program', program.value)}
-                      className="mt-1 text-blue-600"
+                      className="mt-1 accent-dubesia-red"
                     />
 
                     <span className="flex-1">
@@ -428,7 +428,7 @@ export default function Create({
                       <span className="mt-1 block text-xs leading-5 text-slate-500">
                         {program.deskripsi}
                       </span>
-                      <span className="mt-2 block text-sm font-bold text-blue-800">
+                      <span className="mt-2 block text-sm font-bold text-dubesia-red">
                         {rupiah(program.biaya)}
                       </span>
                     </span>
@@ -475,7 +475,7 @@ export default function Create({
                   type="checkbox"
                   checked={data.setuju}
                   onChange={(e) => updateField('setuju', e.target.checked)}
-                  className="mt-1 h-4 w-4 shrink-0 accent-blue-600"
+                  className="mt-1 h-4 w-4 shrink-0 accent-dubesia-red"
                 />
 
                 <span>
@@ -533,7 +533,7 @@ export default function Create({
             <button
               type="submit"
               disabled={processing}
-              className="mt-6 flex w-full items-center justify-center rounded-lg bg-blue-600 px-5 py-3.5 text-sm font-bold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
+              className="mt-6 flex w-full items-center justify-center rounded-lg bg-dubesia-red px-5 py-3.5 text-sm font-bold text-white transition hover:bg-dubesia-navy disabled:cursor-not-allowed disabled:opacity-60"
             >
               {processing ? <FileUp className="h-4 w-4" aria-hidden="true" /> : <ArrowRight className="h-4 w-4" aria-hidden="true" />}
               {processing
@@ -549,7 +549,7 @@ export default function Create({
 
             {!editMode && <p className="mt-4 text-center text-sm text-slate-500">
               Sudah memiliki akun?{' '}
-              <Link href="/login" className="font-semibold text-blue-700 hover:underline">
+              <Link href="/login" className="font-semibold text-dubesia-red hover:underline">
                 Masuk di sini
               </Link>
             </p>}
@@ -568,20 +568,20 @@ export default function Create({
 
               <div className="flex items-start justify-between gap-3">
                 <dt className="text-slate-500">Biaya kursus</dt>
-                <dd className="text-right font-semibold text-blue-800">{rupiah(selectedBiaya)}</dd>
+                <dd className="text-right font-semibold text-dubesia-red">{rupiah(selectedBiaya)}</dd>
               </div>
             </dl>
 
             {!editMode && (
-              <p className="mt-4 rounded-lg bg-blue-50 p-3 text-xs leading-5 text-slate-700">
+              <p className="mt-4 rounded-lg bg-rose-50 p-3 text-xs leading-5 text-slate-700">
                 Rekening tujuan transfer dan unggah bukti pembayaran tersedia di halaman berikutnya.
               </p>
             )}
           </section>
 
-          <section className="rounded-2xl border border-blue-100 bg-blue-50 p-5 sm:p-6">
-            <h2 className="font-bold text-blue-900">Data Anda Aman</h2>
-            <p className="mt-2 text-sm leading-6 text-blue-800">
+          <section className="rounded-2xl border border-emerald-100 bg-emerald-50 p-5 sm:p-6">
+            <h2 className="font-bold text-emerald-900">Data Anda Aman</h2>
+            <p className="mt-2 text-sm leading-6 text-emerald-800">
               Data pendaftaran digunakan untuk proses administrasi dan
               verifikasi oleh DUBESIA.
             </p>
@@ -592,7 +592,7 @@ export default function Create({
 
             <ol className="mt-4 space-y-4 text-sm text-slate-600">
               <li className="flex gap-3">
-                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-blue-50 font-bold text-blue-700">
+                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-rose-50 font-bold text-dubesia-red">
                   1
                 </span>
                 <span>
@@ -603,7 +603,7 @@ export default function Create({
               </li>
 
               <li className="flex gap-3">
-                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-blue-50 font-bold text-blue-700">
+                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-rose-50 font-bold text-dubesia-red">
                   2
                 </span>
                 <span>
@@ -614,7 +614,7 @@ export default function Create({
               </li>
 
               <li className="flex gap-3">
-                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-blue-50 font-bold text-blue-700">
+                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-rose-50 font-bold text-dubesia-red">
                   3
                 </span>
                 <span>
