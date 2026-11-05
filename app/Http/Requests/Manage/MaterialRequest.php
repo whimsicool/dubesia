@@ -23,9 +23,13 @@ class MaterialRequest extends FormRequest
 
     protected function prepareForValidation(): void
     {
-        $this->merge([
-            'is_featured' => $this->boolean('is_featured'),
-        ]);
+        // Hanya ubah saat field dikirim; formulir materi tidak lagi memuat
+        // pilihan Rekomendasi, dan nilai lama harus dipertahankan.
+        if ($this->has('is_featured')) {
+            $this->merge([
+                'is_featured' => $this->boolean('is_featured'),
+            ]);
+        }
     }
 
     public function materialType(): ?MaterialType

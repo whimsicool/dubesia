@@ -33,7 +33,6 @@ export default function Form({ material, options, routePrefix = 'tutor.materials
         body: material?.body ?? '',
         external_url: material?.external_url ?? '',
         duration_minutes: material?.duration_minutes ?? '',
-        is_featured: material?.is_featured ?? false,
         status: material?.status ?? 'draft',
         file: null,
     });
@@ -58,7 +57,6 @@ export default function Form({ material, options, routePrefix = 'tutor.materials
             body: '',
             external_url: '',
             duration_minutes: '',
-            is_featured: false,
             file: null,
         }));
         clearErrors('type', 'file', 'external_url', 'body', 'duration_minutes');
@@ -227,15 +225,6 @@ export default function Form({ material, options, routePrefix = 'tutor.materials
                             <p className="mt-1 text-xs text-slate-400">Format: # Judul, ## Subjudul, - daftar, 1. daftar bernomor, &gt; kutipan, **tebal**, *miring*, [teks](url).</p>
                         </div>
                     )}
-                </section>
-
-                {/* Publikasi */}
-                <section className="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm">
-                    <h2 className="mb-3 text-sm font-bold text-slate-900">4. Publikasi</h2>
-                    <label className="flex cursor-pointer items-center gap-3 text-sm text-slate-700">
-                        <input type="checkbox" checked={data.is_featured} onChange={(e) => setData('is_featured', e.target.checked)} className="rounded border-slate-300 text-slate-900 focus:ring-slate-900" />
-                        Tandai sebagai <strong>Rekomendasi</strong> (badge bintang di pustaka murid)
-                    </label>
                 </section>
 
                 <div className="flex flex-wrap justify-end gap-3">
