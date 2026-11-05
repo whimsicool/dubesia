@@ -620,13 +620,23 @@ export default function Index({ users, filters, stats }) {
                                 <label className="kdp-field__label">
                                     Alamat Email Utama <span className="kdp-field__required">*Wajib</span>
                                 </label>
-                                <input
-                                    type="email"
-                                    value={form.data.email}
-                                    onChange={(e) => form.setData('email', e.target.value)}
-                                    placeholder="cth: nama@dubes.ac.id"
-                                    className="kdp-field__input"
-                                />
+                                <div className="flex items-stretch">
+                                    <input
+                                        type="text"
+                                        inputMode="email"
+                                        aria-label="Nama email Gmail"
+                                        autoComplete="off"
+                                        value={(form.data.email || '').replace(/@gmail\.com$/i, '')}
+                                        onChange={(e) => {
+                                            const name = e.target.value.split('@')[0].replace(/\s/g, '');
+                                            form.setData('email', name ? name + '@gmail.com' : '');
+                                        }}
+                                        placeholder="cth: namatutor"
+                                        className="kdp-field__input"
+                                        style={{ minWidth: 0, borderTopRightRadius: 0, borderBottomRightRadius: 0 }}
+                                    />
+                                    <span className="inline-flex shrink-0 items-center rounded-r-[10px] border border-l-0 border-slate-200 bg-slate-100 px-3 text-sm font-semibold text-slate-600">@gmail.com</span>
+                                </div>
                                 {form.errors.email && <p className="kdp-field__error">{form.errors.email}</p>}
                                 {!form.errors.email && emailCheck.status === 'checking' && (
                                     <p className="kdp-field__error" style={{ color: '#64748b' }}>Memeriksa email...</p>

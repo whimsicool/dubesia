@@ -1,3 +1,4 @@
+import GmailInput from '@/Components/GmailInput';
 import { useState } from 'react';
 import { Head, Link, useForm } from '@inertiajs/react';
 
@@ -100,11 +101,11 @@ export default function ForgotPassword({ status }) {
                                                 <span className="material-symbols-outlined pointer-events-none absolute left-3.5 text-xl text-on-surface-variant">
                                                     badge
                                                 </span>
-                                                <input
+                                                <GmailInput
                                                     className="h-11 w-full rounded-lg bg-surface-container-lowest pl-11 pr-4 font-body-md text-body-md text-on-surface shadow-sm transition-all placeholder:text-outline focus:outline-none focus:ring-2 focus:ring-secondary"
                                                     id="email"
                                                     name="email"
-                                                    type="email"
+                                                    
                                                     autoComplete="username"
                                                     autoFocus
                                                     value={data.email}

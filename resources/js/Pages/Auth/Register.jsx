@@ -1,3 +1,4 @@
+import GmailInput from '@/Components/GmailInput';
 import InputError from '@/Components/InputError';
 import InputLabel from '@/Components/InputLabel';
 import PasswordInput from '@/Components/PasswordInput';
@@ -48,9 +49,9 @@ export default function Register() {
                 <div className="mt-4">
                     <InputLabel htmlFor="email" value="Email" />
 
-                    <TextInput
+                    <GmailInput
                         id="email"
-                        type="email"
+                        
                         name="email"
                         value={data.email}
                         className="mt-1 block w-full"
