@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Instructor;
+use App\Models\Room;
 use App\Models\Schedule;
 use App\Models\Semester;
 use App\Models\User;
@@ -20,11 +22,11 @@ class ScheduleViewController extends Controller
         $user = $request->user();
         $semester = Semester::active()->first();
         $schedules = collect();
-        $options = ['programs' => [], 'instructors' => [], 'rooms' => []];
+        $options = ['classes' => [], 'instructors' => [], 'rooms' => []];
         $weekStart = $this->resolveWeekStart($request->query('week'));
         $filters = [
             'day' => $request->integer('day') ?: null,
-            'program_id' => $request->integer('program_id') ?: null,
+            'class_id' => $request->integer('class_id') ?: null,
             'instructor_id' => $request->integer('instructor_id') ?: null,
             'room_id' => $request->integer('room_id') ?: null,
             'q' => trim((string) $request->query('q', '')) ?: null,
@@ -58,7 +60,7 @@ class ScheduleViewController extends Controller
 
         $filters = [
             'day' => $request->integer('day') ?: null,
-            'program_id' => $request->integer('program_id') ?: null,
+            'class_id' => $request->integer('class_id') ?: null,
             'instructor_id' => $request->integer('instructor_id') ?: null,
             'room_id' => $request->integer('room_id') ?: null,
             'q' => trim((string) $request->query('q', '')) ?: null,
@@ -120,20 +122,16 @@ class ScheduleViewController extends Controller
             }));
         }
 
-        $available = (clone $baseQuery)->with(['program:id,name,category', 'instructor:id,name', 'room:id,name'])->get();
+        $classes = ($user->isTutor() ? $user->teachingClasses() : $user->enrolledClasses())
+            ->with('tutors:id,name,email')->orderBy('name')->get();
+        $selectedClasses = $filters['class_id'] ? $classes->where('id', $filters['class_id']) : $classes;
+        $tutors = $selectedClasses->flatMap->tutors->unique('id');
         $options = [
-            'programs' => $available->pluck('program')->filter()->unique('id')->sortBy('name')->values()->map(fn ($program) => [
-                'id' => $program->id,
-                'name' => $program->name,
-            ]),
-            'instructors' => $available->pluck('instructor')->unique('id')->sortBy('name')->values()->map(fn ($instructor) => [
-                'id' => $instructor->id,
-                'name' => $instructor->name,
-            ]),
-            'rooms' => $available->pluck('room')->unique('id')->sortBy('name')->values()->map(fn ($room) => [
-                'id' => $room->id,
-                'name' => $room->name,
-            ]),
+            'classes' => $classes->map(fn ($class) => ['id' => $class->id, 'name' => $class->name])->values(),
+            'instructors' => Instructor::query()->where(function ($query) use ($tutors) {
+                $query->whereIn('user_id', $tutors->pluck('id'))->orWhereIn('email', $tutors->pluck('email'));
+            })->orderBy('name')->get(['id', 'name']),
+            'rooms' => Room::query()->orderBy('name')->get(['id', 'name']),
         ];
 
         /** @var Builder<Schedule> $query */
@@ -148,7 +146,7 @@ class ScheduleViewController extends Controller
 
     private function applyFilters($query, array $filters): void
     {
-        foreach (['day' => 'day_of_week', 'program_id' => 'program_id', 'instructor_id' => 'instructor_id', 'room_id' => 'room_id'] as $filter => $column) {
+        foreach (['day' => 'day_of_week', 'class_id' => 'class_id', 'instructor_id' => 'instructor_id', 'room_id' => 'room_id'] as $filter => $column) {
             if ($filters[$filter]) {
                 $query->where($column, $filters[$filter]);
             }
