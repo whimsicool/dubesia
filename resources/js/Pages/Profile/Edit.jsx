@@ -46,7 +46,6 @@ function InfoRow({ label, value }) {
 }
 
 function PhotoForm() {
-    const [saved, setSaved] = useState(false);
     const [preview, setPreview] = useState(null);
 
     useEffect(() => {
@@ -59,7 +58,6 @@ function PhotoForm() {
         const file = event.target.files?.[0] ?? null;
         setData('photo', file);
         setPreview(file ? URL.createObjectURL(file) : null);
-        setSaved(false);
     };
 
     const submit = (event) => {
@@ -71,7 +69,6 @@ function PhotoForm() {
                 reset('photo');
                 setPreview(null);
                 event.target.reset();
-                setSaved(true);
             },
         });
     };
@@ -109,8 +106,6 @@ function PhotoForm() {
             {preview && <img src={preview} alt="Pratinjau foto profil" className="mt-3 h-20 w-20 rounded-2xl object-cover" />}
 
             <InputError message={errors.photo} className="mt-2" />
-
-            
         </form>
     );
 }

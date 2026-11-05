@@ -57,17 +57,26 @@ class ProfileTest extends TestCase
             );
     }
 
-    public function test_admin_profile_cannot_upload_a_photo(): void
+    public function test_admin_dapat_mengunggah_foto_profil(): void
     {
+        Storage::fake('public');
         $admin = User::factory()->create(['role' => 'admin']);
 
         $this->actingAs($admin)
             ->get('/profile')
             ->assertOk()
             ->assertInertia(fn (Assert $page) => $page
-                ->where('profile.can_upload_photo', false)
+                ->where('profile.can_upload_photo', true)
                 ->where('pendaftaran', null)
             );
+
+        $this->actingAs($admin)
+            ->post(route('profile.photo.update'), [
+                'photo' => UploadedFile::fake()->image('admin.jpg'),
+            ])
+            ->assertSessionHasNoErrors();
+
+        $this->assertNotNull($admin->refresh()->photo_path);
     }
 
     public function test_student_can_upload_a_profile_photo(): void
