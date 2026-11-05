@@ -1,4 +1,3 @@
-import GmailInput from '@/Components/GmailInput';
 import { Head, Link, useForm } from '@inertiajs/react';
 import PasswordInput from '@/Components/PasswordInput';
 import { KeyRound } from 'lucide-react';
@@ -130,7 +129,7 @@ export default function Login({ status }) {
                                                     <span className="material-symbols-outlined pointer-events-none absolute left-3.5 text-xl text-on-surface-variant">
                                                         badge
                                                     </span>
-                                                    <GmailInput
+                                                    <input type="email"
                                                         className="h-11 w-full rounded-lg bg-surface-container-lowest pl-11 pr-4 font-body-md text-body-md text-on-surface shadow-sm transition-all placeholder:text-outline focus:outline-none focus:ring-2 focus:ring-secondary"
                                                         id="email"
                                                         name="email"
