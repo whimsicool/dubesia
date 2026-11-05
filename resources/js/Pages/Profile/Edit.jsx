@@ -1,9 +1,10 @@
 import PageBreadcrumbs from '@/Components/Admin/PageBreadcrumbs';
+import Modal from '@/Components/Admin/Modal';
 import FlashBanner from '@/Components/Common/FlashBanner';
 import InputError from '@/Components/InputError';
 import AdminLayout from '@/Layouts/AdminLayout';
-import { Head, useForm, usePage } from '@inertiajs/react';
-import { ImagePlus, Save, CreditCard } from 'lucide-react';
+import { Head, router, useForm, usePage } from '@inertiajs/react';
+import { CreditCard, ImagePlus, Save, Trash2, TriangleAlert, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import UpdatePasswordForm from './Partials/UpdatePasswordForm';
 
@@ -113,12 +114,21 @@ function PhotoForm() {
 export default function Edit({ profile, pendaftaran }) {
     const { flash } = usePage().props;
     const dashboard = DASHBOARD[profile.role] ?? DASHBOARD.student;
+    const [confirmDeletePhoto, setConfirmDeletePhoto] = useState(false);
+    const [deletingPhoto, setDeletingPhoto] = useState(false);
+
+    const hapusFoto = () => {
+        setDeletingPhoto(true);
+        router.delete(route('profile.photo.destroy'), {
+            preserveScroll: true,
+            onSuccess: () => setConfirmDeletePhoto(false),
+            onFinish: () => setDeletingPhoto(false),
+        });
+    };
 
     return (
         <AdminLayout>
             <Head title="Profil" />
-
-            <FlashBanner flash={flash?.success} />
 
             <div className="mb-6">
                 <PageBreadcrumbs
@@ -132,6 +142,8 @@ export default function Edit({ profile, pendaftaran }) {
                 <h1 className="text-2xl font-extrabold tracking-tight text-slate-900">Profil</h1>
                 <p className="mt-1 text-sm text-slate-600">Kelola foto, data akun, dan kata sandi Anda.</p>
             </div>
+
+            <FlashBanner flash={flash?.success} />
 
             <section className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-dubesia-red via-dubesia-red to-dubesia-navy px-5 py-5 text-white shadow-sm sm:px-6">
                 <div className="pointer-events-none absolute -right-16 -top-20 h-56 w-56 rounded-full bg-white/10 blur-2xl" />
@@ -180,7 +192,19 @@ export default function Edit({ profile, pendaftaran }) {
 
                     {profile.can_upload_photo && (
                         <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
-                            <h2 className="border-b border-slate-100 pb-3 text-base font-bold text-slate-900">Foto profil</h2>
+                            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-3">
+                                <h2 className="text-base font-bold text-slate-900">Foto profil</h2>
+                                {profile.avatar_url && (
+                                    <button
+                                        type="button"
+                                        onClick={() => setConfirmDeletePhoto(true)}
+                                        className="inline-flex items-center gap-1.5 text-xs font-semibold text-rose-700 transition hover:text-rose-800"
+                                    >
+                                        <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
+                                        Hapus foto
+                                    </button>
+                                )}
+                            </div>
                             <PhotoForm />
                         </section>
                     )}
@@ -251,6 +275,40 @@ export default function Edit({ profile, pendaftaran }) {
                     </section>
                 </div>
             </div>
+
+            <Modal
+                open={confirmDeletePhoto}
+                onClose={() => setConfirmDeletePhoto(false)}
+                size="md"
+                title="Hapus foto profil?"
+                footer={
+                    <>
+                        <button
+                            type="button"
+                            onClick={() => setConfirmDeletePhoto(false)}
+                            disabled={deletingPhoto}
+                            className="inline-flex items-center gap-2 rounded-lg border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-60"
+                        >
+                            <X className="h-4 w-4" aria-hidden="true" />
+                            Batal
+                        </button>
+                        <button
+                            type="button"
+                            onClick={hapusFoto}
+                            disabled={deletingPhoto}
+                            className="inline-flex items-center gap-2 rounded-lg bg-red-700 px-4 py-2 text-sm font-semibold text-white hover:bg-red-800 disabled:cursor-not-allowed disabled:opacity-60"
+                        >
+                            <Trash2 className="h-4 w-4" aria-hidden="true" />
+                            {deletingPhoto ? 'Menghapus…' : 'Ya, hapus foto'}
+                        </button>
+                    </>
+                }
+            >
+                <div className="flex gap-3 rounded-xl bg-red-50 p-3 text-sm text-red-800">
+                    <TriangleAlert className="mt-0.5 h-5 w-5 shrink-0" aria-hidden="true" />
+                    <p>Foto profil akan dihapus permanen. Avatar kembali memakai inisial nama Anda.</p>
+                </div>
+            </Modal>
         </AdminLayout>
     );
 }

@@ -125,6 +125,7 @@ Route::middleware(['auth', 'verified', 'role:tutor'])
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::post('/profile/photo', [ProfileController::class, 'updatePhoto'])->name('profile.photo.update');
+    Route::delete('/profile/photo', [ProfileController::class, 'destroyPhoto'])->name('profile.photo.destroy');
 
     // Halaman pembayaran terpisah setelah formulir pendaftaran.
     Route::get('/pembayaran', [PembayaranController::class, 'show'])->name('pembayaran.show');

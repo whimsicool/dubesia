@@ -65,4 +65,23 @@ class ProfileController extends Controller
             'message' => 'Foto baru tampil di menu profil dan daftar pengguna.',
         ]);
     }
+
+    /**
+     * Menghapus foto profil dan mengembalikan avatar ke inisial nama.
+     */
+    public function destroyPhoto(Request $request): RedirectResponse
+    {
+        $user = $request->user();
+        $path = $user->photo_path;
+
+        if ($path) {
+            Storage::disk('public')->delete($path);
+            $user->update(['photo_path' => null]);
+        }
+
+        return redirect()->route('profile.edit')->with('success', [
+            'title' => 'Foto profil dihapus',
+            'message' => 'Avatar kembali memakai inisial nama Anda.',
+        ]);
+    }
 }

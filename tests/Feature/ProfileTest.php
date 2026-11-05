@@ -117,6 +117,27 @@ class ProfileTest extends TestCase
         Storage::disk('public')->assertExists($student->refresh()->photo_path);
     }
 
+    public function test_user_dapat_menghapus_foto_profil(): void
+    {
+        Storage::fake('public');
+        $student = User::factory()->create(['role' => 'student']);
+
+        $this->actingAs($student)->post(route('profile.photo.update'), [
+            'photo' => UploadedFile::fake()->image('foto.jpg'),
+        ]);
+
+        $path = $student->refresh()->photo_path;
+        $this->assertNotNull($path);
+
+        $this->actingAs($student)
+            ->delete(route('profile.photo.destroy'))
+            ->assertRedirect(route('profile.edit'))
+            ->assertSessionHasNoErrors();
+
+        $this->assertNull($student->refresh()->photo_path);
+        Storage::disk('public')->assertMissing($path);
+    }
+
     public function test_profile_photo_must_be_an_image(): void
     {
         Storage::fake('public');
