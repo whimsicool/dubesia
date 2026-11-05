@@ -366,8 +366,8 @@ export default function Create({
                     key={program.value}
                     className={`flex cursor-pointer gap-3 rounded-xl border p-4 transition ${
                       data.program === program.value
-                        ? 'border-dubesia-red bg-rose-50 ring-1 ring-dubesia-red/20'
-                        : 'border-slate-200 hover:border-rose-200'
+                        ? 'border-blue-500 bg-blue-50 ring-1 ring-blue-500'
+                        : 'border-slate-200 hover:border-blue-200'
                     }`}
                   >
                     <input
@@ -377,7 +377,7 @@ export default function Create({
                       value={program.value}
                       checked={data.program === program.value}
                       onChange={() => updateField('program', program.value)}
-                      className="mt-1 accent-dubesia-red"
+                      className="mt-1 accent-blue-600"
                     />
 
                     <span className="flex-1">
