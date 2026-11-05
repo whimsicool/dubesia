@@ -1,8 +1,10 @@
+import Modal from '@/Components/Modal';
+import { DialogTitle } from '@headlessui/react';
 import AdminLayout from '@/Layouts/AdminLayout';
 import PageBreadcrumbs from '@/Components/Admin/PageBreadcrumbs';
 import useEmailAvailability from '@/Hooks/useEmailAvailability';
 import { Head, Link, router, useForm, usePage } from '@inertiajs/react';
-import { Power, BookOpenCheck, GraduationCap, Save, Trash2, UsersRound, X } from 'lucide-react';
+import { CircleCheck, Power, BookOpenCheck, GraduationCap, Save, Trash2, UsersRound, X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 
 /* ═══════════════════════════════════════════════
@@ -23,6 +25,7 @@ export default function Index({ users, filters, stats }) {
 
     // ── Drawer (hanya untuk menambah akun tutor) ──
     const [drawerOpen, setDrawerOpen] = useState(false);
+    const [tutorCreated, setTutorCreated] = useState(false);
 
     // ── Detail modal ──
     const [detailUser, setDetailUser] = useState(null);
@@ -111,7 +114,15 @@ export default function Index({ users, filters, stats }) {
         }
 
         form.post(route('admin.data-pengguna.store'), {
-            onSuccess: () => setDrawerOpen(false),
+            onSuccess: (page) => {
+                if (page.props.flash?.error) {
+                    setFlashMsg(page.props.flash.error);
+                    return;
+                }
+                setDrawerOpen(false);
+                setFlashMsg('');
+                setTutorCreated(true);
+            },
         });
     };
 
@@ -900,6 +911,20 @@ export default function Index({ users, filters, stats }) {
                     </div>
                 </div>
             )}
+            <Modal show={tutorCreated} maxWidth="md" onClose={() => setTutorCreated(false)}>
+                <div className="p-6 text-center sm:p-8">
+                    <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-emerald-50 text-emerald-600">
+                        <CircleCheck className="h-9 w-9" aria-hidden="true" />
+                    </div>
+                    <DialogTitle className="text-xl font-extrabold text-slate-900">Akun tutor berhasil dibuat</DialogTitle>
+                    <p className="mt-3 text-sm leading-6 text-slate-600">
+                        Silakan periksa kotak masuk email tutor yang didaftarkan untuk melihat informasi akun dan kata sandi yang dibuat otomatis.
+                    </p>
+                    <button type="button" autoFocus onClick={() => setTutorCreated(false)} className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-slate-900 px-5 py-3 text-sm font-bold text-white hover:bg-slate-800">
+                        <CircleCheck className="h-4 w-4" aria-hidden="true" /> Oke
+                    </button>
+                </div>
+            </Modal>
         </AdminLayout>
     );
 }
