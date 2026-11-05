@@ -261,7 +261,7 @@ export default function Landing({ programs }) {
                                 </h2>
                             </Reveal>
 
-                            <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                            <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                                 {programs.map((program, index) => {
                                     const Icon =
                                         PROGRAM_ICONS[program.value] ??
@@ -272,8 +272,7 @@ export default function Landing({ programs }) {
                                             key={program.value}
                                             as="article"
                                             delay={index * 0.07}
-                                            hover
-                                            className="flex h-full flex-col gap-3 rounded-2xl border border-outline-variant/50 bg-surface p-6 transition-shadow hover:shadow-[0_18px_40px_-28px_rgba(11,28,48,0.45)]"
+                                            className="flex h-full flex-col gap-3 rounded-2xl border border-outline-variant/50 bg-surface p-6"
                                         >
                                             <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-dubesia-gold/20 text-dubesia-gold-dark">
                                                 <Icon className="h-5 w-5" />
@@ -327,7 +326,6 @@ export default function Landing({ programs }) {
                                             key={feature.title}
                                             as="article"
                                             delay={index * 0.07}
-                                            hover
                                             className="flex gap-4 rounded-2xl border border-outline-variant/50 bg-surface-container-lowest p-6"
                                         >
                                             <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-secondary/10 text-secondary">
@@ -368,7 +366,6 @@ export default function Landing({ programs }) {
                                         key={step.title}
                                         as="article"
                                         delay={index * 0.08}
-                                        hover
                                         className="flex flex-col gap-3 rounded-2xl border border-outline-variant/50 bg-surface p-6"
                                     >
                                         <span className="flex h-10 w-10 items-center justify-center rounded-full bg-primary-container font-label-lg text-label-lg text-white">
