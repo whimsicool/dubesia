@@ -468,27 +468,6 @@ export default function Create({
               />
             </Field>
 
-            <div className="mt-5">
-              <label className="flex cursor-pointer items-start gap-3 text-sm leading-6 text-slate-600">
-                <input
-                  required
-                  type="checkbox"
-                  checked={data.setuju}
-                  onChange={(e) => updateField('setuju', e.target.checked)}
-                  className="mt-1 h-4 w-4 shrink-0 accent-dubesia-red"
-                />
-
-                <span>
-                  Saya menyatakan bahwa data yang saya isi benar dan dapat
-                  dipertanggungjawabkan.
-                </span>
-              </label>
-
-              {fieldError('setuju') && (
-                <p id="field-setuju" className="mt-1.5 text-xs text-rose-600">{fieldError('setuju')}</p>
-              )}
-            </div>
-
             <div id="field-konfirmasi" className="mt-5 rounded-xl border border-amber-300 bg-amber-50 p-4">
               <div className="flex gap-3">
                 <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-amber-700" aria-hidden="true" />
@@ -499,10 +478,10 @@ export default function Create({
                   </p>
 
                   <p className="mt-1 text-sm leading-6 text-amber-900">
-                    Pastikan nama dan email di bawah ini benar. Kuitansi
+                    Pastikan email anda di bawah ini sudah benar. Kuitansi
                     pembayaran, status verifikasi dari admin, dan kata sandi
-                    sementara akun Anda dikirim ke email tersebut. Pastikan
-                    email aktif dan memiliki ruang penyimpanan yang cukup.
+                    sementara akun Anda akan dikirim ke email tersebut. Pastikan
+                    email aktif dan memiliki ruang penyimpanan yang cukup untuk menerima pesan.
                   </p>
 
                   <p className="mt-2 break-all text-sm font-semibold text-amber-950">
@@ -513,16 +492,22 @@ export default function Create({
                     <input
                       type="checkbox"
                       checked={emailDikonfirmasi}
-                      onChange={(e) => updateEmailConfirmation(e.target.checked)}
+                      onChange={(e) => {
+                        updateField('setuju', e.target.checked);
+                        updateEmailConfirmation(e.target.checked);
+                      }}
                       className="mt-1 h-4 w-4 shrink-0 accent-amber-700"
                     />
 
                     <span>
-                      Saya sudah memeriksa data diri dan memastikan email aktif
-                      serta memiliki ruang penyimpanan yang cukup.
+                      Saya sudah memeriksa seluruh data yang diisi dan memastikan
+                      semuanya sesuai, benar, serta dapat dipertanggungjawabkan.
                     </span>
                   </label>
 
+                  {fieldError('setuju') && (
+                    <p id="field-setuju" className="mt-1.5 text-xs text-rose-600">{fieldError('setuju')}</p>
+                  )}
                   {fieldError('konfirmasi') && (
                     <p className="mt-1.5 text-xs text-rose-600">{fieldError('konfirmasi')}</p>
                   )}
