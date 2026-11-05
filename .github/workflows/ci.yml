@@ -95,5 +95,5 @@ jobs:
           done
           $ready
           docker exec dubesia-smoke sh -c 'touch /tmp/dubesia-ci.sqlite && chmod 666 /tmp/dubesia-ci.sqlite'
-          docker exec dubesia-smoke php artisan migrate --force --no-interaction
+          docker exec --user www-data --workdir /app dubesia-smoke php artisan migrate --force --no-interaction
           curl --fail --silent --output /dev/null http://127.0.0.1:8000/login

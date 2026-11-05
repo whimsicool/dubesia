@@ -36,7 +36,12 @@ COPY docker/php.ini /usr/local/etc/php/conf.d/uploads.ini
 COPY docker/production/nginx.conf /etc/nginx/conf.d/dubesia.conf
 COPY docker/production/supervisord.conf /etc/supervisor/conf.d/dubesia.conf
 COPY docker/production/entrypoint.sh /usr/local/bin/production-entrypoint
-RUN chmod +x /usr/local/bin/production-entrypoint
+# git archive may be extracted with umask 077 by the deployment process.
+# PHP-FPM and queue commands must be able to read the application as www-data.
+RUN chmod -R a+rX /app \
+    && chmod 755 /usr/local/bin/production-entrypoint \
+    && chmod 644 /usr/local/etc/php/conf.d/uploads.ini /etc/nginx/conf.d/dubesia.conf /etc/supervisor/conf.d/dubesia.conf \
+    && gosu www-data php -r 'foreach (["/app/artisan", "/app/vendor/autoload.php", "/app/public/index.php"] as $file) { if (!is_readable($file)) { fwrite(STDERR, "Unreadable application file: ".$file.PHP_EOL); exit(1); } }'
 EXPOSE 8080
 ENTRYPOINT ["production-entrypoint"]
 CMD ["/usr/bin/supervisord", "-n", "-c", "/etc/supervisor/conf.d/dubesia.conf"]

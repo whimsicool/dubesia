@@ -21,7 +21,7 @@ fi
 
 context="$(mktemp -d)"
 trap 'rm -rf -- "$context"' EXIT
-git -C "$repo" archive "$revision" | tar -x -C "$context"
+(umask 022; git -C "$repo" archive "$revision" | tar -x -C "$context")
 export DUBESIA_IMAGE="dubesia:$revision"
 docker volume inspect dubesia_db-data dubesia_app-storage >/dev/null
 docker compose --env-file "$DUBESIA_ENV_FILE" -f "$context/compose.production.yaml" config --quiet
