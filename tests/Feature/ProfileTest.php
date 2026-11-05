@@ -57,9 +57,8 @@ class ProfileTest extends TestCase
             );
     }
 
-    public function test_admin_dapat_mengunggah_foto_profil(): void
+    public function test_admin_profile_offers_photo_upload(): void
     {
-        Storage::fake('public');
         $admin = User::factory()->create(['role' => 'admin']);
 
         $this->actingAs($admin)
@@ -69,14 +68,6 @@ class ProfileTest extends TestCase
                 ->where('profile.can_upload_photo', true)
                 ->where('pendaftaran', null)
             );
-
-        $this->actingAs($admin)
-            ->post(route('profile.photo.update'), [
-                'photo' => UploadedFile::fake()->image('admin.jpg'),
-            ])
-            ->assertSessionHasNoErrors();
-
-        $this->assertNotNull($admin->refresh()->photo_path);
     }
 
     public function test_student_can_upload_a_profile_photo(): void
@@ -161,5 +152,57 @@ class ProfileTest extends TestCase
             ->assertStatus(405);
 
         $this->assertSame('Nama Asli', $student->refresh()->name);
+    }
+
+    public function test_admin_can_save_a_profile_photo(): void
+    {
+        Storage::fake('public');
+        $admin = User::factory()->create(['role' => 'admin']);
+
+        $this->actingAs($admin)->post(route('profile.photo.update'), [
+            'photo' => UploadedFile::fake()->image('admin.png'),
+        ])->assertRedirect(route('profile.edit'))->assertSessionHasNoErrors();
+
+        Storage::disk('public')->assertExists($admin->refresh()->photo_path);
+    }
+
+    public function test_tutor_can_save_a_photo_without_changing_another_users_photo(): void
+    {
+        Storage::fake('public');
+        $tutor = User::factory()->create(['role' => 'tutor']);
+        $other = User::factory()->create();
+
+        $this->actingAs($tutor)->post(route('profile.photo.update'), [
+            'photo' => UploadedFile::fake()->image('tutor.webp'),
+            'user_id' => $other->id,
+        ])->assertSessionHasNoErrors();
+
+        Storage::disk('public')->assertExists($tutor->refresh()->photo_path);
+        $this->assertNull($other->refresh()->photo_path);
+    }
+
+    public function test_guest_cannot_upload_a_profile_photo(): void
+    {
+        Storage::fake('public');
+
+        $this->post(route('profile.photo.update'), [
+            'photo' => UploadedFile::fake()->image('guest.jpg'),
+        ])->assertRedirect(route('login'));
+
+        $this->assertSame([], Storage::disk('public')->allFiles());
+    }
+
+    public function test_oversized_photo_is_rejected_without_replacing_existing_photo(): void
+    {
+        Storage::fake('public');
+        $user = User::factory()->create(['photo_path' => 'profile-photos/original.jpg']);
+        Storage::disk('public')->put($user->photo_path, 'original');
+
+        $this->actingAs($user)->post(route('profile.photo.update'), [
+            'photo' => UploadedFile::fake()->image('large.jpg')->size(2049),
+        ])->assertSessionHasErrors('photo');
+
+        $this->assertSame('profile-photos/original.jpg', $user->refresh()->photo_path);
+        Storage::disk('public')->assertExists($user->photo_path);
     }
 }

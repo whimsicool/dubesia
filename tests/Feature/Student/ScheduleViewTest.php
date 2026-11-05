@@ -2,6 +2,8 @@
 
 namespace Tests\Feature\Student;
 
+use App\Models\CourseClass;
+use App\Enums\ClassLevel;
 use App\Models\Instructor;
 use App\Models\Room;
 use App\Models\Schedule;
@@ -76,5 +78,40 @@ class ScheduleViewTest extends TestCase
             ->get(route('schedules.pdf'))
             ->assertOk()
             ->assertHeader('content-type', 'application/pdf');
+    }
+
+    public function test_filters_only_offer_enrolled_classes_and_their_tutors_but_all_rooms(): void
+    {
+        $tutor = User::factory()->create(['role' => 'tutor']);
+        $instructor = Instructor::create(['name' => $tutor->name, 'email' => $tutor->email, 'user_id' => $tutor->id]);
+        $ownClass = CourseClass::create(['name' => 'My class', 'level' => ClassLevel::Beginner->value, 'is_active' => true]);
+        $ownClass->students()->attach($this->studentUser);
+        $ownClass->tutors()->attach($tutor);
+        CourseClass::create(['name' => 'Other class', 'level' => ClassLevel::Beginner->value, 'is_active' => true]);
+        Room::create(['name' => 'Unused room', 'type' => 'physical', 'capacity' => 20]);
+
+        $this->actingAs($this->studentUser)->get(route('schedules.index'))
+            ->assertOk()->assertInertia(fn (Assert $page) => $page
+                ->has('options.classes', 1)
+                ->where('options.classes.0.id', $ownClass->id)
+                ->has('options.instructors', 1)
+                ->where('options.instructors.0.id', $instructor->id)
+                ->has('options.rooms', 2));
+    }
+
+    public function test_class_filter_excludes_schedules_from_other_classes(): void
+    {
+        $courseClass = CourseClass::create(['name' => 'Selected class', 'level' => ClassLevel::Beginner->value, 'is_active' => true]);
+        $courseClass->students()->attach($this->studentUser);
+        $this->schedule->update(['class_id' => $courseClass->id]);
+        $other = $this->schedule->replicate();
+        $other->class_id = null;
+        $other->save();
+        $other->students()->sync($this->schedule->students()->pluck('students.id'));
+
+        $this->actingAs($this->studentUser)->get(route('schedules.index', ['class_id' => $courseClass->id]))
+            ->assertOk()->assertInertia(fn (Assert $page) => $page
+                ->has('schedules', 1)
+                ->where('schedules.0.id', $this->schedule->id));
     }
 }

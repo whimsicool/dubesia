@@ -72,4 +72,26 @@ class PasswordResetTest extends TestCase
     {
         $this->get('/reset-password/token-acak')->assertNotFound();
     }
+
+    public function test_invalid_email_does_not_send_a_new_password(): void
+    {
+        Mail::fake();
+
+        $this->post('/forgot-password', ['email' => 'invalid-email'])
+            ->assertSessionHasErrors('email');
+
+        Mail::assertNothingSent();
+    }
+
+    public function test_mail_failure_keeps_the_previous_password(): void
+    {
+        $user = User::factory()->create(['password' => 'previous-password']);
+        Mail::shouldReceive('to')->once()->with($user->email)->andReturnSelf();
+        Mail::shouldReceive('send')->once()->andThrow(new \RuntimeException('SMTP unavailable'));
+
+        $this->post('/forgot-password', ['email' => $user->email])
+            ->assertSessionHasErrors('email');
+
+        $this->assertTrue(Hash::check('previous-password', $user->refresh()->password));
+    }
 }
