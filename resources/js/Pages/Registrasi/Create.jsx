@@ -387,7 +387,7 @@ export default function Create({
                       <span className="mt-1 block text-xs leading-5 text-slate-500">
                         {program.deskripsi}
                       </span>
-                      <span className="mt-2 block text-sm font-bold text-dubesia-red">
+                      <span className="mt-2 block text-sm font-bold text-blue-700">
                         {rupiah(program.biaya)}
                       </span>
                     </span>
@@ -476,7 +476,7 @@ export default function Create({
             <button
               type="submit"
               disabled={processing}
-              className="mt-6 flex w-full items-center justify-center rounded-lg bg-dubesia-red px-5 py-3.5 text-sm font-bold text-white transition hover:bg-dubesia-navy disabled:cursor-not-allowed disabled:opacity-60"
+              className="mt-6 flex w-full items-center justify-center rounded-lg bg-blue-600 px-5 py-3.5 text-sm font-bold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
             >
               {processing ? <FileUp className="h-4 w-4" aria-hidden="true" /> : <ArrowRight className="h-4 w-4" aria-hidden="true" />}
               {processing
@@ -492,7 +492,7 @@ export default function Create({
 
             {!editMode && <p className="mt-4 text-center text-sm text-slate-500">
               Sudah memiliki akun?{' '}
-              <Link href="/login" className="font-semibold text-dubesia-red hover:underline">
+              <Link href="/login" className="font-semibold text-blue-700 hover:underline">
                 Masuk di sini
               </Link>
             </p>}
@@ -511,7 +511,7 @@ export default function Create({
 
               <div className="flex items-start justify-between gap-3">
                 <dt className="text-slate-500">Biaya kursus</dt>
-                <dd className="text-right font-semibold text-dubesia-red">{rupiah(selectedBiaya)}</dd>
+                <dd className="text-right font-semibold text-blue-700">{rupiah(selectedBiaya)}</dd>
               </div>
             </dl>
 

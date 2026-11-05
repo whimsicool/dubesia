@@ -1,0 +1,60 @@
+name: Pengujian DUBESIA
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Pengujian Laravel dan Build Frontend
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Ambil kode repository
+        uses: actions/checkout@v4
+
+      - name: Siapkan PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.4"
+          extensions: mbstring, pdo_sqlite, pdo_mysql, intl, zip, gd, bcmath
+          coverage: none
+
+      - name: Instal dependensi PHP
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      - name: Siapkan konfigurasi pengujian
+        run: |
+          cp .env.example .env
+          php artisan key:generate
+          php artisan config:clear
+
+      - name: Siapkan Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: Instal dependensi frontend
+        run: npm ci --legacy-peer-deps
+
+      - name: Build frontend
+        run: npm run build
+
+      - name: Jalankan seluruh tes
+        run: php artisan test --compact
+
+  docker:
+    name: Periksa Build Docker
+    needs: test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Ambil kode repository
+        uses: actions/checkout@v4
+
+      - name: Build image aplikasi
+        run: docker build -t dubesia:ci .
