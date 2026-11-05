@@ -53,7 +53,7 @@ const NAV = {
             ],
         },
         {
-            heading: 'Akademik & Jadwal',
+            heading: 'Kursus & Jadwal',
             items: [
                 { label: 'Jadwal Belajar', icon: CalendarDays, route: 'admin.schedules.index', active: 'admin.schedules.*' },
                 { label: 'Kelola Kelas', icon: GraduationCap, route: 'admin.classes.index', active: 'admin.classes.*' },
@@ -92,7 +92,7 @@ const NAV = {
             ],
         },
         {
-            heading: 'Akademik',
+            heading: 'Kursus',
             items: [
                 { label: 'Jadwal Belajar', icon: CalendarDays, route: 'schedules.index', active: 'schedules.*' },
                 { label: 'Materi Belajar', icon: BookOpen, route: 'materials.index', active: 'materials.*' },
@@ -150,7 +150,7 @@ function NavItem({ item, badgeCount }) {
 
 function Sidebar({ open, onClose, pendingRegistrations, user, studentPlacementRequired }) {
     const studentGroups = studentPlacementRequired
-        ? [{ heading: 'Akademik', items: [{ label: 'Tes Level', icon: ListChecks, route: 'tes-level.index', active: 'tes-level.*' }] }]
+        ? [{ heading: 'Kursus', items: [{ label: 'Tes Level', icon: ListChecks, route: 'tes-level.index', active: 'tes-level.*' }] }]
         : NAV.student;
     const groups = user?.role === 'student' ? studentGroups : (NAV[user?.role] ?? []);
 
@@ -236,10 +236,13 @@ function UserMenu({ user }) {
             </button>
 
             {open && (
-                <div className="absolute right-0 z-50 mt-2 w-44 overflow-hidden rounded-xl border border-slate-100 bg-white py-1 shadow-lg">
+                <div className="absolute right-0 z-50 mt-2 w-52 overflow-hidden rounded-xl border border-slate-100 bg-white p-1.5 shadow-lg">
                     {hasRoute('profile.edit') && (
-                        <Link href={route('profile.edit')} className="flex items-center gap-2 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50">
-                            <UserRound className="h-4 w-4" aria-hidden="true" />
+                        <Link
+                            href={route('profile.edit')}
+                            className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100 hover:text-slate-950"
+                        >
+                            <UserRound className="h-4 w-4 text-slate-400" aria-hidden="true" />
                             Profil
                         </Link>
                     )}
@@ -247,9 +250,9 @@ function UserMenu({ user }) {
                         href={route('logout')}
                         method="post"
                         as="button"
-                        className="flex w-full items-center gap-2 px-4 py-2 text-left text-sm text-slate-700 hover:bg-slate-50"
+                        className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-sm font-medium text-slate-700 transition hover:bg-red-50 hover:text-red-700"
                     >
-                        <LogOut className="h-4 w-4" aria-hidden="true" />
+                        <LogOut className="h-4 w-4 text-slate-400" aria-hidden="true" />
                         Keluar
                     </Link>
                 </div>
@@ -290,7 +293,7 @@ export default function AdminLayout({ title, subtitle, semesterName, bare = fals
                     {semesterName && (
                         <span className="flex min-w-0 shrink items-center gap-2 truncate rounded-lg bg-slate-100 px-3 py-2 text-xs font-semibold text-slate-700">
                             <CalendarDays className="h-4 w-4 text-red-700" />
-                            Sem. {semesterName}
+                            Periode {semesterName}
                         </span>
                     )}
 

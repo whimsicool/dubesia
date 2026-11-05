@@ -69,7 +69,7 @@
     @include('pdf.partials.kop')
 
     <p class="kop-title">DATA MURID DAN TUTOR</p>
-    <p class="kop-meta">Portal Akademik DUBESIA</p>
+    <p class="kop-meta">Portal Kursus DUBESIA</p>
 
     <p class="filter">
         Filter:

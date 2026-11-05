@@ -1,10 +1,9 @@
 
 import { useEffect, useState } from 'react';
 import { Link, useForm, usePage } from '@inertiajs/react';
-import { AlertTriangle } from 'lucide-react';
+import { AlertTriangle, ArrowRight, FileUp } from 'lucide-react';
 import AdmisiShell from '@/Components/Registrasi/AdmisiShell';
 import useEmailAvailability from '@/Hooks/useEmailAvailability';
-import { ArrowRight, ExternalLink, FileUp, LogIn, Trash2 } from 'lucide-react';
 
 const rupiah = (value) =>
   `Rp ${Number(value ?? 0).toLocaleString('id-ID')}`;
@@ -163,6 +162,7 @@ export default function Create({
     // Email yang berubah harus dikonfirmasi ulang sebelum formulir dikirim.
     if (name === 'email') {
       setEmailDikonfirmasi(false);
+      setData('setuju', false);
     }
 
     setClientErrors((current) => {
@@ -198,7 +198,6 @@ export default function Create({
     if (!data.asal_institusi.trim()) nextErrors.asal_institusi = 'Masukkan nama sekolah, universitas, perusahaan, atau institusi asal.';
     if (!data.alamat.trim()) nextErrors.alamat = 'Masukkan alamat lengkap, termasuk kota/kabupaten.';
     if (!data.program) nextErrors.program = 'Pilih salah satu program kursus.';
-    if (!data.setuju) nextErrors.setuju = 'Centang persetujuan setelah memastikan data yang diisi sudah benar.';
     if (!emailDikonfirmasi) nextErrors.konfirmasi = 'Centang pernyataan setelah memastikan data diri dan email sudah benar.';
     setClientErrors(nextErrors);
     if (Object.keys(nextErrors).length) {
@@ -478,7 +477,7 @@ export default function Create({
                   </p>
 
                   <p className="mt-1 text-sm leading-6 text-amber-900">
-                    Pastikan email anda di bawah ini sudah benar. Kuitansi
+                    Pastikan email Anda di bawah ini sudah benar. Kuitansi
                     pembayaran, status verifikasi dari admin, dan kata sandi
                     sementara akun Anda akan dikirim ke email tersebut. Pastikan
                     email aktif dan memiliki ruang penyimpanan yang cukup untuk menerima pesan.
@@ -505,11 +504,10 @@ export default function Create({
                     </span>
                   </label>
 
-                  {fieldError('setuju') && (
-                    <p id="field-setuju" className="mt-1.5 text-xs text-rose-600">{fieldError('setuju')}</p>
-                  )}
-                  {fieldError('konfirmasi') && (
-                    <p className="mt-1.5 text-xs text-rose-600">{fieldError('konfirmasi')}</p>
+                  {(fieldError('setuju') || fieldError('konfirmasi')) && (
+                    <p id="field-setuju" className="mt-1.5 text-xs text-rose-600">
+                      {fieldError('setuju') || fieldError('konfirmasi')}
+                    </p>
                   )}
                 </div>
               </div>

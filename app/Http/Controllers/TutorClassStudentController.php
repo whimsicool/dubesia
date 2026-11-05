@@ -5,8 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\CourseClass;
 use App\Models\GradeComponentScore;
 use App\Models\StudentGrade;
-use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -99,8 +100,7 @@ class TutorClassStudentController extends Controller
 
                 if ($score !== null && (float) $score > (float) $component->max_score) {
                     return back()->withErrors([
-                        "scores.$studentId.$componentId" =>
-                            "Nilai maksimal untuk {$component->name} adalah {$component->max_score}.",
+                        "scores.$studentId.$componentId" => "Nilai maksimal untuk {$component->name} adalah {$component->max_score}.",
                     ])->withInput();
                 }
             }
@@ -137,12 +137,12 @@ class TutorClassStudentController extends Controller
             }
         });
 
-        return back()->with('success', 'Nilai seluruh siswa berhasil disimpan.');
+        return back()->with('success', 'Nilai seluruh murid berhasil disimpan.');
     }
 
     private function calculateFinalScore(
-        \Illuminate\Support\Collection $components,
-        \Illuminate\Support\Collection $scores
+        Collection $components,
+        Collection $scores
     ): ?float {
         if ($components->isEmpty() || abs((float) $components->sum('weight') - 100) > 0.01) {
             return null;

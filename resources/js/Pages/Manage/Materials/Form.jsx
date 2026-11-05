@@ -33,8 +33,6 @@ export default function Form({ material, options, routePrefix = 'tutor.materials
         body: material?.body ?? '',
         external_url: material?.external_url ?? '',
         duration_minutes: material?.duration_minutes ?? '',
-        page_count: material?.page_count ?? '',
-        is_featured: material?.is_featured ?? false,
         status: material?.status ?? 'draft',
         file: null,
     });
@@ -59,11 +57,9 @@ export default function Form({ material, options, routePrefix = 'tutor.materials
             body: '',
             external_url: '',
             duration_minutes: '',
-            page_count: '',
-            is_featured: false,
             file: null,
         }));
-        clearErrors('type', 'file', 'external_url', 'body', 'duration_minutes', 'page_count');
+        clearErrors('type', 'file', 'external_url', 'body', 'duration_minutes');
         setPreview(false);
     };
 
@@ -86,7 +82,7 @@ export default function Form({ material, options, routePrefix = 'tutor.materials
         });
     };
 
-    const publishLabel = isEdit && material.status === 'published' ? 'Simpan Perubahan' : 'Terbitkan';
+    const publishLabel = isEdit && material.status === 'published' ? 'Simpan Perubahan' : 'Upload';
 
     return (
         <AdminLayout>
@@ -182,18 +178,11 @@ export default function Form({ material, options, routePrefix = 'tutor.materials
                                 <input type="url" value={data.external_url} onChange={(e) => setData('external_url', e.target.value)} placeholder="https://www.youtube.com/watch?v=..." className={input} />
                             </Field>
 
-                            <div className="grid gap-4 sm:grid-cols-2">
-                                {(data.type === 'video' || data.type === 'audio') && (
-                                    <Field label="Durasi (menit)" error={errors.duration_minutes}>
-                                        <input type="number" min="1" value={data.duration_minutes} onChange={(e) => setData('duration_minutes', e.target.value)} className={input} />
-                                    </Field>
-                                )}
-                                {(data.type === 'document' || data.type === 'slide') && (
-                                    <Field label="Jumlah halaman / slide" error={errors.page_count}>
-                                        <input type="number" min="1" value={data.page_count} onChange={(e) => setData('page_count', e.target.value)} className={input} />
-                                    </Field>
-                                )}
-                            </div>
+                            {(data.type === 'video' || data.type === 'audio') && (
+                                <Field label="Durasi (menit)" error={errors.duration_minutes}>
+                                    <input type="number" min="1" value={data.duration_minutes} onChange={(e) => setData('duration_minutes', e.target.value)} className={input} />
+                                </Field>
+                            )}
                         </>
                     )}
 
@@ -236,15 +225,6 @@ export default function Form({ material, options, routePrefix = 'tutor.materials
                             <p className="mt-1 text-xs text-slate-400">Format: # Judul, ## Subjudul, - daftar, 1. daftar bernomor, &gt; kutipan, **tebal**, *miring*, [teks](url).</p>
                         </div>
                     )}
-                </section>
-
-                {/* Publikasi */}
-                <section className="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm">
-                    <h2 className="mb-3 text-sm font-bold text-slate-900">4. Publikasi</h2>
-                    <label className="flex cursor-pointer items-center gap-3 text-sm text-slate-700">
-                        <input type="checkbox" checked={data.is_featured} onChange={(e) => setData('is_featured', e.target.checked)} className="rounded border-slate-300 text-slate-900 focus:ring-slate-900" />
-                        Tandai sebagai <strong>Rekomendasi</strong> (badge bintang di pustaka murid)
-                    </label>
                 </section>
 
                 <div className="flex flex-wrap justify-end gap-3">

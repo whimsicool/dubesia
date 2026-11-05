@@ -371,11 +371,11 @@ class DashboardController extends Controller
                 ),
                 $this->stat(
                     'attendance',
-                    'Kehadiran 30 Hari',
+                    'Presensi 30 Hari',
                     $attendancePercent !== null ? $attendancePercent.'%' : '—',
                     $attendances->isNotEmpty()
                         ? $hadir.' hadir dari '.$attendances->count().' catatan'
-                        : 'Belum ada catatan kehadiran',
+                        : 'Belum ada catatan presensi',
                     route('schedules.index', absolute: false),
                     'calendar-days',
                     $attendances->isEmpty() ? 'attention' : 'neutral',

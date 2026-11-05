@@ -46,7 +46,7 @@ export default function ScheduleFilters({ filters, options, view, onViewChange, 
 
             <div className="grid flex-1 grid-cols-2 gap-3 lg:grid-cols-4">
                 <Select label="Hari" value={filters.day} onChange={(v) => onChange({ day: v })}>
-                    <option value="">Semua Hari</option>
+                    <option value="">Semua</option>
                     {DAYS.map((d) => (
                         <option key={d.value} value={d.value}>
                             {d.label}
@@ -54,8 +54,12 @@ export default function ScheduleFilters({ filters, options, view, onViewChange, 
                     ))}
                 </Select>
 
-                <Select label="Kelas" value={options.classes ? filters.class_id : filters.program_id} onChange={(v) => onChange(options.classes ? { class_id: v, instructor_id: '' } : { program_id: v })}>
-                    <option value="">Semua Kelas</option>
+                <Select
+                    label={options.classes ? 'Kelas' : 'Program Kursus'}
+                    value={options.classes ? filters.class_id : filters.program_id}
+                    onChange={(v) => onChange(options.classes ? { class_id: v, instructor_id: '' } : { program_id: v })}
+                >
+                    <option value="">Semua</option>
                     {(options.classes ?? options.programs ?? []).map((p) => (
                         <option key={p.id} value={p.id}>
                             {p.name}
@@ -64,7 +68,7 @@ export default function ScheduleFilters({ filters, options, view, onViewChange, 
                 </Select>
 
                 <Select label="Tutor" value={filters.instructor_id} onChange={(v) => onChange({ instructor_id: v })}>
-                    <option value="">Semua Tutor</option>
+                    <option value="">Semua</option>
                     {options.instructors.map((i) => (
                         <option key={i.id} value={i.id}>
                             {i.name}
@@ -73,7 +77,7 @@ export default function ScheduleFilters({ filters, options, view, onViewChange, 
                 </Select>
 
                 <Select label="Ruang / Platform" value={filters.room_id} onChange={(v) => onChange({ room_id: v })}>
-                    <option value="">Semua Ruang</option>
+                    <option value="">Semua</option>
                     {options.rooms.map((r) => (
                         <option key={r.id} value={r.id}>
                             {r.name}

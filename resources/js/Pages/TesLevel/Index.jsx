@@ -16,9 +16,9 @@ export default function Index({ totalSoal, durasiMenit, hasilTes, tesAktif }) {
     };
 
     return (
-        <AdminLayout title="Tes Level Kelas"
+        <AdminLayout title="Tes Level"
         >
-            <Head title="Tes Level Kelas" />
+            <Head title="Tes Level" />
 
             <div className="py-8">
                 <div className="mx-auto max-w-5xl">
@@ -29,13 +29,13 @@ export default function Index({ totalSoal, durasiMenit, hasilTes, tesAktif }) {
 
                         <div className="relative z-10">
                             <span className="inline-flex items-center rounded-full bg-white/15 px-3 py-1 text-xs font-semibold uppercase tracking-wider backdrop-blur-sm mb-4">
-                                Assessment Akademik
+                                Tes Penempatan
                             </span>
                             <h1 className="text-3xl font-bold mb-2" style={{ fontFamily: 'Nunito, sans-serif' }}>
-                                Tes Penempatan & Penilaian Level Kelas
+                                Tes Penempatan Level
                             </h1>
                             <p className="text-white/80 text-sm max-w-2xl" style={{ fontFamily: 'Nunito, sans-serif' }}>
-                                Uji kemampuan bahasa Inggris Anda melalui tes pilihan ganda untuk menentukan level kelas yang sesuai di DUBESIA.
+                                Uji kemampuan bahasa Inggris Anda melalui tes pilihan ganda untuk menentukan level yang sesuai di DUBESIA.
                             </p>
                         </div>
                     </div>
@@ -194,7 +194,7 @@ export default function Index({ totalSoal, durasiMenit, hasilTes, tesAktif }) {
                             </div>
                             <h3 className="text-xl font-bold text-gray-900 mb-2">Konfirmasi Mulai Tes</h3>
                             <p className="text-sm text-gray-500 mb-6">
-                                Anda akan memulai <strong>Tes Level Kelas</strong> dengan <strong>{totalSoal} soal</strong> dan durasi <strong>{durasiMenit} menit</strong>.
+                                Anda akan memulai <strong>Tes Level</strong> dengan <strong>{totalSoal} soal</strong> dan durasi <strong>{durasiMenit} menit</strong>.
                                 Timer akan berjalan setelah Anda menekan tombol mulai. Pastikan Anda siap.
                             </p>
                         </div>

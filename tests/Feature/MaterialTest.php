@@ -218,6 +218,18 @@ class MaterialTest extends TestCase
         $this->assertNull($material->fresh()->file_path);
     }
 
+    public function test_ubah_materi_tidak_menghapus_status_rekomendasi(): void
+    {
+        $tutor = $this->user('tutor');
+        $material = $this->material($tutor, ['is_featured' => true]);
+
+        $this->actingAs($tutor)
+            ->put(route('tutor.materials.update', $material), $this->payload())
+            ->assertSessionHasNoErrors();
+
+        $this->assertTrue($material->fresh()->is_featured);
+    }
+
     public function test_replacing_file_deletes_old_file(): void
     {
         $tutor = $this->user('tutor');

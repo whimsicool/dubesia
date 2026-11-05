@@ -165,7 +165,7 @@ export default function Students({ courseClass, students, components }) {
                                         <circle cx="11" cy="11" r="7" />
                                         <path d="m20 20-4-4" />
                                     </svg>
-                                    <span className="sr-only">Cari siswa</span>
+                                    <span className="sr-only">Cari murid</span>
                                     <input
                                         value={search}
                                         onChange={(event) => setSearch(event.target.value)}

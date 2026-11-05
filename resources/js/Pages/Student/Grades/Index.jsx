@@ -92,7 +92,7 @@ export default function Index({ grades }) {
                                     key={grade.id}
                                     className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm print:break-inside-avoid print:shadow-none"
                                 >
-                                    {/* Informasi mata pelajaran dan nilai akhir */}
+                                    {/* Informasi program dan nilai akhir */}
                                     <div className="flex flex-col gap-4 border-b border-slate-100 px-5 py-5 sm:flex-row sm:items-center sm:justify-between sm:px-6">
                                         <div>
                                             <p className="text-xs font-bold uppercase tracking-wide text-red-700">

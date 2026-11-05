@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { router, useForm } from '@inertiajs/react';
-import { Check, Copy, FileUp, Send } from 'lucide-react';
+import { Check, Copy } from 'lucide-react';
 import AdmisiShell from '@/Components/Registrasi/AdmisiShell';
 
 const rupiah = (value) => `Rp ${Number(value ?? 0).toLocaleString('id-ID')}`;
@@ -8,7 +8,7 @@ const rupiah = (value) => `Rp ${Number(value ?? 0).toLocaleString('id-ID')}`;
 const BENEFITS = [
   {
     title: 'Pengajar berpengalaman',
-    body: 'Kelas dibimbing tutor bahasa Inggris yang terbiasa menangani kebutuhan akademik dan profesional.',
+    body: 'Kelas dibimbing tutor bahasa Inggris yang terbiasa menangani kebutuhan belajar dan profesional.',
   },
   {
     title: 'Jadwal fleksibel',

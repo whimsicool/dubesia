@@ -57,7 +57,7 @@ const FEATURES = [
     {
         icon: ClipboardCheck,
         title: 'Presensi dan nilai',
-        description: 'Pantau kehadiran dan nilai akhir setiap kelas.',
+        description: 'Pantau presensi dan nilai akhir setiap kelas.',
     },
     {
         icon: Gauge,

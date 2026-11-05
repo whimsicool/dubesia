@@ -19,7 +19,7 @@ export default function ScheduleTable({ schedules, week, onEdit, onDelete, onAtt
                         <th className="px-4 py-3">Hari & Jam</th>
                         <th className="px-4 py-3">Sesi</th>
                         <th className="px-4 py-3">Program</th>
-                        <th className="px-4 py-3">Instruktur</th>
+                        <th className="px-4 py-3">Tutor</th>
                         <th className="px-4 py-3">Ruang / Platform</th>
                         <th className="px-4 py-3 text-right">Peserta</th>
                         {(!readOnly || onAttendance) && <th className="px-4 py-3 text-right print:hidden">Aksi</th>}

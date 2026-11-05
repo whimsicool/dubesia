@@ -45,7 +45,7 @@ class StoreAttendanceRequest extends FormRequest
         return [
             'students.required' => 'Belum ada daftar murid untuk disimpan.',
             'students.*.status.required' => 'Pilih status untuk setiap murid.',
-            'students.*.status.in' => 'Status kehadiran tidak valid.',
+            'students.*.status.in' => 'Status presensi tidak valid.',
         ];
     }
 }

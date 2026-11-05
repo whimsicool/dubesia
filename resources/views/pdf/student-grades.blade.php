@@ -79,12 +79,12 @@
 <body>
     @include('pdf.partials.kop')
 
-    <p class="kop-title">LAPORAN HASIL BELAJAR SISWA</p>
-    <p class="kop-meta">Rekapitulasi Nilai Akademik</p>
+    <p class="kop-title">LAPORAN HASIL BELAJAR MURID</p>
+    <p class="kop-meta">Rekapitulasi Nilai</p>
 
     <table class="student-info">
         <tr>
-            <td width="20%">Nama Siswa</td>
+            <td width="20%">Nama Murid</td>
             <td>: {{ $student->name }}</td>
         </tr>
         <tr>
@@ -103,7 +103,7 @@
         <thead>
             <tr>
                 <th width="6%" class="center">No.</th>
-                <th width="27%">Mata Pelajaran</th>
+                <th width="27%">Program</th>
                 <th width="27%">Kelas</th>
                 <th width="15%" class="center">Nilai</th>
                 <th width="15%" class="center">Predikat</th>
@@ -139,7 +139,7 @@
 
             @foreach ($grades as $grade)
                 <p>
-                    <strong>{{ $grade->subject ?? 'Mata Pelajaran' }}</strong>
+                    <strong>{{ $grade->subject ?? 'Program' }}</strong>
                     — {{ $grade->courseClass?->name ?? '-' }}
                 </p>
 

@@ -80,7 +80,7 @@ export default function Index({ materials, active, filters, stats, types }) {
             <Head title="Materi Belajar" />
 
             <nav className="mb-4 flex flex-wrap items-center gap-2 text-[11px] font-semibold uppercase tracking-wider text-slate-500">
-                <span>Portal {auth.user.role === 'student' ? 'Siswa' : 'Pengajar'}</span>
+                <span>Portal {auth.user.role === 'student' ? 'Murid' : 'Tutor'}</span>
                 <span>›</span>
                 <span>Pembelajaran</span>
                 <span>›</span>
