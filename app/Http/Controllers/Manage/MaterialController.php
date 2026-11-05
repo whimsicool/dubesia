@@ -181,6 +181,11 @@ class MaterialController extends Controller
             $data['page_count'] = null;
         }
 
+        // Halaman hanya berlaku untuk dokumen dan slide.
+        if (! in_array($type, [MaterialType::Document, MaterialType::Slide], true)) {
+            $data['page_count'] = null;
+        }
+
         DB::transaction(function () use ($material, $data, $type, $file) {
             $material->fill($data);
 

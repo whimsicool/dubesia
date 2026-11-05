@@ -33,7 +33,6 @@ export default function Form({ material, options, routePrefix = 'tutor.materials
         body: material?.body ?? '',
         external_url: material?.external_url ?? '',
         duration_minutes: material?.duration_minutes ?? '',
-        page_count: material?.page_count ?? '',
         is_featured: material?.is_featured ?? false,
         status: material?.status ?? 'draft',
         file: null,
@@ -59,11 +58,10 @@ export default function Form({ material, options, routePrefix = 'tutor.materials
             body: '',
             external_url: '',
             duration_minutes: '',
-            page_count: '',
             is_featured: false,
             file: null,
         }));
-        clearErrors('type', 'file', 'external_url', 'body', 'duration_minutes', 'page_count');
+        clearErrors('type', 'file', 'external_url', 'body', 'duration_minutes');
         setPreview(false);
     };
 
@@ -86,7 +84,7 @@ export default function Form({ material, options, routePrefix = 'tutor.materials
         });
     };
 
-    const publishLabel = isEdit && material.status === 'published' ? 'Simpan Perubahan' : 'Terbitkan';
+    const publishLabel = isEdit && material.status === 'published' ? 'Simpan Perubahan' : 'Upload';
 
     return (
         <AdminLayout>
@@ -182,18 +180,11 @@ export default function Form({ material, options, routePrefix = 'tutor.materials
                                 <input type="url" value={data.external_url} onChange={(e) => setData('external_url', e.target.value)} placeholder="https://www.youtube.com/watch?v=..." className={input} />
                             </Field>
 
-                            <div className="grid gap-4 sm:grid-cols-2">
-                                {(data.type === 'video' || data.type === 'audio') && (
-                                    <Field label="Durasi (menit)" error={errors.duration_minutes}>
-                                        <input type="number" min="1" value={data.duration_minutes} onChange={(e) => setData('duration_minutes', e.target.value)} className={input} />
-                                    </Field>
-                                )}
-                                {(data.type === 'document' || data.type === 'slide') && (
-                                    <Field label="Jumlah halaman / slide" error={errors.page_count}>
-                                        <input type="number" min="1" value={data.page_count} onChange={(e) => setData('page_count', e.target.value)} className={input} />
-                                    </Field>
-                                )}
-                            </div>
+                            {(data.type === 'video' || data.type === 'audio') && (
+                                <Field label="Durasi (menit)" error={errors.duration_minutes}>
+                                    <input type="number" min="1" value={data.duration_minutes} onChange={(e) => setData('duration_minutes', e.target.value)} className={input} />
+                                </Field>
+                            )}
                         </>
                     )}
 
