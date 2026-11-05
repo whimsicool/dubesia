@@ -1,0 +1,50 @@
+name: Deploy DUBESIA
+
+on:
+  workflow_run:
+    workflows: ["Pengujian DUBESIA"]
+    types: [completed]
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dubesia-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    if: >-
+      vars.ENABLE_PRODUCTION_CD == 'true' &&
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.event == 'push' &&
+      github.event.workflow_run.head_repository.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment: production
+    steps:
+      - name: Siapkan koneksi SSH terverifikasi
+        env:
+          SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
+          KNOWN_HOSTS: ${{ secrets.VPS_KNOWN_HOSTS }}
+        run: |
+          test -n "$SSH_KEY"
+          test -n "$KNOWN_HOSTS"
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$SSH_KEY" > ~/.ssh/dubesia_deploy
+          printf '%s\n' "$KNOWN_HOSTS" > ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/dubesia_deploy ~/.ssh/known_hosts
+
+      - name: Deploy commit yang sudah lulus CI
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_USER: ${{ secrets.VPS_USER }}
+          DEPLOY_SHA: ${{ github.event.workflow_run.head_sha }}
+        run: |
+          test -n "$VPS_HOST"
+          test -n "$VPS_USER"
+          [[ "$DEPLOY_SHA" =~ ^[0-9a-f]{40}$ ]]
+          ssh -i ~/.ssh/dubesia_deploy -o BatchMode=yes -o IdentitiesOnly=yes \
+            -o StrictHostKeyChecking=yes "$VPS_USER@$VPS_HOST" \
+            "deploy $DEPLOY_SHA"

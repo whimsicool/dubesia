@@ -58,3 +58,42 @@ jobs:
 
       - name: Build image aplikasi
         run: docker build -t dubesia:ci .
+
+      - name: Periksa skrip deployment
+        run: |
+          for script in docker/production/*.sh; do bash -n "$script"; done
+
+      - name: Build image produksi
+        run: docker build -f Dockerfile.production -t dubesia:production-ci .
+
+      - name: Periksa konfigurasi Nginx dan entrypoint
+        run: |
+          docker run --rm --entrypoint nginx dubesia:production-ci -t
+          docker run --rm --entrypoint sh dubesia:production-ci -n /usr/local/bin/production-entrypoint
+
+      - name: Uji aplikasi produksi melalui Nginx dan PHP-FPM
+        run: |
+          cp .env.example "$RUNNER_TEMP/production.env"
+          cat >> "$RUNNER_TEMP/production.env" <<'ENV'
+          APP_ENV=testing
+          APP_KEY=base64:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=
+          APP_DEBUG=false
+          DB_CONNECTION=sqlite
+          DB_DATABASE=/tmp/dubesia-ci.sqlite
+          SESSION_DRIVER=array
+          CACHE_STORE=array
+          QUEUE_CONNECTION=sync
+          ENV
+          docker run -d --name dubesia-smoke -p 127.0.0.1:8000:8080 \
+            --mount "type=bind,source=$RUNNER_TEMP/production.env,target=/run/dubesia.env,readonly" \
+            dubesia:production-ci
+          trap 'docker logs dubesia-smoke; docker rm -f dubesia-smoke' EXIT
+          ready=false
+          for attempt in $(seq 1 30); do
+            if curl --fail --silent http://127.0.0.1:8000/up; then ready=true; break; fi
+            sleep 2
+          done
+          $ready
+          docker exec dubesia-smoke sh -c 'touch /tmp/dubesia-ci.sqlite && chmod 666 /tmp/dubesia-ci.sqlite'
+          docker exec dubesia-smoke php artisan migrate --force --no-interaction
+          curl --fail --silent --output /dev/null http://127.0.0.1:8000/login

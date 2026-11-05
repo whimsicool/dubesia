@@ -1,0 +1,42 @@
+FROM node:22-bookworm-slim AS frontend
+WORKDIR /app
+COPY package.json package-lock.json ./
+RUN npm ci --legacy-peer-deps
+COPY resources ./resources
+COPY vite.config.js tailwind.config.js postcss.config.js jsconfig.json ./
+COPY public ./public
+RUN npm run build
+
+FROM php:8.4-fpm-bookworm
+ENV DEBIAN_FRONTEND=noninteractive
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    nginx supervisor gosu curl unzip git \
+    libsqlite3-dev libicu-dev libzip-dev libpng-dev libjpeg62-turbo-dev libfreetype6-dev libonig-dev libxml2-dev \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install -j2 pdo_sqlite pdo_mysql bcmath intl zip pcntl opcache gd mbstring \
+    && rm -rf /var/lib/apt/lists/* /etc/nginx/sites-enabled/default
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+WORKDIR /app
+COPY composer.json composer.lock artisan ./
+COPY bootstrap ./bootstrap
+COPY config ./config
+COPY routes ./routes
+COPY app ./app
+COPY database ./database
+COPY public ./public
+COPY resources ./resources
+COPY storage ./storage
+COPY .env.example ./.env.example
+RUN composer install --no-dev --no-interaction --no-progress --prefer-dist --optimize-autoloader \
+    && rm -f public/hot bootstrap/cache/config.php \
+    && mkdir -p storage/framework/cache storage/framework/sessions storage/framework/views storage/logs \
+    && chown -R www-data:www-data storage bootstrap/cache
+COPY --from=frontend /app/public/build ./public/build
+COPY docker/php.ini /usr/local/etc/php/conf.d/uploads.ini
+COPY docker/production/nginx.conf /etc/nginx/conf.d/dubesia.conf
+COPY docker/production/supervisord.conf /etc/supervisor/conf.d/dubesia.conf
+COPY docker/production/entrypoint.sh /usr/local/bin/production-entrypoint
+RUN chmod +x /usr/local/bin/production-entrypoint
+EXPOSE 8080
+ENTRYPOINT ["production-entrypoint"]
+CMD ["/usr/bin/supervisord", "-n", "-c", "/etc/supervisor/conf.d/dubesia.conf"]

@@ -3,6 +3,10 @@ node_modules
 vendor
 database/*.sqlite
 .env
+.env.*
+!.env.example
+dubesia_db
+storage/app/*
 npm-debug.log
 storage/logs/*
 storage/framework/cache/*

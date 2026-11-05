@@ -1,0 +1,68 @@
+name: dubesia
+
+x-runtime: &runtime
+  image: "${DUBESIA_IMAGE:?DUBESIA_IMAGE belum diisi}"
+  restart: unless-stopped
+  volumes:
+    - "${DUBESIA_ENV_FILE:?DUBESIA_ENV_FILE belum diisi}:/run/dubesia.env:ro"
+    - app-storage:/app/storage
+  logging:
+    driver: json-file
+    options:
+      max-size: "10m"
+      max-file: "3"
+  depends_on:
+    db:
+      condition: service_healthy
+
+services:
+  app:
+    <<: *runtime
+    ports:
+      - "127.0.0.1:8000:8080"
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "--silent", "http://127.0.0.1:8080/up"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
+
+  queue:
+    <<: *runtime
+    command: ["php", "artisan", "queue:work", "--sleep=3", "--tries=3", "--timeout=60", "--max-time=3600", "--no-interaction"]
+    stop_grace_period: 90s
+
+  scheduler:
+    <<: *runtime
+    command: ["php", "artisan", "schedule:work", "--no-interaction"]
+    stop_grace_period: 90s
+
+  db:
+    image: mariadb:11.4
+    restart: unless-stopped
+    environment:
+      MARIADB_DATABASE: "${DB_DATABASE:?DB_DATABASE belum diisi}"
+      MARIADB_USER: "${DB_USERNAME:?DB_USERNAME belum diisi}"
+      MARIADB_PASSWORD: "${DB_PASSWORD:?DB_PASSWORD belum diisi}"
+      MARIADB_RANDOM_ROOT_PASSWORD: "1"
+    volumes:
+      - db-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 30s
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+volumes:
+  db-data:
+    external: true
+    name: dubesia_db-data
+  app-storage:
+    external: true
+    name: dubesia_app-storage
