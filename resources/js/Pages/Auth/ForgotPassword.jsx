@@ -1,13 +1,17 @@
+import { useState } from 'react';
 import { Head, Link, useForm } from '@inertiajs/react';
 
 export default function ForgotPassword({ status }) {
+    const [sent, setSent] = useState(Boolean(status));
     const { data, setData, post, processing, errors } = useForm({
         email: '',
     });
 
     const submit = (event) => {
         event.preventDefault();
-        post(route('password.email'));
+        post(route('password.email'), {
+            onSuccess: () => { setSent(true); setData('email', ''); },
+        });
     };
 
     return (
@@ -59,27 +63,27 @@ export default function ForgotPassword({ status }) {
                                 <div className="flex flex-col items-center p-6 sm:p-10">
                                     <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-surface-container">
                                         <span className="material-symbols-outlined text-3xl text-secondary">
-                                            lock_reset
+                                            {sent ? 'mark_email_read' : 'lock_reset'}
                                         </span>
                                     </div>
 
                                     <div className="mb-6 max-w-md text-center">
                                         <h1 className="font-headline-md text-headline-md font-bold tracking-tight text-on-surface">
-                                            Lupa Kata Sandi
+                                            {sent ? 'Periksa Email Anda' : 'Lupa Kata Sandi'}
                                         </h1>
                                         <p className="mt-2 font-body-sm text-body-sm text-on-surface-variant">
-                                            Masukkan email akun Anda. Kami akan
-                                            mengirim kata sandi baru ke email
-                                            tersebut.
+                                            {sent
+                                                ? 'Jika email Anda terdaftar, kata sandi baru telah dikirim melalui email. Periksa kotak masuk dan folder spam, lalu silakan masuk kembali.'
+                                                : 'Masukkan email akun Anda. Kami akan mengirim kata sandi baru ke email tersebut.'}
                                         </p>
                                     </div>
 
-                                    {status && (
-                                        <div className="mb-6 w-full rounded-lg bg-surface-container px-3.5 py-3 font-body-sm text-body-sm font-medium text-on-surface">
-                                            {status}
-                                        </div>
-                                    )}
-
+                                    {sent ? (
+                                        <Link href={route('login')} className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-secondary px-5 py-3 font-semibold text-white hover:bg-primary-container">
+                                            <span className="material-symbols-outlined" aria-hidden="true">login</span>
+                                            Masuk kembali
+                                        </Link>
+                                    ) : (
                                     <form
                                         className="flex w-full flex-col gap-5"
                                         onSubmit={submit}
@@ -137,19 +141,10 @@ export default function ForgotPassword({ status }) {
                                             </span>
                                         </button>
                                     </form>
+                                    )}
                                 </div>
 
-                                <div className="flex w-full items-center justify-center gap-2 bg-surface-container-low px-6 py-4">
-                                    <span className="material-symbols-outlined text-base text-on-surface-variant">
-                                        arrow_back
-                                    </span>
-                                    <Link
-                                        href={route('login')}
-                                        className="font-label-lg text-label-lg font-bold text-secondary hover:underline"
-                                    >
-                                        Kembali ke halaman masuk
-                                    </Link>
-                                </div>
+                                
                             </div>
                         </div>
                     </div>
