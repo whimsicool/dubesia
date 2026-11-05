@@ -2,8 +2,8 @@
 
 namespace Tests\Feature\Student;
 
-use App\Models\CourseClass;
 use App\Enums\ClassLevel;
+use App\Models\CourseClass;
 use App\Models\Instructor;
 use App\Models\Room;
 use App\Models\Schedule;
@@ -92,11 +92,11 @@ class ScheduleViewTest extends TestCase
 
         $this->actingAs($this->studentUser)->get(route('schedules.index'))
             ->assertOk()->assertInertia(fn (Assert $page) => $page
-                ->has('options.classes', 1)
-                ->where('options.classes.0.id', $ownClass->id)
-                ->has('options.instructors', 1)
-                ->where('options.instructors.0.id', $instructor->id)
-                ->has('options.rooms', 2));
+            ->has('options.classes', 1)
+            ->where('options.classes.0.id', $ownClass->id)
+            ->has('options.instructors', 1)
+            ->where('options.instructors.0.id', $instructor->id)
+            ->has('options.rooms', 2));
     }
 
     public function test_class_filter_excludes_schedules_from_other_classes(): void
@@ -111,7 +111,7 @@ class ScheduleViewTest extends TestCase
 
         $this->actingAs($this->studentUser)->get(route('schedules.index', ['class_id' => $courseClass->id]))
             ->assertOk()->assertInertia(fn (Assert $page) => $page
-                ->has('schedules', 1)
-                ->where('schedules.0.id', $this->schedule->id));
+            ->has('schedules', 1)
+            ->where('schedules.0.id', $this->schedule->id));
     }
 }
