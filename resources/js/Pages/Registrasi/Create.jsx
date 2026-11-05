@@ -1,3 +1,4 @@
+import GmailInput from '@/Components/GmailInput';
 
 import { useEffect, useState } from 'react';
 import { Link, useForm, usePage } from '@inertiajs/react';
@@ -320,9 +321,9 @@ export default function Create({
               </Field>
 
               <Field id="field-email" label="Email" required error={fieldError('email')}>
-                <input
+                <GmailInput
                   required
-                  type="email"
+                  
                   autoComplete="email"
                   className={`${inputClass} ${fieldError('email') ? 'border-rose-400 bg-rose-50/40' : ''}`}
                   value={data.email}
