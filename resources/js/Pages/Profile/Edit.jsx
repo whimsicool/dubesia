@@ -50,24 +50,34 @@ function Avatar({ name, src, size = 'h-20 w-20' }) {
 }
 
 function PhotoForm() {
+    const [saved, setSaved] = useState(false);
     const [preview, setPreview] = useState(null);
-    const { data, setData, post, processing, errors, recentlySuccessful } = useForm({ photo: null });
 
     useEffect(() => {
         if (!preview) return undefined;
-
         return () => URL.revokeObjectURL(preview);
     }, [preview]);
+    const { data, setData, post, processing, errors, reset } = useForm({ photo: null });
 
     const choosePhoto = (event) => {
         const file = event.target.files?.[0] ?? null;
         setData('photo', file);
         setPreview(file ? URL.createObjectURL(file) : null);
+        setSaved(false);
     };
 
     const submit = (event) => {
         event.preventDefault();
-        post(route('profile.photo.update'), { forceFormData: true, preserveScroll: true });
+        post(route('profile.photo.update'), {
+            forceFormData: true,
+            preserveScroll: true,
+            onSuccess: () => {
+                reset('photo');
+                setPreview(null);
+                event.target.reset();
+                setSaved(true);
+            },
+        });
     };
 
     return (
@@ -102,11 +112,12 @@ function PhotoForm() {
                 </button>
             </div>
 
+
             {preview && <img src={preview} alt="Pratinjau foto profil" className="mt-3 h-20 w-20 rounded-2xl object-cover" />}
 
             <InputError message={errors.photo} className="mt-2" />
 
-            {recentlySuccessful && <p className="mt-2 text-sm text-emerald-700">Foto profil tersimpan.</p>}
+            
         </form>
     );
 }

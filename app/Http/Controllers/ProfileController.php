@@ -28,7 +28,7 @@ class ProfileController extends Controller
                 'role' => $user->role,
                 'class_level' => $user->class_level,
                 'avatar_url' => $user->avatar_url,
-                'can_upload_photo' => ! $user->isAdmin(),
+                'can_upload_photo' => true,
             ],
             'pendaftaran' => $user->isStudent() && $pendaftaran ? [
                 'nama_lengkap' => $pendaftaran->nama_lengkap,
@@ -46,7 +46,7 @@ class ProfileController extends Controller
     }
 
     /**
-     * Mengganti foto profil murid atau tutor.
+     * Mengganti foto profil pengguna.
      */
     public function updatePhoto(UpdateProfilePhotoRequest $request): RedirectResponse
     {
