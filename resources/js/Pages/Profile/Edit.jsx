@@ -138,18 +138,18 @@ export default function Edit({ profile, pendaftaran }) {
                 <p className="mt-1 text-sm text-slate-600">Kelola foto, data akun, dan kata sandi Anda.</p>
             </div>
 
-            <section className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-dubesia-red via-dubesia-red to-dubesia-navy px-5 py-6 text-white shadow-sm sm:px-8 sm:py-8">
+            <section className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-dubesia-red via-dubesia-red to-dubesia-navy px-5 py-5 text-white shadow-sm sm:px-6">
                 <div className="pointer-events-none absolute -right-16 -top-20 h-56 w-56 rounded-full bg-white/10 blur-2xl" />
 
-                <div className="relative flex flex-col gap-5 sm:flex-row sm:items-center">
+                <div className="relative flex items-center gap-4">
                     {profile.avatar_url ? (
                         <img
                             src={profile.avatar_url}
                             alt={`Foto profil ${profile.name}`}
-                            className="h-24 w-24 shrink-0 rounded-2xl object-cover ring-4 ring-white/25"
+                            className="h-16 w-16 shrink-0 rounded-2xl object-cover ring-4 ring-white/25"
                         />
                     ) : (
-                        <span className="flex h-24 w-24 shrink-0 items-center justify-center rounded-2xl bg-white/15 text-2xl font-extrabold text-white ring-4 ring-white/15">
+                        <span className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-white/15 text-2xl font-extrabold text-white ring-4 ring-white/15">
                             {initials(profile.name)}
                         </span>
                     )}
@@ -158,7 +158,7 @@ export default function Edit({ profile, pendaftaran }) {
                         <p className="text-xs font-bold uppercase tracking-[0.18em] text-white/75">
                             Akun {ROLE_LABEL[profile.role] ?? profile.role}
                         </p>
-                        <h2 className="mt-1 truncate text-2xl font-extrabold sm:text-3xl">{profile.name}</h2>
+                        <h2 className="mt-1 truncate text-xl font-extrabold sm:text-2xl">{profile.name}</h2>
                         <p className="mt-1 break-all text-sm text-white/85">{profile.email}</p>
 
                         {(profile.class_level || pendaftaran?.status_label) && (
@@ -179,8 +179,16 @@ export default function Edit({ profile, pendaftaran }) {
                 </div>
             </section>
 
-            <div className="mt-5 grid items-start gap-5 xl:grid-cols-12">
-                <div className="space-y-5 xl:col-span-7">
+            <div className="mt-5 grid items-start gap-5 lg:grid-cols-2">
+                <div className="min-w-0 space-y-5">
+
+
+                    {profile.can_upload_photo && (
+                        <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+                            <h2 className="border-b border-slate-100 pb-3 text-base font-bold text-slate-900">Foto profil</h2>
+                            <PhotoForm />
+                        </section>
+                    )}
                     <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
                         <div className="flex flex-wrap items-baseline justify-between gap-2 border-b border-slate-100 pb-3">
                             <h2 className="text-base font-bold text-slate-900">Data diri</h2>
@@ -237,13 +245,8 @@ export default function Edit({ profile, pendaftaran }) {
                     </section>
                 </div>
 
-                <div className="space-y-5 xl:col-span-5">
-                    {profile.can_upload_photo && (
-                        <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
-                            <h2 className="border-b border-slate-100 pb-3 text-base font-bold text-slate-900">Foto profil</h2>
-                            <PhotoForm />
-                        </section>
-                    )}
+                <div className="min-w-0 space-y-5">
+
 
                     <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
                         <h2 className="border-b border-slate-100 pb-3 text-base font-bold text-slate-900">Kata sandi</h2>
