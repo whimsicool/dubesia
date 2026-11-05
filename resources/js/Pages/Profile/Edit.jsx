@@ -3,7 +3,7 @@ import FlashBanner from '@/Components/Common/FlashBanner';
 import InputError from '@/Components/InputError';
 import AdminLayout from '@/Layouts/AdminLayout';
 import { Head, useForm, usePage } from '@inertiajs/react';
-import { ImagePlus } from 'lucide-react';
+import { ImagePlus, Save, CreditCard } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import UpdatePasswordForm from './Partials/UpdatePasswordForm';
 
@@ -88,7 +88,7 @@ function PhotoForm() {
                     disabled={processing || !data.photo}
                     className="shrink-0 whitespace-nowrap rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
                 >
-                    Simpan foto
+                    <span className="inline-flex items-center gap-2"><Save className="h-4 w-4" />Simpan foto</span>
                 </button>
             </div>
 
@@ -212,7 +212,7 @@ export default function Edit({ profile, pendaftaran }) {
                                         href={route('pembayaran.show')}
                                         className="mt-4 inline-flex rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-bold text-white transition hover:bg-blue-700"
                                     >
-                                        Lanjutkan Pembayaran
+                                        <span className="inline-flex items-center gap-2"><CreditCard className="h-4 w-4" />Lanjutkan Pembayaran</span>
                                     </a>
                                 )}
 

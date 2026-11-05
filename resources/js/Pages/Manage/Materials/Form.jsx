@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Head, Link, useForm } from '@inertiajs/react';
-import { ArrowLeft, Save, Upload, X } from 'lucide-react';
+import { ArrowLeft, Eye, FileEdit, Save, Upload, X } from 'lucide-react';
 import AdminLayout from '@/Layouts/AdminLayout';
 import FileDropzone from '@/Components/Materials/FileDropzone';
 import SimpleMarkdown from '@/Components/Materials/SimpleMarkdown';
@@ -209,9 +209,11 @@ export default function Form({ material, options, routePrefix = 'tutor.materials
                                 <label className="text-xs font-semibold text-slate-700">Isi artikel</label>
                                 <div className="flex rounded-lg bg-slate-100 p-0.5 text-xs font-semibold">
                                     <button type="button" onClick={() => setPreview(false)} className={`rounded-md px-3 py-1 ${!preview ? 'bg-white shadow-sm' : 'text-slate-500'}`}>
+                                        <FileEdit className="mr-1 inline h-3.5 w-3.5" aria-hidden="true" />
                                         Tulis
                                     </button>
                                     <button type="button" onClick={() => setPreview(true)} className={`rounded-md px-3 py-1 ${preview ? 'bg-white shadow-sm' : 'text-slate-500'}`}>
+                                        <Eye className="mr-1 inline h-3.5 w-3.5" aria-hidden="true" />
                                         Pratinjau
                                     </button>
                                 </div>

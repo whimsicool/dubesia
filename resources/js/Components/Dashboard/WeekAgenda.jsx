@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { CalendarDays } from 'lucide-react';
 
 /** Agenda pekanan: pilih hari untuk melihat sesi pada hari itu. */
 export default function WeekAgenda({ agenda, className = '' }) {
@@ -26,7 +27,8 @@ export default function WeekAgenda({ agenda, className = '' }) {
                                     : 'border-slate-200 hover:border-slate-300 hover:bg-slate-50'
                             }`}
                         >
-                            <span className={`block text-xs font-semibold ${isSelected ? 'text-red-800' : 'text-slate-700'}`}>
+                            <span className={`mb-1 flex items-center justify-center gap-1 text-xs font-semibold ${isSelected ? 'text-red-800' : 'text-slate-700'}`}>
+                                <CalendarDays aria-hidden="true" className="h-3 w-3" />
                                 {day.name.slice(0, 3)}
                             </span>
                             <span

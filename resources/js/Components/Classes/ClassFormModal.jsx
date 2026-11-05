@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { useForm } from '@inertiajs/react';
+import { Save, X } from 'lucide-react';
 import Modal from '@/Components/Admin/Modal';
 
 const inputClass =
@@ -123,14 +124,14 @@ export default function ClassFormModal({ open, onClose, courseClass, levels, tut
                         onClick={onClose}
                         className="rounded-lg border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"
                     >
-                        Batal
+                        <span className="inline-flex items-center gap-2"><X aria-hidden="true" className="h-4 w-4" />Batal</span>
                     </button>
                     <button
                         type="submit"
                         disabled={processing}
                         className="rounded-lg bg-slate-900 px-5 py-2 text-sm font-semibold text-white hover:bg-slate-800 disabled:opacity-60"
                     >
-                        {processing ? 'Menyimpan…' : isEdit ? 'Simpan Perubahan' : 'Simpan Kelas'}
+                        <span className="inline-flex items-center gap-2"><Save aria-hidden="true" className="h-4 w-4" />{processing ? 'Menyimpan…' : isEdit ? 'Simpan Perubahan' : 'Simpan Kelas'}</span>
                     </button>
                 </div>
             </form>

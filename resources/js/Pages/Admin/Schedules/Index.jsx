@@ -4,6 +4,8 @@ import { Head, Link, router, usePage } from '@inertiajs/react';
 import {
     CirclePlus,
     Download,
+    LayoutDashboard,
+    CalendarDays,
 } from 'lucide-react';
 import AdminLayout from '@/Layouts/AdminLayout';
 import FlashBanner from '@/Components/Common/FlashBanner';
@@ -88,11 +90,11 @@ export default function Index({ semester, week, filters, schedules, options }) {
                             href={route('admin.dashboard')}
                             className="hover:text-slate-900"
                         >
-                            Dashboard Admin
+                            <span className="inline-flex items-center gap-1.5"><LayoutDashboard className="h-3.5 w-3.5" />Dashboard Admin</span>
                         </Link>
                         <span>›</span>
                         <Link href={route('admin.schedules.index')} className="text-red-700 hover:text-slate-900" aria-current="page">
-                            Kelola Jadwal Belajar
+                            <span className="inline-flex items-center gap-1.5"><CalendarDays className="h-3.5 w-3.5" />Kelola Jadwal Belajar</span>
                         </Link>
                     </nav>
 

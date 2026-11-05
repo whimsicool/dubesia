@@ -61,6 +61,7 @@ class ScheduleController extends Controller
             ],
             'filters' => [
                 'day' => $request->integer('day') ?: null,
+                'class_id' => $request->integer('class_id') ?: null,
                 'program_id' => $request->integer('program_id') ?: null,
                 'instructor_id' => $request->integer('instructor_id') ?: null,
                 'room_id' => $request->integer('room_id') ?: null,
@@ -365,6 +366,7 @@ class ScheduleController extends Controller
         foreach (
             [
                 'day' => 'day_of_week',
+                'class_id' => 'class_id',
                 'program_id' => 'program_id',
                 'instructor_id' => 'instructor_id',
                 'room_id' => 'room_id',

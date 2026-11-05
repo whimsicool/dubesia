@@ -1,5 +1,6 @@
 import AdminLayout from '@/Layouts/AdminLayout';
 import { Head, Link, useForm } from '@inertiajs/react';
+import { ArrowUpRight, GraduationCap, LayoutDashboard, Save, X } from 'lucide-react';
 
 export default function Edit({ courseClass, component }) {
     const { data, setData, put, processing, errors } = useForm({
@@ -25,9 +26,9 @@ export default function Edit({ courseClass, component }) {
 
             <main className="mx-auto max-w-7xl">
                 <nav aria-label="Breadcrumb" className="mb-6 flex flex-wrap items-center gap-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
-                    <Link href={route('tutor.dashboard')} className="transition hover:text-red-700">Dashboard</Link>
+                    <Link href={route('tutor.dashboard')} className="inline-flex items-center gap-1 transition hover:text-red-700"><LayoutDashboard className="h-3.5 w-3.5" aria-hidden="true" />Dashboard<ArrowUpRight className="h-3 w-3" aria-hidden="true" /></Link>
                     <span aria-hidden="true">›</span>
-                    <Link href={route('tutor.classes.index')} className="transition hover:text-red-700">Kelas Saya</Link>
+                    <Link href={route('tutor.classes.index')} className="inline-flex items-center gap-1 transition hover:text-red-700"><GraduationCap className="h-3.5 w-3.5" aria-hidden="true" />Kelas Saya<ArrowUpRight className="h-3 w-3" aria-hidden="true" /></Link>
                     <span aria-hidden="true">›</span>
                     <Link
                         href={route('tutor.classes.grade-components.index', { courseClass: courseClass.id })}
@@ -115,13 +116,13 @@ export default function Edit({ courseClass, component }) {
                             <div className="flex flex-col-reverse gap-3 border-t border-slate-100 pt-5 sm:flex-row sm:justify-end">
                                 <Link
                                     href={route('tutor.classes.grade-components.index', { courseClass: courseClass.id })}
-                                    className="inline-flex justify-center rounded-xl border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
-                                >Batal</Link>
+                                    className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+                                ><X size={16} aria-hidden="true" />Batal</Link>
                                 <button
                                     type="submit"
                                     disabled={processing}
-                                    className="inline-flex justify-center rounded-xl bg-slate-950 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800 focus:outline-none focus:ring-4 focus:ring-slate-200 disabled:cursor-not-allowed disabled:opacity-60"
-                                >{processing ? 'Menyimpan...' : 'Simpan Perubahan'}</button>
+                                    className="inline-flex items-center justify-center gap-2 rounded-xl bg-slate-950 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800 focus:outline-none focus:ring-4 focus:ring-slate-200 disabled:cursor-not-allowed disabled:opacity-60"
+                                ><Save size={16} aria-hidden="true" />{processing ? 'Menyimpan...' : 'Simpan Perubahan'}</button>
                             </div>
                         </div>
                     </form>

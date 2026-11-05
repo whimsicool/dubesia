@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { router, useForm } from '@inertiajs/react';
+import { Check, Copy } from 'lucide-react';
 import AdmisiShell from '@/Components/Registrasi/AdmisiShell';
 
 const rupiah = (value) => `Rp ${Number(value ?? 0).toLocaleString('id-ID')}`;
@@ -262,6 +263,7 @@ export default function Pembayaran({ pendaftaran, rekening = [], flash }) {
                       onClick={() => copyAccount(account.nomor)}
                       className="shrink-0 rounded-md border border-slate-200 px-2.5 py-1.5 text-xs font-semibold text-blue-700 hover:bg-blue-50"
                     >
+                      {copied === account.nomor ? <Check className="h-3.5 w-3.5" aria-hidden="true" /> : <Copy className="h-3.5 w-3.5" aria-hidden="true" />}
                       {copied === account.nomor ? 'Tersalin' : 'Salin'}
                     </button>
                   </div>

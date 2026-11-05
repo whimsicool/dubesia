@@ -1,4 +1,5 @@
 import { Fragment } from 'react';
+import { ExternalLink } from 'lucide-react';
 
 /**
  * Renderer markdown sederhana & AMAN (tanpa dangerouslySetInnerHTML).
@@ -25,8 +26,8 @@ function renderInline(text, keyPrefix) {
         const link = part.match(/^\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)$/);
         if (link) {
             return (
-                <a key={key} href={link[2]} target="_blank" rel="noopener noreferrer nofollow" className="font-medium text-red-700 underline">
-                    {link[1]}
+                <a key={key} href={link[2]} target="_blank" rel="noopener noreferrer nofollow" className="inline-flex items-center gap-1 font-medium text-red-700 underline">
+                    {link[1]} <ExternalLink className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
                 </a>
             );
         }

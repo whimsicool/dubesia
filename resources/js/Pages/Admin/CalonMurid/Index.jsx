@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Head, Link, router } from '@inertiajs/react';
-import { Search, Clock, BadgeCheck, XCircle } from '@/Components/Icons';
+import { Search, Clock, BadgeCheck, XCircle, ExternalLink } from '@/Components/Icons';
 import AdminLayout from '@/Layouts/AdminLayout';
 import StatusBadge from '@/Components/StatusBadge';
 import PageBreadcrumbs from '@/Components/Admin/PageBreadcrumbs';
@@ -62,7 +62,7 @@ export default function Index({ pendaftarans, filters, statuses, ringkasan, flas
             <option value="">Semua status</option>
             {Object.entries(statuses).map(([v, l]) => <option key={v} value={v}>{l}</option>)}
           </select>
-          <button className="rounded-lg bg-[#0f1b2d] px-5 py-2.5 text-sm font-bold text-white hover:bg-[#16263d]">Cari</button>
+          <button className="inline-flex items-center gap-2 rounded-lg bg-[#0f1b2d] px-5 py-2.5 text-sm font-bold text-white hover:bg-[#16263d]"><Search className="h-4 w-4" />Cari</button>
         </form>
 
         {/* tabel */}
@@ -97,7 +97,7 @@ export default function Index({ pendaftarans, filters, statuses, ringkasan, flas
                   </td>
                   <td className="px-4 py-3 text-right">
                     <Link href={route('admin.calon-murid.show', p.id)} className="text-sm font-bold text-[#b91c1c] hover:underline">
-                      Lihat Detail
+                      <span className="inline-flex items-center gap-1.5"><ExternalLink className="h-4 w-4" />Lihat Detail</span>
                     </Link>
                   </td>
                 </tr>

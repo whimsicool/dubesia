@@ -2,7 +2,7 @@ import AdminLayout from '@/Layouts/AdminLayout';
 import PageBreadcrumbs from '@/Components/Admin/PageBreadcrumbs';
 import useEmailAvailability from '@/Hooks/useEmailAvailability';
 import { Head, Link, router, useForm, usePage } from '@inertiajs/react';
-import { Power, Save, Trash2, X } from 'lucide-react';
+import { Power, BookOpenCheck, GraduationCap, Save, Trash2, UsersRound, X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 
 /* ═══════════════════════════════════════════════
@@ -297,9 +297,9 @@ export default function Index({ users, filters, stats }) {
                 <div className="kdp-tabs-bar">
                     <div className="kdp-tabs">
                         {[
-                            { key: '', label: 'Semua Pengguna' },
-                            { key: 'student', label: 'Data Murid' },
-                            { key: 'tutor', label: 'Data Tutor' },
+                            { key: '', label: 'Semua Pengguna', icon: UsersRound },
+                            { key: 'student', label: 'Data Murid', icon: GraduationCap },
+                            { key: 'tutor', label: 'Data Tutor', icon: BookOpenCheck },
                         ].map((tab) => (
                             <button
                                 key={tab.key}
@@ -307,6 +307,7 @@ export default function Index({ users, filters, stats }) {
                                 onClick={() => handleTabChange(tab.key)}
                                 className={`kdp-tab ${activeTab === tab.key ? 'kdp-tab--active' : ''}`}
                             >
+                                <tab.icon className="mr-1.5 inline-block h-4 w-4" aria-hidden="true" />
                                 {tab.label} ({tabCounts[tab.key]})
                             </button>
                         ))}

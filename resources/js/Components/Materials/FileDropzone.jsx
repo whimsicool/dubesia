@@ -62,7 +62,8 @@ export default function FileDropzone({ file, onFile, extensions, maxMb, existing
                         <FileUp className="mx-auto h-8 w-8 text-slate-400" />
                         <p className="mt-2 text-sm text-slate-600">
                             Tarik berkas ke sini atau{' '}
-                            <button type="button" onClick={() => inputRef.current?.click()} className="font-semibold text-red-700 hover:underline">
+                            <button type="button" onClick={() => inputRef.current?.click()} className="inline-flex items-center gap-1 font-semibold text-red-700 hover:underline">
+                                <FileUp aria-hidden="true" className="h-4 w-4" />
                                 pilih dari perangkat
                             </button>
                         </p>

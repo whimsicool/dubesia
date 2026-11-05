@@ -1,6 +1,7 @@
 import AdminLayout from '@/Layouts/AdminLayout';
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import { useMemo, useState } from 'react';
+import { Pencil } from 'lucide-react';
 
 const getInitials = (name = '') =>
     name
@@ -277,7 +278,7 @@ export default function Index({ grades }) {
                                             href={route('tutor.student-grades.edit', firstSelectedGrade.id)}
                                             className="inline-flex justify-center rounded-lg bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-700"
                                         >
-                                            Edit nilai terpilih
+                                            <Pencil className="mr-2 h-4 w-4" aria-hidden="true" />Edit nilai terpilih
                                         </Link>
                                     )}
                                 </div>

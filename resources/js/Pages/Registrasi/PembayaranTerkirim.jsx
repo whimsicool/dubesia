@@ -12,8 +12,8 @@ export default function PembayaranTerkirim() {
         <h1 className="mt-5 text-2xl font-extrabold text-slate-900">Bukti pembayaran berhasil terkirim</h1>
 
         <p className="mt-3 text-sm leading-6 text-slate-600">
-          Cek notifikasi email Anda. Admin akan memverifikasi pembayaran, lalu
-          kata sandi sementara dikirim ke email yang Anda daftarkan.
+          Silakan tunggu admin memverifikasi pendaftaran dan bukti pembayaran Anda.
+          Hasil verifikasi akan diberitahukan melalui email yang Anda daftarkan.
         </p>
 
         <p className="mt-2 text-sm leading-6 text-slate-500">

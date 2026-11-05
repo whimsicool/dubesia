@@ -1,4 +1,5 @@
 import { Link } from '@inertiajs/react';
+import { ArrowUpRight } from 'lucide-react';
 
 export default function PageBreadcrumbs({ items = [], className = '' }) {
     return (
@@ -15,6 +16,7 @@ export default function PageBreadcrumbs({ items = [], className = '' }) {
                             className={item.current ? 'text-red-700 hover:text-slate-900' : 'hover:text-slate-900'}
                         >
                             {item.label}
+                            {!item.current && <ArrowUpRight aria-hidden="true" className="ml-1 inline h-3 w-3 opacity-70" />}
                         </Link>
                     ) : (
                         <span>{item.label}</span>

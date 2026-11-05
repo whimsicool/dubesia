@@ -1,7 +1,7 @@
 
 import { useEffect, useState } from 'react';
 import { Link, useForm, usePage } from '@inertiajs/react';
-import { AlertTriangle } from 'lucide-react';
+import { AlertTriangle, ArrowRight, FileUp } from 'lucide-react';
 import AdmisiShell from '@/Components/Registrasi/AdmisiShell';
 import useEmailAvailability from '@/Hooks/useEmailAvailability';
 
@@ -9,7 +9,7 @@ const rupiah = (value) =>
   `Rp ${Number(value ?? 0).toLocaleString('id-ID')}`;
 
 const inputClass =
-  'w-full min-w-0 rounded-lg border border-slate-200 bg-white px-3.5 py-3 text-sm text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100';
+  'w-full min-w-0 rounded-lg border border-slate-200 bg-white px-3.5 py-3 text-sm text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-dubesia-red focus:ring-2 focus:ring-rose-100';
 
 const FIELD_LABELS = {
   nama_lengkap: 'Nama lengkap',
@@ -162,6 +162,7 @@ export default function Create({
     // Email yang berubah harus dikonfirmasi ulang sebelum formulir dikirim.
     if (name === 'email') {
       setEmailDikonfirmasi(false);
+      setData('setuju', false);
     }
 
     setClientErrors((current) => {
@@ -197,7 +198,6 @@ export default function Create({
     if (!data.asal_institusi.trim()) nextErrors.asal_institusi = 'Masukkan nama sekolah, universitas, perusahaan, atau institusi asal.';
     if (!data.alamat.trim()) nextErrors.alamat = 'Masukkan alamat lengkap, termasuk kota/kabupaten.';
     if (!data.program) nextErrors.program = 'Pilih salah satu program kursus.';
-    if (!data.setuju) nextErrors.setuju = 'Centang persetujuan setelah memastikan data yang diisi sudah benar.';
     if (!emailDikonfirmasi) nextErrors.konfirmasi = 'Centang pernyataan setelah memastikan data diri dan email sudah benar.';
     setClientErrors(nextErrors);
     if (Object.keys(nextErrors).length) {
@@ -267,7 +267,7 @@ export default function Create({
                       onClick={() => document.getElementById(`field-${field}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' })}
                       className="font-semibold underline decoration-rose-300 underline-offset-2 hover:text-rose-950"
                     >
-                      {FIELD_LABELS[field]}
+                      <span className="inline-flex items-center gap-1"><ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />{FIELD_LABELS[field]}</span>
                     </button>
                     <span className="text-rose-700"> — {fieldError(field)}</span>
                   </li>
@@ -348,7 +348,7 @@ export default function Create({
                 required
                 error={fieldError('no_whatsapp')}
               >
-                <div className="flex min-w-0 rounded-lg border border-slate-200 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-100">
+                <div className="flex min-w-0 rounded-lg border border-slate-200 focus-within:border-dubesia-red focus-within:ring-2 focus-within:ring-rose-100">
                   <span className="flex items-center rounded-l-lg bg-slate-100 px-3 text-sm font-semibold text-slate-600">
                     +62
                   </span>
@@ -406,8 +406,8 @@ export default function Create({
                     key={program.value}
                     className={`flex cursor-pointer gap-3 rounded-xl border p-4 transition ${
                       data.program === program.value
-                        ? 'border-blue-500 bg-blue-50 ring-1 ring-blue-500/20'
-                        : 'border-slate-200 hover:border-blue-200'
+                        ? 'border-dubesia-red bg-rose-50 ring-1 ring-dubesia-red/20'
+                        : 'border-slate-200 hover:border-rose-200'
                     }`}
                   >
                     <input
@@ -417,7 +417,7 @@ export default function Create({
                       value={program.value}
                       checked={data.program === program.value}
                       onChange={() => updateField('program', program.value)}
-                      className="mt-1 text-blue-600"
+                      className="mt-1 accent-dubesia-red"
                     />
 
                     <span className="flex-1">
@@ -427,7 +427,7 @@ export default function Create({
                       <span className="mt-1 block text-xs leading-5 text-slate-500">
                         {program.deskripsi}
                       </span>
-                      <span className="mt-2 block text-sm font-bold text-blue-800">
+                      <span className="mt-2 block text-sm font-bold text-dubesia-red">
                         {rupiah(program.biaya)}
                       </span>
                     </span>
@@ -467,27 +467,6 @@ export default function Create({
               />
             </Field>
 
-            <div className="mt-5">
-              <label className="flex cursor-pointer items-start gap-3 text-sm leading-6 text-slate-600">
-                <input
-                  required
-                  type="checkbox"
-                  checked={data.setuju}
-                  onChange={(e) => updateField('setuju', e.target.checked)}
-                  className="mt-1 h-4 w-4 shrink-0 accent-blue-600"
-                />
-
-                <span>
-                  Saya menyatakan bahwa data yang saya isi benar dan dapat
-                  dipertanggungjawabkan.
-                </span>
-              </label>
-
-              {fieldError('setuju') && (
-                <p id="field-setuju" className="mt-1.5 text-xs text-rose-600">{fieldError('setuju')}</p>
-              )}
-            </div>
-
             <div id="field-konfirmasi" className="mt-5 rounded-xl border border-amber-300 bg-amber-50 p-4">
               <div className="flex gap-3">
                 <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-amber-700" aria-hidden="true" />
@@ -498,10 +477,10 @@ export default function Create({
                   </p>
 
                   <p className="mt-1 text-sm leading-6 text-amber-900">
-                    Pastikan nama dan email di bawah ini benar. Kuitansi
+                    Pastikan email Anda di bawah ini sudah benar. Kuitansi
                     pembayaran, status verifikasi dari admin, dan kata sandi
-                    sementara akun Anda dikirim ke email tersebut. Pastikan
-                    email aktif dan memiliki ruang penyimpanan yang cukup.
+                    sementara akun Anda akan dikirim ke email tersebut. Pastikan
+                    email aktif dan memiliki ruang penyimpanan yang cukup untuk menerima pesan.
                   </p>
 
                   <p className="mt-2 break-all text-sm font-semibold text-amber-950">
@@ -512,18 +491,23 @@ export default function Create({
                     <input
                       type="checkbox"
                       checked={emailDikonfirmasi}
-                      onChange={(e) => updateEmailConfirmation(e.target.checked)}
+                      onChange={(e) => {
+                        updateField('setuju', e.target.checked);
+                        updateEmailConfirmation(e.target.checked);
+                      }}
                       className="mt-1 h-4 w-4 shrink-0 accent-amber-700"
                     />
 
                     <span>
-                      Saya sudah memeriksa data diri dan memastikan email aktif
-                      serta memiliki ruang penyimpanan yang cukup.
+                      Saya sudah memeriksa seluruh data yang diisi dan memastikan
+                      semuanya sesuai, benar, serta dapat dipertanggungjawabkan.
                     </span>
                   </label>
 
-                  {fieldError('konfirmasi') && (
-                    <p className="mt-1.5 text-xs text-rose-600">{fieldError('konfirmasi')}</p>
+                  {(fieldError('setuju') || fieldError('konfirmasi')) && (
+                    <p id="field-setuju" className="mt-1.5 text-xs text-rose-600">
+                      {fieldError('setuju') || fieldError('konfirmasi')}
+                    </p>
                   )}
                 </div>
               </div>
@@ -532,8 +516,9 @@ export default function Create({
             <button
               type="submit"
               disabled={processing}
-              className="mt-6 flex w-full items-center justify-center rounded-lg bg-blue-600 px-5 py-3.5 text-sm font-bold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
+              className="mt-6 flex w-full items-center justify-center rounded-lg bg-dubesia-red px-5 py-3.5 text-sm font-bold text-white transition hover:bg-dubesia-navy disabled:cursor-not-allowed disabled:opacity-60"
             >
+              {processing ? <FileUp className="h-4 w-4" aria-hidden="true" /> : <ArrowRight className="h-4 w-4" aria-hidden="true" />}
               {processing
                 ? (editMode ? 'Mengirim perbaikan...' : 'Mengirim pendaftaran...')
                 : (editMode ? 'Kirim Ulang untuk Verifikasi' : 'Daftar dan Lanjut ke Pembayaran')}
@@ -547,7 +532,7 @@ export default function Create({
 
             {!editMode && <p className="mt-4 text-center text-sm text-slate-500">
               Sudah memiliki akun?{' '}
-              <Link href="/login" className="font-semibold text-blue-700 hover:underline">
+              <Link href="/login" className="font-semibold text-dubesia-red hover:underline">
                 Masuk di sini
               </Link>
             </p>}
@@ -566,20 +551,20 @@ export default function Create({
 
               <div className="flex items-start justify-between gap-3">
                 <dt className="text-slate-500">Biaya kursus</dt>
-                <dd className="text-right font-semibold text-blue-800">{rupiah(selectedBiaya)}</dd>
+                <dd className="text-right font-semibold text-dubesia-red">{rupiah(selectedBiaya)}</dd>
               </div>
             </dl>
 
             {!editMode && (
-              <p className="mt-4 rounded-lg bg-blue-50 p-3 text-xs leading-5 text-slate-700">
+              <p className="mt-4 rounded-lg bg-rose-50 p-3 text-xs leading-5 text-slate-700">
                 Rekening tujuan transfer dan unggah bukti pembayaran tersedia di halaman berikutnya.
               </p>
             )}
           </section>
 
-          <section className="rounded-2xl border border-blue-100 bg-blue-50 p-5 sm:p-6">
-            <h2 className="font-bold text-blue-900">Data Anda Aman</h2>
-            <p className="mt-2 text-sm leading-6 text-blue-800">
+          <section className="rounded-2xl border border-emerald-100 bg-emerald-50 p-5 sm:p-6">
+            <h2 className="font-bold text-emerald-900">Data Anda Aman</h2>
+            <p className="mt-2 text-sm leading-6 text-emerald-800">
               Data pendaftaran digunakan untuk proses administrasi dan
               verifikasi oleh DUBESIA.
             </p>
@@ -590,7 +575,7 @@ export default function Create({
 
             <ol className="mt-4 space-y-4 text-sm text-slate-600">
               <li className="flex gap-3">
-                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-blue-50 font-bold text-blue-700">
+                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-rose-50 font-bold text-dubesia-red">
                   1
                 </span>
                 <span>
@@ -601,7 +586,7 @@ export default function Create({
               </li>
 
               <li className="flex gap-3">
-                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-blue-50 font-bold text-blue-700">
+                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-rose-50 font-bold text-dubesia-red">
                   2
                 </span>
                 <span>
@@ -612,7 +597,7 @@ export default function Create({
               </li>
 
               <li className="flex gap-3">
-                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-blue-50 font-bold text-blue-700">
+                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-rose-50 font-bold text-dubesia-red">
                   3
                 </span>
                 <span>

@@ -1,5 +1,6 @@
 ﻿import React from "react";
 import { Head, Link } from "@inertiajs/react";
+import { ChevronDown, CircleHelp, FileText, UserRoundPlus } from "lucide-react";
 
 export default function BantuanAdmisi() {
     const faqs = [
@@ -35,7 +36,8 @@ export default function BantuanAdmisi() {
                                 <p className="text-xs text-slate-500">FAQ DUBESIA</p>
                             </div>
                         </div>
-                        <Link href={route('registrasi.create')} className="rounded-lg bg-dubesia-red px-4 py-2 text-sm font-semibold text-white hover:bg-dubesia-navy">
+                        <Link href={route('registrasi.create')} className="inline-flex items-center gap-2 rounded-lg bg-dubesia-red px-4 py-2 text-sm font-semibold text-white hover:bg-dubesia-navy">
+                            <UserRoundPlus aria-hidden="true" className="h-4 w-4" />
                             Daftar Sekarang
                         </Link>
                     </div>
@@ -56,8 +58,8 @@ export default function BantuanAdmisi() {
                             {faqs.map((faq, index) => (
                                 <details key={index} className="group rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
                                     <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-semibold">
-                                        {faq.question}
-                                        <span className="text-xl text-slate-400 group-open:rotate-45">+</span>
+                                        <span className="inline-flex items-center gap-3"><CircleHelp aria-hidden="true" className="h-5 w-5 shrink-0 text-dubesia-red" />{faq.question}</span>
+                                        <ChevronDown aria-hidden="true" className="h-4 w-4 shrink-0 text-slate-400 transition group-open:rotate-180" />
                                     </summary>
                                     <p className="mt-4 leading-7 text-slate-600">{faq.answer}</p>
                                 </details>
@@ -82,10 +84,12 @@ export default function BantuanAdmisi() {
                             <span className="font-semibold">Hubungi Admin</span>
                         </a>
                         <div className="mt-6 flex flex-wrap gap-3">
-                            <Link href={route('registrasi.create')} className="rounded-lg bg-dubesia-red px-5 py-3 text-sm font-semibold text-white hover:bg-dubesia-navy">
+                            <Link href={route('registrasi.create')} className="inline-flex items-center gap-2 rounded-lg bg-dubesia-red px-5 py-3 text-sm font-semibold text-white hover:bg-dubesia-navy">
+                                <UserRoundPlus aria-hidden="true" className="h-4 w-4" />
                                 Kembali ke Registrasi
                             </Link>
-                            <Link href={route('panduan-pendaftaran')} className="rounded-lg border border-slate-300 px-5 py-3 text-sm font-semibold hover:bg-slate-50">
+                            <Link href={route('panduan-pendaftaran')} className="inline-flex items-center gap-2 rounded-lg border border-slate-300 px-5 py-3 text-sm font-semibold hover:bg-slate-50">
+                                <FileText aria-hidden="true" className="h-4 w-4" />
                                 Lihat Panduan Pendaftaran
                             </Link>
                         </div>

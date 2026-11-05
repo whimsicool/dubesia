@@ -1,18 +1,32 @@
 import { Link } from '@inertiajs/react';
-import { MapPin } from 'lucide-react';
+import { CircleHelp, ClipboardList, LogIn, MapPin, UserPlus } from 'lucide-react';
 
 const PORTAL_LINKS = [
-    { label: 'Masuk', route: 'login' },
-    { label: 'Daftar sebagai murid', route: 'registrasi.create' },
+    { label: 'Masuk', route: 'login', icon: LogIn },
+    { label: 'Daftar sebagai murid', route: 'registrasi.create', icon: UserPlus },
 ];
 
 const INFO_LINKS = [
-    { label: 'Panduan Pendaftaran', route: 'panduan-pendaftaran' },
-    { label: 'FAQ', route: 'bantuan-admisi' },
+    { label: 'Panduan Pendaftaran', route: 'panduan-pendaftaran', icon: ClipboardList },
+    { label: 'FAQ', route: 'bantuan-admisi', icon: CircleHelp },
 ];
 
 const MAPS_URL =
     'https://www.google.com/maps/search/?api=1&query=Dubes+Communications+Pekanbaru';
+
+function FooterLink({ link }) {
+    const Icon = link.icon;
+
+    return (
+        <Link
+            href={route(link.route)}
+            className="inline-flex items-center gap-2 font-body-sm text-body-sm text-on-surface transition-colors hover:text-secondary"
+        >
+            <Icon className="h-4 w-4 shrink-0" aria-hidden="true" />
+            {link.label}
+        </Link>
+    );
+}
 
 export default function LandingFooter() {
     const year = new Date().getFullYear();
@@ -55,13 +69,7 @@ export default function LandingFooter() {
                             Portal DUBESIA
                         </span>
                         {PORTAL_LINKS.map((link) => (
-                            <Link
-                                key={link.route}
-                                href={route(link.route)}
-                                className="font-body-sm text-body-sm text-on-surface transition-colors hover:text-secondary"
-                            >
-                                {link.label}
-                            </Link>
+                            <FooterLink key={link.route} link={link} />
                         ))}
                     </nav>
 
@@ -70,13 +78,7 @@ export default function LandingFooter() {
                             Informasi
                         </span>
                         {INFO_LINKS.map((link) => (
-                            <Link
-                                key={link.route}
-                                href={route(link.route)}
-                                className="font-body-sm text-body-sm text-on-surface transition-colors hover:text-secondary"
-                            >
-                                {link.label}
-                            </Link>
+                            <FooterLink key={link.route} link={link} />
                         ))}
                     </nav>
                 </div>

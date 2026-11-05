@@ -1,5 +1,6 @@
 import AdminLayout from '@/Layouts/AdminLayout';
 import { Head, Link } from '@inertiajs/react';
+import { ArrowUpRight, GraduationCap, LayoutDashboard } from 'lucide-react';
 
 export default function Index({ classes }) {
     return (
@@ -9,7 +10,7 @@ export default function Index({ classes }) {
             <main className="px-4 py-8 sm:px-6 lg:px-8">
                 <div className="mx-auto max-w-7xl">
                     <nav aria-label="Breadcrumb" className="mb-5 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
-                        <Link href={route('tutor.dashboard')} className="transition hover:text-red-700">Dashboard</Link>
+                        <Link href={route('tutor.dashboard')} className="inline-flex items-center gap-1.5 transition hover:text-red-700"><LayoutDashboard className="h-3.5 w-3.5" aria-hidden="true" />Dashboard<ArrowUpRight className="h-3 w-3" aria-hidden="true" /></Link>
                         <span aria-hidden="true">›</span>
                         <span aria-current="page" className="text-red-700">Kelas Saya</span>
                     </nav>
@@ -27,6 +28,7 @@ export default function Index({ classes }) {
                                     href={route('tutor.classes.students.index', courseClass.id)}
                                     className="group overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:border-red-200 hover:shadow-lg"
                                 >
+                                    <span className="sr-only">Buka kelas: </span>
                                     <div className="h-2 bg-gradient-to-r from-red-700 via-red-600 to-red-400" />
                                     <div className="p-6">
                                         <div className="flex items-start justify-between gap-4">
@@ -44,6 +46,7 @@ export default function Index({ classes }) {
                                             {courseClass.description || 'Buka daftar murid dan kelola nilai kelas ini.'}
                                         </p>
                                         <span className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-red-800">
+                                            <GraduationCap className="h-4 w-4" aria-hidden="true" />
                                             Kelola Nilai
                                             <span aria-hidden="true" className="transition-transform group-hover:translate-x-1">→</span>
                                         </span>

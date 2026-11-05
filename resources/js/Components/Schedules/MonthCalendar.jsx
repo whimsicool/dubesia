@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { CalendarDays, ChevronLeft, ChevronRight, ClipboardCheck, Plus } from 'lucide-react';
+import { CalendarDays, ChevronLeft, ChevronRight, ClipboardCheck, Pencil, Plus } from 'lucide-react';
 import { CATEGORY_STYLES, formatDate, parseISODate } from './constants';
 
 const WEEKDAYS = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
@@ -45,7 +45,10 @@ function ScheduleChip({ schedule, date, onEdit, onAttendance, attendanceLabel, r
         <div className={`rounded-md border border-l-2 border-slate-200 ${style.border} bg-white p-1.5`}>{content}{onAttendance && <button type="button" onClick={() => onAttendance(schedule, date)} className="mt-1 inline-flex items-center gap-1 text-[10px] font-semibold text-slate-500 hover:text-emerald-700"><ClipboardCheck className="h-3 w-3" /> {attendanceLabel}</button>}</div>
     ) : (
         <div className={`rounded-md border border-l-2 border-slate-200 ${style.border} bg-white p-1.5`}>
-            <button type="button" onClick={() => onEdit(schedule)} className="w-full text-left hover:bg-slate-50">{content}</button>
+            <button type="button" onClick={() => onEdit(schedule)} className="group w-full text-left hover:bg-slate-50" aria-label={`Ubah jadwal ${schedule.title}`}>
+                {content}
+                <span className="mt-1 inline-flex items-center gap-1 text-[10px] font-semibold text-slate-400 group-hover:text-slate-700"><Pencil className="h-3 w-3" aria-hidden="true" /> Ubah jadwal</span>
+            </button>
             <button type="button" onClick={() => onAttendance(schedule, date)} className="mt-1 inline-flex items-center gap-1 text-[10px] font-semibold text-slate-500 hover:text-emerald-700" aria-label={`${attendanceLabel} ${schedule.title}`}><ClipboardCheck className="h-3 w-3" /> {attendanceLabel}</button>
         </div>
     );

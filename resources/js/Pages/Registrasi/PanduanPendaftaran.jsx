@@ -1,5 +1,6 @@
 ﻿import React from "react";
 import { Head, Link } from "@inertiajs/react";
+import { CircleHelp, UserRoundPlus } from "lucide-react";
 
 export default function PanduanPendaftaran() {
     const steps = [
@@ -44,7 +45,8 @@ export default function PanduanPendaftaran() {
                                 <p className="text-xs text-slate-500">Panduan Pendaftaran</p>
                             </div>
                         </div>
-                        <Link href={route('bantuan-admisi')} className="text-sm font-semibold text-slate-600 hover:text-slate-900">
+                        <Link href={route('bantuan-admisi')} className="inline-flex items-center gap-2 text-sm font-semibold text-slate-600 hover:text-slate-900">
+                            <CircleHelp aria-hidden="true" className="h-4 w-4" />
                             FAQ
                         </Link>
                     </div>
@@ -87,10 +89,12 @@ export default function PanduanPendaftaran() {
                     </section>
 
                     <div className="mt-8 flex flex-wrap gap-3">
-                        <Link href={route('registrasi.create')} className="rounded-lg bg-dubesia-red px-5 py-3 text-sm font-semibold text-white hover:bg-dubesia-navy">
+                        <Link href={route('registrasi.create')} className="inline-flex items-center gap-2 rounded-lg bg-dubesia-red px-5 py-3 text-sm font-semibold text-white hover:bg-dubesia-navy">
+                            <UserRoundPlus aria-hidden="true" className="h-4 w-4" />
                             Mulai Pendaftaran
                         </Link>
-                        <Link href={route('bantuan-admisi')} className="rounded-lg border border-slate-300 bg-white px-5 py-3 text-sm font-semibold hover:bg-slate-100">
+                        <Link href={route('bantuan-admisi')} className="inline-flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-5 py-3 text-sm font-semibold hover:bg-slate-100">
+                            <CircleHelp aria-hidden="true" className="h-4 w-4" />
                             Butuh Bantuan?
                         </Link>
                     </div>
