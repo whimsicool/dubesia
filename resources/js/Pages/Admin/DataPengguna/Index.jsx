@@ -21,32 +21,6 @@ export default function Index({ users, filters, stats }) {
     const [perPage, setPerPage] = useState(filters.per_page || 10);
     const [selectedRows, setSelectedRows] = useState([]);
     const searchTimeout = useRef(null);
-    const paginationSwipe = useRef(null);
-
-    const startPaginationSwipe = (event) => {
-        const touch = event.touches[0];
-        paginationSwipe.current = { x: touch.clientX, y: touch.clientY };
-    };
-
-    const endPaginationSwipe = (event) => {
-        if (!paginationSwipe.current) return;
-
-        const touch = event.changedTouches[0];
-        const deltaX = touch.clientX - paginationSwipe.current.x;
-        const deltaY = touch.clientY - paginationSwipe.current.y;
-        paginationSwipe.current = null;
-
-        // Geser horizontal minimal 60 px, dan lebih mendatar daripada vertikal.
-        if (Math.abs(deltaX) < 60 || Math.abs(deltaX) < Math.abs(deltaY)) return;
-
-        const links = users.links ?? [];
-        const target = deltaX < 0 ? links[links.length - 1]?.url : links[0]?.url;
-
-        if (target) {
-            router.visit(target, { preserveState: true, preserveScroll: true });
-        }
-    };
-
     // ── Drawer (hanya untuk menambah akun tutor) ──
     const [drawerOpen, setDrawerOpen] = useState(false);
     const [tutorCreated, setTutorCreated] = useState(false);
@@ -562,12 +536,7 @@ export default function Index({ users, filters, stats }) {
 
                 {/* Pagination */}
                 {users.last_page > 1 && (
-                    <div
-                        className="kdp-pagination"
-                        style={{ touchAction: 'pan-y' }}
-                        onTouchStart={startPaginationSwipe}
-                        onTouchEnd={endPaginationSwipe}
-                    >
+                    <div className="kdp-pagination">
                         <span className="kdp-pagination__info">
                             Menampilkan {users.from}–{users.to} dari {users.total} data pengguna
                         </span>
