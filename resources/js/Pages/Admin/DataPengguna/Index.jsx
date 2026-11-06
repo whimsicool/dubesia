@@ -190,7 +190,7 @@ export default function Index({ users, filters, stats }) {
     const tabCounts = {
         '': stats.totalPengguna,
         'student': stats.totalMurid,
-        'tutor': stats.totalGuru,
+        'tutor': stats.totalTutor,
     };
 
     // ── Role labels ──
@@ -283,7 +283,7 @@ export default function Index({ users, filters, stats }) {
                         </div>
                     </div>
                     <div>
-                        <p className="kdp-stat-card__value">{stats.totalGuru}</p>
+                        <p className="kdp-stat-card__value">{stats.totalTutor}</p>
                     </div>
                 </div>
 

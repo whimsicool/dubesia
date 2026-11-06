@@ -29,6 +29,13 @@ class Pendaftaran extends Model
         self::STATUS_DITOLAK => 'Ditolak',
     ];
 
+    /** Status yang tampil di portal admin. Pembayaran dikelola tanpa status terpisah. */
+    public const ADMIN_STATUS_LABEL = [
+        self::STATUS_MENUNGGU => 'Menunggu Verifikasi',
+        self::STATUS_TERVERIFIKASI => 'Terverifikasi',
+        self::STATUS_DITOLAK => 'Ditolak',
+    ];
+
     public const PROGRAMS = [
         'reguler' => 'Reguler',
         'private' => 'Private',
@@ -38,9 +45,7 @@ class Pendaftaran extends Model
     /** Labels retained for registrations submitted before the package change. */
     public const PROGRAMS_LAMA = [
         'diplomatic_speech' => 'Diplomatic Speech & Rhetoric',
-        'toefl_ielts' => 'TOEFL & IELTS Mastery',
         'executive_english' => 'Executive English Fluency',
-        'mandarin_hsk' => 'Mandarin HSK Comprehensive',
     ];
 
     public const PROGRAM_DESKRIPSI = [

@@ -3,7 +3,6 @@
 namespace Tests\Feature\Admin;
 
 use App\Models\CourseClass;
-use App\Models\Instructor;
 use App\Models\Program;
 use App\Models\Room;
 use App\Models\Schedule;
@@ -73,18 +72,13 @@ class ScheduleManagementTest extends TestCase
         ], $override);
     }
 
-    private function instructorFor(User $tutor): Instructor
-    {
-        return Instructor::firstOrCreate(['user_id' => $tutor->id], ['name' => $tutor->name]);
-    }
-
     private function makeSchedule(array $override = []): Schedule
     {
         return Schedule::create(array_merge([
             'semester_id' => $this->semester->id,
             'program_id' => $this->program->id,
             'class_id' => $this->courseClass->id,
-            'instructor_id' => $this->instructorFor($this->tutor)->id,
+            'tutor_id' => $this->tutor->id,
             'room_id' => $this->room->id,
             'title' => $this->courseClass->name,
             'class_name' => $this->courseClass->name,
@@ -162,8 +156,8 @@ class ScheduleManagementTest extends TestCase
         $this->assertSame($this->courseClass->name, $schedule->title);
         $this->assertSame($this->courseClass->name, $schedule->class_name);
 
-        // Tutor dipetakan ke baris instruktur, murid ke baris students.
-        $this->assertSame($this->tutor->id, $schedule->instructor->user_id);
+        // Tutor disimpan sebagai akun tutor, murid sebagai baris students.
+        $this->assertSame($this->tutor->id, $schedule->tutor_id);
         $this->assertCount(2, $schedule->students);
         $this->assertSame(
             Student::STATUS_ACTIVE,

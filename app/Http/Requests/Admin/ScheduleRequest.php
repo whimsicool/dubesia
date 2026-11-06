@@ -3,7 +3,6 @@
 namespace App\Http\Requests\Admin;
 
 use App\Models\CourseClass;
-use App\Models\Instructor;
 use App\Models\Room;
 use App\Models\Schedule;
 use App\Models\Semester;
@@ -121,15 +120,14 @@ class ScheduleRequest extends FormRequest
                     day: (int) $data['day_of_week'],
                     start: $data['start_time'],
                     end: $data['end_time'],
-                    // Tutor pilihan pengguna dipetakan ke baris instruktur yang dipakai jadwal.
-                    instructorId: Instructor::where('user_id', $data['tutor_id'])->value('id'),
+                    tutorId: (int) $data['tutor_id'],
                     roomId: (int) $data['room_id'],
                     studentIds: $this->parallelStudentIds($studentUserIds),
                     ignoreId: $this->route('schedule')?->id,
                     scheduledDate: $data['scheduled_date'] ?? null,
                 );
 
-                $fieldFor = ['instructor' => 'tutor_id', 'room' => 'room_id', 'students' => 'class_id'];
+                $fieldFor = ['tutor' => 'tutor_id', 'room' => 'room_id', 'students' => 'class_id'];
 
                 foreach ($conflicts->groupBy('type') as $type => $items) {
                     $validator->errors()->add($fieldFor[$type], $items->pluck('message')->implode(' '));

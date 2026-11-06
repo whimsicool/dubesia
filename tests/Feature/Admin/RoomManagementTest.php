@@ -3,7 +3,6 @@
 namespace Tests\Feature\Admin;
 
 use App\Enums\RoomType;
-use App\Models\Instructor;
 use App\Models\Program;
 use App\Models\Room;
 use App\Models\Schedule;
@@ -53,12 +52,12 @@ class RoomManagementTest extends TestCase
             'is_active' => true,
         ]);
         $program = Program::create(['code' => 'DSP', 'name' => 'Diplomatic Speech', 'category' => 'english']);
-        $instructor = Instructor::create(['name' => 'Dr. Kevin Kusuma']);
+        $tutor = User::factory()->create(['role' => User::ROLE_TUTOR]);
 
         Schedule::create([
             'semester_id' => $semester->id,
             'program_id' => $program->id,
-            'instructor_id' => $instructor->id,
+            'tutor_id' => $tutor->id,
             'room_id' => $room->id,
             'title' => 'Diplomatic Speech & Rhetoric',
             'class_name' => 'Diplomatic Speech Batch #4',

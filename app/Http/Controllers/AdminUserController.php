@@ -27,7 +27,7 @@ class AdminUserController extends Controller
         // Statistik ringkasan
         $totalPengguna = $this->visibleUsersQuery()->count();
         $totalMurid = $this->visibleUsersQuery()->where('role', 'student')->count();
-        $totalGuru = $this->visibleUsersQuery()->where('role', 'tutor')->count();
+        $totalTutor = $this->visibleUsersQuery()->where('role', 'tutor')->count();
         $akunBaru = $this->visibleUsersQuery()
             ->where('created_at', '>=', now()->subDays(7))
             ->count();
@@ -38,7 +38,7 @@ class AdminUserController extends Controller
             'stats' => [
                 'totalPengguna' => $totalPengguna,
                 'totalMurid' => $totalMurid,
-                'totalGuru' => $totalGuru,
+                'totalTutor' => $totalTutor,
                 'akunBaru' => $akunBaru,
             ],
         ]);

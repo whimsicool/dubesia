@@ -6,7 +6,6 @@ import StatusBadge from '@/Components/StatusBadge';
 import PageBreadcrumbs from '@/Components/Admin/PageBreadcrumbs';
 
 const kartu = [
-  { key: 'menunggu_pembayaran', label: 'Menunggu Pembayaran', icon: Clock, warna: 'bg-sky-100 text-sky-700' },
   { key: 'menunggu_verifikasi', label: 'Menunggu Verifikasi', icon: Clock, warna: 'bg-amber-100 text-amber-700' },
   { key: 'terverifikasi', label: 'Terverifikasi', icon: BadgeCheck, warna: 'bg-emerald-100 text-emerald-700' },
   { key: 'ditolak', label: 'Ditolak', icon: XCircle, warna: 'bg-red-100 text-[#b91c1c]' },
@@ -33,7 +32,7 @@ export default function Index({ pendaftarans, filters, statuses, ringkasan, flas
         {flash?.peringatan && <div className="mt-2 rounded-lg bg-amber-50 p-3 text-sm font-medium text-amber-800">{flash.peringatan}</div>}
 
         {/* ringkasan status, bisa diklik untuk memfilter */}
-        <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
           {kartu.map((k) => (
             <button key={k.key} type="button"
               onClick={() => { setStatus(k.key); kirim({ q, status: k.key }); }}

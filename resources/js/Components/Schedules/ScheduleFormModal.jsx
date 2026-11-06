@@ -42,7 +42,7 @@ export default function ScheduleFormModal({ open, onClose, schedule, options, de
             schedule
                 ? {
                       class_id: schedule.class_id ?? '',
-                      tutor_id: schedule.instructor?.user_id ?? '',
+                      tutor_id: schedule.tutor?.id ?? '',
                       room_id: schedule.room.id,
                       scheduled_date: schedule.scheduled_date ?? '',
                       start_time: schedule.start_time,

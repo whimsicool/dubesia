@@ -20,9 +20,7 @@ class ScheduleAttendanceController extends Controller
     {
         $tutor = $request->user();
         $records = Attendance::query()
-            ->whereHas('schedule.instructor', fn ($query) => $query
-                ->where('user_id', $tutor->id)
-                ->orWhere('email', $tutor->email))
+            ->whereHas('schedule', fn ($query) => $query->where('tutor_id', $tutor->id))
             // Jadwal bertanggal tetap hanya memiliki satu pertemuan. Abaikan
             // catatan presensi lama yang tersimpan pada tanggal lain sebelum
             // jadwal tersebut diubah menjadi tanggal tertentu.
@@ -150,7 +148,7 @@ class ScheduleAttendanceController extends Controller
     private function ensureAssignedTutor(Request $request, Schedule $schedule): void
     {
         abort_unless($request->user()?->isTutor(), 403);
-        abort_unless($schedule->instructor?->user_id === $request->user()->id || $schedule->instructor?->email === $request->user()->email, 403);
+        abort_unless((int) $schedule->tutor_id === $request->user()->id, 403);
     }
 
     private function scheduleOccursOn(Schedule $schedule, Carbon $date): bool

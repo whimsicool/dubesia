@@ -10,7 +10,6 @@ import {
     ClipboardCheck,
     Gauge,
     GraduationCap,
-    Languages,
     MapPin,
     Mic,
 } from 'lucide-react';
@@ -28,9 +27,7 @@ import {
 
 const PROGRAM_ICONS = {
     diplomatic_speech: Mic,
-    toefl_ielts: GraduationCap,
     executive_english: Briefcase,
-    mandarin_hsk: Languages,
 };
 
 const HEADLINE = 'Bahasa yang siap dipakai di panggung internasional.';
@@ -117,7 +114,7 @@ export default function Landing({ programs }) {
                 />
                 <meta
                     name="description"
-                    content="DUBES Communications, kursus bahasa Inggris di Pekanbaru sejak 2009: pidato diplomatik, TOEFL & IELTS, executive English, dan Mandarin HSK. Portal murid DUBESIA."
+                    content="DUBES Communications adalah lembaga kursus bahasa Inggris di Pekanbaru sejak 2009 dengan metode belajar praktis. Portal DUBESIA menampilkan jadwal, materi, presensi, dan nilai murid."
                 />
             </Head>
 
@@ -184,12 +181,13 @@ export default function Landing({ programs }) {
                                     variants={fadeUp}
                                     className="max-w-xl font-body-lg text-body-lg text-on-surface-variant"
                                 >
-                                    DUBES Communications membina pidato
-                                    diplomatik, TOEFL &amp; IELTS, executive
-                                    English, dan Mandarin HSK dalam kelas
-                                    terstruktur sejak 2009. Portal DUBESIA
-                                    menampilkan jadwal, materi, presensi, dan
-                                    nilai Anda.
+                                    DUBES Communications adalah lembaga kursus
+                                    bahasa Inggris sejak 2009 yang berfokus
+                                    pada metode belajar praktis agar Anda cepat
+                                    mahir dan percaya diri berbicara. Melalui
+                                    portal DUBESIA, pantau jadwal, materi,
+                                    presensi, dan perkembangan nilai Anda
+                                    secara mudah.
                                 </motion.p>
 
                                 <motion.div

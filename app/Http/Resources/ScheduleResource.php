@@ -26,11 +26,10 @@ class ScheduleResource extends JsonResource
                 'name' => $this->program->name,
                 'category' => $this->program->category->value,
             ] : null,
-            'instructor' => [
-                'id' => $this->instructor->id,
-                'user_id' => $this->instructor->user_id,
-                'name' => $this->instructor->name,
-                'initials' => $this->instructor->initials,
+            'tutor' => [
+                'id' => $this->tutor->id,
+                'name' => $this->tutor->name,
+                'initials' => $this->tutor->initials,
             ],
             'room' => [
                 'id' => $this->room->id,

@@ -48,9 +48,9 @@ export default function ScheduleTable({ schedules, week, onEdit, onDelete, onAtt
                                 <td className="px-4 py-3">
                                     <span className="flex items-center gap-2">
                                         <span className="flex h-6 w-6 items-center justify-center rounded-full bg-slate-900 text-[10px] font-bold text-white">
-                                            {s.instructor.initials}
+                                            {s.tutor.initials}
                                         </span>
-                                        {s.instructor.name}
+                                        {s.tutor.name}
                                     </span>
                                 </td>
                                 <td className="px-4 py-3">

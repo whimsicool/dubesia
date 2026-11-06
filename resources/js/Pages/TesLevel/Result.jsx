@@ -12,7 +12,7 @@ export default function Result({ hasilTes, totalSoal }) {
             desc: 'Kemampuan bahasa Inggris tingkat mahir. Mampu memahami teks kompleks dan berkomunikasi secara fasih dengan penutur asli.',
             rekomendasi: [
                 'Kelas Business English & Professional Communication',
-                'Advanced IELTS / TOEFL Preparation (Target Band 7.5+)',
+                'Kelas Diplomatic Speech & Rhetoric Lanjutan',
                 'Academic Writing & Public Speaking Mastery',
             ],
         },
@@ -25,7 +25,7 @@ export default function Result({ hasilTes, totalSoal }) {
             rekomendasi: [
                 'Kelas Intermediate Conversation & Debate',
                 'Comprehensive Grammar & Idiomatic Expressions',
-                'TOEFL ITP / IELTS Preparation Class',
+                'Kelas Public Speaking & Presentation',
             ],
         },
         'Low Intermediate': {

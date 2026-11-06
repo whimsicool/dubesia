@@ -4,7 +4,6 @@ namespace Tests\Feature\Admin;
 
 use App\Enums\ClassLevel;
 use App\Models\CourseClass;
-use App\Models\Instructor;
 use App\Models\Program;
 use App\Models\Room;
 use App\Models\Schedule;
@@ -92,20 +91,20 @@ class ClassManagementTest extends TestCase
     public function test_index_filters_by_status_and_search(): void
     {
         $tutor = $this->tutor();
-        $this->courseClass($tutor, ['name' => 'IELTS Batch #7', 'is_active' => false]);
-        $this->courseClass($tutor, ['name' => 'TOEFL Batch #1']);
+        $this->courseClass($tutor, ['name' => 'Kelas Advanced 7', 'is_active' => false]);
+        $this->courseClass($tutor, ['name' => 'Kelas Beginner 1']);
 
         $this->actingAs($this->admin())
             ->get(route('admin.classes.index', ['status' => 'inactive']))
             ->assertInertia(fn (Assert $page) => $page
                 ->has('classes.data', 1)
-                ->where('classes.data.0.name', 'IELTS Batch #7'));
+                ->where('classes.data.0.name', 'Kelas Advanced 7'));
 
         $this->actingAs($this->admin())
-            ->get(route('admin.classes.index', ['q' => 'TOEFL']))
+            ->get(route('admin.classes.index', ['q' => 'Beginner']))
             ->assertInertia(fn (Assert $page) => $page
                 ->has('classes.data', 1)
-                ->where('classes.data.0.name', 'TOEFL Batch #1'));
+                ->where('classes.data.0.name', 'Kelas Beginner 1'));
     }
 
     public function test_admin_can_create_class_with_tutor(): void
@@ -215,14 +214,13 @@ class ClassManagementTest extends TestCase
             'is_active' => true,
         ]);
         $program = Program::create(['code' => 'DSP', 'name' => 'Diplomatic Speech', 'category' => 'english']);
-        $instructor = Instructor::create(['name' => 'Dr. Kevin Kusuma']);
         $room = Room::create(['name' => 'Hall A', 'type' => 'physical', 'capacity' => 20]);
 
         Schedule::create([
             'semester_id' => $semester->id,
             'program_id' => $program->id,
             'class_id' => $courseClass->id,
-            'instructor_id' => $instructor->id,
+            'tutor_id' => $this->tutor()->id,
             'room_id' => $room->id,
             'title' => 'Diplomatic Speech & Rhetoric',
             'class_name' => $courseClass->name,

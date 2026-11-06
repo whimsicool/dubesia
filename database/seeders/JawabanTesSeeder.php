@@ -16,7 +16,7 @@ class JawabanTesSeeder extends Seeder
     public function run(): void
     {
         $murids = User::where('role', User::ROLE_STUDENT)
-            ->where('email', 'like', 'demo.murid.%')
+            ->where('is_active', true)
             ->orderBy('id')
             ->limit(10)
             ->get();

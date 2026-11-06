@@ -47,7 +47,7 @@ class TesLevelTest extends TestCase
             'email' => $user->email,
             'no_whatsapp' => '081234567890',
             'alamat' => 'Jl. Merdeka 1',
-            'program' => 'toefl_ielts',
+            'program' => 'reguler',
             'bukti_pembayaran' => 'bukti/pembayaran.jpg',
             'status' => Pendaftaran::STATUS_TERVERIFIKASI,
             'verified_at' => now(),

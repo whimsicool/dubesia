@@ -27,6 +27,7 @@ class CalonMuridController extends Controller
         ];
 
         $pendaftarans = Pendaftaran::query()
+            ->whereIn('status', array_keys(Pendaftaran::ADMIN_STATUS_LABEL))
             ->when($filters['status'], fn ($q, $s) => $q->where('status', $s))
             ->when($filters['q'], function ($q, $term) {
                 $q->where(fn ($w) => $w
@@ -50,13 +51,14 @@ class CalonMuridController extends Controller
             ]);
 
         $ringkasan = Pendaftaran::selectRaw('status, count(*) as total')
+            ->whereIn('status', array_keys(Pendaftaran::ADMIN_STATUS_LABEL))
             ->groupBy('status')
             ->pluck('total', 'status');
 
         return Inertia::render('Admin/CalonMurid/Index', [
             'pendaftarans' => $pendaftarans,
             'filters' => $filters,
-            'statuses' => Pendaftaran::STATUS_LABEL,
+            'statuses' => Pendaftaran::ADMIN_STATUS_LABEL,
             'ringkasan' => $ringkasan,
             'flash' => [
                 'sukses' => session('sukses'),

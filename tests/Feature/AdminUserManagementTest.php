@@ -61,10 +61,10 @@ class AdminUserManagementTest extends TestCase
             );
     }
 
-    public function test_admin_can_add_guru(): void
+    public function test_admin_can_add_tutor(): void
     {
         $response = $this->actingAs($this->admin)->post('/admin/data-pengguna', [
-            'name' => 'Guru Baru Test',
+            'name' => 'Tutor Baru Test',
             'email' => 'gurubaru@dubes.ac.id',
             'no_hp' => '+62 812-0000-1111',
         ]);
@@ -78,10 +78,10 @@ class AdminUserManagementTest extends TestCase
         ]);
     }
 
-    public function test_admin_can_add_guru_without_phone(): void
+    public function test_admin_can_add_tutor_without_phone(): void
     {
         $response = $this->actingAs($this->admin)->post('/admin/data-pengguna', [
-            'name' => 'Guru Tanpa Nomor HP',
+            'name' => 'Tutor Tanpa Nomor HP',
             'email' => 'gurutanpa.hp@dubes.ac.id',
             'no_hp' => '',
         ]);
