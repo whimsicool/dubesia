@@ -1,7 +1,6 @@
 import { Head, router } from '@inertiajs/react';
 import { Download, Wallet } from 'lucide-react';
 import AdminLayout from '@/Layouts/AdminLayout';
-import PageBreadcrumbs from '@/Components/Admin/PageBreadcrumbs';
 
 const BULAN = [
   'Januari',
@@ -29,16 +28,14 @@ export default function Index({ pembayaran = [], total = 0, filters, periode_lab
   };
 
   return (
-    <AdminLayout title="Pembayaran Masuk">
+    <AdminLayout
+      title="Pembayaran Masuk"
+      breadcrumbs={[
+        { label: 'Dashboard Admin', route: 'admin.dashboard' },
+        { label: 'Pembayaran Masuk', current: true, route: 'admin.pembayaran.index' },
+      ]}
+    >
       <Head title="Pembayaran Masuk" />
-
-      <PageBreadcrumbs
-        className="mb-3"
-        items={[
-          { label: 'Dashboard Admin', route: 'admin.dashboard' },
-          { label: 'Pembayaran Masuk', current: true, route: 'admin.pembayaran.index' },
-        ]}
-      />
 
       <div className="grid gap-3 sm:grid-cols-2">
         <div className="flex items-center gap-3 rounded-xl bg-white p-4 shadow-sm">

@@ -1,7 +1,6 @@
 import Modal from '@/Components/Modal';
 import { DialogTitle } from '@headlessui/react';
 import AdminLayout from '@/Layouts/AdminLayout';
-import PageBreadcrumbs from '@/Components/Admin/PageBreadcrumbs';
 import useEmailAvailability from '@/Hooks/useEmailAvailability';
 import { Head, Link, router, useForm, usePage } from '@inertiajs/react';
 import { CircleCheck, Power, BookOpenCheck, GraduationCap, Save, Trash2, UsersRound, X } from 'lucide-react';
@@ -226,7 +225,12 @@ export default function Index({ users, filters, stats }) {
     };
 
     return (
-        <AdminLayout>
+        <AdminLayout
+            breadcrumbs={[
+                { label: 'Dashboard Admin', route: 'admin.dashboard' },
+                { label: 'Data Murid & Tutor', current: true, route: 'admin.data-pengguna.index' },
+            ]}
+        >
             <Head title="Kelola Data Pengguna" />
 
             {/* Flash Message */}
@@ -244,13 +248,6 @@ export default function Index({ users, filters, stats }) {
             {/* ── Page Header ── */}
             <div className="kdp-header">
                 <div>
-                    <PageBreadcrumbs
-                        className="mb-2"
-                        items={[
-                            { label: 'Dashboard Admin', route: 'admin.dashboard' },
-                            { label: 'Data Murid & Tutor', current: true, route: 'admin.data-pengguna.index' },
-                        ]}
-                    />
                     <h1 className="kdp-header__title">Kelola Data Pengguna (Murid & Tutor)</h1>
                     <p className="kdp-header__desc">
                         Kelola basis data akun, penerbitan kredensial akses, hak peran tutor dan murid di portal kursus DUBESIA.

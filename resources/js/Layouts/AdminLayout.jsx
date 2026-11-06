@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, usePage } from '@inertiajs/react';
+import PageBreadcrumbs from '@/Components/Admin/PageBreadcrumbs';
 import {
     Award,
     BookOpen,
@@ -111,7 +112,7 @@ const ROLE_LABEL = { admin: 'Admin', tutor: 'Tutor', student: 'Murid' };
 
 const hasRoute = (name) => typeof route === 'function' && route().has(name);
 
-function NavItem({ item, badgeCount, collapsed = false }) {
+function NavItem({ item, badgeCount }) {
     const Icon = item.icon;
     const enabled = item.route && hasRoute(item.route);
     const active = enabled && route().current(item.active ?? item.route);
@@ -120,7 +121,7 @@ function NavItem({ item, badgeCount, collapsed = false }) {
     const content = (
         <>
             <Icon className="h-[18px] w-[18px] shrink-0" />
-            <span className={`flex-1 truncate ${collapsed ? 'lg:hidden' : ''}`}>{item.label}</span>
+            <span className="flex-1 truncate">{item.label}</span>
             {item.badge && badgeCount > 0 && (
                 <span className="flex h-5 min-w-[20px] items-center justify-center rounded-full bg-red-600 px-1.5 text-[11px] font-bold text-white">
                     {badgeCount}
@@ -132,7 +133,7 @@ function NavItem({ item, badgeCount, collapsed = false }) {
 
     if (!enabled) {
         return (
-            <span className={`${base} cursor-not-allowed text-slate-500 ${collapsed ? 'lg:justify-center lg:px-2' : ''}`} title={collapsed ? item.label : 'Segera hadir'}>
+            <span className={`${base} cursor-not-allowed text-slate-500`} title="Segera hadir">
                 {content}
             </span>
         );
@@ -141,15 +142,14 @@ function NavItem({ item, badgeCount, collapsed = false }) {
     return (
         <Link
             href={route(item.route)}
-            className={`${base} border-l-4 ${active ? 'border-red-500 bg-white text-slate-950 shadow-sm' : 'border-transparent text-slate-200 hover:bg-white/10 hover:text-white'} ${collapsed ? 'lg:justify-center lg:px-2' : ''}`}
-            title={collapsed ? item.label : undefined}
+            className={`${base} border-l-4 ${active ? 'border-red-500 bg-white text-slate-950 shadow-sm' : 'border-transparent text-slate-200 hover:bg-white/10 hover:text-white'}`}
         >
             {content}
         </Link>
     );
 }
 
-function Sidebar({ open, onClose, pendingRegistrations, user, studentPlacementRequired, collapsed = false, onLogout }) {
+function Sidebar({ open, onClose, pendingRegistrations, user, studentPlacementRequired, desktopOpen, onHide, onLogout }) {
     const studentGroups = studentPlacementRequired
         ? [{ heading: 'Kursus', items: [{ label: 'Tes Level', icon: ListChecks, route: 'tes-level.index', active: 'tes-level.*' }] }]
         : NAV.student;
@@ -160,9 +160,9 @@ function Sidebar({ open, onClose, pendingRegistrations, user, studentPlacementRe
             {open && <div className="fixed inset-0 z-30 bg-slate-900/50 lg:hidden print:hidden" onClick={onClose} />}
 
             <aside
-                className={`fixed inset-y-0 left-0 z-40 flex w-64 flex-col bg-[#0a1530] text-white transition-all print:hidden lg:translate-x-0 ${
+                className={`fixed inset-y-0 left-0 z-40 flex w-64 flex-col bg-[#0a1530] text-white transition-transform duration-300 ease-out print:hidden ${
                     open ? 'translate-x-0' : '-translate-x-full'
-                } ${collapsed ? 'lg:w-20' : 'lg:w-64'}`}
+                } ${desktopOpen ? 'lg:translate-x-0' : 'lg:-translate-x-full'}`}
             >
                 <div className="flex items-center gap-3 px-5 py-5">
                     <img
@@ -170,16 +170,24 @@ function Sidebar({ open, onClose, pendingRegistrations, user, studentPlacementRe
                         alt="Logo Dubesia"
                         className="h-10 w-10 shrink-0 rounded-full bg-white object-contain"
                     />
-                    <div className={`min-w-0 ${collapsed ? 'lg:hidden' : ''}`}>
-                        <span className="text-lg font-extrabold tracking-tight text-white">DUBESIA</span>
-                        <p className="truncate text-[11px] text-slate-400">Duta Bahasa Edukasi Semesta</p>
+                    <div className="min-w-0 flex-1">
+                        <span className="block truncate text-lg font-extrabold tracking-tight text-white">DUBESIA</span>
+                        <p className="text-[10px] leading-tight text-slate-400">Duta Bahasa Edukasi Semesta</p>
                     </div>
+                    <button
+                        type="button"
+                        onClick={onHide}
+                        className="hidden rounded-lg p-2 text-slate-400 transition-colors hover:bg-white/10 hover:text-white lg:inline-flex"
+                        aria-label="Sembunyikan sidebar"
+                    >
+                        <Menu className="h-5 w-5" />
+                    </button>
                     <button type="button" onClick={onClose} className="ml-auto text-slate-400 lg:hidden" aria-label="Tutup menu">
                         <X className="h-5 w-5" />
                     </button>
                 </div>
 
-                <div className={`px-4 ${collapsed ? 'lg:hidden' : ''}`}>
+                <div className="px-4">
                     <div className="rounded-lg bg-white/10 px-3 py-2 text-xs font-semibold text-slate-200">
                         Mode: {ROLE_LABEL[user?.role] ?? user?.role}
                     </div>
@@ -188,34 +196,25 @@ function Sidebar({ open, onClose, pendingRegistrations, user, studentPlacementRe
                 <nav className="mt-4 flex-1 space-y-5 overflow-y-auto border-t border-white/10 px-4 py-5">
                     {groups.map((group) => (
                         <div key={group.heading}>
-                            <p className={`mb-2 px-3 text-[11px] font-semibold uppercase tracking-wider text-slate-400 ${collapsed ? 'lg:hidden' : ''}`}>{group.heading}</p>
+                            <p className="mb-2 px-3 text-[11px] font-semibold uppercase tracking-wider text-slate-400">{group.heading}</p>
                             <div className="space-y-0.5">
                                 {group.items.map((item) => (
-                                    <NavItem key={item.label} item={item} badgeCount={pendingRegistrations} collapsed={collapsed} />
+                                    <NavItem key={item.label} item={item} badgeCount={pendingRegistrations} />
                                 ))}
                             </div>
                         </div>
                     ))}
                 </nav>
 
-                <div className="border-t border-white/10 p-3">
-                    <div className={`mb-2 flex items-center gap-3 rounded-lg px-2 py-2 ${collapsed ? 'lg:justify-center' : ''}`}>
-                        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/15 text-xs font-bold text-white">
-                            {user?.name?.split(/\s+/).slice(0, 2).map((part) => part[0]).join('').toUpperCase()}
-                        </span>
-                        <div className={`min-w-0 ${collapsed ? 'lg:hidden' : ''}`}>
-                            <p className="truncate text-sm font-semibold text-white">{user?.name}</p>
-                            <p className="truncate text-[11px] text-slate-400">{ROLE_LABEL[user?.role] ?? user?.role}</p>
-                        </div>
-                    </div>
+                <div className="border-t border-white/10 px-3 py-2">
                     <button
                         type="button"
                         onClick={onLogout}
-                        className={`flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-slate-300 transition-colors hover:bg-red-500/15 hover:text-white ${collapsed ? 'lg:justify-center lg:px-2' : ''}`}
+                        className="flex h-9 w-9 items-center justify-center rounded-lg text-slate-400 transition-colors hover:bg-red-500/15 hover:text-white"
                         title="Keluar"
+                        aria-label="Keluar"
                     >
-                        <LogOut className="h-[18px] w-[18px] shrink-0" />
-                        <span className={collapsed ? 'lg:hidden' : ''}>Keluar</span>
+                        <LogOut className="h-[18px] w-[18px]" />
                     </button>
                 </div>
             </aside>
@@ -323,10 +322,10 @@ function LogoutModal({ open, onClose }) {
     );
 }
 
-export default function AdminLayout({ title, subtitle, semesterName, bare = false, compact = false, children }) {
+export default function AdminLayout({ title, subtitle, breadcrumbs = [], semesterName, bare = false, compact = false, children }) {
     const { auth, pendingRegistrations = 0, studentPlacementRequired = false } = usePage().props;
     const [sidebarOpen, setSidebarOpen] = useState(false);
-    const [collapsed, setCollapsed] = useState(false);
+    const [desktopOpen, setDesktopOpen] = useState(true);
     const [logoutOpen, setLogoutOpen] = useState(false);
 
     if (bare) {
@@ -341,11 +340,12 @@ export default function AdminLayout({ title, subtitle, semesterName, bare = fals
                 pendingRegistrations={pendingRegistrations}
                 studentPlacementRequired={studentPlacementRequired}
                 user={auth.user}
-                collapsed={collapsed}
+                desktopOpen={desktopOpen}
+                onHide={() => setDesktopOpen(false)}
                 onLogout={() => setLogoutOpen(true)}
             />
 
-            <div className={`min-w-0 transition-all print:pl-0 ${collapsed ? 'lg:pl-20' : 'lg:pl-64'}`}>
+            <div className={`min-w-0 transition-[padding-left] duration-300 ease-out print:pl-0 ${desktopOpen ? 'lg:pl-64' : 'lg:pl-0'}`}>
                 <header className="sticky top-0 z-20 flex h-16 items-center gap-3 border-b border-slate-100 bg-white px-4 sm:px-6 print:hidden">
                     <button
                         type="button"
@@ -356,15 +356,16 @@ export default function AdminLayout({ title, subtitle, semesterName, bare = fals
                         <Menu className="h-5 w-5" />
                     </button>
 
-                    <button
-                        type="button"
-                        onClick={() => setCollapsed((value) => !value)}
-                        className="hidden rounded-lg p-2 text-slate-600 transition hover:bg-slate-100 lg:inline-flex"
-                        aria-label={collapsed ? 'Buka sidebar' : 'Tutup sidebar'}
-                        aria-pressed={collapsed}
-                    >
-                        <Menu className="h-5 w-5" />
-                    </button>
+                    {!desktopOpen && (
+                        <button
+                            type="button"
+                            onClick={() => setDesktopOpen(true)}
+                            className="hidden rounded-lg p-2 text-slate-600 transition hover:bg-slate-100 lg:inline-flex"
+                            aria-label="Tampilkan sidebar"
+                        >
+                            <Menu className="h-5 w-5" />
+                        </button>
+                    )}
 
                     {semesterName && (
                         <span className="flex min-w-0 shrink items-center gap-2 truncate rounded-lg bg-slate-100 px-3 py-2 text-xs font-semibold text-slate-700">
@@ -378,10 +379,11 @@ export default function AdminLayout({ title, subtitle, semesterName, bare = fals
                     </div>
                 </header>
 
-                <main className={`mx-auto w-full max-w-[1500px] px-4 sm:px-6 ${compact ? 'py-2' : 'py-6'}`}>
-                    {title && (
+                <main className={`mx-auto w-full max-w-[1500px] px-4 sm:px-6 lg:w-[calc(100vw-16rem)] ${compact ? 'py-2' : 'py-6'}`}>
+                    {(breadcrumbs.length > 0 || title) && (
                         <div className="mb-6">
-                            <h1 className="text-2xl font-extrabold tracking-tight text-slate-900">{title}</h1>
+                            {breadcrumbs.length > 0 && <PageBreadcrumbs items={breadcrumbs} className="mb-2" />}
+                            {title && <h1 className="text-2xl font-extrabold tracking-tight text-slate-900">{title}</h1>}
                             {subtitle && <p className="mt-1 text-sm text-slate-600">{subtitle}</p>}
                         </div>
                     )}

@@ -1,4 +1,3 @@
-import PageBreadcrumbs from '@/Components/Admin/PageBreadcrumbs';
 import Modal from '@/Components/Admin/Modal';
 import FlashBanner from '@/Components/Common/FlashBanner';
 import InputError from '@/Components/InputError';
@@ -127,18 +126,15 @@ export default function Edit({ profile, pendaftaran }) {
     };
 
     return (
-        <AdminLayout>
+        <AdminLayout
+            breadcrumbs={[
+                { label: dashboard.label, route: dashboard.route },
+                { label: 'Profil', route: 'profile.edit', current: true },
+            ]}
+        >
             <Head title="Profil" />
 
             <div className="mb-6">
-                <PageBreadcrumbs
-                    className="mb-2"
-                    items={[
-                        { label: dashboard.label, route: dashboard.route },
-                        { label: 'Profil', route: 'profile.edit', current: true },
-                    ]}
-                />
-
                 <h1 className="text-2xl font-extrabold tracking-tight text-slate-900">Profil</h1>
                 <p className="mt-1 text-sm text-slate-600">Kelola foto, data akun, dan kata sandi Anda.</p>
             </div>

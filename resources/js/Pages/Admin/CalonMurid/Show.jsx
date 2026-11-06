@@ -3,7 +3,6 @@ import { Head, Link, router, useForm } from '@inertiajs/react';
 import { ArrowLeft, BadgeCheck, ExternalLink, Send, X, XCircle } from '@/Components/Icons';
 import AdminLayout from '@/Layouts/AdminLayout';
 import StatusBadge from '@/Components/StatusBadge';
-import PageBreadcrumbs from '@/Components/Admin/PageBreadcrumbs';
 
 const rupiah = (n) => 'Rp ' + Number(n).toLocaleString('id-ID');
 
@@ -39,14 +38,15 @@ export default function Show({ pendaftaran: p, flash }) {
   const tutupTolak = () => { setShowTolak(false); reset(); clearErrors(); };
 
   return (
-    <AdminLayout title="Detail Pendaftaran"
-    >
-      <Head title={`Detail Pendaftaran - ${p.nama_lengkap}`} />
-      <PageBreadcrumbs className="mb-3" items={[
+    <AdminLayout
+      title="Detail Pendaftaran"
+      breadcrumbs={[
         { label: 'Dashboard Admin', route: 'admin.dashboard' },
         { label: 'Calon Murid', route: 'admin.calon-murid.index' },
         { label: 'Detail Pendaftaran', current: true, route: 'admin.calon-murid.show', params: { pendaftaran: p.id } },
-      ]} />
+      ]}
+    >
+      <Head title={`Detail Pendaftaran - ${p.nama_lengkap}`} />
       <div>
         <Link href={route('admin.calon-murid.index')} className="inline-flex items-center gap-1.5 text-sm font-semibold text-slate-600 hover:text-[#0f1b2d]">
           <ArrowLeft className="h-4 w-4" /> Kembali

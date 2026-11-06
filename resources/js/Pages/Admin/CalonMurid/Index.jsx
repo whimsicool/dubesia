@@ -3,7 +3,6 @@ import { Head, Link, router } from '@inertiajs/react';
 import { Search, Clock, BadgeCheck, XCircle, ExternalLink } from '@/Components/Icons';
 import AdminLayout from '@/Layouts/AdminLayout';
 import StatusBadge from '@/Components/StatusBadge';
-import PageBreadcrumbs from '@/Components/Admin/PageBreadcrumbs';
 
 const kartu = [
   { key: 'menunggu_verifikasi', label: 'Menunggu Verifikasi', icon: Clock, warna: 'bg-amber-100 text-amber-700' },
@@ -19,13 +18,14 @@ export default function Index({ pendaftarans, filters, statuses, ringkasan, flas
     router.get(route('admin.calon-murid.index'), params, { preserveState: true, replace: true });
 
   return (
-    <AdminLayout title="Verifikasi Pendaftaran"
-    >
-      <Head title="Verifikasi Pendaftaran" />
-      <PageBreadcrumbs className="mb-2" items={[
+    <AdminLayout
+      title="Verifikasi Pendaftaran"
+      breadcrumbs={[
         { label: 'Dashboard Admin', route: 'admin.dashboard' },
         { label: 'Calon Murid', current: true, route: 'admin.calon-murid.index' },
-      ]} />
+      ]}
+    >
+      <Head title="Verifikasi Pendaftaran" />
       <div>
 
         {flash?.sukses && <div className={`mt-2 rounded-lg p-3 text-sm font-medium ${flash.sukses.startsWith('Pendaftaran ditolak') ? 'bg-red-50 text-red-800' : 'bg-emerald-50 text-emerald-800'}`}>{flash.sukses}</div>}
