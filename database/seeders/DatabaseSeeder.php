@@ -35,49 +35,80 @@ class DatabaseSeeder extends Seeder
         $this->call(StudentFeedbackSeeder::class);
     }
 
-    /** Akun admin dan tiga akun murid demo. Akun tutor dibuat oleh TutorSeeder. */
+    /**
+     * Akun admin memakai akun yang sudah ada bila database sudah punya admin,
+     * misalnya akun VPS. Email dan kata sandi akun itu tidak diubah. Bila belum
+     * ada admin sama sekali, seeder membuat admin@dubesia.id.
+     *
+     * Akun tutor dibuat oleh TutorSeeder; akun murid demo oleh CourseClassSeeder.
+     */
     private function seedAccounts(): void
     {
-        $accounts = [
-            [
-                'name' => 'Rahmat Hidayat',
-                'email' => 'admin@dubesia.id',
-                'role' => User::ROLE_ADMIN,
-                'class_level' => null,
-            ],
+        $this->seedAdmin();
+
+        $students = [
             [
                 'name' => 'Anindya Kartika Sari',
                 'email' => 'student@dubesia.id',
-                'role' => User::ROLE_STUDENT,
                 'class_level' => 'Beginner',
             ],
             [
                 'name' => 'Rangga Mahendra',
                 'email' => 'student-intermediate@dubesia.id',
-                'role' => User::ROLE_STUDENT,
                 'class_level' => 'Middle Intermediate',
             ],
             [
                 'name' => 'Salsabila Indah Permata',
                 'email' => 'student-advance@dubesia.id',
-                'role' => User::ROLE_STUDENT,
                 'class_level' => 'Upper Intermediate',
             ],
         ];
 
-        foreach ($accounts as $account) {
+        foreach ($students as $student) {
             User::updateOrCreate(
-                ['email' => $account['email']],
+                ['email' => $student['email']],
                 [
-                    'name' => $account['name'],
+                    'name' => $student['name'],
                     'password' => Hash::make('password'),
-                    'role' => $account['role'],
-                    'class_level' => $account['class_level'],
+                    'role' => User::ROLE_STUDENT,
+                    'class_level' => $student['class_level'],
                     'status_akun' => 'aktif',
                     'is_active' => true,
                     'email_verified_at' => now(),
                 ],
             );
         }
+    }
+
+    /** Profil admin hasil seeder dipakai pada akun admin yang sudah ada. */
+    private function seedAdmin(): void
+    {
+        $admin = User::where('role', User::ROLE_ADMIN)->orderBy('id')->first();
+
+        if ($admin) {
+            $admin->fill([
+                'name' => 'Rahmat Hidayat',
+                'status_akun' => 'aktif',
+                'is_active' => true,
+            ]);
+
+            if (! $admin->email_verified_at) {
+                $admin->email_verified_at = now();
+            }
+
+            $admin->save();
+
+            return;
+        }
+
+        User::updateOrCreate(['email' => 'admin@dubesia.id'], [
+            'name' => 'Rahmat Hidayat',
+            'password' => Hash::make('password'),
+            'role' => User::ROLE_ADMIN,
+            'class_level' => null,
+            'status_akun' => 'aktif',
+            'is_active' => true,
+            'email_verified_at' => now(),
+        ]);
     }
 }
