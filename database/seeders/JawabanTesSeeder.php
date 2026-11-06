@@ -4,22 +4,20 @@ namespace Database\Seeders;
 
 use App\Models\JawabanTes;
 use App\Models\SoalTes;
-use App\Models\User;
+use Database\Seeders\Concerns\SelectsDemoStudents;
 use Illuminate\Database\Seeder;
 
 class JawabanTesSeeder extends Seeder
 {
+    use SelectsDemoStudents;
+
     /**
      * Seed jawaban tes untuk sepuluh murid demo pada sepuluh soal pertama.
      * Setiap murid menjawab tiga dari empat soal dengan benar.
      */
     public function run(): void
     {
-        $murids = User::where('role', User::ROLE_STUDENT)
-            ->where('is_active', true)
-            ->orderBy('id')
-            ->limit(10)
-            ->get();
+        $murids = $this->studentsForSeeding();
 
         $soal = SoalTes::orderBy('id_soal')->limit(10)->get();
 

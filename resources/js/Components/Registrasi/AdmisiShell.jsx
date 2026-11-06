@@ -1,7 +1,29 @@
 import { Head, Link } from '@inertiajs/react';
 import { BookOpen, CircleHelp, LogIn, LogOut } from 'lucide-react';
 
+import PublicHeader from '@/Components/PublicHeader';
+
 export default function AdmisiShell({ title, showLogout = false, children }) {
+  const action = showLogout ? (
+    <Link
+      href={route('logout')}
+      method="post"
+      as="button"
+      className="inline-flex items-center justify-center gap-2 rounded-lg bg-rose-50 px-3 py-2 text-center text-xs font-semibold text-rose-700 transition hover:bg-rose-100 sm:px-4 sm:text-sm"
+    >
+      <LogOut aria-hidden="true" className="h-4 w-4" />
+      Keluar
+    </Link>
+  ) : (
+    <Link
+      href={route('login')}
+      className="inline-flex items-center justify-center gap-2 rounded-lg bg-rose-50 px-3 py-2 text-center text-xs font-semibold text-rose-700 transition hover:bg-rose-100 sm:px-4 sm:text-sm"
+    >
+      <LogIn aria-hidden="true" className="h-4 w-4" />
+      Masuk
+    </Link>
+  );
+
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800">
       <Head title={title}>
@@ -14,59 +36,13 @@ export default function AdmisiShell({ title, showLogout = false, children }) {
         />
       </Head>
 
-      <header className="sticky top-0 z-20 border-b border-slate-200 bg-white/95 backdrop-blur">
-        <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-8">
-          <div className="flex min-w-0 items-center gap-3" aria-label="DUBESIA">
-            <img
-              src="/images/dubesia-logo.png"
-              alt="Logo DUBESIA"
-              className="h-11 w-11 shrink-0 rounded-full object-contain"
-            />
-
-            <span className="min-w-0 leading-tight">
-              <span className="block text-lg font-extrabold tracking-tight text-slate-900">DUBESIA</span>
-              <span className="block text-[10px] font-semibold uppercase tracking-wide text-slate-500">
-                Duta Bahasa Edukasi
-              </span>
-            </span>
-          </div>
-
-          <nav className="flex items-center gap-2 text-sm sm:gap-5">
-            <Link href={route('bantuan-admisi')} className="hidden items-center gap-2 text-slate-600 transition hover:text-dubesia-red md:inline-flex">
-              <CircleHelp aria-hidden="true" className="h-4 w-4" />
-              FAQ
-            </Link>
-
-            <Link
-              href={route('panduan-pendaftaran')}
-              className="hidden items-center gap-2 text-slate-600 transition hover:text-dubesia-red md:inline-flex"
-            >
-              <BookOpen aria-hidden="true" className="h-4 w-4" />
-              Panduan Pendaftaran
-            </Link>
-
-            {showLogout ? (
-              <Link
-                href={route('logout')}
-                method="post"
-                as="button"
-                className="inline-flex items-center justify-center gap-2 rounded-lg bg-rose-50 px-3 py-2 text-center text-xs font-semibold text-rose-700 transition hover:bg-rose-100 sm:px-4 sm:text-sm"
-              >
-                <LogOut aria-hidden="true" className="h-4 w-4" />
-                Keluar
-              </Link>
-            ) : (
-              <Link
-                href="/login"
-                className="inline-flex items-center justify-center gap-2 rounded-lg bg-rose-50 px-3 py-2 text-center text-xs font-semibold text-rose-700 transition hover:bg-rose-100 sm:px-4 sm:text-sm"
-              >
-                <LogIn aria-hidden="true" className="h-4 w-4" />
-                Masuk
-              </Link>
-            )}
-          </nav>
-        </div>
-      </header>
+      <PublicHeader
+        links={[
+          { label: 'Panduan Pendaftaran', href: route('panduan-pendaftaran'), icon: BookOpen },
+          { label: 'FAQ', href: route('bantuan-admisi'), icon: CircleHelp },
+        ]}
+        action={action}
+      />
 
       <main className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 sm:py-9 lg:px-8">{children}</main>
 

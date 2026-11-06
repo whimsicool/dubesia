@@ -4,21 +4,19 @@ namespace Database\Seeders;
 
 use App\Models\Material;
 use App\Models\MaterialProgress;
-use App\Models\User;
+use Database\Seeders\Concerns\SelectsDemoStudents;
 use Illuminate\Database\Seeder;
 
 class MaterialProgressSeeder extends Seeder
 {
+    use SelectsDemoStudents;
+
     /**
      * Seed progres belajar sepuluh murid demo pada lima materi terbit pertama.
      */
     public function run(): void
     {
-        $murids = User::where('role', User::ROLE_STUDENT)
-            ->where('is_active', true)
-            ->orderBy('id')
-            ->limit(10)
-            ->get();
+        $murids = $this->studentsForSeeding();
 
         $materials = Material::where('status', Material::STATUS_PUBLISHED)
             ->orderBy('id')

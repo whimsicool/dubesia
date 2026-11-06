@@ -115,14 +115,19 @@ export default function ForgotPassword({ status }) {
                                                             event.target.value,
                                                         )
                                                     }
-                                                    placeholder="cth. email@student.dubes.ac.id"
+                                                    placeholder="nama@email.com"
                                                     required
                                                 />
                                             </div>
 
-                                            {errors.email && (
+                                            {errors.email ? (
                                                 <p className="font-body-sm text-body-sm font-medium text-error">
                                                     {errors.email}
+                                                </p>
+                                            ) : (
+                                                <p className="font-body-sm text-body-sm text-on-surface-variant">
+                                                    Gunakan email terdaftar yang sudah terverifikasi. Email calon murid
+                                                    yang pendaftarannya belum selesai tidak dapat dipakai.
                                                 </p>
                                             )}
                                         </div>

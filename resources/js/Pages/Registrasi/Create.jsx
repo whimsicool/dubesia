@@ -205,14 +205,14 @@ export default function Create({
   };
 
   return (
-    <AdmisiShell title={editMode ? 'Perbaikan Pendaftaran' : 'Registrasi Calon Murid'} showLogout={editMode}>
+    <AdmisiShell title={editMode ? 'Perbaikan Pendaftaran' : 'Pendaftaran Calon Murid'} showLogout={editMode}>
       <section className="mb-6 overflow-hidden rounded-2xl bg-gradient-to-r from-dubesia-red via-dubesia-red to-dubesia-navy px-5 py-7 text-white shadow-sm sm:px-8 sm:py-9">
         <p className="text-xs font-bold uppercase tracking-[0.18em] text-white/80">
           {editMode ? 'Perbaikan Pendaftaran' : 'Pendaftaran Calon Murid'}
         </p>
 
         <h1 className="mt-2 text-2xl font-extrabold tracking-tight sm:text-3xl">
-          {editMode ? 'Perbaiki Data Pendaftaran' : 'Formulir Registrasi Calon Murid'}
+          {editMode ? 'Perbaiki Data Pendaftaran' : 'Formulir Pendaftaran Calon Murid'}
         </h1>
 
         <p className="mt-3 max-w-2xl text-sm leading-6 text-white/85">
@@ -481,7 +481,7 @@ export default function Create({
               {processing ? <FileUp className="h-4 w-4" aria-hidden="true" /> : <ArrowRight className="h-4 w-4" aria-hidden="true" />}
               {processing
                 ? (editMode ? 'Mengirim perbaikan...' : 'Mengirim pendaftaran...')
-                : (editMode ? 'Kirim Ulang untuk Verifikasi' : 'Daftar dan Lanjut ke Pembayaran')}
+                : (editMode ? 'Kirim Ulang untuk Verifikasi' : 'Lanjut ke Pembayaran')}
             </button>
 
             {!editMode && (

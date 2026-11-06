@@ -111,7 +111,7 @@ const ROLE_LABEL = { admin: 'Admin', tutor: 'Tutor', student: 'Murid' };
 
 const hasRoute = (name) => typeof route === 'function' && route().has(name);
 
-function NavItem({ item, badgeCount }) {
+function NavItem({ item, badgeCount, collapsed = false }) {
     const Icon = item.icon;
     const enabled = item.route && hasRoute(item.route);
     const active = enabled && route().current(item.active ?? item.route);
@@ -120,7 +120,7 @@ function NavItem({ item, badgeCount }) {
     const content = (
         <>
             <Icon className="h-[18px] w-[18px] shrink-0" />
-            <span className="flex-1 truncate">{item.label}</span>
+            <span className={`flex-1 truncate ${collapsed ? 'lg:hidden' : ''}`}>{item.label}</span>
             {item.badge && badgeCount > 0 && (
                 <span className="flex h-5 min-w-[20px] items-center justify-center rounded-full bg-red-600 px-1.5 text-[11px] font-bold text-white">
                     {badgeCount}
@@ -132,7 +132,7 @@ function NavItem({ item, badgeCount }) {
 
     if (!enabled) {
         return (
-            <span className={`${base} cursor-not-allowed text-slate-500`} title="Segera hadir">
+            <span className={`${base} cursor-not-allowed text-slate-500 ${collapsed ? 'lg:justify-center lg:px-2' : ''}`} title={collapsed ? item.label : 'Segera hadir'}>
                 {content}
             </span>
         );
@@ -141,14 +141,15 @@ function NavItem({ item, badgeCount }) {
     return (
         <Link
             href={route(item.route)}
-            className={`${base} border-l-4 ${active ? 'border-red-500 bg-white text-slate-950 shadow-sm' : 'border-transparent text-slate-200 hover:bg-white/10 hover:text-white'}`}
+            className={`${base} border-l-4 ${active ? 'border-red-500 bg-white text-slate-950 shadow-sm' : 'border-transparent text-slate-200 hover:bg-white/10 hover:text-white'} ${collapsed ? 'lg:justify-center lg:px-2' : ''}`}
+            title={collapsed ? item.label : undefined}
         >
             {content}
         </Link>
     );
 }
 
-function Sidebar({ open, onClose, pendingRegistrations, user, studentPlacementRequired }) {
+function Sidebar({ open, onClose, pendingRegistrations, user, studentPlacementRequired, collapsed = false, onLogout }) {
     const studentGroups = studentPlacementRequired
         ? [{ heading: 'Kursus', items: [{ label: 'Tes Level', icon: ListChecks, route: 'tes-level.index', active: 'tes-level.*' }] }]
         : NAV.student;
@@ -159,9 +160,9 @@ function Sidebar({ open, onClose, pendingRegistrations, user, studentPlacementRe
             {open && <div className="fixed inset-0 z-30 bg-slate-900/50 lg:hidden print:hidden" onClick={onClose} />}
 
             <aside
-                className={`fixed inset-y-0 left-0 z-40 flex w-64 flex-col bg-[#0a1530] text-white transition-transform print:hidden lg:translate-x-0 ${
+                className={`fixed inset-y-0 left-0 z-40 flex w-64 flex-col bg-[#0a1530] text-white transition-all print:hidden lg:translate-x-0 ${
                     open ? 'translate-x-0' : '-translate-x-full'
-                }`}
+                } ${collapsed ? 'lg:w-20' : 'lg:w-64'}`}
             >
                 <div className="flex items-center gap-3 px-5 py-5">
                     <img
@@ -169,7 +170,7 @@ function Sidebar({ open, onClose, pendingRegistrations, user, studentPlacementRe
                         alt="Logo Dubesia"
                         className="h-10 w-10 shrink-0 rounded-full bg-white object-contain"
                     />
-                    <div className="min-w-0">
+                    <div className={`min-w-0 ${collapsed ? 'lg:hidden' : ''}`}>
                         <span className="text-lg font-extrabold tracking-tight text-white">DUBESIA</span>
                         <p className="truncate text-[11px] text-slate-400">Duta Bahasa Edukasi Semesta</p>
                     </div>
@@ -178,7 +179,7 @@ function Sidebar({ open, onClose, pendingRegistrations, user, studentPlacementRe
                     </button>
                 </div>
 
-                <div className="px-4">
+                <div className={`px-4 ${collapsed ? 'lg:hidden' : ''}`}>
                     <div className="rounded-lg bg-white/10 px-3 py-2 text-xs font-semibold text-slate-200">
                         Mode: {ROLE_LABEL[user?.role] ?? user?.role}
                     </div>
@@ -187,21 +188,42 @@ function Sidebar({ open, onClose, pendingRegistrations, user, studentPlacementRe
                 <nav className="mt-4 flex-1 space-y-5 overflow-y-auto border-t border-white/10 px-4 py-5">
                     {groups.map((group) => (
                         <div key={group.heading}>
-                            <p className="mb-2 px-3 text-[11px] font-semibold uppercase tracking-wider text-slate-400">{group.heading}</p>
+                            <p className={`mb-2 px-3 text-[11px] font-semibold uppercase tracking-wider text-slate-400 ${collapsed ? 'lg:hidden' : ''}`}>{group.heading}</p>
                             <div className="space-y-0.5">
                                 {group.items.map((item) => (
-                                    <NavItem key={item.label} item={item} badgeCount={pendingRegistrations} />
+                                    <NavItem key={item.label} item={item} badgeCount={pendingRegistrations} collapsed={collapsed} />
                                 ))}
                             </div>
                         </div>
                     ))}
                 </nav>
+
+                <div className="border-t border-white/10 p-3">
+                    <div className={`mb-2 flex items-center gap-3 rounded-lg px-2 py-2 ${collapsed ? 'lg:justify-center' : ''}`}>
+                        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/15 text-xs font-bold text-white">
+                            {user?.name?.split(/\s+/).slice(0, 2).map((part) => part[0]).join('').toUpperCase()}
+                        </span>
+                        <div className={`min-w-0 ${collapsed ? 'lg:hidden' : ''}`}>
+                            <p className="truncate text-sm font-semibold text-white">{user?.name}</p>
+                            <p className="truncate text-[11px] text-slate-400">{ROLE_LABEL[user?.role] ?? user?.role}</p>
+                        </div>
+                    </div>
+                    <button
+                        type="button"
+                        onClick={onLogout}
+                        className={`flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-slate-300 transition-colors hover:bg-red-500/15 hover:text-white ${collapsed ? 'lg:justify-center lg:px-2' : ''}`}
+                        title="Keluar"
+                    >
+                        <LogOut className="h-[18px] w-[18px] shrink-0" />
+                        <span className={collapsed ? 'lg:hidden' : ''}>Keluar</span>
+                    </button>
+                </div>
             </aside>
         </>
     );
 }
 
-function UserMenu({ user }) {
+function UserMenu({ user, onLogout }) {
     const [open, setOpen] = useState(false);
     const ref = useRef(null);
 
@@ -246,28 +268,70 @@ function UserMenu({ user }) {
                             Profil
                         </Link>
                     )}
-                    <Link
-                        href={route('logout')}
-                        method="post"
-                        as="button"
+                    <button
+                        type="button"
+                        onClick={() => {
+                            setOpen(false);
+                            onLogout?.();
+                        }}
                         className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-sm font-medium text-slate-700 transition hover:bg-red-50 hover:text-red-700"
                     >
                         <LogOut className="h-4 w-4 text-slate-400" aria-hidden="true" />
                         Keluar
-                    </Link>
+                    </button>
                 </div>
             )}
         </div>
     );
 }
 
+function LogoutModal({ open, onClose }) {
+    if (!open) return null;
+
+    return (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 print:hidden">
+            <div className="absolute inset-0 bg-slate-900/60" onClick={onClose} aria-hidden="true" />
+            <div
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="logout-title"
+                className="relative w-full max-w-sm rounded-2xl bg-white p-6 shadow-2xl"
+            >
+                <h2 id="logout-title" className="text-lg font-bold text-slate-900">Keluar dari akun?</h2>
+                <p className="mt-2 text-sm leading-6 text-slate-600">
+                    Anda yakin ingin keluar dari DUBESIA? Anda perlu masuk kembali untuk membuka portal.
+                </p>
+                <div className="mt-6 flex justify-end gap-2">
+                    <button
+                        type="button"
+                        onClick={onClose}
+                        className="rounded-lg border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+                    >
+                        Batal
+                    </button>
+                    <Link
+                        href={route('logout')}
+                        method="post"
+                        as="button"
+                        className="rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-700"
+                    >
+                        Ya, keluar
+                    </Link>
+                </div>
+            </div>
+        </div>
+    );
+}
+
 export default function AdminLayout({ title, subtitle, semesterName, bare = false, compact = false, children }) {
     const { auth, pendingRegistrations = 0, studentPlacementRequired = false } = usePage().props;
+    const [sidebarOpen, setSidebarOpen] = useState(false);
+    const [collapsed, setCollapsed] = useState(false);
+    const [logoutOpen, setLogoutOpen] = useState(false);
 
     if (bare) {
         return <div className="min-h-screen bg-slate-50 text-slate-900">{children}</div>;
     }
-    const [sidebarOpen, setSidebarOpen] = useState(false);
 
     return (
         <div className="min-h-screen bg-slate-50 text-slate-900">
@@ -277,15 +341,27 @@ export default function AdminLayout({ title, subtitle, semesterName, bare = fals
                 pendingRegistrations={pendingRegistrations}
                 studentPlacementRequired={studentPlacementRequired}
                 user={auth.user}
+                collapsed={collapsed}
+                onLogout={() => setLogoutOpen(true)}
             />
 
-            <div className="min-w-0 lg:pl-64 print:pl-0">
+            <div className={`min-w-0 transition-all print:pl-0 ${collapsed ? 'lg:pl-20' : 'lg:pl-64'}`}>
                 <header className="sticky top-0 z-20 flex h-16 items-center gap-3 border-b border-slate-100 bg-white px-4 sm:px-6 print:hidden">
                     <button
                         type="button"
                         onClick={() => setSidebarOpen(true)}
                         className="rounded-lg p-2 text-slate-600 hover:bg-slate-100 lg:hidden"
                         aria-label="Buka menu"
+                    >
+                        <Menu className="h-5 w-5" />
+                    </button>
+
+                    <button
+                        type="button"
+                        onClick={() => setCollapsed((value) => !value)}
+                        className="hidden rounded-lg p-2 text-slate-600 transition hover:bg-slate-100 lg:inline-flex"
+                        aria-label={collapsed ? 'Buka sidebar' : 'Tutup sidebar'}
+                        aria-pressed={collapsed}
                     >
                         <Menu className="h-5 w-5" />
                     </button>
@@ -298,7 +374,7 @@ export default function AdminLayout({ title, subtitle, semesterName, bare = fals
                     )}
 
                     <div className="ml-auto flex items-center gap-2 sm:gap-4">
-                        <UserMenu user={auth.user} />
+                        <UserMenu user={auth.user} onLogout={() => setLogoutOpen(true)} />
                     </div>
                 </header>
 
@@ -312,6 +388,8 @@ export default function AdminLayout({ title, subtitle, semesterName, bare = fals
                     {children}
                 </main>
             </div>
+
+            <LogoutModal open={logoutOpen} onClose={() => setLogoutOpen(false)} />
         </div>
     );
 }

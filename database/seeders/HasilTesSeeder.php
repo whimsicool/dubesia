@@ -5,22 +5,20 @@ namespace Database\Seeders;
 use App\Models\HasilTes;
 use App\Models\JawabanTes;
 use App\Models\SoalTes;
-use App\Models\User;
+use Database\Seeders\Concerns\SelectsDemoStudents;
 use Illuminate\Database\Seeder;
 
 class HasilTesSeeder extends Seeder
 {
+    use SelectsDemoStudents;
+
     /**
      * Seed satu hasil tes untuk sepuluh murid demo, dihitung dari jawaban yang
      * sudah dibuat JawabanTesSeeder. Satu murid hanya punya satu hasil tes.
      */
     public function run(): void
     {
-        $murids = User::where('role', User::ROLE_STUDENT)
-            ->where('is_active', true)
-            ->orderBy('id')
-            ->limit(10)
-            ->get();
+        $murids = $this->studentsForSeeding();
 
         foreach ($murids as $index => $murid) {
             $jawaban = JawabanTes::where('id_murid', $murid->id)->get();

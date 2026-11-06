@@ -3,6 +3,7 @@
 namespace Tests\Feature\Auth;
 
 use App\Mail\PasswordBaruMail;
+use App\Models\Pendaftaran;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
@@ -34,15 +35,53 @@ class PasswordResetTest extends TestCase
         });
     }
 
-    public function test_email_tidak_terdaftar_tetap_mendapat_pesan_netral(): void
+    public function test_email_tidak_terdaftar_ditolak_dengan_peringatan(): void
     {
         Mail::fake();
 
         $this->post('/forgot-password', ['email' => 'tidak.ada@dubesia.id'])
+            ->assertSessionHasErrors('email');
+
+        Mail::assertNothingSent();
+    }
+
+    public function test_email_belum_terverifikasi_ditolak(): void
+    {
+        Mail::fake();
+
+        $user = User::factory()->unverified()->create();
+
+        $this->post('/forgot-password', ['email' => $user->email])
+            ->assertSessionHasErrors('email');
+
+        Mail::assertNothingSent();
+    }
+
+    public function test_email_dengan_pendaftaran_belum_terverifikasi_ditolak(): void
+    {
+        Mail::fake();
+
+        $user = User::factory()->create();
+        Pendaftaran::factory()->for($user)->create(['status' => Pendaftaran::STATUS_MENUNGGU]);
+
+        $this->post('/forgot-password', ['email' => $user->email])
+            ->assertSessionHasErrors('email');
+
+        Mail::assertNothingSent();
+    }
+
+    public function test_email_dengan_pendaftaran_terverifikasi_boleh_minta_kata_sandi(): void
+    {
+        Mail::fake();
+
+        $user = User::factory()->create();
+        Pendaftaran::factory()->for($user)->terverifikasi()->create();
+
+        $this->post('/forgot-password', ['email' => $user->email])
             ->assertSessionHasNoErrors()
             ->assertSessionHas('status');
 
-        Mail::assertNothingSent();
+        Mail::assertSent(PasswordBaruMail::class);
     }
 
     public function test_kata_sandi_baru_dapat_dipakai_untuk_masuk(): void

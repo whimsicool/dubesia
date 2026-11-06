@@ -96,7 +96,7 @@ export default function HeroMark() {
                 <img
                     src="/images/dubesia-logo.png"
                     alt="Lambang DUBES Communications"
-                    className="h-[135%] w-[135%] max-w-none object-contain"
+                    className="h-[135%] w-[135%] max-w-none -translate-y-[6.5%] object-contain"
                 />
             </motion.div>
 

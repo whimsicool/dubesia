@@ -3,6 +3,13 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Gulir halus untuk tautan jangkar di landing page. */
+@media (prefers-reduced-motion: no-preference) {
+    html {
+        scroll-behavior: smooth;
+    }
+}
 @layer components {
     .field { @apply mt-1 w-full rounded-lg border-surface-container bg-white text-xs text-on-surface focus:border-secondary focus:ring-secondary; }
 }

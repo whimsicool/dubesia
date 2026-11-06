@@ -1,6 +1,7 @@
 import { Head, Link, useForm } from '@inertiajs/react';
 import PasswordInput from '@/Components/PasswordInput';
-import { KeyRound } from 'lucide-react';
+import { BookOpen, CircleHelp, KeyRound, UserRoundPlus } from 'lucide-react';
+import PublicHeader from '@/Components/PublicHeader';
 
 export default function Login({ status }) {
     const { data, setData, post, processing, errors, reset } = useForm({
@@ -35,25 +36,22 @@ export default function Login({ status }) {
             </Head>
 
             <div className="flex min-h-screen flex-col bg-surface font-body-md text-body-md text-on-surface selection:bg-surface-variant selection:text-on-surface">
-                <header className="fixed left-0 top-0 z-50 w-full bg-surface/90 shadow-[0_1px_8px_rgba(11,28,48,0.04)] backdrop-blur-xl">
-                    <div className="mx-auto flex h-20 max-w-7xl items-center justify-between gap-4 px-6 lg:px-12">
-                        <Link href="/" className="group flex items-center gap-3">
-                            <img
-                                src="/images/dubesia-logo.png"
-                                alt="Logo DUBESIA"
-                                className="h-10 w-10 rounded-full object-contain"
-                            />
-                            <span className="flex flex-col">
-                                <span className="font-headline-sm text-headline-sm font-bold tracking-tight text-on-surface">
-                                    DUBESIA
-                                </span>
-                                <span className="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant">
-                                    Portal Masuk Murid &amp; Tutor
-                                </span>
-                            </span>
+                <PublicHeader
+                    fixed
+                    links={[
+                        { label: 'Panduan Pendaftaran', href: route('panduan-pendaftaran'), icon: BookOpen },
+                        { label: 'FAQ', href: route('bantuan-admisi'), icon: CircleHelp },
+                    ]}
+                    action={
+                        <Link
+                            href={route('registrasi.create')}
+                            className="inline-flex items-center gap-2 rounded-lg bg-secondary px-4 py-2.5 font-label-lg text-label-lg text-white shadow-sm transition-colors hover:bg-primary-container"
+                        >
+                            <UserRoundPlus aria-hidden="true" className="h-4 w-4" />
+                            Daftar
                         </Link>
-                    </div>
-                </header>
+                    }
+                />
 
                 <main className="flex w-full flex-1 flex-col justify-center bg-surface pt-20">
                     <div className="flex w-full flex-col">
@@ -143,7 +141,7 @@ export default function Login({ status }) {
                                                                 e.target.value,
                                                             )
                                                         }
-                                                        placeholder="cth. email@student.dubes.ac.id"
+                                                        placeholder="nama@email.com"
                                                         required
                                                     />
                                                 </div>

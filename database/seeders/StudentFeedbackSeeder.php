@@ -3,21 +3,19 @@
 namespace Database\Seeders;
 
 use App\Models\StudentFeedback;
-use App\Models\User;
+use Database\Seeders\Concerns\SelectsDemoStudents;
 use Illuminate\Database\Seeder;
 
 class StudentFeedbackSeeder extends Seeder
 {
+    use SelectsDemoStudents;
+
     /**
      * Seed sepuluh masukan dari murid demo.
      */
     public function run(): void
     {
-        $murids = User::where('role', User::ROLE_STUDENT)
-            ->where('is_active', true)
-            ->orderBy('id')
-            ->limit(10)
-            ->get();
+        $murids = $this->studentsForSeeding();
 
         $masukan = [
             ['Materi Kelas', 'Materi minggu ini mudah diikuti, contoh kalimatnya membantu.'],
