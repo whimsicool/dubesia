@@ -8,7 +8,7 @@ use Illuminate\Support\Collection;
 /**
  * Deteksi bentrok jadwal. Dua sesi dianggap bentrok bila:
  *  - hari sama dan jamnya beririsan, DAN
- *  - instruktur sama, ATAU ruang sama, ATAU ada murid yang terdaftar di keduanya.
+ *  - tutor sama, ATAU ruang sama, ATAU ada murid yang terdaftar di keduanya.
  */
 class ScheduleConflictService
 {
@@ -23,7 +23,7 @@ class ScheduleConflictService
         int $day,
         string $start,
         string $end,
-        ?int $instructorId = null,
+        ?int $tutorId = null,
         ?int $roomId = null,
         array $studentIds = [],
         ?int $ignoreId = null,
@@ -39,7 +39,7 @@ class ScheduleConflictService
         $students = collect($studentIds)->map(fn ($id) => (int) $id);
 
         $others = Schedule::query()
-            ->with(['instructor:id,name', 'room:id,name', 'students:id'])
+            ->with(['tutor:id,name', 'room:id,name', 'students:id'])
             ->where('semester_id', $semesterId)
             ->where('day_of_week', $day)
             ->when($scheduledDate, fn ($query) => $query->where(fn ($dates) => $dates
@@ -55,9 +55,9 @@ class ScheduleConflictService
         foreach ($others as $other) {
             $when = sprintf('"%s" (%s–%s)', $other->title, substr($other->start_time, 0, 5), substr($other->end_time, 0, 5));
 
-            foreach ($this->reasons($instructorId, $roomId, $students, $other) as $type => $detail) {
+            foreach ($this->reasons($tutorId, $roomId, $students, $other) as $type => $detail) {
                 $message = match ($type) {
-                    'instructor' => "Instruktur {$detail} sudah mengajar {$when}.",
+                    'tutor' => "Tutor {$detail} sudah mengajar {$when}.",
                     'room' => "Ruang {$detail} sudah dipakai {$when}.",
                     'students' => "{$detail} murid terpilih sudah terdaftar di {$when}.",
                 };
@@ -70,18 +70,18 @@ class ScheduleConflictService
     }
 
     /**
-     * Alasan bentrok antara sebuah sesi (instruktur/ruang/murid) dan sesi lain.
-     * Return: ['instructor' => nama, 'room' => nama, 'students' => jumlah] (hanya yang bentrok).
+     * Alasan bentrok antara sebuah sesi (tutor/ruang/murid) dan sesi lain.
+     * Return: ['tutor' => nama, 'room' => nama, 'students' => jumlah] (hanya yang bentrok).
      *
      * @param  Collection<int, int>  $studentIds
      * @return array<string, string|int>
      */
-    private function reasons(?int $instructorId, ?int $roomId, Collection $studentIds, Schedule $other): array
+    private function reasons(?int $tutorId, ?int $roomId, Collection $studentIds, Schedule $other): array
     {
         $reasons = [];
 
-        if ($instructorId && (int) $other->instructor_id === $instructorId) {
-            $reasons['instructor'] = $other->instructor->name;
+        if ($tutorId && (int) $other->tutor_id === $tutorId) {
+            $reasons['tutor'] = $other->tutor->name;
         }
 
         if ($roomId && (int) $other->room_id === $roomId) {

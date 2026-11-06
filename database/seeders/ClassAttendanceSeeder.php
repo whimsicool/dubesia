@@ -8,19 +8,11 @@ use Illuminate\Database\Seeder;
 
 class ClassAttendanceSeeder extends Seeder
 {
-    /**
-     * Seed presensi kelas untuk sepuluh murid kelas demo pertama
-     * pada lima hari terakhir.
-     */
+    /** Presensi kelas lima hari terakhir untuk sepuluh kelas demo. */
     public function run(): void
     {
-        $class = CourseClass::with(['students', 'tutors'])->orderBy('id')->first();
+        $classes = CourseClass::with(['students', 'tutors'])->orderBy('id')->limit(10)->get();
 
-        if (! $class || $class->students->isEmpty() || $class->tutors->isEmpty()) {
-            return;
-        }
-
-        $tutor = $class->tutors->first();
         $catatan = [
             'Hadir' => null,
             'Izin' => 'Mengikuti kegiatan sekolah.',
@@ -28,21 +20,29 @@ class ClassAttendanceSeeder extends Seeder
             'Alpa' => 'Tanpa keterangan.',
         ];
 
-        foreach (range(1, 5) as $dateOffset) {
-            $tanggal = now()->subDays($dateOffset)->toDateString();
+        foreach ($classes as $class) {
+            $tutor = $class->tutors->first();
 
-            foreach ($class->students as $studentIndex => $student) {
-                $status = ClassAttendance::STATUSES[($dateOffset + $studentIndex) % count(ClassAttendance::STATUSES)];
+            if ($class->students->isEmpty() || ! $tutor) {
+                continue;
+            }
 
-                ClassAttendance::updateOrCreate(
-                    ['student_id' => $student->id, 'attendance_date' => $tanggal],
-                    [
-                        'tutor_id' => $tutor->id,
-                        'class_level' => $class->level->value,
-                        'status' => $status,
-                        'notes' => $catatan[$status],
-                    ],
-                );
+            foreach (range(1, 5) as $dateOffset) {
+                $tanggal = now()->subDays($dateOffset)->toDateString();
+
+                foreach ($class->students->values() as $studentIndex => $student) {
+                    $status = ClassAttendance::STATUSES[($dateOffset + $studentIndex) % count(ClassAttendance::STATUSES)];
+
+                    ClassAttendance::updateOrCreate(
+                        ['student_id' => $student->id, 'attendance_date' => $tanggal],
+                        [
+                            'tutor_id' => $tutor->id,
+                            'class_level' => $class->level->value,
+                            'status' => $status,
+                            'notes' => $catatan[$status],
+                        ],
+                    );
+                }
             }
         }
     }

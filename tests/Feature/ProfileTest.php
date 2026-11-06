@@ -30,7 +30,7 @@ class ProfileTest extends TestCase
             'no_whatsapp' => '6281234567890',
             'alamat' => 'Jl. Merdeka 1',
             'asal_institusi' => 'SMA Negeri 1',
-            'program' => 'toefl_ielts',
+            'program' => 'reguler',
             'bukti_pembayaran' => 'bukti/pembayaran.jpg',
             'biaya' => 400000,
             'status' => Pendaftaran::STATUS_TERVERIFIKASI,
@@ -52,7 +52,7 @@ class ProfileTest extends TestCase
                 ->where('profile.class_level', 'Middle Intermediate')
                 ->where('profile.can_upload_photo', true)
                 ->where('pendaftaran.asal_institusi', 'SMA Negeri 1')
-                ->where('pendaftaran.program', 'TOEFL & IELTS Mastery')
+                ->where('pendaftaran.program', 'Reguler')
                 ->where('pendaftaran.status_label', 'Terverifikasi')
             );
     }

@@ -7,7 +7,6 @@ use App\Http\Requests\Admin\ScheduleRequest;
 use App\Http\Resources\ScheduleResource;
 use App\Models\Attendance;
 use App\Models\CourseClass;
-use App\Models\Instructor;
 use App\Models\Program;
 use App\Models\Room;
 use App\Models\Schedule;
@@ -63,7 +62,7 @@ class ScheduleController extends Controller
                 'day' => $request->integer('day') ?: null,
                 'class_id' => $request->integer('class_id') ?: null,
                 'program_id' => $request->integer('program_id') ?: null,
-                'instructor_id' => $request->integer('instructor_id') ?: null,
+                'tutor_id' => $request->integer('tutor_id') ?: null,
                 'room_id' => $request->integer('room_id') ?: null,
                 'q' => trim((string) $request->query('q', '')) ?: null,
             ],
@@ -71,7 +70,6 @@ class ScheduleController extends Controller
             'options' => [
                 'programs' => Program::where('is_active', true)->orderBy('name')->get(['id', 'name', 'category'])
                     ->map(fn ($p) => ['id' => $p->id, 'name' => $p->name, 'category' => $p->category->value]),
-                'instructors' => Instructor::where('is_active', true)->orderBy('name')->get(['id', 'name']),
                 'classes' => CourseClass::where('is_active', true)->with(['tutors:id,name'])->withCount('students')->orderBy('name')->get()
                     ->map(fn (CourseClass $class) => [
                         'id' => $class->id,
@@ -128,7 +126,7 @@ class ScheduleController extends Controller
                         'start_time' => substr($schedule->start_time, 0, 5),
                         'end_time' => substr($schedule->end_time, 0, 5),
                         'program' => $schedule->program?->name ?? '-',
-                        'instructor' => $schedule->instructor?->name ?? '-',
+                        'tutor' => $schedule->tutor?->name ?? '-',
                         'room' => $schedule->room?->name ?? '-',
                         'participants' => $schedule->students->count(),
                     ])
@@ -227,8 +225,7 @@ class ScheduleController extends Controller
             day: Carbon::createFromFormat('Y-m-d', $data['scheduled_date'])->dayOfWeekIso,
             start: $data['start_time'],
             end: $data['end_time'],
-            // Formulir mengirim tutor & murid (user); mesin bentrok bekerja dengan id instruktur & students.
-            instructorId: empty($data['tutor_id']) ? null : Instructor::where('user_id', $data['tutor_id'])->value('id'),
+            tutorId: empty($data['tutor_id']) ? null : (int) $data['tutor_id'],
             roomId: $data['room_id'] ?? null,
             studentIds: empty($data['class_id']) ? [] : $this->studentIdsForClass((int) $data['class_id']),
             ignoreId: $data['ignore_id'] ?? null,
@@ -284,19 +281,16 @@ class ScheduleController extends Controller
      |  Helpers
      | ------------------------------------------------------------------- */
     /**
-     * Simpan jadwal. Kelas menentukan judul & nama kelas; tutor dan murid dipetakan ke
-     * baris `instructors` / `students` yang sudah dipakai kalender, presensi, dan ekspor.
+     * Simpan jadwal. Kelas menentukan judul, nama kelas, dan murid; tutor dipilih dari akun tutor.
      */
     private function persist(Schedule $schedule, array $data): Schedule
     {
         $class = CourseClass::with('students:id')->findOrFail($data['class_id']);
         $studentUserIds = $class->students->pluck('id')->map(fn ($id) => (int) $id)->all();
-        $tutor = User::findOrFail($data['tutor_id']);
-        unset($data['tutor_id']);
+        $data['tutor_id'] = User::findOrFail($data['tutor_id'])->id;
 
         $data['title'] = $class->name;
         $data['class_name'] = $class->name;
-        $data['instructor_id'] = $this->instructorFor($tutor);
 
         $studentIds = $this->studentsFor($studentUserIds);
 
@@ -309,21 +303,6 @@ class ScheduleController extends Controller
             ->update(['status' => Student::STATUS_ACTIVE]);
 
         return $schedule;
-    }
-
-    /** Baris instruktur adalah pasangan tutor (user) pada jadwal; dibuat saat tutor pertama kali dipakai. */
-    private function instructorFor(User $tutor): int
-    {
-        $instructor = Instructor::firstOrCreate(
-            ['user_id' => $tutor->id],
-            ['name' => $tutor->name, 'is_active' => true],
-        );
-
-        if ($instructor->name !== $tutor->name) {
-            $instructor->update(['name' => $tutor->name]);
-        }
-
-        return $instructor->id;
     }
 
     /**
@@ -360,7 +339,7 @@ class ScheduleController extends Controller
         $like = '%'.addcslashes($q, '%_\\').'%';
 
         $query = Schedule::query();
-        $query->with(['program', 'instructor', 'room', 'students:id,name']);
+        $query->with(['program', 'tutor', 'room', 'students:id,name']);
         $query->where('semester_id', $semester->getKey());
 
         foreach (
@@ -368,7 +347,7 @@ class ScheduleController extends Controller
                 'day' => 'day_of_week',
                 'class_id' => 'class_id',
                 'program_id' => 'program_id',
-                'instructor_id' => 'instructor_id',
+                'tutor_id' => 'tutor_id',
                 'room_id' => 'room_id',
             ] as $parameter => $column
         ) {
@@ -383,7 +362,7 @@ class ScheduleController extends Controller
                 $w->where('title', 'like', $like)
                     ->orWhere('class_name', 'like', $like)
                     ->orWhereHas('program', fn ($p) => $p->where('name', 'like', $like))
-                    ->orWhereHas('instructor', fn ($i) => $i->where('name', 'like', $like))
+                    ->orWhereHas('tutor', fn ($t) => $t->where('name', 'like', $like))
                     ->orWhereHas('room', fn ($r) => $r->where('name', 'like', $like))
                     ->orWhereHas('students', fn ($s) => $s->where('name', 'like', $like));
             });

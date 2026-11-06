@@ -4,7 +4,6 @@ namespace Tests\Feature\Student;
 
 use App\Enums\ClassLevel;
 use App\Models\CourseClass;
-use App\Models\Instructor;
 use App\Models\Room;
 use App\Models\Schedule;
 use App\Models\Semester;
@@ -35,7 +34,7 @@ class ScheduleViewTest extends TestCase
             'is_active' => true,
         ]);
         $room = Room::create(['name' => '1', 'type' => 'physical', 'capacity' => 20]);
-        $instructor = Instructor::create(['name' => 'Dr. Kevin Kusuma']);
+        $tutor = User::factory()->create(['role' => User::ROLE_TUTOR, 'name' => 'Dr. Kevin Kusuma']);
 
         $student = Student::create([
             'user_id' => $this->studentUser->id,
@@ -47,7 +46,7 @@ class ScheduleViewTest extends TestCase
         // Jadwal berbasis kelas tidak selalu memiliki program studi.
         $this->schedule = Schedule::create([
             'semester_id' => $semester->id,
-            'instructor_id' => $instructor->id,
+            'tutor_id' => $tutor->id,
             'room_id' => $room->id,
             'title' => 'DEMO English Class A',
             'class_name' => 'DEMO English Class A',
@@ -83,7 +82,6 @@ class ScheduleViewTest extends TestCase
     public function test_filters_only_offer_enrolled_classes_and_their_tutors_but_all_rooms(): void
     {
         $tutor = User::factory()->create(['role' => 'tutor']);
-        $instructor = Instructor::create(['name' => $tutor->name, 'email' => $tutor->email, 'user_id' => $tutor->id]);
         $ownClass = CourseClass::create(['name' => 'My class', 'level' => ClassLevel::Beginner->value, 'is_active' => true]);
         $ownClass->students()->attach($this->studentUser);
         $ownClass->tutors()->attach($tutor);
@@ -94,8 +92,8 @@ class ScheduleViewTest extends TestCase
             ->assertOk()->assertInertia(fn (Assert $page) => $page
             ->has('options.classes', 1)
             ->where('options.classes.0.id', $ownClass->id)
-            ->has('options.instructors', 1)
-            ->where('options.instructors.0.id', $instructor->id)
+            ->has('options.tutors', 1)
+            ->where('options.tutors.0.id', $tutor->id)
             ->has('options.rooms', 2));
     }
 

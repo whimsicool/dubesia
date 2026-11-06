@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Instructor;
 use App\Models\Room;
 use App\Models\Schedule;
 use App\Models\Semester;
@@ -22,12 +21,12 @@ class ScheduleViewController extends Controller
         $user = $request->user();
         $semester = Semester::active()->first();
         $schedules = collect();
-        $options = ['classes' => [], 'instructors' => [], 'rooms' => []];
+        $options = ['classes' => [], 'tutors' => [], 'rooms' => []];
         $weekStart = $this->resolveWeekStart($request->query('week'));
         $filters = [
             'day' => $request->integer('day') ?: null,
             'class_id' => $request->integer('class_id') ?: null,
-            'instructor_id' => $request->integer('instructor_id') ?: null,
+            'tutor_id' => $request->integer('tutor_id') ?: null,
             'room_id' => $request->integer('room_id') ?: null,
             'q' => trim((string) $request->query('q', '')) ?: null,
         ];
@@ -61,7 +60,7 @@ class ScheduleViewController extends Controller
         $filters = [
             'day' => $request->integer('day') ?: null,
             'class_id' => $request->integer('class_id') ?: null,
-            'instructor_id' => $request->integer('instructor_id') ?: null,
+            'tutor_id' => $request->integer('tutor_id') ?: null,
             'room_id' => $request->integer('room_id') ?: null,
             'q' => trim((string) $request->query('q', '')) ?: null,
         ];
@@ -113,9 +112,7 @@ class ScheduleViewController extends Controller
         $baseQuery = Schedule::query()->where('semester_id', $semester->id);
 
         if ($user->isTutor()) {
-            $baseQuery->whereHas('instructor', fn ($instructor) => $instructor->where(function ($match) use ($user) {
-                $match->where('user_id', $user->id)->orWhere('email', $user->email);
-            }));
+            $baseQuery->where('tutor_id', $user->id);
         } else {
             $baseQuery->whereHas('students', fn ($student) => $student->where(function ($match) use ($user) {
                 $match->where('user_id', $user->id)->orWhere('email', $user->email);
@@ -128,16 +125,14 @@ class ScheduleViewController extends Controller
         $tutors = $selectedClasses->flatMap->tutors->unique('id');
         $options = [
             'classes' => $classes->map(fn ($class) => ['id' => $class->id, 'name' => $class->name])->values(),
-            'instructors' => Instructor::query()->where(function ($query) use ($tutors) {
-                $query->whereIn('user_id', $tutors->pluck('id'))->orWhereIn('email', $tutors->pluck('email'));
-            })->orderBy('name')->get(['id', 'name']),
+            'tutors' => $tutors->sortBy('name')->values()->map(fn ($tutor) => ['id' => $tutor->id, 'name' => $tutor->name]),
             'rooms' => Room::query()->orderBy('name')->get(['id', 'name']),
         ];
 
         /** @var Builder<Schedule> $query */
         $query = clone $baseQuery;
         $this->applyFilters($query, $filters);
-        $schedules = $query->with(['program:id,name,category', 'instructor:id,name', 'room:id,name,type,platform,capacity', 'students:id'])
+        $schedules = $query->with(['program:id,name,category', 'tutor:id,name', 'room:id,name,type,platform,capacity', 'students:id'])
             ->orderBy('day_of_week')->orderBy('start_time')->get()
             ->map($this->formatSchedule(...))->values();
 
@@ -146,7 +141,7 @@ class ScheduleViewController extends Controller
 
     private function applyFilters($query, array $filters): void
     {
-        foreach (['day' => 'day_of_week', 'class_id' => 'class_id', 'instructor_id' => 'instructor_id', 'room_id' => 'room_id'] as $filter => $column) {
+        foreach (['day' => 'day_of_week', 'class_id' => 'class_id', 'tutor_id' => 'tutor_id', 'room_id' => 'room_id'] as $filter => $column) {
             if ($filters[$filter]) {
                 $query->where($column, $filters[$filter]);
             }
@@ -158,7 +153,7 @@ class ScheduleViewController extends Controller
                 ->where('title', 'like', $like)
                 ->orWhere('class_name', 'like', $like)
                 ->orWhereHas('program', fn ($program) => $program->where('name', 'like', $like))
-                ->orWhereHas('instructor', fn ($instructor) => $instructor->where('name', 'like', $like))
+                ->orWhereHas('tutor', fn ($tutor) => $tutor->where('name', 'like', $like))
                 ->orWhereHas('room', fn ($room) => $room->where('name', 'like', $like)));
         }
     }
@@ -178,7 +173,7 @@ class ScheduleViewController extends Controller
                 'name' => $schedule->program->name,
                 'category' => $schedule->program->category->value,
             ] : null,
-            'instructor' => ['name' => $schedule->instructor->name, 'initials' => $schedule->instructor->initials],
+            'tutor' => ['name' => $schedule->tutor->name, 'initials' => $schedule->tutor->initials],
             'room' => [
                 'name' => $schedule->room->name,
                 'type' => $schedule->room->type->value,

@@ -18,20 +18,6 @@ export const CATEGORY_STYLES = {
         chip: 'bg-slate-100 text-slate-700',
         badge: 'bg-slate-900 text-white',
     },
-    exam: {
-        label: 'IELTS / Exam',
-        dot: 'bg-red-700',
-        border: 'border-l-red-700',
-        chip: 'bg-red-700 text-white',
-        badge: 'bg-red-700 text-white',
-    },
-    mandarin: {
-        label: 'Mandarin / Asian',
-        dot: 'bg-sky-300',
-        border: 'border-l-sky-300',
-        chip: 'bg-sky-100 text-sky-700',
-        badge: 'bg-sky-100 text-sky-700',
-    },
 };
 
 export function parseISODate(iso) {

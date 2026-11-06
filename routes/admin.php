@@ -39,5 +39,5 @@ Route::middleware(['auth', 'verified', 'role:admin'])
         });
     });
 
-// Fitur materi belajar (guru: kelola, semua user: pustaka)
+// Fitur materi belajar (tutor: kelola, semua user: pustaka)
 require __DIR__.'/materials.php';

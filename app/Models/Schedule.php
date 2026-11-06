@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Schedule extends Model
 {
     protected $fillable = [
-        'semester_id', 'program_id', 'class_id', 'instructor_id', 'room_id',
+        'semester_id', 'program_id', 'class_id', 'tutor_id', 'room_id',
         'title', 'class_name', 'day_of_week', 'scheduled_date', 'start_time', 'end_time', 'notes',
     ];
 
@@ -30,9 +30,9 @@ class Schedule extends Model
         return $this->belongsTo(Program::class);
     }
 
-    public function instructor(): BelongsTo
+    public function tutor(): BelongsTo
     {
-        return $this->belongsTo(Instructor::class);
+        return $this->belongsTo(User::class, 'tutor_id');
     }
 
     public function room(): BelongsTo

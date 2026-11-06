@@ -145,9 +145,9 @@
 
                     <td>
                         @if ($audience === 'Administrator')
-                        {{ $schedule['instructor'] ?? '-' }}
+                        {{ $schedule['tutor'] ?? '-' }}
                         @else
-                        {{ $schedule['instructor']['name'] ?? '-' }}
+                        {{ $schedule['tutor']['name'] ?? '-' }}
                         @endif
                     </td>
 

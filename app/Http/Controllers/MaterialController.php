@@ -32,7 +32,7 @@ class MaterialController extends Controller
         $active = $this->resolveActiveMaterial($request, $user);
 
         $materials = $this->buildMaterialsQuery($user->id, $filters)
-            ->paginate(9)
+            ->paginate(10)
             ->withQueryString()
             ->through(fn (Material $material) => MaterialResource::make($material)->resolve());
 

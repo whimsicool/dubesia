@@ -57,7 +57,7 @@ export default function ScheduleFilters({ filters, options, view, onViewChange, 
                 <Select
                     label={options.classes ? 'Kelas' : 'Program Kursus'}
                     value={options.classes ? filters.class_id : filters.program_id}
-                    onChange={(v) => onChange(options.classes ? { class_id: v, instructor_id: '' } : { program_id: v })}
+                    onChange={(v) => onChange(options.classes ? { class_id: v, tutor_id: '' } : { program_id: v })}
                 >
                     <option value="">Semua</option>
                     {(options.classes ?? options.programs ?? []).map((p) => (
@@ -67,11 +67,11 @@ export default function ScheduleFilters({ filters, options, view, onViewChange, 
                     ))}
                 </Select>
 
-                <Select label="Tutor" value={filters.instructor_id} onChange={(v) => onChange({ instructor_id: v })}>
+                <Select label="Tutor" value={filters.tutor_id} onChange={(v) => onChange({ tutor_id: v })}>
                     <option value="">Semua</option>
-                    {options.instructors.map((i) => (
-                        <option key={i.id} value={i.id}>
-                            {i.name}
+                    {options.tutors.map((t) => (
+                        <option key={t.id} value={t.id}>
+                            {t.name}
                         </option>
                     ))}
                 </Select>

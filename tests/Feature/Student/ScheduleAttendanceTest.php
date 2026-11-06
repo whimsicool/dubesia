@@ -3,7 +3,6 @@
 namespace Tests\Feature\Student;
 
 use App\Models\Attendance;
-use App\Models\Instructor;
 use App\Models\Room;
 use App\Models\Schedule;
 use App\Models\Semester;
@@ -39,7 +38,7 @@ class ScheduleAttendanceTest extends TestCase
             'is_active' => true,
         ]);
         $room = Room::create(['name' => '1', 'type' => 'physical', 'capacity' => 20]);
-        $instructor = Instructor::create(['name' => 'Dr. Kevin Kusuma']);
+        $tutor = User::factory()->create(['role' => User::ROLE_TUTOR]);
 
         $this->student = Student::create([
             'user_id' => $this->studentUser->id,
@@ -50,7 +49,7 @@ class ScheduleAttendanceTest extends TestCase
 
         $this->schedule = Schedule::create([
             'semester_id' => $semester->id,
-            'instructor_id' => $instructor->id,
+            'tutor_id' => $tutor->id,
             'room_id' => $room->id,
             'title' => 'Diplomatic Speech & Rhetoric',
             'class_name' => 'Diplomatic Speech Batch #4',

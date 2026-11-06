@@ -42,6 +42,19 @@ class CalonMuridIndexTest extends TestCase
         return $pendaftaran;
     }
 
+    public function test_pendaftaran_menunggu_pembayaran_tidak_tampil_di_portal_admin(): void
+    {
+        $this->pendaftaran(Pendaftaran::STATUS_MENUNGGU_PEMBAYARAN, now()->toDateTimeString());
+
+        $this->actingAs($this->admin())
+            ->get(route('admin.calon-murid.index'))
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('Admin/CalonMurid/Index')
+                ->has('pendaftarans.data', 0)
+                ->missing('statuses.'.Pendaftaran::STATUS_MENUNGGU_PEMBAYARAN));
+    }
+
     public function test_pendaftaran_belum_diverifikasi_tampil_di_urutan_atas(): void
     {
         // Pendaftaran terverifikasi lebih baru, jadi tanpa pengurutan status ia akan tampil dulu.

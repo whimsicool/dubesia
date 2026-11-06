@@ -27,7 +27,7 @@ class DashboardTest extends TestCase
             'email' => $student->email,
             'no_whatsapp' => '081234567890',
             'alamat' => 'Jl. Merdeka 1',
-            'program' => 'toefl_ielts',
+            'program' => 'reguler',
             'bukti_pembayaran' => 'bukti/pembayaran.jpg',
             'status' => Pendaftaran::STATUS_MENUNGGU,
         ]);

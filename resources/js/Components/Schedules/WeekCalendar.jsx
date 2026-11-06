@@ -20,9 +20,9 @@ function SessionCard({ schedule, date, onEdit, onDelete, onAttendance, attendanc
                 <div className="mt-3 flex items-center justify-between gap-2 text-xs">
                     <span className="flex min-w-0 items-center gap-1.5 font-semibold text-slate-800">
                         <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-slate-900 text-[9px] font-bold text-white">
-                            {schedule.instructor.initials}
+                            {schedule.tutor.initials}
                         </span>
-                        <span className="truncate">{schedule.instructor.name}</span>
+                        <span className="truncate">{schedule.tutor.name}</span>
                     </span>
                     <span className="shrink-0 font-semibold text-slate-600">{schedule.participants} Mhs</span>
                 </div>

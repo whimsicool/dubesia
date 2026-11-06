@@ -194,9 +194,7 @@ class DashboardController extends Controller
             ->whereDate('date', '>=', $attendanceStart->toDateString())
             ->whereDate('date', '<=', $today->toDateString())
             ->whereHas('schedule', fn (Builder $schedule) => $schedule
-                ->whereHas('instructor', fn (Builder $instructor) => $instructor->where(
-                    fn (Builder $match) => $match->where('user_id', $user->id)->orWhere('email', $user->email)
-                ))
+                ->where('tutor_id', $user->id)
                 ->where(fn (Builder $datedSchedule) => $datedSchedule
                     ->whereNull('scheduled_date')
                     ->orWhereRaw('DATE(schedules.scheduled_date) = DATE(attendances.date)')))
@@ -611,9 +609,7 @@ class DashboardController extends Controller
 
         return Schedule::query()
             ->where('semester_id', $semester->id)
-            ->whereHas('instructor', fn (Builder $instructor) => $instructor->where(
-                fn (Builder $match) => $match->where('user_id', $user->id)->orWhere('email', $user->email)
-            ))
+            ->where('tutor_id', $user->id)
             ->with('room:id,name')
             ->orderBy('start_time')
             ->get();

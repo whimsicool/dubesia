@@ -3,7 +3,6 @@
 namespace Tests\Feature\Tutor;
 
 use App\Models\Attendance;
-use App\Models\Instructor;
 use App\Models\Program;
 use App\Models\Room;
 use App\Models\Schedule;
@@ -42,8 +41,6 @@ class ScheduleAttendanceTest extends TestCase
         ]);
         $program = Program::create(['code' => 'DSP', 'name' => 'Diplomatic Speech', 'category' => 'english']);
         $room = Room::create(['name' => '1', 'type' => 'physical', 'capacity' => 20]);
-        $instructor = Instructor::create(['user_id' => $this->tutor->id, 'name' => $this->tutor->name]);
-
         $studentUser = User::factory()->create(['role' => User::ROLE_STUDENT, 'name' => 'Murid Satu']);
         $this->student = Student::create([
             'user_id' => $studentUser->id,
@@ -55,7 +52,7 @@ class ScheduleAttendanceTest extends TestCase
         $this->schedule = Schedule::create([
             'semester_id' => $semester->id,
             'program_id' => $program->id,
-            'instructor_id' => $instructor->id,
+            'tutor_id' => $this->tutor->id,
             'room_id' => $room->id,
             'title' => 'Diplomatic Speech & Rhetoric',
             'class_name' => 'Diplomatic Speech Batch #4',
