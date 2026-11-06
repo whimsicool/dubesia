@@ -30,7 +30,7 @@ export default function Index({ courseClass, components, totalWeight }) {
             <Head title={`Komponen Nilai - ${courseClass.name}`} />
 
             <main className="mx-auto max-w-7xl">
-                <nav aria-label="Breadcrumb" className="mb-5 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
+                <nav aria-label="Breadcrumb" className="mb-5 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs font-semibold uppercase tracking-wide text-slate-500">
                     <Link href={route('tutor.dashboard')} className="inline-flex items-center gap-1 transition hover:text-red-700"><LayoutDashboard className="h-3.5 w-3.5" aria-hidden="true" />Dashboard<ArrowUpRight className="h-3 w-3" aria-hidden="true" /></Link>
                     <span aria-hidden="true">›</span>
                     <Link href={route('tutor.classes.index')} className="inline-flex items-center gap-1 transition hover:text-red-700"><GraduationCap className="h-3.5 w-3.5" aria-hidden="true" />Kelas Saya<ArrowUpRight className="h-3 w-3" aria-hidden="true" /></Link>

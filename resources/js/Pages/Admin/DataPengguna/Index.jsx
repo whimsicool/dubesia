@@ -304,9 +304,9 @@ export default function Index({ users, filters, stats }) {
                 <div className="kdp-tabs-bar">
                     <div className="kdp-tabs">
                         {[
-                            { key: '', label: 'Semua Pengguna', icon: UsersRound },
-                            { key: 'student', label: 'Data Murid', icon: GraduationCap },
-                            { key: 'tutor', label: 'Data Tutor', icon: BookOpenCheck },
+                            { key: '', label: 'Semua Pengguna', shortLabel: 'Semua', icon: UsersRound },
+                            { key: 'student', label: 'Data Murid', shortLabel: 'Murid', icon: GraduationCap },
+                            { key: 'tutor', label: 'Data Tutor', shortLabel: 'Tutor', icon: BookOpenCheck },
                         ].map((tab) => (
                             <button
                                 key={tab.key}
@@ -315,7 +315,8 @@ export default function Index({ users, filters, stats }) {
                                 className={`kdp-tab ${activeTab === tab.key ? 'kdp-tab--active' : ''}`}
                             >
                                 <tab.icon className="mr-1.5 inline-block h-4 w-4" aria-hidden="true" />
-                                {tab.label} ({tabCounts[tab.key]})
+                                <span className="hidden sm:inline">{tab.label}</span>
+                                <span className="sm:hidden">{tab.shortLabel}</span> ({tabCounts[tab.key]})
                             </button>
                         ))}
                     </div>

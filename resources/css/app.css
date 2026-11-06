@@ -225,6 +225,34 @@
     font-weight: 700;
 }
 
+@media (max-width: 640px) {
+    .kdp-tabs-bar {
+        padding: 12px;
+    }
+
+    .kdp-tabs {
+        gap: 0;
+        padding: 2px;
+    }
+
+    .kdp-tab {
+        padding: 6px 8px;
+        font-size: 11px;
+    }
+
+    .kdp-tab svg {
+        width: 14px;
+        height: 14px;
+        margin-right: 4px;
+    }
+}
+
+@media (max-width: 360px) {
+    .kdp-tab svg {
+        display: none;
+    }
+}
+
 /* ─── Filters Row ─── */
 .kdp-filters {
     display: flex;

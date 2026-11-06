@@ -11,7 +11,7 @@ const input =
 
 function Field({ label, hint, error, children, className = '' }) {
     return (
-        <div className={className}>
+        <div className={`min-w-0 ${className}`}>
             <label className="mb-1 block text-xs font-semibold text-slate-700">{label}</label>
             {children}
             {hint && !error && <p className="mt-1 text-xs text-slate-400">{hint}</p>}
