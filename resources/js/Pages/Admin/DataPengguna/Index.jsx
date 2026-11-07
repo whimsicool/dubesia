@@ -3,7 +3,7 @@ import { DialogTitle } from '@headlessui/react';
 import AdminLayout from '@/Layouts/AdminLayout';
 import useEmailAvailability from '@/Hooks/useEmailAvailability';
 import { Head, Link, router, useForm, usePage } from '@inertiajs/react';
-import { CircleCheck, Power, BookOpenCheck, GraduationCap, Save, Trash2, UsersRound, X } from 'lucide-react';
+import { CircleCheck, Pencil, Power, BookOpenCheck, GraduationCap, Save, Trash2, UsersRound, X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 
 /* ═══════════════════════════════════════════════
@@ -34,8 +34,13 @@ export default function Index({ users, filters, stats }) {
 
     // ── Delete confirmation ──
     const [deleteTarget, setDeleteTarget] = useState(null);
+    const [deleteWarning, setDeleteWarning] = useState('');
+    const [forceDeleteAvailable, setForceDeleteAvailable] = useState(false);
     const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
     const [bulkDeleting, setBulkDeleting] = useState(false);
+
+    // ── Edit nama dan nomor HP ──
+    const [editTarget, setEditTarget] = useState(null);
 
     // ── Flash message ──
     const [flashMsg, setFlashMsg] = useState(flash.success || flash.error || '');
@@ -56,6 +61,12 @@ export default function Index({ users, filters, stats }) {
     });
 
     const emailCheck = useEmailAvailability(form.data.email);
+
+    // Form ubah nama dan nomor HP; email tidak ikut dikirim.
+    const editForm = useForm({
+        name: '',
+        no_hp: '',
+    });
 
     // ── Helpers ──
     const applyFilters = (overrides = {}) => {
@@ -145,10 +156,30 @@ export default function Index({ users, filters, stats }) {
     };
 
     // ── Delete ──
-    const handleDelete = () => {
+    const openDelete = (user) => {
+        setDeleteWarning('');
+        setForceDeleteAvailable(false);
+        setDeleteTarget(user);
+    };
+
+    const requestDelete = (force = false) => {
         if (!deleteTarget) return;
         router.delete(route('admin.data-pengguna.destroy', deleteTarget.id), {
-            onSuccess: () => setDeleteTarget(null),
+            data: { force },
+            preserveScroll: true,
+            onSuccess: (page) => {
+                const error = page.props.flash?.error;
+                if (error) {
+                    setDeleteWarning(error);
+                    setForceDeleteAvailable(Boolean(page.props.flash?.force_delete));
+                    setFlashMsg(error);
+                    return;
+                }
+                setDeleteTarget(null);
+                setDeleteWarning('');
+                setForceDeleteAvailable(false);
+                setFlashMsg(page.props.flash?.success || '');
+            },
         });
     };
 
@@ -158,11 +189,36 @@ export default function Index({ users, filters, stats }) {
         router.post(route('admin.data-pengguna.bulk-destroy'), { ids: selectedRows }, {
             preserveScroll: true,
             onSuccess: (page) => {
-                setSelectedRows([]);
+                const error = page.props.flash?.error;
                 setBulkDeleteOpen(false);
-                setFlashMsg(page.props.flash?.success || page.props.flash?.error || '');
+                if (error) {
+                    setFlashMsg(error);
+                    return;
+                }
+                setSelectedRows([]);
+                setFlashMsg(page.props.flash?.success || '');
             },
             onFinish: () => setBulkDeleting(false),
+        });
+    };
+
+    // ── Edit nama dan nomor HP ──
+    const openEdit = (user) => {
+        editForm.setData({ name: user.name || '', no_hp: user.no_hp || '' });
+        editForm.clearErrors();
+        setEditTarget(user);
+    };
+
+    const handleEditSubmit = (e) => {
+        e.preventDefault();
+        if (!editTarget) return;
+
+        editForm.patch(route('admin.data-pengguna.update', editTarget.id), {
+            preserveScroll: true,
+            onSuccess: (page) => {
+                setEditTarget(null);
+                setFlashMsg(page.props.flash?.success || page.props.flash?.error || '');
+            },
         });
     };
 
@@ -465,6 +521,20 @@ export default function Index({ users, filters, stats }) {
                                             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '4px' }}>
                                                 <button
                                                     type="button"
+                                                    onClick={() => openEdit(u)}
+                                                    title="Ubah nama dan nomor HP"
+                                                    style={{
+                                                        padding: '6px', borderRadius: '8px', border: 'none',
+                                                        background: 'none', color: '#94a3b8', cursor: 'pointer',
+                                                        transition: 'all 0.2s',
+                                                    }}
+                                                    onMouseEnter={e => { e.currentTarget.style.background = '#eff6ff'; e.currentTarget.style.color = '#2563eb'; }}
+                                                    onMouseLeave={e => { e.currentTarget.style.background = 'none'; e.currentTarget.style.color = '#94a3b8'; }}
+                                                >
+                                                    <Pencil className="h-4 w-4" />
+                                                </button>
+                                                <button
+                                                    type="button"
                                                     onClick={() => setDetailUser(u)}
                                                     title="Detail"
                                                     style={{
@@ -500,7 +570,7 @@ export default function Index({ users, filters, stats }) {
                                                 </button>
                                                 <button
                                                     type="button"
-                                                    onClick={() => setDeleteTarget(u)}
+                                                    onClick={() => openDelete(u)}
                                                     title="Hapus"
                                                     style={{
                                                         padding: '6px', borderRadius: '8px', border: 'none',
@@ -683,6 +753,94 @@ export default function Index({ users, filters, stats }) {
                 </>
             )}
 
+            {/* ═══════ MODAL: Ubah Nama & Nomor HP ═══════ */}
+            {editTarget && (
+                <>
+                    <div className="kdp-modal-overlay" onClick={() => setEditTarget(null)} />
+                    <div className="kdp-modal kdp-modal--form">
+                        <div className="kdp-modal__header">
+                            <div className="kdp-modal__header-badge">
+                                <span className="kdp-modal__header-badge-label">FORMULIR</span>
+                                <span className="kdp-modal__header-badge-text">
+                                    Ubah Data Akun
+                                </span>
+                            </div>
+                            <button type="button" onClick={() => setEditTarget(null)} className="kdp-modal__close">
+                                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        </div>
+
+                        <form onSubmit={handleEditSubmit} className="kdp-modal__form">
+                            <div className="kdp-role-locked">
+                                <div>
+                                    <p className="kdp-role-locked__text-title">{roleLabel(editTarget.role)}</p>
+                                    <p className="kdp-role-locked__text-desc">Peran, email, dan status akun terkunci. Hanya nama dan nomor HP yang dapat diubah di sini.</p>
+                                </div>
+                            </div>
+
+                            {/* Nama */}
+                            <div className="kdp-field">
+                                <label className="kdp-field__label">
+                                    Nama Lengkap (Beserta Gelar) <span className="kdp-field__required">*Wajib</span>
+                                </label>
+                                <input
+                                    type="text"
+                                    value={editForm.data.name}
+                                    onChange={(e) => editForm.setData('name', e.target.value)}
+                                    placeholder="cth: Nadia Safira Putri, S.Pd."
+                                    className="kdp-field__input"
+                                />
+                                {editForm.errors.name && <p className="kdp-field__error">{editForm.errors.name}</p>}
+                            </div>
+
+                            {/* Email terkunci */}
+                            <div className="kdp-field">
+                                <label className="kdp-field__label">Alamat Email</label>
+                                <input
+                                    type="email"
+                                    value={editTarget.email || ''}
+                                    readOnly
+                                    aria-readonly="true"
+                                    className="kdp-field__input"
+                                    style={{ background: '#f8fafc', color: '#475569', cursor: 'not-allowed' }}
+                                />
+                                <p style={{ fontSize: '12px', color: '#64748b', marginTop: '6px' }}>Email tidak dapat diubah dari halaman ini.</p>
+                            </div>
+
+                            {/* No HP */}
+                            <div className="kdp-field">
+                                <label className="kdp-field__label">Nomor WhatsApp / HP Aktif</label>
+                                <div style={{ display: 'flex', alignItems: 'stretch' }}>
+                                    <span style={{ display: 'inline-flex', alignItems: 'center', padding: '0 14px', border: '1px solid #dbe3ef', borderRight: 0, borderRadius: '10px 0 0 10px', background: '#f1f5f9', color: '#475569', fontWeight: 600 }}>+62</span>
+                                    <input
+                                        type="tel"
+                                        inputMode="numeric"
+                                        value={(editForm.data.no_hp || '').replace(/^\+62\s*/, '')}
+                                        onChange={(e) => editForm.setData('no_hp', e.target.value ? `+62${e.target.value.replace(/\D/g, '')}` : '')}
+                                        placeholder="812xxxxxxxx"
+                                        className="kdp-field__input"
+                                        style={{ borderTopLeftRadius: 0, borderBottomLeftRadius: 0 }}
+                                    />
+                                </div>
+                                {editForm.errors.no_hp && <p className="kdp-field__error">{editForm.errors.no_hp}</p>}
+                            </div>
+                        </form>
+
+                        <div className="kdp-modal__footer">
+                            <button type="button" onClick={() => setEditTarget(null)} className="btn-cancel">
+                                <X className="h-4 w-4" /> Batal
+                            </button>
+                            <button type="button" disabled={editForm.processing} onClick={handleEditSubmit} className="btn-submit">
+                                <Save className="h-4 w-4" />
+                                {editForm.processing ? 'Menyimpan...' : 'Simpan Perubahan'}
+                            </button>
+                        </div>
+                    </div>
+                </>
+            )}
+
             {/* ═══════ MODAL: Konfirmasi Hapus ═══════ */}
             {deleteTarget && (
                 <div className="kdp-modal-overlay">
@@ -699,31 +857,55 @@ export default function Index({ users, filters, stats }) {
                                     </svg>
                                 </div>
                                 <div>
-                                    <h3 style={{ fontSize: '15px', fontWeight: 700, color: '#0f172a' }}>Konfirmasi Penghapusan</h3>
-                                    <p style={{ fontSize: '13px', color: '#64748b', marginTop: '4px' }}>
-                                        Yakin ingin menghapus akun <strong>{deleteTarget.name}</strong>? Tindakan ini tidak dapat dibatalkan.
-                                    </p>
+                                    <h3 style={{ fontSize: '15px', fontWeight: 700, color: '#0f172a' }}>
+                                        {deleteWarning ? 'Penghapusan Tertahan' : 'Konfirmasi Penghapusan'}
+                                    </h3>
+                                    {deleteWarning ? (
+                                        <p style={{ fontSize: '13px', color: '#b91c1c', marginTop: '4px', lineHeight: 1.6 }}>{deleteWarning}</p>
+                                    ) : (
+                                        <p style={{ fontSize: '13px', color: '#64748b', marginTop: '4px' }}>
+                                            Yakin ingin menghapus akun <strong>{deleteTarget.name}</strong>? Tindakan ini tidak dapat dibatalkan.
+                                        </p>
+                                    )}
                                 </div>
                             </div>
                             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
-                                <button type="button" onClick={() => setDeleteTarget(null)} className="btn-cancel"><X className="h-4 w-4" /> Batal</button>
-                                <button
-                                    type="button"
-                                    onClick={handleDelete}
-                                    style={{
-                                        padding: '9px 18px', borderRadius: '10px', border: 'none',
-                                        background: '#ef4444', color: 'white', fontSize: '13px',
-                                        fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s',
-                                        display: 'inline-flex', alignItems: 'center', gap: '6px',
-                                    }}
-                                    onMouseEnter={e => e.currentTarget.style.background = '#dc2626'}
-                                    onMouseLeave={e => e.currentTarget.style.background = '#ef4444'}
-                                >
-                                    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                                        <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                    </svg>
-                                    Ya, Hapus
+                                <button type="button" onClick={() => setDeleteTarget(null)} className="btn-cancel">
+                                    <X className="h-4 w-4" /> {deleteWarning ? 'Tutup' : 'Batal'}
                                 </button>
+                                {deleteWarning ? (
+                                    forceDeleteAvailable && (
+                                        <button
+                                            type="button"
+                                            onClick={() => requestDelete(true)}
+                                            style={{
+                                                padding: '9px 18px', borderRadius: '10px', border: 'none',
+                                                background: '#b91c1c', color: 'white', fontSize: '13px',
+                                                fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s',
+                                                display: 'inline-flex', alignItems: 'center', gap: '6px',
+                                            }}
+                                            onMouseEnter={e => e.currentTarget.style.background = '#991b1b'}
+                                            onMouseLeave={e => e.currentTarget.style.background = '#b91c1c'}
+                                        >
+                                            <Trash2 className="h-4 w-4" /> Hapus Paksa
+                                        </button>
+                                    )
+                                ) : (
+                                    <button
+                                        type="button"
+                                        onClick={() => requestDelete(false)}
+                                        style={{
+                                            padding: '9px 18px', borderRadius: '10px', border: 'none',
+                                            background: '#ef4444', color: 'white', fontSize: '13px',
+                                            fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s',
+                                            display: 'inline-flex', alignItems: 'center', gap: '6px',
+                                        }}
+                                        onMouseEnter={e => e.currentTarget.style.background = '#dc2626'}
+                                        onMouseLeave={e => e.currentTarget.style.background = '#ef4444'}
+                                    >
+                                        <Trash2 className="h-4 w-4" /> Ya, Hapus
+                                    </button>
+                                )}
                             </div>
                         </div>
                     </div>

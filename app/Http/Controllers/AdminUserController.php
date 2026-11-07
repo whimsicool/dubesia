@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Mail\AkunTutorMail;
 use App\Models\Pendaftaran;
+use App\Models\Schedule;
 use App\Models\User;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Database\Eloquent\Builder;
@@ -132,6 +133,28 @@ class AdminUserController extends Controller
         );
     }
 
+    /**
+     * Memperbarui nama dan nomor HP akun murid atau tutor. Email, peran,
+     * status, dan kata sandi tidak diubah lewat jalur ini.
+     */
+    public function update(Request $request, User $user)
+    {
+        abort_if($user->isAdmin(), 403, 'Akun admin tidak dapat diubah dari halaman ini.');
+
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'no_hp' => ['nullable', 'string', 'max:20'],
+        ]);
+
+        $user->update([
+            'name' => $validated['name'],
+            'no_hp' => $this->normalizePhoneNumber($validated['no_hp'] ?? null),
+        ]);
+
+        return redirect()->route('admin.data-pengguna.index')
+            ->with('success', "Data akun \"{$user->name}\" berhasil diperbarui.");
+    }
+
     private function normalizePhoneNumber(?string $phone): ?string
     {
         if ($phone === null || trim($phone) === '') {
@@ -146,6 +169,10 @@ class AdminUserController extends Controller
 
     /**
      * Menghapus data pengguna secara massal (Hapus Data).
+     *
+     * Satu akun yang masih memiliki penugasan atau riwayat membatalkan seluruh
+     * operasi. Hapus massal tidak menawarkan hapus paksa, jadi admin harus
+     * melepas penugasan lebih dulu lewat hapus satuan.
      */
     public function bulkDestroy(Request $request)
     {
@@ -162,6 +189,28 @@ class AdminUserController extends Controller
             return back()->with('error', 'Sebagian akun tidak dapat dihapus. Muat ulang halaman lalu pilih akun yang tersedia.');
         }
 
+        $blocked = $users
+            ->map(fn (User $user): array => [
+                'user' => $user,
+                'dependencies' => $this->deletionDependencies($user),
+            ])
+            ->filter(fn (array $item): bool => $this->hasDeletionDependencies($item['dependencies']));
+
+        if ($blocked->isNotEmpty()) {
+            $accounts = $blocked
+                ->map(fn (array $item): string => sprintf(
+                    '%s (%s)',
+                    $item['user']->name,
+                    $this->dependencySummary($item['dependencies']),
+                ))
+                ->implode(', ');
+
+            return redirect()->route('admin.data-pengguna.index')->with(
+                'error',
+                "Tidak ada akun yang dihapus. Akun berikut masih memiliki penugasan atau riwayat: {$accounts}. Lepas penugasan tutor atau tangani riwayatnya lebih dulu.",
+            );
+        }
+
         DB::transaction(function () use ($users) {
             $users->each(fn (User $user) => $user->delete());
         });
@@ -170,17 +219,166 @@ class AdminUserController extends Controller
             ->with('success', $users->count().' akun berhasil dihapus.');
     }
 
-    public function destroy(User $user)
+    /**
+     * Menghapus satu akun. Penugasan tutor dilepas hanya setelah admin
+     * mengonfirmasi hapus paksa; presensi, keanggotaan kelas, dan nilai tidak
+     * pernah dihapus dari halaman ini.
+     */
+    public function destroy(Request $request, User $user)
     {
         // Jangan izinkan menghapus akun admin
         if ($user->isAdmin()) {
             return redirect()->route('admin.data-pengguna.index')->with('error', 'Tidak dapat menghapus akun admin.');
         }
 
+        $dependencies = $this->deletionDependencies($user);
+
+        if ($this->hasProtectedHistory($dependencies)) {
+            return redirect()->route('admin.data-pengguna.index')->with('error', $this->protectedHistoryWarning($user, $dependencies));
+        }
+
+        if ($dependencies['classes'] !== [] || $dependencies['schedules'] !== []) {
+            if (! $request->boolean('force')) {
+                return redirect()->route('admin.data-pengguna.index')
+                    ->with('error', $this->assignmentWarning($user, $dependencies))
+                    ->with('force_delete', true);
+            }
+
+            DB::transaction(function () use ($user): void {
+                DB::table('class_tutor')->where('tutor_id', $user->id)->delete();
+                // Jadwal tetap ada agar admin dapat menugaskan tutor lain.
+                DB::table('schedules')->where('tutor_id', $user->id)->update(['tutor_id' => null]);
+                $user->delete();
+            });
+
+            return redirect()->route('admin.data-pengguna.index')->with('success', sprintf(
+                'Akun "%s" dihapus. %s.',
+                $user->name,
+                implode(' dan ', array_filter([
+                    $dependencies['classes'] === [] ? null : count($dependencies['classes']).' penugasan kelas dilepas',
+                    $dependencies['schedules'] === [] ? null : count($dependencies['schedules']).' jadwal dikosongkan untuk ditugaskan ulang',
+                ])),
+            ));
+        }
+
         $name = $user->name;
         $user->delete();
 
         return redirect()->route('admin.data-pengguna.index')->with('success', "Akun \"{$name}\" berhasil dihapus.");
+    }
+
+    /**
+     * Dependensi akun yang membatasi penghapusan.
+     *
+     * @return array{
+     *     classes: list<string>,
+     *     schedules: list<string>,
+     *     attendance: int,
+     *     enrollments: int,
+     *     grades: int
+     * }
+     */
+    private function deletionDependencies(User $user): array
+    {
+        $classes = $user->teachingClasses()
+            ->orderBy('classes.name')
+            ->pluck('classes.name')
+            ->all();
+
+        $schedules = Schedule::query()
+            ->where('tutor_id', $user->id)
+            ->with('room')
+            ->orderBy('day_of_week')
+            ->orderBy('start_time')
+            ->get()
+            ->map(function (Schedule $schedule): string {
+                $day = config('dubesia.days')[$schedule->day_of_week] ?? 'Hari tidak diketahui';
+                $room = $schedule->room?->name ?? 'ruang belum ditentukan';
+
+                return sprintf(
+                    '%s %s–%s (%s)',
+                    $day,
+                    substr((string) $schedule->start_time, 0, 5),
+                    substr((string) $schedule->end_time, 0, 5),
+                    $room,
+                );
+            })
+            ->all();
+
+        return [
+            'classes' => $classes,
+            'schedules' => $schedules,
+            'attendance' => $user->isTutor()
+                ? $user->classAttendancesAsTutor()->count()
+                : $user->classAttendancesAsStudent()->count(),
+            'enrollments' => $user->enrolledClasses()->count(),
+            'grades' => $user->grades()->count(),
+        ];
+    }
+
+    /**
+     * @param  array{classes: list<string>, schedules: list<string>, attendance: int, enrollments: int, grades: int}  $dependencies
+     */
+    private function hasDeletionDependencies(array $dependencies): bool
+    {
+        return $dependencies['classes'] !== []
+            || $dependencies['schedules'] !== []
+            || $this->hasProtectedHistory($dependencies);
+    }
+
+    /**
+     * Riwayat yang tidak boleh dihapus atau dilepas dari halaman ini.
+     *
+     * @param  array{classes: list<string>, schedules: list<string>, attendance: int, enrollments: int, grades: int}  $dependencies
+     */
+    private function hasProtectedHistory(array $dependencies): bool
+    {
+        return $dependencies['attendance'] > 0
+            || $dependencies['enrollments'] > 0
+            || $dependencies['grades'] > 0;
+    }
+
+    /**
+     * @param  array{classes: list<string>, schedules: list<string>, attendance: int, enrollments: int, grades: int}  $dependencies
+     */
+    private function dependencySummary(array $dependencies): string
+    {
+        return implode(', ', array_filter([
+            $dependencies['classes'] === [] ? null : count($dependencies['classes']).' kelas',
+            $dependencies['schedules'] === [] ? null : count($dependencies['schedules']).' jadwal',
+            $dependencies['attendance'] === 0 ? null : $dependencies['attendance'].' catatan presensi',
+            $dependencies['enrollments'] === 0 ? null : $dependencies['enrollments'].' keanggotaan kelas',
+            $dependencies['grades'] === 0 ? null : $dependencies['grades'].' nilai',
+        ]));
+    }
+
+    /**
+     * @param  array{classes: list<string>, schedules: list<string>, attendance: int, enrollments: int, grades: int}  $dependencies
+     */
+    private function assignmentWarning(User $user, array $dependencies): string
+    {
+        $assignments = array_filter([
+            $dependencies['classes'] === [] ? null : 'kelas '.implode(', ', $dependencies['classes']),
+            $dependencies['schedules'] === [] ? null : 'jadwal '.implode(', ', $dependencies['schedules']),
+        ]);
+
+        return sprintf(
+            'Akun "%s" masih terhubung dengan %s. Konfirmasi hapus paksa untuk melepas penugasan kelas dan mengosongkan tutor pada jadwal, lalu menghapus akun.',
+            $user->name,
+            implode(' dan ', $assignments),
+        );
+    }
+
+    /**
+     * @param  array{classes: list<string>, schedules: list<string>, attendance: int, enrollments: int, grades: int}  $dependencies
+     */
+    private function protectedHistoryWarning(User $user, array $dependencies): string
+    {
+        return sprintf(
+            'Akun "%s" tidak dapat dihapus karena masih memiliki %s. Presensi, keanggotaan kelas, dan nilai adalah riwayat yang tidak dihapus otomatis dari halaman ini. Tangani data tersebut lebih dulu.',
+            $user->name,
+            $this->dependencySummary($dependencies),
+        );
     }
 
     /** Unduh data pengguna sebagai PDF, mengikuti filter yang sedang aktif. */

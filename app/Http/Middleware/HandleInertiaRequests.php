@@ -2,8 +2,8 @@
 
 namespace App\Http\Middleware;
 
-use App\Models\Pendaftaran;
 use App\Models\HasilTes;
+use App\Models\Pendaftaran;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -45,6 +45,7 @@ class HandleInertiaRequests extends Middleware
             'flash' => [
                 'success' => fn () => $request->session()->get('success'),
                 'error' => fn () => $request->session()->get('error'),
+                'force_delete' => fn () => $request->session()->get('force_delete'),
             ],
 
             'pendingRegistrations' => fn () => $request->user()?->isAdmin()

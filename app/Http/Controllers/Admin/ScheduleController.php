@@ -79,6 +79,10 @@ class ScheduleController extends Controller
                             'id' => $class->tutors->first()->id,
                             'name' => $class->tutors->first()->name,
                         ] : null,
+                        // Formulir jadwal hanya menawarkan tutor yang tergabung di kelas ini.
+                        'tutors' => $class->tutors
+                            ->map(fn (User $tutor): array => ['id' => $tutor->id, 'name' => $tutor->name])
+                            ->values(),
                         'students_count' => $class->students_count,
                     ]),
                 'tutors' => User::where('role', User::ROLE_TUTOR)->where('status_akun', 'aktif')->orderBy('name')->get(['id', 'name']),

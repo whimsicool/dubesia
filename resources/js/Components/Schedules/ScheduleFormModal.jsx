@@ -31,6 +31,10 @@ export default function ScheduleFormModal({ open, onClose, schedule, options, de
     const [liveConflicts, setLiveConflicts] = useState([]);
 
     const selectedClass = options.classes.find((item) => String(item.id) === String(data.class_id));
+    // Tutor yang boleh dipilih hanya tutor yang tergabung di kelas terpilih.
+    const eligibleTutors = selectedClass?.tutors ?? [];
+    const selectedClassHasTutor = eligibleTutors.length > 0;
+    const hasEligibleTutor = eligibleTutors.some((tutor) => String(tutor.id) === String(data.tutor_id));
 
     // Isi ulang form setiap kali modal dibuka / jadwal yang diedit berganti.
     useEffect(() => {
@@ -94,14 +98,15 @@ export default function ScheduleFormModal({ open, onClose, schedule, options, de
 
     const selectedRoom = options.rooms.find((r) => String(r.id) === String(data.room_id));
 
-    /** Pilih kelas: tutor kelas ikut terpilih dan pesertanya diisi dari anggota kelas. */
+    /** Pilih kelas: tutor kelas ikut terpilih dan pilihan tutor mengikuti kelas tersebut. */
     const selectClass = (classId) => {
         const courseClass = options.classes.find((item) => String(item.id) === String(classId));
+        const classTutor = courseClass?.tutors?.[0];
 
         setData({
             ...data,
             class_id: classId,
-            tutor_id: courseClass?.tutor ? String(courseClass.tutor.id) : data.tutor_id,
+            tutor_id: classTutor ? String(classTutor.id) : '',
         });
     };
 
@@ -137,14 +142,24 @@ export default function ScheduleFormModal({ open, onClose, schedule, options, de
                         </select>
                     </Field>
                     <Field label="Tutor" error={errors.tutor_id}>
-                        <select value={data.tutor_id} onChange={(e) => setData('tutor_id', e.target.value)} className={inputClass}>
-                            <option value="">Pilih tutor…</option>
-                            {options.tutors.map((tutor) => (
+                        <select
+                            value={hasEligibleTutor ? data.tutor_id : ''}
+                            onChange={(e) => setData('tutor_id', e.target.value)}
+                            className={inputClass}
+                            disabled={!selectedClass || !selectedClassHasTutor}
+                        >
+                            <option value="">{selectedClass ? 'Pilih tutor…' : 'Pilih kelas terlebih dahulu'}</option>
+                            {eligibleTutors.map((tutor) => (
                                 <option key={tutor.id} value={tutor.id}>
                                     {tutor.name}
                                 </option>
                             ))}
                         </select>
+                        {selectedClass && !selectedClassHasTutor && (
+                            <p className="mt-1 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900">
+                                Kelas ini belum punya tutor. Tugaskan tutor di Kelola Kelas terlebih dahulu.
+                            </p>
+                        )}
                     </Field>
 
                     <Field label="Ruang / Platform" error={errors.room_id}>
@@ -217,8 +232,8 @@ export default function ScheduleFormModal({ open, onClose, schedule, options, de
                     </button>
                     <button
                         type="submit"
-                        disabled={processing}
-                        className="rounded-lg bg-slate-900 px-5 py-2 text-sm font-semibold text-white hover:bg-slate-800 disabled:opacity-60"
+                        disabled={processing || !hasEligibleTutor}
+                        className="rounded-lg bg-slate-900 px-5 py-2 text-sm font-semibold text-white hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
                     >
                         <span className="inline-flex items-center gap-2"><Save aria-hidden="true" className="h-4 w-4" />{processing ? 'Menyimpan…' : isEdit ? 'Simpan Perubahan' : 'Simpan Jadwal'}</span>
                     </button>

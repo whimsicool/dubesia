@@ -83,7 +83,7 @@ class ScheduleRequest extends FormRequest
         ];
     }
 
-    /** Validasi lanjutan: kapasitas ruang dan deteksi bentrok (tutor / ruang / murid). */
+    /** Validasi lanjutan: tutor harus tergabung di kelas, kapasitas ruang, dan deteksi bentrok (tutor / ruang / murid). */
     public function after(): array
     {
         return [
@@ -95,6 +95,20 @@ class ScheduleRequest extends FormRequest
                 $data = $validator->validated();
                 $class = CourseClass::with('students:id')->find($data['class_id']);
                 $studentUserIds = $class?->students->pluck('id')->map(fn ($id) => (int) $id)->all() ?? [];
+
+                // Tutor hanya boleh mengajar kelas yang tercatat di pivot class_tutor.
+                $tutorAssignedToClass = $class
+                    ? $class->tutors()->whereKey($data['tutor_id'])->exists()
+                    : false;
+
+                if (! $tutorAssignedToClass) {
+                    $validator->errors()->add(
+                        'tutor_id',
+                        'Tutor yang dipilih belum ditugaskan ke kelas ini. Tugaskan tutor tersebut di Kelola Kelas terlebih dahulu.'
+                    );
+
+                    return;
+                }
 
                 if (! empty($data['scheduled_date'])) {
                     $semester = Semester::find($data['semester_id']);

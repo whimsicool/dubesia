@@ -2,6 +2,12 @@
 
 namespace Tests\Feature;
 
+use App\Models\ClassAttendance;
+use App\Models\CourseClass;
+use App\Models\Program;
+use App\Models\Room;
+use App\Models\Schedule;
+use App\Models\Semester;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Inertia\Testing\AssertableInertia as Assert;
@@ -220,5 +226,228 @@ class AdminUserManagementTest extends TestCase
     {
         $password = User::generateDefaultPassword('Nadia Safira');
         $this->assertEquals('dbs.nadia.'.date('Y'), $password);
+    }
+
+    /**
+     * Penugasan tutor pada satu kelas beserta satu jadwal mingguan.
+     *
+     * @return array{0: CourseClass, 1: Schedule}
+     */
+    private function assignTutorToClass(User $tutor): array
+    {
+        $courseClass = CourseClass::create([
+            'name' => 'Diplomatic Speech Batch #4',
+            'level' => 'Intermediate Up',
+            'is_active' => true,
+        ]);
+        $courseClass->tutors()->attach($tutor->id);
+
+        $schedule = Schedule::create([
+            'semester_id' => Semester::create([
+                'name' => 'Ganjil Test',
+                'start_date' => now()->subMonth()->toDateString(),
+                'end_date' => now()->addMonths(4)->toDateString(),
+                'is_active' => true,
+            ])->id,
+            'program_id' => Program::create(['code' => 'DSP', 'name' => 'Diplomatic Speech', 'category' => 'english'])->id,
+            'class_id' => $courseClass->id,
+            'tutor_id' => $tutor->id,
+            'room_id' => Room::create(['name' => 'Hall A', 'type' => 'physical'])->id,
+            'title' => 'Diplomatic Speech',
+            'class_name' => $courseClass->name,
+            'day_of_week' => 1,
+            'start_time' => '08:30',
+            'end_time' => '10:00',
+        ]);
+
+        return [$courseClass, $schedule];
+    }
+
+    public function test_deleting_an_assigned_tutor_warns_and_keeps_the_account(): void
+    {
+        $tutor = User::factory()->create(['role' => 'tutor', 'status_akun' => 'aktif']);
+        [$courseClass, $schedule] = $this->assignTutorToClass($tutor);
+
+        $this->actingAs($this->admin)
+            ->delete(route('admin.data-pengguna.destroy', $tutor->id))
+            ->assertRedirect(route('admin.data-pengguna.index'))
+            ->assertSessionHas('error', fn (string $message): bool => str_contains($message, 'Diplomatic Speech Batch #4')
+                && str_contains($message, 'Senin 08:30–10:00')
+                && str_contains($message, 'Hall A'));
+
+        $this->assertDatabaseHas('users', ['id' => $tutor->id]);
+        $this->assertDatabaseHas('class_tutor', ['class_id' => $courseClass->id, 'tutor_id' => $tutor->id]);
+        $this->assertDatabaseHas('schedules', ['id' => $schedule->id, 'tutor_id' => $tutor->id]);
+    }
+
+    public function test_force_deleting_a_tutor_removes_assignments_and_clears_schedules(): void
+    {
+        $tutor = User::factory()->create(['role' => 'tutor', 'status_akun' => 'aktif']);
+        [$courseClass, $schedule] = $this->assignTutorToClass($tutor);
+
+        $this->actingAs($this->admin)
+            ->delete(route('admin.data-pengguna.destroy', $tutor->id), ['force' => true])
+            ->assertRedirect(route('admin.data-pengguna.index'))
+            ->assertSessionHas('success');
+
+        $this->assertDatabaseMissing('users', ['id' => $tutor->id]);
+        $this->assertDatabaseMissing('class_tutor', ['class_id' => $courseClass->id, 'tutor_id' => $tutor->id]);
+        $this->assertDatabaseHas('schedules', ['id' => $schedule->id, 'tutor_id' => null]);
+    }
+
+    public function test_deleting_a_tutor_with_attendance_is_refused_without_a_server_error(): void
+    {
+        $tutor = User::factory()->create(['role' => 'tutor', 'status_akun' => 'aktif']);
+        [$courseClass, $schedule] = $this->assignTutorToClass($tutor);
+        ClassAttendance::create([
+            'student_id' => $this->student->id,
+            'tutor_id' => $tutor->id,
+            'class_level' => 'Beginner',
+            'attendance_date' => now()->toDateString(),
+            'status' => 'Hadir',
+        ]);
+
+        $this->actingAs($this->admin)
+            ->delete(route('admin.data-pengguna.destroy', $tutor->id))
+            ->assertRedirect(route('admin.data-pengguna.index'))
+            ->assertSessionHas('error', fn (string $message): bool => str_contains($message, '1 catatan presensi'));
+
+        $this->actingAs($this->admin)
+            ->delete(route('admin.data-pengguna.destroy', $tutor->id), ['force' => true])
+            ->assertRedirect(route('admin.data-pengguna.index'))
+            ->assertSessionHas('error', fn (string $message): bool => str_contains($message, '1 catatan presensi'));
+
+        $this->assertDatabaseHas('users', ['id' => $tutor->id]);
+        $this->assertDatabaseHas('class_tutor', ['class_id' => $courseClass->id, 'tutor_id' => $tutor->id]);
+        $this->assertDatabaseHas('schedules', ['id' => $schedule->id, 'tutor_id' => $tutor->id]);
+        $this->assertDatabaseCount('class_attendances', 1);
+    }
+
+    public function test_deleting_a_student_with_attendance_is_refused_without_a_server_error(): void
+    {
+        $tutor = User::factory()->create(['role' => 'tutor', 'status_akun' => 'aktif']);
+        ClassAttendance::create([
+            'student_id' => $this->student->id,
+            'tutor_id' => $tutor->id,
+            'class_level' => 'Beginner',
+            'attendance_date' => now()->toDateString(),
+            'status' => 'Hadir',
+        ]);
+
+        $this->actingAs($this->admin)
+            ->delete(route('admin.data-pengguna.destroy', $this->student->id))
+            ->assertRedirect(route('admin.data-pengguna.index'))
+            ->assertSessionHas('error', fn (string $message): bool => str_contains($message, '1 catatan presensi'));
+
+        $this->assertDatabaseHas('users', ['id' => $this->student->id]);
+        $this->assertDatabaseCount('class_attendances', 1);
+    }
+
+    public function test_bulk_delete_with_a_blocked_account_deletes_nothing(): void
+    {
+        $tutor = User::factory()->create(['role' => 'tutor', 'status_akun' => 'aktif', 'name' => 'Tutor Terblokir']);
+        [$courseClass] = $this->assignTutorToClass($tutor);
+        $otherStudent = User::factory()->create(['role' => 'student', 'status_akun' => 'aktif']);
+
+        $this->actingAs($this->admin)
+            ->post(route('admin.data-pengguna.bulk-destroy'), ['ids' => [$tutor->id, $otherStudent->id]])
+            ->assertRedirect(route('admin.data-pengguna.index'))
+            ->assertSessionHas('error', fn (string $message): bool => str_contains($message, 'Tutor Terblokir')
+                && str_contains($message, '1 kelas'));
+
+        $this->assertDatabaseHas('users', ['id' => $tutor->id]);
+        $this->assertDatabaseHas('users', ['id' => $otherStudent->id]);
+        $this->assertDatabaseHas('class_tutor', ['class_id' => $courseClass->id, 'tutor_id' => $tutor->id]);
+    }
+
+    public function test_admin_can_update_a_student_name_and_phone(): void
+    {
+        $this->actingAs($this->admin)
+            ->patch(route('admin.data-pengguna.update', $this->student->id), [
+                'name' => 'Anindya Kartika',
+                'no_hp' => '+62 812-3456-7890',
+            ])
+            ->assertRedirect(route('admin.data-pengguna.index'))
+            ->assertSessionHas('success');
+
+        $this->student->refresh();
+        $this->assertSame('Anindya Kartika', $this->student->name);
+        $this->assertSame('+6281234567890', $this->student->no_hp);
+        $this->assertSame('student', $this->student->role);
+        $this->assertSame('aktif', $this->student->status_akun);
+    }
+
+    public function test_admin_can_update_a_tutor_name_and_clear_the_phone(): void
+    {
+        $tutor = User::factory()->create([
+            'role' => 'tutor',
+            'name' => 'Budi Santoso',
+            'no_hp' => '+628111111111',
+            'status_akun' => 'aktif',
+        ]);
+
+        $this->actingAs($this->admin)
+            ->patch(route('admin.data-pengguna.update', $tutor->id), [
+                'name' => 'Budi Santoso, S.Pd.',
+                'no_hp' => '',
+            ])
+            ->assertRedirect(route('admin.data-pengguna.index'))
+            ->assertSessionHas('success');
+
+        $tutor->refresh();
+        $this->assertSame('Budi Santoso, S.Pd.', $tutor->name);
+        $this->assertNull($tutor->no_hp);
+    }
+
+    public function test_updating_an_account_does_not_change_its_email(): void
+    {
+        $email = $this->student->email;
+
+        $this->actingAs($this->admin)
+            ->patch(route('admin.data-pengguna.update', $this->student->id), [
+                'name' => 'Nama Baru',
+                'email' => 'email.lain@dubesia.id',
+            ])
+            ->assertRedirect(route('admin.data-pengguna.index'));
+
+        $this->student->refresh();
+        $this->assertSame($email, $this->student->email);
+        $this->assertSame('student', $this->student->role);
+        $this->assertSame('aktif', $this->student->status_akun);
+    }
+
+    public function test_admin_account_cannot_be_edited_through_the_update_route(): void
+    {
+        $otherAdmin = User::factory()->create(['role' => 'admin', 'name' => 'Admin Lain', 'status_akun' => 'aktif']);
+
+        $this->actingAs($this->admin)
+            ->patch(route('admin.data-pengguna.update', $otherAdmin->id), [
+                'name' => 'Nama Diubah',
+                'no_hp' => '+6281234567890',
+            ])
+            ->assertForbidden();
+
+        $this->assertDatabaseHas('users', ['id' => $otherAdmin->id, 'name' => 'Admin Lain']);
+    }
+
+    public function test_non_admin_cannot_access_the_update_route(): void
+    {
+        $this->actingAs($this->student)
+            ->patch(route('admin.data-pengguna.update', $this->student->id), [
+                'name' => 'Nama Sendiri',
+            ])
+            ->assertForbidden();
+
+        $this->assertDatabaseMissing('users', ['id' => $this->student->id, 'name' => 'Nama Sendiri']);
+    }
+
+    public function test_update_validates_name_and_phone_length(): void
+    {
+        $this->actingAs($this->admin)
+            ->patch(route('admin.data-pengguna.update', $this->student->id), [
+                'name' => '',
+                'no_hp' => str_repeat('9', 21),
+            ])
+            ->assertSessionHasErrors(['name', 'no_hp']);
     }
 }

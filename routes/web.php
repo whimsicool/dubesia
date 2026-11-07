@@ -187,6 +187,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
         Route::post('/bulk-delete', [AdminUserController::class, 'bulkDestroy'])->name('bulk-destroy');
         Route::get('/{user}', [AdminUserController::class, 'show'])->name('show');
         Route::patch('/{user}/status', [AdminUserController::class, 'updateStatus'])->name('status.update');
+        Route::patch('/{user}', [AdminUserController::class, 'update'])->name('update');
         Route::delete('/{user}', [AdminUserController::class, 'destroy'])->name('destroy');
     });
 });

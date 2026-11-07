@@ -132,6 +132,24 @@ class ScheduleManagementTest extends TestCase
                 ->has('options.classes', 1)
                 ->has('options.tutors', 1)
                 ->where('options.classes.0.tutor.id', $this->tutor->id)
+                ->has('options.classes.0.tutors', 1)
+                ->where('options.classes.0.tutors.0.id', $this->tutor->id)
+            );
+    }
+
+    /** Formulir jadwal hanya boleh menawarkan tutor yang tercatat di kelas terpilih. */
+    public function test_schedule_form_only_exposes_tutors_assigned_to_each_class(): void
+    {
+        $classlessTutor = User::factory()->create(['role' => User::ROLE_TUTOR, 'name' => 'Tutor Tanpa Kelas']);
+
+        $this->actingAs($this->admin())
+            ->get(route('admin.schedules.index'))
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->has('options.classes.0.tutors', 1)
+                ->where('options.classes.0.tutors.0.id', $this->tutor->id)
+                ->has('options.tutors', 2)
+                ->where('options.tutors', fn ($tutors) => collect($tutors)->pluck('id')->contains($classlessTutor->id))
             );
     }
 
@@ -186,6 +204,47 @@ class ScheduleManagementTest extends TestCase
             ->assertSessionHasErrors('tutor_id');
     }
 
+    public function test_store_rejects_tutor_who_is_not_assigned_to_the_class(): void
+    {
+        $classlessTutor = User::factory()->create(['role' => User::ROLE_TUTOR, 'name' => 'Tutor Tanpa Kelas']);
+
+        $this->actingAs($this->admin())
+            ->post(route('admin.schedules.store'), $this->payload(['tutor_id' => $classlessTutor->id]))
+            ->assertSessionHasErrors([
+                'tutor_id' => 'Tutor yang dipilih belum ditugaskan ke kelas ini. Tugaskan tutor tersebut di Kelola Kelas terlebih dahulu.',
+            ]);
+
+        $this->actingAs($this->admin())
+            ->postJson(route('admin.schedules.store'), $this->payload(['tutor_id' => $classlessTutor->id]))
+            ->assertStatus(422)
+            ->assertJsonValidationErrors('tutor_id');
+
+        $this->assertDatabaseCount('schedules', 0);
+    }
+
+    public function test_store_accepts_tutor_who_is_assigned_to_the_class(): void
+    {
+        $this->actingAs($this->admin())
+            ->post(route('admin.schedules.store'), $this->payload())
+            ->assertSessionHasNoErrors();
+
+        $this->assertSame($this->tutor->id, Schedule::firstOrFail()->tutor_id);
+    }
+
+    public function test_update_rejects_when_class_changes_to_a_class_without_the_tutor(): void
+    {
+        $schedule = $this->makeSchedule();
+        $classWithoutTutor = CourseClass::create(['name' => 'Kelas Tanpa Tutor', 'is_active' => true]);
+
+        $this->actingAs($this->admin())
+            ->put(route('admin.schedules.update', $schedule), $this->payload(['class_id' => $classWithoutTutor->id]))
+            ->assertSessionHasErrors('tutor_id');
+
+        $schedule->refresh();
+        $this->assertSame($this->courseClass->id, $schedule->class_id);
+        $this->assertSame($this->tutor->id, $schedule->tutor_id);
+    }
+
     public function test_tutor_conflict_is_rejected(): void
     {
         $this->makeSchedule();
@@ -202,9 +261,16 @@ class ScheduleManagementTest extends TestCase
     {
         $this->makeSchedule();
         $otherTutor = User::factory()->create(['role' => User::ROLE_TUTOR, 'name' => 'Siti Aisyah']);
+        $otherClass = CourseClass::create(['name' => 'Kelas Lain', 'is_active' => true]);
+        $otherClass->tutors()->attach($otherTutor->id);
 
         $this->actingAs($this->admin())
-            ->post(route('admin.schedules.store'), $this->payload(['tutor_id' => $otherTutor->id, 'start_time' => '09:00', 'end_time' => '10:30']))
+            ->post(route('admin.schedules.store'), $this->payload([
+                'class_id' => $otherClass->id,
+                'tutor_id' => $otherTutor->id,
+                'start_time' => '09:00',
+                'end_time' => '10:30',
+            ]))
             ->assertSessionHasErrors('room_id');
     }
 
@@ -217,6 +283,7 @@ class ScheduleManagementTest extends TestCase
         $otherClass->students()->attach($student->id);
         $otherRoom = Room::create(['name' => 'Hall B', 'type' => 'physical', 'capacity' => 20]);
         $otherTutor = User::factory()->create(['role' => User::ROLE_TUTOR, 'name' => 'Siti Aisyah']);
+        $otherClass->tutors()->attach($otherTutor->id);
 
         $this->actingAs($this->admin())
             ->post(route('admin.schedules.store'), $this->payload([
@@ -257,6 +324,7 @@ class ScheduleManagementTest extends TestCase
     {
         $schedule = $this->makeSchedule();
         $otherClass = CourseClass::create(['name' => 'Executive Batch #3', 'level' => 'Intermediate', 'is_active' => true]);
+        $otherClass->tutors()->attach($this->tutor->id);
 
         $this->actingAs($this->admin())
             ->put(route('admin.schedules.update', $schedule), $this->payload([
