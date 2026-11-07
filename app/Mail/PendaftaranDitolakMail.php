@@ -10,7 +10,12 @@ use Illuminate\Mail\Mailables\Envelope;
 
 class PendaftaranDitolakMail extends Mailable
 {
-    public function __construct(public Pendaftaran $pendaftaran) {}
+    public string $lanjutkanUrl;
+
+    public function __construct(public Pendaftaran $pendaftaran)
+    {
+        $this->lanjutkanUrl = $pendaftaran->tautanLanjutan();
+    }
 
     public function envelope(): Envelope
     {

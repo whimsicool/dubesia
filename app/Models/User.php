@@ -147,6 +147,33 @@ class User extends Authenticatable
     }
 
     /**
+     * Calon murid yang pendaftarannya belum disetujui admin. Selama statusnya
+     * belum terverifikasi, akun ini hanya boleh memakai alur registrasi dan
+     * pembayaran. Akun tanpa baris pendaftaran (admin, tutor, murid lama) tidak
+     * termasuk.
+     */
+    public function pendaftaranBelumTerverifikasi(): bool
+    {
+        $status = $this->pendaftaran?->status;
+
+        return $status !== null && $status !== Pendaftaran::STATUS_TERVERIFIKASI;
+    }
+
+    /**
+     * Calon murid yang masih boleh membuka halaman pembayaran atau formulir
+     * perbaikan lewat tautan bertanda tangan dari email.
+     */
+    public function bisaMelanjutkanPendaftaran(): bool
+    {
+        return $this->isStudent()
+            && $this->status_akun !== 'nonaktif'
+            && in_array($this->pendaftaran?->status, [
+                Pendaftaran::STATUS_MENUNGGU_PEMBAYARAN,
+                Pendaftaran::STATUS_DITOLAK,
+            ], true);
+    }
+
+    /**
      * Hasil tes milik user ini.
      */
     public function hasilTes(): HasMany

@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\URL;
 
 class Pendaftaran extends Model
 {
@@ -103,6 +104,19 @@ class Pendaftaran extends Model
     public function hasBuktiPembayaran(): bool
     {
         return filled($this->bukti_pembayaran);
+    }
+
+    /**
+     * Tautan bertanda tangan untuk membuka kembali pembayaran atau formulir
+     * perbaikan tanpa sesi dan tanpa kata sandi.
+     */
+    public function tautanLanjutan(int $masaBerlakuHari = 7): string
+    {
+        return URL::temporarySignedRoute(
+            'pendaftaran.lanjutkan',
+            now()->addDays($masaBerlakuHari),
+            ['user' => $this->user_id],
+        );
     }
 
     public function getBuktiUrlAttribute(): ?string

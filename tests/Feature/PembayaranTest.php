@@ -177,7 +177,7 @@ class PembayaranTest extends TestCase
             ->assertRedirect(route('pembayaran.show'));
     }
 
-    public function test_calon_murid_menunggu_verifikasi_diarahkan_dari_dashboard_ke_profil(): void
+    public function test_calon_murid_menunggu_verifikasi_tetap_di_alur_pembayaran(): void
     {
         $user = User::factory()->create(['is_active' => false]);
         Pendaftaran::factory()->for($user)->create([
@@ -187,6 +187,6 @@ class PembayaranTest extends TestCase
 
         $this->actingAs($user)
             ->get('/dashboard')
-            ->assertRedirect(route('profile.edit'));
+            ->assertRedirect(route('pembayaran.show'));
     }
 }

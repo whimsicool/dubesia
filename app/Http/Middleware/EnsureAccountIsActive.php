@@ -9,25 +9,30 @@ use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * Akun calon murid hanya aktif setelah admin memverifikasi pembayaran.
- * Sampai saat itu, sesi hanya boleh dipakai untuk menyelesaikan pembayaran
- * dan mengubah profil.
+ * Calon murid hanya boleh memakai sesi untuk menyelesaikan pendaftaran dan
+ * pembayaran sampai admin memverifikasinya. Batasannya diambil dari status
+ * pendaftaran, bukan is_active, karena baris hasil seeder punya is_active true.
  */
 class EnsureAccountIsActive
 {
-    /** @var array<int, string> */
+    /**
+     * Route yang tetap terbuka untuk calon murid yang belum terverifikasi.
+     *
+     * @var array<int, string>
+     */
     private const ALLOWED_ROUTES = [
         'landing',
         'login',
         'register',
         'logout',
+        'email.cek',
         'panduan-pendaftaran',
         'bantuan-admisi',
         'pembayaran.*',
-        'profile.*',
         'password.*',
         'registrasi.*',
         'verification.*',
+        'pendaftaran.lanjutkan',
     ];
 
     public function handle(Request $request, Closure $next): Response
@@ -49,7 +54,7 @@ class EnsureAccountIsActive
             ]);
         }
 
-        if ($user->is_active) {
+        if (! $user->pendaftaranBelumTerverifikasi()) {
             return $next($request);
         }
 
@@ -57,10 +62,14 @@ class EnsureAccountIsActive
             return $next($request);
         }
 
+        // Permintaan tulis dan permintaan JSON tidak dialihkan: keduanya
+        // ditolak langsung supaya tidak ada halaman portal yang terbuka.
+        abort_if(! $request->isMethodSafe() || $request->expectsJson(), 403);
+
         return redirect()->route(
-            $user->pendaftaran?->status === Pendaftaran::STATUS_MENUNGGU_PEMBAYARAN
-                ? 'pembayaran.show'
-                : 'profile.edit',
+            $user->pendaftaran?->status === Pendaftaran::STATUS_DITOLAK
+                ? 'registrasi.edit'
+                : 'pembayaran.show',
         );
     }
 }
