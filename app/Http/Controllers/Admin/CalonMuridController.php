@@ -143,12 +143,9 @@ class CalonMuridController extends Controller
                 $user->update([
                     'password' => $temporaryPassword,
                     'is_active' => true,
+                    'email_verified_at' => $user->email_verified_at ?? now(),
                     'no_hp' => '+'.$p->no_whatsapp,
                 ]);
-
-                // email_verified_at bukan atribut fillable; tandai lewat method
-                // resmi agar akun hasil verifikasi bisa meminta kata sandi baru.
-                $user->markEmailAsVerified();
 
                 Log::info('Dispatching registration approval email.', ['registration_id' => $p->id]);
                 Mail::to($p->email)->send(new KirimEmail($p, $temporaryPassword));

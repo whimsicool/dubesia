@@ -154,9 +154,8 @@ class CourseClassSeeder extends Seeder
                     'class_level' => $this->classLevelFor($definition['level']),
                     'is_active' => true,
                     'status_akun' => 'aktif',
+                    'email_verified_at' => now(),
                 ]);
-
-                $user->markEmailAsVerified();
 
                 Student::updateOrCreate(
                     ['user_id' => $user->id],

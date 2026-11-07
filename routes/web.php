@@ -6,9 +6,7 @@ use App\Http\Controllers\Admin\PembayaranMasukController;
 use App\Http\Controllers\AdminUserController;
 use App\Http\Controllers\CekEmailController;
 use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\KirimTautanPendaftaranController;
 use App\Http\Controllers\LandingController;
-use App\Http\Controllers\LanjutkanPendaftaranController;
 use App\Http\Controllers\PembayaranController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RegistrasiController;
@@ -39,17 +37,6 @@ Route::get('/registrasi', [RegistrasiController::class, 'create'])->name('regist
 Route::get('/cek-email', CekEmailController::class)
     ->middleware('throttle:60,1')
     ->name('email.cek');
-
-// Calon murid dapat membuka kembali pembayaran atau form perbaikan lewat
-// tautan bertanda tangan dari email, tanpa bergantung pada sesi browser.
-Route::get('/lanjutkan/{user}', LanjutkanPendaftaranController::class)
-    ->middleware(['signed', 'throttle:10,1'])
-    ->name('pendaftaran.lanjutkan');
-
-// Kirim ulang tautan lanjutan tanpa membocorkan status akun.
-Route::post('/registrasi/kirim-tautan', KirimTautanPendaftaranController::class)
-    ->middleware('throttle:6,1')
-    ->name('registrasi.kirim-tautan');
 
 Route::get('/pembayaran/terkirim', fn () => Inertia::render('Registrasi/PembayaranTerkirim'))
     ->name('pembayaran.terkirim');

@@ -43,9 +43,8 @@ class TutorSeeder extends Seeder
                 'no_hp' => $phone,
                 'status_akun' => 'aktif',
                 'is_active' => true,
+                'email_verified_at' => now(),
             ])->save();
-
-            $tutor->markEmailAsVerified();
         }
     }
 }

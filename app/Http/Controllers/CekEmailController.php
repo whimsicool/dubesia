@@ -30,20 +30,11 @@ class CekEmailController extends Controller
             $query->whereKeyNot($ignoreId);
         }
 
-        $penggunaTerdaftar = $query->first();
-        $terpakai = $penggunaTerdaftar !== null;
-        $bisaLanjut = $penggunaTerdaftar?->bisaMelanjutkanPendaftaran() ?? false;
-
-        $pesan = match (true) {
-            ! $terpakai => 'Email tersedia.',
-            $bisaLanjut => 'Email sudah terdaftar. Kirim tautan untuk melanjutkan pendaftaran.',
-            default => 'Email sudah terdaftar. Masuk atau gunakan lupa kata sandi.',
-        };
+        $terpakai = $query->exists();
 
         return response()->json([
             'tersedia' => ! $terpakai,
-            'bisa_lanjut' => $bisaLanjut,
-            'pesan' => $pesan,
+            'pesan' => $terpakai ? 'Email sudah terdaftar. Gunakan email lain.' : 'Email tersedia.',
         ]);
     }
 }

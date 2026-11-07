@@ -1,7 +1,7 @@
 import GmailInput from '@/Components/GmailInput';
 
 import { useEffect, useState } from 'react';
-import { Link, router, useForm, usePage } from '@inertiajs/react';
+import { Link, useForm, usePage } from '@inertiajs/react';
 import { AlertTriangle, ArrowRight, FileUp } from 'lucide-react';
 import AdmisiShell from '@/Components/Registrasi/AdmisiShell';
 import useEmailAvailability from '@/Hooks/useEmailAvailability';
@@ -109,8 +109,6 @@ export default function Create({
 
   const [clientErrors, setClientErrors] = useState({});
   const [emailDikonfirmasi, setEmailDikonfirmasi] = useState(false);
-  const [mengirimTautan, setMengirimTautan] = useState(false);
-  const [tautanTerkirim, setTautanTerkirim] = useState(false);
   const authUser = usePage().props.auth?.user ?? null;
   const emailCheck = useEmailAvailability(
     data.email,
@@ -151,7 +149,6 @@ export default function Create({
     if (name === 'email') {
       setEmailDikonfirmasi(false);
       setData('setuju', false);
-      setTautanTerkirim(false);
     }
 
     setClientErrors((current) => {
@@ -170,22 +167,6 @@ export default function Create({
       delete next.konfirmasi;
       return next;
     });
-  };
-
-  const kirimTautanLanjut = () => {
-    setMengirimTautan(true);
-    setTautanTerkirim(false);
-
-    router.post(
-      route('registrasi.kirim-tautan'),
-      { email: data.email.trim() },
-      {
-        preserveState: true,
-        preserveScroll: true,
-        onSuccess: () => setTautanTerkirim(true),
-        onFinish: () => setMengirimTautan(false),
-      },
-    );
   };
 
   const submit = (event) => {
@@ -319,28 +300,6 @@ export default function Create({
                     {emailCheck.message}
                   </p>
                 )}
-                {!fieldError('email') &&
-                  emailCheck.status === 'taken' &&
-                  emailCheck.bisaLanjut &&
-                  !editMode && (
-                    <div className="mt-2 space-y-1">
-                      <button
-                        type="button"
-                        onClick={kirimTautanLanjut}
-                        disabled={mengirimTautan}
-                        className="text-xs font-semibold text-dubesia-navy underline underline-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
-                      >
-                        {mengirimTautan
-                          ? 'Mengirim tautan...'
-                          : 'Kirim tautan untuk melanjutkan pendaftaran'}
-                      </button>
-                      {tautanTerkirim && (
-                        <p className="text-xs text-emerald-600" role="status">
-                          Tautan sudah dikirim. Periksa kotak masuk dan folder spam.
-                        </p>
-                      )}
-                    </div>
-                  )}
               </Field>
 
               <Field

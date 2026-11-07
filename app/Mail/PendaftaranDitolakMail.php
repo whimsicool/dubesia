@@ -7,20 +7,10 @@ use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Address;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
-use Illuminate\Support\Facades\URL;
 
 class PendaftaranDitolakMail extends Mailable
 {
-    public string $lanjutkanUrl;
-
-    public function __construct(public Pendaftaran $pendaftaran)
-    {
-        $this->lanjutkanUrl = URL::temporarySignedRoute(
-            'pendaftaran.lanjutkan',
-            now()->addDays(7),
-            ['user' => $pendaftaran->user_id],
-        );
-    }
+    public function __construct(public Pendaftaran $pendaftaran) {}
 
     public function envelope(): Envelope
     {

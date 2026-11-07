@@ -19,6 +19,7 @@ class EnsureAccountIsActive
     private const ALLOWED_ROUTES = [
         'landing',
         'login',
+        'register',
         'logout',
         'panduan-pendaftaran',
         'bantuan-admisi',
