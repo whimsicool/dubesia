@@ -72,8 +72,12 @@ class AdminUserController extends Controller
                     'no_hp' => $validated['no_hp'] ?? null,
                     'status_akun' => 'aktif',
                     'is_active' => true,
-                    'email_verified_at' => now(),
                 ]);
+
+                // email_verified_at tidak ada di daftar fillable, jadi nilainya
+                // hilang bila dikirim lewat create(). Tandai lewat method model
+                // agar akun baru bisa meminta kata sandi dari /forgot-password.
+                $user->markEmailAsVerified();
 
                 Mail::to($user->email)->send(new AkunTutorMail($user, $defaultPassword));
 
