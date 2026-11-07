@@ -45,11 +45,69 @@ class PasswordResetTest extends TestCase
         Mail::assertNothingSent();
     }
 
-    public function test_email_belum_terverifikasi_ditolak(): void
+    public function test_akun_tanpa_pendaftaran_tetap_bisa_minta_sandi_meski_email_belum_ditandai_verifikasi(): void
     {
         Mail::fake();
 
         $user = User::factory()->unverified()->create();
+
+        $this->post('/forgot-password', ['email' => $user->email])
+            ->assertSessionHasNoErrors()
+            ->assertSessionHas('status');
+
+        Mail::assertSent(PasswordBaruMail::class);
+    }
+
+    public function test_murid_terverifikasi_tanpa_tanda_verifikasi_email_bisa_minta_sandi(): void
+    {
+        Mail::fake();
+
+        $user = User::factory()->unverified()->create();
+        Pendaftaran::factory()->for($user)->terverifikasi()->create();
+
+        $this->post('/forgot-password', ['email' => $user->email])
+            ->assertSessionHasNoErrors()
+            ->assertSessionHas('status');
+
+        Mail::assertSent(PasswordBaruMail::class);
+    }
+
+    public function test_calon_murid_menunggu_pembayaran_tidak_bisa_minta_sandi(): void
+    {
+        Mail::fake();
+
+        $user = User::factory()->create(['is_active' => false]);
+        Pendaftaran::factory()->for($user)->menungguPembayaran()->create();
+
+        $this->post('/forgot-password', ['email' => $user->email])
+            ->assertSessionHasErrors('email');
+
+        Mail::assertNothingSent();
+    }
+
+    public function test_calon_murid_ditolak_tidak_bisa_minta_sandi(): void
+    {
+        Mail::fake();
+
+        $user = User::factory()->create(['is_active' => true]);
+        Pendaftaran::factory()->for($user)->create([
+            'status' => Pendaftaran::STATUS_DITOLAK,
+        ]);
+
+        $this->post('/forgot-password', ['email' => $user->email])
+            ->assertSessionHasErrors('email');
+
+        Mail::assertNothingSent();
+    }
+
+    public function test_akun_nonaktif_tidak_bisa_minta_sandi(): void
+    {
+        Mail::fake();
+
+        $user = User::factory()->create([
+            'status_akun' => 'nonaktif',
+            'is_active' => false,
+        ]);
 
         $this->post('/forgot-password', ['email' => $user->email])
             ->assertSessionHasErrors('email');

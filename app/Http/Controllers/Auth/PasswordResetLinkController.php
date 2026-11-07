@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Mail\PasswordBaruMail;
-use App\Models\Pendaftaran;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -40,12 +39,9 @@ class PasswordResetLinkController extends Controller
         $email = mb_strtolower(trim($validated['email']));
         $user = User::query()->whereRaw('LOWER(email) = ?', [$email])->first();
 
-        // Hanya akun aktif, terverifikasi, dan pendaftarannya selesai yang boleh
-        // meminta kata sandi baru. Calon murid yang belum membayar belum dihitung.
-        $bolehMintaSandi = $user
-            && $user->is_active
-            && $user->email_verified_at !== null
-            && (! $user->pendaftaran || $user->pendaftaran->status === Pendaftaran::STATUS_TERVERIFIKASI);
+        // Semua akun terdaftar boleh meminta kata sandi baru, kecuali pendaftar
+        // yang belum disetujui admin. Mereka memakai tautan lanjutan dari email.
+        $bolehMintaSandi = $user?->bolehMintaKataSandiBaru() ?? false;
 
         if (! $bolehMintaSandi) {
             throw ValidationException::withMessages([

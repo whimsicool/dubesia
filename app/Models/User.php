@@ -174,6 +174,19 @@ class User extends Authenticatable
     }
 
     /**
+     * Akun yang boleh meminta kata sandi baru lewat formulir lupa kata sandi.
+     * Pendaftar yang belum disetujui admin memakai tautan lanjutan, bukan kata
+     * sandi. Kolom email_verified_at tidak dipakai karena aplikasi ini tidak
+     * mengirim email verifikasi.
+     */
+    public function bolehMintaKataSandiBaru(): bool
+    {
+        return $this->is_active
+            && $this->status_akun !== 'nonaktif'
+            && ! $this->pendaftaranBelumTerverifikasi();
+    }
+
+    /**
      * Hasil tes milik user ini.
      */
     public function hasilTes(): HasMany
