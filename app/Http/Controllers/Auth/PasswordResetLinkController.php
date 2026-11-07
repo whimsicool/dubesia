@@ -44,6 +44,7 @@ class PasswordResetLinkController extends Controller
         // meminta kata sandi baru. Calon murid yang belum membayar belum dihitung.
         $bolehMintaSandi = $user
             && $user->is_active
+            && $user->status_akun !== 'nonaktif'
             && $user->email_verified_at !== null
             && (! $user->pendaftaran || $user->pendaftaran->status === Pendaftaran::STATUS_TERVERIFIKASI);
 

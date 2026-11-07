@@ -7,18 +7,18 @@ const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
  * Status: idle, checking, available, taken.
  */
 export default function useEmailAvailability(email, ignoreUserId = null) {
-    const [state, setState] = useState({ status: 'idle', message: '' });
+    const [state, setState] = useState({ status: 'idle', message: '', bisaLanjut: false });
 
     useEffect(() => {
         const value = String(email ?? '').trim();
 
         if (!EMAIL_PATTERN.test(value)) {
-            setState({ status: 'idle', message: '' });
+            setState({ status: 'idle', message: '', bisaLanjut: false });
             return;
         }
 
         const controller = new AbortController();
-        setState({ status: 'checking', message: '' });
+        setState({ status: 'checking', message: '', bisaLanjut: false });
 
         const timer = window.setTimeout(async () => {
             const params = new URLSearchParams({ email: value });
@@ -41,12 +41,13 @@ export default function useEmailAvailability(email, ignoreUserId = null) {
                 setState({
                     status: payload.tersedia ? 'available' : 'taken',
                     message: payload.pesan ?? '',
+                    bisaLanjut: Boolean(payload.bisa_lanjut),
                 });
             } catch (error) {
                 if (error.name !== 'AbortError') {
                     // Jaringan bermasalah bukan alasan memblokir pengiriman;
                     // validasi server tetap menolak email ganda.
-                    setState({ status: 'idle', message: '' });
+                    setState({ status: 'idle', message: '', bisaLanjut: false });
                 }
             }
         }, 400);

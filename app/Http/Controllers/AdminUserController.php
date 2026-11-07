@@ -72,8 +72,11 @@ class AdminUserController extends Controller
                     'no_hp' => $validated['no_hp'] ?? null,
                     'status_akun' => 'aktif',
                     'is_active' => true,
-                    'email_verified_at' => now(),
                 ]);
+
+                // email_verified_at bukan atribut fillable; tandai lewat method
+                // resmi agar kolomnya benar-benar tersimpan.
+                $user->markEmailAsVerified();
 
                 Mail::to($user->email)->send(new AkunTutorMail($user, $defaultPassword));
 

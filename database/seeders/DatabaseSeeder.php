@@ -65,7 +65,7 @@ class DatabaseSeeder extends Seeder
         ];
 
         foreach ($students as $student) {
-            User::updateOrCreate(
+            $user = User::updateOrCreate(
                 ['email' => $student['email']],
                 [
                     'name' => $student['name'],
@@ -74,9 +74,10 @@ class DatabaseSeeder extends Seeder
                     'class_level' => $student['class_level'],
                     'status_akun' => 'aktif',
                     'is_active' => true,
-                    'email_verified_at' => now(),
                 ],
             );
+
+            $user->markEmailAsVerified();
         }
     }
 
@@ -101,14 +102,15 @@ class DatabaseSeeder extends Seeder
             return;
         }
 
-        User::updateOrCreate(['email' => 'admin@dubesia.id'], [
+        $admin = User::updateOrCreate(['email' => 'admin@dubesia.id'], [
             'name' => 'Rahmat Hidayat',
             'password' => Hash::make('password'),
             'role' => User::ROLE_ADMIN,
             'class_level' => null,
             'status_akun' => 'aktif',
             'is_active' => true,
-            'email_verified_at' => now(),
         ]);
+
+        $admin->markEmailAsVerified();
     }
 }

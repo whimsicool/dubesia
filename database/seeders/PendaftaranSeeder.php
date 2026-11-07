@@ -49,9 +49,10 @@ class PendaftaranSeeder extends Seeder
                     'role' => User::ROLE_STUDENT,
                     'no_hp' => $whatsapp,
                     'is_active' => true,
-                    'email_verified_at' => now(),
                 ],
             );
+
+            $user->markEmailAsVerified();
 
             $diproses = $status !== Pendaftaran::STATUS_MENUNGGU;
             $verifiedAt = match ($status) {

@@ -140,6 +140,22 @@ class User extends Authenticatable
         return $this->role === self::ROLE_STUDENT;
     }
 
+    /**
+     * Calon murid yang masih boleh melanjutkan pembayaran atau memperbaiki
+     * pendaftaran lewat tautan email.
+     */
+    public function bisaMelanjutkanPendaftaran(): bool
+    {
+        if ($this->status_akun === 'nonaktif' || ! $this->isStudent()) {
+            return false;
+        }
+
+        return in_array($this->pendaftaran?->status, [
+            Pendaftaran::STATUS_MENUNGGU_PEMBAYARAN,
+            Pendaftaran::STATUS_DITOLAK,
+        ], true);
+    }
+
     /** Tutor dapat mengunggah / mengelola materi. */
     public function canManageMaterials(): bool
     {
