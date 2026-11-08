@@ -1,6 +1,6 @@
 import { CalendarDays, ChevronLeft, ChevronRight, ClipboardCheck, Trash2 } from 'lucide-react';
 import RoomIcon from './RoomIcon';
-import { CATEGORY_STYLES, formatDate, formatWeekRange } from './constants';
+import { CATEGORY_STYLES, UNASSIGNED_TUTOR_LABEL, formatDate, formatWeekRange } from './constants';
 
 function SessionCard({ schedule, date, onEdit, onDelete, onAttendance, attendanceLabel, readOnly }) {
     const style = CATEGORY_STYLES[schedule.program?.category] ?? CATEGORY_STYLES.english;
@@ -19,10 +19,16 @@ function SessionCard({ schedule, date, onEdit, onDelete, onAttendance, attendanc
                 {schedule.student_names?.length > 0 && <p className="mt-2 truncate text-[11px] text-slate-500" title={schedule.student_names.join(', ')}>Murid: {schedule.student_names.slice(0, 2).join(', ')}{schedule.student_names.length > 2 ? ` +${schedule.student_names.length - 2}` : ''}</p>}
                 <div className="mt-3 flex items-center justify-between gap-2 text-xs">
                     <span className="flex min-w-0 items-center gap-1.5 font-semibold text-slate-800">
-                        <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-slate-900 text-[9px] font-bold text-white">
-                            {schedule.tutor.initials}
-                        </span>
-                        <span className="truncate">{schedule.tutor.name}</span>
+                        {schedule.tutor ? (
+                            <>
+                                <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-slate-900 text-[9px] font-bold text-white">
+                                    {schedule.tutor.initials}
+                                </span>
+                                <span className="truncate">{schedule.tutor.name}</span>
+                            </>
+                        ) : (
+                            <span className="text-slate-500">{UNASSIGNED_TUTOR_LABEL}</span>
+                        )}
                     </span>
                     <span className="shrink-0 font-semibold text-slate-600">{schedule.participants} Mhs</span>
                 </div>

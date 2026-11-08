@@ -173,7 +173,7 @@ class ScheduleViewController extends Controller
                 'name' => $schedule->program->name,
                 'category' => $schedule->program->category->value,
             ] : null,
-            'tutor' => ['name' => $schedule->tutor->name, 'initials' => $schedule->tutor->initials],
+            'tutor' => $schedule->tutor ? ['name' => $schedule->tutor->name, 'initials' => $schedule->tutor->initials] : null,
             'room' => [
                 'name' => $schedule->room->name,
                 'type' => $schedule->room->type->value,

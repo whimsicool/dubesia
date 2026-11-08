@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { CalendarDays, ChevronLeft, ChevronRight, ClipboardCheck, Pencil, Plus } from 'lucide-react';
-import { CATEGORY_STYLES, formatDate, parseISODate } from './constants';
+import { CATEGORY_STYLES, UNASSIGNED_TUTOR_LABEL, formatDate, parseISODate } from './constants';
 
 const WEEKDAYS = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
 
@@ -36,7 +36,7 @@ function ScheduleChip({ schedule, date, onEdit, onAttendance, attendanceLabel, r
                 {schedule.start_time}–{schedule.end_time}
             </span>
             <span className="mt-1 block truncate text-xs font-semibold text-slate-900">{schedule.title}</span>
-            <span className="block truncate text-[10px] text-slate-500">{schedule.tutor.name}</span>
+            <span className="block truncate text-[10px] text-slate-500">{schedule.tutor?.name ?? UNASSIGNED_TUTOR_LABEL}</span>
             {schedule.student_names?.length > 0 && <span className="block truncate text-[10px] text-slate-500" title={schedule.student_names.join(', ')}>Murid: {schedule.student_names.slice(0, 2).join(', ')}{schedule.student_names.length > 2 ? ` +${schedule.student_names.length - 2}` : ''}</span>}
         </>
     );

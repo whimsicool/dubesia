@@ -130,7 +130,7 @@ class ScheduleController extends Controller
                         'start_time' => substr($schedule->start_time, 0, 5),
                         'end_time' => substr($schedule->end_time, 0, 5),
                         'program' => $schedule->program?->name ?? '-',
-                        'tutor' => $schedule->tutor?->name ?? '-',
+                        'tutor' => $schedule->tutor?->name ?? 'Tutor belum ditugaskan',
                         'room' => $schedule->room?->name ?? '-',
                         'participants' => $schedule->students->count(),
                     ])
