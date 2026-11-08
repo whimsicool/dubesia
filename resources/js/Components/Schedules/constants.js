@@ -9,6 +9,9 @@ export const DAYS = [
 
 export const DAY_NAMES = Object.fromEntries(DAYS.map((d) => [d.value, d.label]));
 
+/** Jadwal yang tutornya dihapus paksa tetap tampil dengan label ini. */
+export const UNASSIGNED_TUTOR_LABEL = 'Tutor belum ditugaskan';
+
 /** Warna per kategori program (sesuai legenda kalender). Class ditulis utuh agar tidak di-purge Tailwind. */
 export const CATEGORY_STYLES = {
     english: {

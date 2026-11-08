@@ -1,6 +1,6 @@
 import { ClipboardCheck, Pencil, Trash2 } from 'lucide-react';
 import RoomIcon from './RoomIcon';
-import { CATEGORY_STYLES, DAY_NAMES, formatDate } from './constants';
+import { CATEGORY_STYLES, DAY_NAMES, UNASSIGNED_TUTOR_LABEL, formatDate } from './constants';
 
 export default function ScheduleTable({ schedules, week, onEdit, onDelete, onAttendance, attendanceLabel = 'Isi presensi', readOnly = false }) {
     if (schedules.length === 0) {
@@ -46,12 +46,16 @@ export default function ScheduleTable({ schedules, week, onEdit, onDelete, onAtt
                                     <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${style.badge}`}>{s.program?.name ?? 'â€”'}</span>
                                 </td>
                                 <td className="px-4 py-3">
-                                    <span className="flex items-center gap-2">
-                                        <span className="flex h-6 w-6 items-center justify-center rounded-full bg-slate-900 text-[10px] font-bold text-white">
-                                            {s.tutor.initials}
+                                    {s.tutor ? (
+                                        <span className="flex items-center gap-2">
+                                            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-slate-900 text-[10px] font-bold text-white">
+                                                {s.tutor.initials}
+                                            </span>
+                                            {s.tutor.name}
                                         </span>
-                                        {s.tutor.name}
-                                    </span>
+                                    ) : (
+                                        <span className="text-slate-500">{UNASSIGNED_TUTOR_LABEL}</span>
+                                    )}
                                 </td>
                                 <td className="px-4 py-3">
                                     <span className="flex items-center gap-2 text-slate-700">
