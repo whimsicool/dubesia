@@ -21,13 +21,13 @@ export default function PanduanPendaftaran() {
             number: '03',
             title: 'Periksa Data',
             description:
-                'Pastikan data diri, alamat email, nomor WhatsApp, dan program yang dipilih sudah benar sebelum formulir dikirim.',
+                'Pastikan data diri, alamat email, nomor WhatsApp, program, dan jenis kelas yang dipilih sudah benar sebelum formulir dikirim.',
         },
         {
             number: '04',
             title: 'Lakukan Pembayaran',
             description:
-                'Setelah formulir dikirim, lanjut ke halaman pembayaran. Transfer sesuai biaya program, lalu unggah bukti pembayaran pada halaman yang sama.',
+                'Setelah formulir dikirim, lanjut ke halaman pembayaran. Transfer sesuai biaya jenis kelas, lalu unggah bukti pembayaran pada halaman yang sama.',
         },
         {
             number: '05',
@@ -69,7 +69,7 @@ export default function PanduanPendaftaran() {
                 <ul className="mt-3 list-disc space-y-2 pl-5 leading-7 text-slate-700">
                     <li>Gunakan email aktif. Hasil verifikasi admin dikirim ke alamat email yang kamu daftarkan.</li>
                     <li>Periksa kotak masuk dan folder spam jika email verifikasi belum terlihat.</li>
-                    <li>Pastikan nominal transfer sesuai biaya program yang dipilih.</li>
+                    <li>Pastikan nominal transfer sesuai biaya jenis kelas yang dipilih.</li>
                     <li>Pendaftaran baru diproses setelah bukti pembayaran diunggah.</li>
                 </ul>
             </section>

@@ -12,7 +12,7 @@ const BENEFITS = [
   },
   {
     title: 'Jadwal fleksibel',
-    body: 'Pilih program reguler, private, atau employee sesuai ritme belajar dan pekerjaan Anda.',
+    body: 'Pilih program dan jenis kelas sesuai ritme belajar dan pekerjaan Anda.',
   },
   {
     title: 'Pembayaran tanpa tenggat',
@@ -234,6 +234,7 @@ export default function Pembayaran({ pendaftaran, rekening = [], flash }) {
             {pendaftaran.status_label}
           </span>
           <span className="rounded-full bg-white/15 px-3 py-1 text-xs font-semibold">{pendaftaran.program}</span>
+          <span className="rounded-full bg-white/15 px-3 py-1 text-xs font-semibold">{pendaftaran.jenis_kelas}</span>
           <span className="text-2xl font-extrabold">{rupiah(pendaftaran.biaya)}</span>
         </div>
       </section>

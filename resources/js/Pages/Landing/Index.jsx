@@ -26,8 +26,11 @@ import {
 } from '@/Components/Landing/motion';
 
 const PROGRAM_ICONS = {
-    diplomatic_speech: Mic,
-    executive_english: Briefcase,
+    general_english: BookOpen,
+    academic_english: GraduationCap,
+    public_speaking: Mic,
+    esp: Briefcase,
+    toefl_preparation: ClipboardCheck,
 };
 
 const HEADLINE = 'Bahasa yang siap dipakai di panggung internasional.';

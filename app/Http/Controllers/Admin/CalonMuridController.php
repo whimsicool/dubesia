@@ -82,6 +82,7 @@ class CalonMuridController extends Controller
                 'alamat' => $pendaftaran->alamat,
                 'asal_institusi' => $pendaftaran->asal_institusi,
                 'program' => Pendaftaran::labelProgram($pendaftaran->program),
+                'jenis_kelas' => Pendaftaran::labelJenisKelas($pendaftaran->jenis_kelas),
                 'pesan_motivasi' => $pendaftaran->pesan_motivasi,
                 'biaya' => $pendaftaran->biaya,
                 'tanggal_daftar' => $pendaftaran->created_at->format('d M Y, H:i'),

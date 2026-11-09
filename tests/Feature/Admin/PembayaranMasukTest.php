@@ -20,15 +20,15 @@ class PembayaranMasukTest extends TestCase
     public function test_rekap_bulanan_menampilkan_total_pembayaran_pada_periode_itu(): void
     {
         Pendaftaran::factory()->terverifikasi()->create([
-            'biaya' => 1000000,
+            'biaya' => Pendaftaran::biayaUntukJenisKelas('regular'),
             'verified_at' => now()->setDate(2026, 3, 10),
         ]);
         Pendaftaran::factory()->terverifikasi()->create([
-            'biaya' => 1500000,
+            'biaya' => Pendaftaran::biayaUntukJenisKelas('private'),
             'verified_at' => now()->setDate(2026, 3, 12),
         ]);
         Pendaftaran::factory()->terverifikasi()->create([
-            'biaya' => 1700000,
+            'biaya' => Pendaftaran::biayaUntukJenisKelas('intensive'),
             'verified_at' => now()->setDate(2026, 2, 12),
         ]);
 
@@ -38,18 +38,18 @@ class PembayaranMasukTest extends TestCase
             ->assertInertia(fn (Assert $page) => $page
                 ->component('Admin/Pembayaran/Index')
                 ->has('pembayaran', 2)
-                ->where('total', 2500000)
+                ->where('total', 6800000)
                 ->where('periode_label', 'Maret 2026'));
     }
 
     public function test_rekap_tahunan_menjumlahkan_semua_bulan_pada_tahun_itu(): void
     {
         Pendaftaran::factory()->terverifikasi()->create([
-            'biaya' => 1000000,
+            'biaya' => Pendaftaran::biayaUntukJenisKelas('regular'),
             'verified_at' => now()->setDate(2026, 3, 10),
         ]);
         Pendaftaran::factory()->terverifikasi()->create([
-            'biaya' => 1700000,
+            'biaya' => Pendaftaran::biayaUntukJenisKelas('intensive'),
             'verified_at' => now()->setDate(2026, 8, 12),
         ]);
 
@@ -58,14 +58,14 @@ class PembayaranMasukTest extends TestCase
             ->assertOk()
             ->assertInertia(fn (Assert $page) => $page
                 ->has('pembayaran', 2)
-                ->where('total', 2700000)
+                ->where('total', 11800000)
                 ->where('periode_label', 'Tahun 2026'));
     }
 
     public function test_rekap_pdf_mengikuti_filter_yang_aktif(): void
     {
         Pendaftaran::factory()->terverifikasi()->create([
-            'biaya' => 1000000,
+            'biaya' => Pendaftaran::biayaUntukJenisKelas('regular'),
             'verified_at' => now()->setDate(2026, 3, 10),
         ]);
 

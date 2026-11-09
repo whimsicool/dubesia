@@ -71,6 +71,7 @@ export default function Show({ pendaftaran: p, flash }) {
               <Row label="Alamat">{p.alamat}</Row>
               <Row label="Asal Institusi">{p.asal_institusi}</Row>
               <Row label="Program"><span className="capitalize">{p.program}</span></Row>
+              <Row label="Jenis Kelas">{p.jenis_kelas}</Row>
               <Row label="Motivasi">{p.pesan_motivasi}</Row>
               <Row label="Tanggal Daftar">{p.tanggal_daftar}</Row>
               {p.diverifikasi_oleh && <Row label="Diproses oleh">{p.diverifikasi_oleh} · {p.diverifikasi_pada}</Row>}

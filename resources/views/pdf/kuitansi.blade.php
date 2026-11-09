@@ -95,6 +95,10 @@
             <td class="value">: Kursus Bahasa Inggris — {{ $programLabel }}</td>
         </tr>
         <tr>
+            <td class="label">Jenis kelas</td>
+            <td class="value">: {{ $jenisKelasLabel }}</td>
+        </tr>
+        <tr>
             <td class="label">Tanggal pembayaran</td>
             <td class="value">: {{ ($pendaftaran->verified_at ?? now())->format('d/m/Y') }}</td>
         </tr>

@@ -37,6 +37,7 @@ class ProfileController extends Controller
                 'alamat' => $pendaftaran->alamat,
                 'asal_institusi' => $pendaftaran->asal_institusi,
                 'program' => Pendaftaran::labelProgram($pendaftaran->program),
+                'jenis_kelas' => Pendaftaran::labelJenisKelas($pendaftaran->jenis_kelas),
                 'biaya' => $pendaftaran->biaya,
                 'status' => $pendaftaran->status,
                 'status_label' => Pendaftaran::STATUS_LABEL[$pendaftaran->status] ?? $pendaftaran->status,

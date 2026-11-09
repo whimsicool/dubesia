@@ -1010,10 +1010,20 @@ export default function Index({ users, filters, stats }) {
                                     </span>
                                 </div>
                                 {detailUser.role === 'student' && (
-                                    <div>
-                                        <p style={{ fontSize: '11px', color: '#94a3b8', fontWeight: 600 }}>Level Kelas</p>
-                                        <p style={{ fontWeight: 600, color: '#0f172a' }}>{detailUser.class_level || 'Belum ada hasil tes'}</p>
-                                    </div>
+                                    <>
+                                        <div>
+                                            <p style={{ fontSize: '11px', color: '#94a3b8', fontWeight: 600 }}>Level Kelas</p>
+                                            <p style={{ fontWeight: 600, color: '#0f172a' }}>{detailUser.class_level || 'Belum ada hasil tes'}</p>
+                                        </div>
+                                        <div>
+                                            <p style={{ fontSize: '11px', color: '#94a3b8', fontWeight: 600 }}>Program</p>
+                                            <p style={{ fontWeight: 600, color: '#0f172a' }}>{detailUser.program_label || '-'}</p>
+                                        </div>
+                                        <div>
+                                            <p style={{ fontSize: '11px', color: '#94a3b8', fontWeight: 600 }}>Jenis Kelas</p>
+                                            <p style={{ fontWeight: 600, color: '#0f172a' }}>{detailUser.jenis_kelas_label || '-'}</p>
+                                        </div>
+                                    </>
                                 )}
                                 <div>
                                     <p style={{ fontSize: '11px', color: '#94a3b8', fontWeight: 600 }}>Terdaftar Sejak</p>

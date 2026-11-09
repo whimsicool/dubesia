@@ -138,7 +138,8 @@ class AksesPortalCalonMuridTest extends TestCase
                 'no_whatsapp' => '081234567890',
                 'alamat' => 'Jl. Melati No. 1, Pekanbaru',
                 'asal_institusi' => 'Universitas Riau',
-                'program' => 'reguler',
+                'program' => 'general_english',
+                'jenis_kelas' => 'regular',
                 'setuju' => true,
             ])
             ->assertRedirect(route('pembayaran.show'));

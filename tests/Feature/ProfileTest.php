@@ -30,9 +30,10 @@ class ProfileTest extends TestCase
             'no_whatsapp' => '6281234567890',
             'alamat' => 'Jl. Merdeka 1',
             'asal_institusi' => 'SMA Negeri 1',
-            'program' => 'reguler',
+            'program' => 'esp',
+            'jenis_kelas' => 'intensive',
             'bukti_pembayaran' => 'bukti/pembayaran.jpg',
-            'biaya' => 400000,
+            'biaya' => Pendaftaran::biayaUntukJenisKelas('intensive'),
             'status' => Pendaftaran::STATUS_TERVERIFIKASI,
         ]);
 
@@ -52,7 +53,9 @@ class ProfileTest extends TestCase
                 ->where('profile.class_level', 'Middle Intermediate')
                 ->where('profile.can_upload_photo', true)
                 ->where('pendaftaran.asal_institusi', 'SMA Negeri 1')
-                ->where('pendaftaran.program', 'Reguler')
+                ->where('pendaftaran.program', 'ESP (English for Specific Purpose)')
+                ->where('pendaftaran.jenis_kelas', 'Intensive')
+                ->where('pendaftaran.biaya', Pendaftaran::biayaUntukJenisKelas('intensive'))
                 ->where('pendaftaran.status_label', 'Terverifikasi')
             );
     }

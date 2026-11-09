@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\ClassAttendance;
 use App\Models\CourseClass;
+use App\Models\Pendaftaran;
 use App\Models\Program;
 use App\Models\Room;
 use App\Models\Schedule;
@@ -65,6 +66,27 @@ class AdminUserManagementTest extends TestCase
                 ->component('Admin/DataPengguna/Index')
                 ->where('users.data', fn ($users) => collect($users)->firstWhere('id', $this->student->id)['class_level'] === 'Upper Intermediate')
             );
+    }
+
+    public function test_data_pengguna_carries_registration_labels_without_the_registration_record(): void
+    {
+        Pendaftaran::factory()->for($this->student)->terverifikasi()->create([
+            'program' => 'toefl_preparation',
+            'jenis_kelas' => 'intensive',
+        ]);
+
+        $this->actingAs($this->admin)
+            ->get('/admin/data-pengguna')
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('Admin/DataPengguna/Index')
+                ->where('users.data', function ($users): bool {
+                    $row = collect($users)->firstWhere('id', $this->student->id);
+
+                    return $row['program_label'] === 'TOEFL Preparation'
+                        && $row['jenis_kelas_label'] === 'Intensive'
+                        && ! array_key_exists('pendaftaran', $row);
+                }));
     }
 
     public function test_admin_can_add_tutor(): void

@@ -28,7 +28,6 @@ class LandingController extends Controller
                     'value' => $value,
                     'label' => $label,
                     'deskripsi' => Pendaftaran::PROGRAM_DESKRIPSI[$value] ?? '',
-                    'biaya' => Pendaftaran::biayaUntuk($value),
                 ])
                 ->values(),
         ]);

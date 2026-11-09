@@ -12,6 +12,7 @@ class PaymentReceiptPdf
         return Pdf::loadView('pdf.kuitansi', [
             'pendaftaran' => $pendaftaran,
             'programLabel' => Pendaftaran::labelProgram($pendaftaran->program),
+            'jenisKelasLabel' => Pendaftaran::labelJenisKelas($pendaftaran->jenis_kelas),
         ])
             ->setPaper('a4', 'portrait')
             ->output();

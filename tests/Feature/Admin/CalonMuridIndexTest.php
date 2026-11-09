@@ -28,9 +28,10 @@ class CalonMuridIndexTest extends TestCase
             'email' => $user->email,
             'no_whatsapp' => '81234567890',
             'alamat' => 'Jl. Taman Karya 1',
-            'program' => 'reguler',
+            'program' => 'general_english',
+            'jenis_kelas' => 'regular',
             'bukti_pembayaran' => 'bukti/'.$user->id.'.png',
-            'biaya' => 1000000,
+            'biaya' => Pendaftaran::biayaUntukJenisKelas('regular'),
             'status' => $status,
         ]);
 

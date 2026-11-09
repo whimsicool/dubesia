@@ -13,7 +13,7 @@ export default function BantuanAdmisi() {
         {
             question: 'Berapa biaya pendaftaran dan bagaimana cara membayarnya?',
             answer:
-                'Biaya mengikuti program yang dipilih: Reguler Rp 1.000.000, Private Rp 1.500.000, dan Employee Rp 1.700.000. Nominal dan rekening tujuan tampil pada halaman pembayaran. Unggah bukti transfer dalam format gambar atau PDF.',
+                'Biaya mengikuti jenis kelas yang dipilih: Regular Rp 1.800.000, Private Rp 5.000.000, Intensive Rp 10.000.000, dan Home Visit Rp 7.000.000. Nominal dan rekening tujuan tampil pada halaman pembayaran. Unggah bukti transfer dalam format gambar atau PDF.',
         },
         {
             question: 'Kapan akun saya bisa dipakai untuk masuk?',

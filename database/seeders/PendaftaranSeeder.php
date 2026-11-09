@@ -20,27 +20,27 @@ class PendaftaranSeeder extends Seeder
         $password = Hash::make('password');
 
         $rows = [
-            ['Nadia Prameswari', 'nadia.prameswari@dubesia.id', '0812-1000-0001', 'reguler', 'Jakarta Selatan', 'SMA Negeri 8 Jakarta', Pendaftaran::STATUS_TERVERIFIKASI, 'Ingin lancar public speaking untuk debat internasional.'],
-            ['Bagas Wicaksono', 'bagas.wicaksono@dubesia.id', '0812-1000-0002', 'private', 'Bandung', 'Universitas Padjadjaran', Pendaftaran::STATUS_MENUNGGU, 'Butuh kelas privat karena jadwal kuliah padat.'],
-            ['Salsabila Rahma', 'salsabila.rahma@dubesia.id', '0812-1000-0003', 'employee', 'Surabaya', 'PT Pelayaran Nusantara', Pendaftaran::STATUS_TERVERIFIKASI, 'Persiapan presentasi klien asing.'],
-            ['Yoga Pratama', 'yoga.pratama@dubesia.id', '0812-1000-0004', 'reguler', 'Yogyakarta', 'SMA Negeri 3 Yogyakarta', Pendaftaran::STATUS_MENUNGGU, 'Ingin lancar berbicara saat presentasi kerja.'],
-            ['Clara Wijayanti', 'clara.wijayanti@dubesia.id', '0812-1000-0005', 'private', 'Semarang', 'Universitas Diponegoro', Pendaftaran::STATUS_DITOLAK, 'Menyiapkan wawancara beasiswa.'],
-            ['Rizky Hidayat', 'rizky.hidayat@dubesia.id', '0812-1000-0006', 'employee', 'Medan', 'Bank Sumut', Pendaftaran::STATUS_TERVERIFIKASI, 'Perlu kemampuan korespondensi bisnis.'],
-            ['Anindya Kirana', 'anindya.kirana@dubesia.id', '0812-1000-0007', 'reguler', 'Denpasar', 'SMA Negeri 1 Denpasar', Pendaftaran::STATUS_MENUNGGU, 'Tertarik kelas diplomatik.'],
-            ['Fadhil Ramadhan', 'fadhil.ramadhan@dubesia.id', '0812-1000-0008', 'reguler', 'Makassar', 'Universitas Hasanuddin', Pendaftaran::STATUS_TERVERIFIKASI, 'Ingin memperbaiki pelafalan dan intonasi.'],
-            ['Gita Larasati', 'gita.larasati@dubesia.id', '0812-1000-0009', 'private', 'Malang', 'Universitas Brawijaya', Pendaftaran::STATUS_MENUNGGU, 'Persiapan wawancara beasiswa di luar negeri.'],
-            ['Hendra Gunawan', 'hendra.gunawan@dubesia.id', '0812-1000-0010', 'employee', 'Balikpapan', 'PT Energi Kaltim', Pendaftaran::STATUS_DITOLAK, 'Ingin kelas malam untuk karyawan.'],
-            ['Alya Kusumawardani', 'alya.kusumawardani@dubesia.id', '0812-1000-0011', 'reguler', 'Bandung', 'Universitas Parahyangan', Pendaftaran::STATUS_TERVERIFIKASI, 'Ingin percaya diri saat presentasi di kampus.'],
-            ['Bima Saputra', 'bima.saputra@dubesia.id', '0812-1000-0012', 'private', 'Jakarta Pusat', 'Kementerian Luar Negeri', Pendaftaran::STATUS_TERVERIFIKASI, 'Persiapan penempatan staf protokol.'],
-            ['Cindy Halim', 'cindy.halim@dubesia.id', '0812-1000-0013', 'employee', 'Batam', 'PT Batamindo', Pendaftaran::STATUS_TERVERIFIKASI, 'Butuh bahasa Inggris untuk rapat dengan klien Singapura.'],
-            ['Dedi Kurniawan', 'dedi.kurniawan@dubesia.id', '0812-1000-0014', 'reguler', 'Pekanbaru', 'Universitas Riau', Pendaftaran::STATUS_TERVERIFIKASI, 'Ingin lancar berbicara untuk lomba debat.'],
-            ['Elena Marpaung', 'elena.marpaung@dubesia.id', '0812-1000-0015', 'private', 'Medan', 'Universitas Sumatera Utara', Pendaftaran::STATUS_TERVERIFIKASI, 'Menyiapkan wawancara kerja di perusahaan multinasional.'],
-            ['Farid Maulana', 'farid.maulana@dubesia.id', '0812-1000-0016', 'employee', 'Balikpapan', 'PT Pertamina Hulu', Pendaftaran::STATUS_TERVERIFIKASI, 'Perlu kemampuan menulis laporan bahasa Inggris.'],
+            ['Nadia Prameswari', 'nadia.prameswari@dubesia.id', '0812-1000-0001', 'public_speaking', 'regular', 'Jakarta Selatan', 'SMA Negeri 8 Jakarta', Pendaftaran::STATUS_TERVERIFIKASI, 'Ingin lancar public speaking untuk debat internasional.'],
+            ['Bagas Wicaksono', 'bagas.wicaksono@dubesia.id', '0812-1000-0002', 'general_english', 'private', 'Bandung', 'Universitas Padjadjaran', Pendaftaran::STATUS_MENUNGGU, 'Butuh kelas privat karena jadwal kuliah padat.'],
+            ['Salsabila Rahma', 'salsabila.rahma@dubesia.id', '0812-1000-0003', 'esp', 'intensive', 'Surabaya', 'PT Pelayaran Nusantara', Pendaftaran::STATUS_TERVERIFIKASI, 'Persiapan presentasi klien asing.'],
+            ['Yoga Pratama', 'yoga.pratama@dubesia.id', '0812-1000-0004', 'public_speaking', 'regular', 'Yogyakarta', 'SMA Negeri 3 Yogyakarta', Pendaftaran::STATUS_MENUNGGU, 'Ingin lancar berbicara saat presentasi kerja.'],
+            ['Clara Wijayanti', 'clara.wijayanti@dubesia.id', '0812-1000-0005', 'academic_english', 'private', 'Semarang', 'Universitas Diponegoro', Pendaftaran::STATUS_DITOLAK, 'Menyiapkan wawancara beasiswa.'],
+            ['Rizky Hidayat', 'rizky.hidayat@dubesia.id', '0812-1000-0006', 'esp', 'private', 'Medan', 'Bank Sumut', Pendaftaran::STATUS_TERVERIFIKASI, 'Perlu kemampuan korespondensi bisnis.'],
+            ['Anindya Kirana', 'anindya.kirana@dubesia.id', '0812-1000-0007', 'public_speaking', 'regular', 'Denpasar', 'SMA Negeri 1 Denpasar', Pendaftaran::STATUS_MENUNGGU, 'Tertarik latihan public speaking untuk kegiatan diplomatik.'],
+            ['Fadhil Ramadhan', 'fadhil.ramadhan@dubesia.id', '0812-1000-0008', 'general_english', 'regular', 'Makassar', 'Universitas Hasanuddin', Pendaftaran::STATUS_TERVERIFIKASI, 'Ingin memperbaiki pelafalan dan intonasi.'],
+            ['Gita Larasati', 'gita.larasati@dubesia.id', '0812-1000-0009', 'academic_english', 'private', 'Malang', 'Universitas Brawijaya', Pendaftaran::STATUS_MENUNGGU, 'Persiapan wawancara beasiswa di luar negeri.'],
+            ['Hendra Gunawan', 'hendra.gunawan@dubesia.id', '0812-1000-0010', 'esp', 'home_visit', 'Balikpapan', 'PT Energi Kaltim', Pendaftaran::STATUS_DITOLAK, 'Ingin belajar bahasa Inggris di rumah untuk kebutuhan kerja.'],
+            ['Alya Kusumawardani', 'alya.kusumawardani@dubesia.id', '0812-1000-0011', 'public_speaking', 'regular', 'Bandung', 'Universitas Parahyangan', Pendaftaran::STATUS_TERVERIFIKASI, 'Ingin percaya diri saat presentasi di kampus.'],
+            ['Bima Saputra', 'bima.saputra@dubesia.id', '0812-1000-0012', 'public_speaking', 'intensive', 'Jakarta Pusat', 'Kementerian Luar Negeri', Pendaftaran::STATUS_TERVERIFIKASI, 'Persiapan penempatan staf protokol.'],
+            ['Cindy Halim', 'cindy.halim@dubesia.id', '0812-1000-0013', 'esp', 'private', 'Batam', 'PT Batamindo', Pendaftaran::STATUS_TERVERIFIKASI, 'Butuh bahasa Inggris untuk rapat dengan klien Singapura.'],
+            ['Dedi Kurniawan', 'dedi.kurniawan@dubesia.id', '0812-1000-0014', 'public_speaking', 'regular', 'Pekanbaru', 'Universitas Riau', Pendaftaran::STATUS_TERVERIFIKASI, 'Ingin lancar berbicara untuk lomba debat.'],
+            ['Elena Marpaung', 'elena.marpaung@dubesia.id', '0812-1000-0015', 'general_english', 'private', 'Medan', 'Universitas Sumatera Utara', Pendaftaran::STATUS_TERVERIFIKASI, 'Menyiapkan wawancara kerja di perusahaan multinasional.'],
+            ['Farid Maulana', 'farid.maulana@dubesia.id', '0812-1000-0016', 'esp', 'regular', 'Balikpapan', 'PT Pertamina Hulu', Pendaftaran::STATUS_TERVERIFIKASI, 'Perlu kemampuan menulis laporan bahasa Inggris.'],
         ];
 
         $verifiedIndex = 0;
 
-        foreach ($rows as $index => [$nama, $email, $whatsapp, $program, $kota, $institusi, $status, $motivasi]) {
+        foreach ($rows as $index => [$nama, $email, $whatsapp, $program, $jenisKelas, $kota, $institusi, $status, $motivasi]) {
             $user = User::updateOrCreate(
                 ['email' => $email],
                 [
@@ -70,9 +70,10 @@ class PendaftaranSeeder extends Seeder
                     'alamat' => 'Jl. Contoh Raya No. '.($index + 1).', '.$kota,
                     'asal_institusi' => $institusi,
                     'program' => $program,
+                    'jenis_kelas' => $jenisKelas,
                     'pesan_motivasi' => $motivasi,
                     'bukti_pembayaran' => 'pendaftaran/bukti-demo-'.($index + 1).'.pdf',
-                    'biaya' => Pendaftaran::biayaUntuk($program),
+                    'biaya' => Pendaftaran::biayaUntukJenisKelas($jenisKelas),
                     'status' => $status,
                     'catatan_verifikasi' => $status === Pendaftaran::STATUS_DITOLAK ? 'Bukti pembayaran tidak terbaca.' : null,
                     'verified_by' => $diproses ? $verifikator?->id : null,

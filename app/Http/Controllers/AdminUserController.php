@@ -23,7 +23,15 @@ class AdminUserController extends Controller
      */
     public function index(Request $request)
     {
-        $users = $this->filteredUsersQuery($request)->paginate($request->input('per_page', 10))->withQueryString();
+        $users = $this->filteredUsersQuery($request)
+            ->with(['pendaftaran' => fn ($query) => $query->select('id', 'user_id', 'program', 'jenis_kelas')])
+            ->paginate($request->input('per_page', 10))
+            ->withQueryString()
+            ->through(fn (User $user): array => [
+                ...$user->makeHidden('pendaftaran')->toArray(),
+                'program_label' => Pendaftaran::labelProgram($user->pendaftaran?->program),
+                'jenis_kelas_label' => Pendaftaran::labelJenisKelas($user->pendaftaran?->jenis_kelas),
+            ]);
 
         // Statistik ringkasan
         $totalPengguna = $this->visibleUsersQuery()->count();

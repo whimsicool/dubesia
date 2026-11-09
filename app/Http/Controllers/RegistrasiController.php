@@ -50,8 +50,9 @@ class RegistrasiController extends Controller
                     'alamat' => $data['alamat'],
                     'asal_institusi' => $data['asal_institusi'],
                     'program' => $data['program'],
+                    'jenis_kelas' => $data['jenis_kelas'],
                     'pesan_motivasi' => $data['pesan_motivasi'] ?? null,
-                    'biaya' => Pendaftaran::biayaUntuk($data['program']),
+                    'biaya' => Pendaftaran::biayaUntukJenisKelas($data['jenis_kelas']),
                     'status' => Pendaftaran::STATUS_MENUNGGU_PEMBAYARAN,
                 ]);
 
@@ -89,6 +90,7 @@ class RegistrasiController extends Controller
                 'alamat' => $pendaftaran->alamat,
                 'asal_institusi' => $pendaftaran->asal_institusi,
                 'program' => $pendaftaran->program,
+                'jenis_kelas' => $pendaftaran->jenis_kelas,
                 'pesan_motivasi' => $pendaftaran->pesan_motivasi,
                 'catatan_verifikasi' => $pendaftaran->catatan_verifikasi,
             ],
@@ -119,8 +121,9 @@ class RegistrasiController extends Controller
                     'alamat' => $data['alamat'],
                     'asal_institusi' => $data['asal_institusi'],
                     'program' => $data['program'],
+                    'jenis_kelas' => $data['jenis_kelas'],
                     'pesan_motivasi' => $data['pesan_motivasi'] ?? null,
-                    'biaya' => Pendaftaran::biayaUntuk($data['program']),
+                    'biaya' => Pendaftaran::biayaUntukJenisKelas($data['jenis_kelas']),
                     'status' => Pendaftaran::STATUS_MENUNGGU_PEMBAYARAN,
                     'catatan_verifikasi' => null,
                     'verified_by' => null,
@@ -151,7 +154,14 @@ class RegistrasiController extends Controller
                     'value' => $value,
                     'label' => $label,
                     'deskripsi' => Pendaftaran::PROGRAM_DESKRIPSI[$value] ?? '',
-                    'biaya' => Pendaftaran::biayaUntuk($value),
+                ])
+                ->values(),
+            'jenisKelas' => collect(Pendaftaran::JENIS_KELAS)
+                ->map(fn ($label, $value) => [
+                    'value' => $value,
+                    'label' => $label,
+                    'deskripsi' => Pendaftaran::JENIS_KELAS_DESKRIPSI[$value] ?? '',
+                    'biaya' => Pendaftaran::biayaUntukJenisKelas($value),
                 ])
                 ->values(),
             'biaya' => Pendaftaran::BIAYA_DEFAULT,

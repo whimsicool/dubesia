@@ -234,6 +234,7 @@ export default function Edit({ profile, pendaftaran }) {
                                     <InfoRow label="Tanggal lahir" value={formatDate(pendaftaran.tanggal_lahir)} />
                                     <InfoRow label="Asal institusi" value={pendaftaran.asal_institusi} />
                                     <InfoRow label="Program" value={pendaftaran.program} />
+                                    <InfoRow label="Jenis Kelas" value={pendaftaran.jenis_kelas} />
                                     <InfoRow label="Biaya pendaftaran" value={rupiah(pendaftaran.biaya)} />
                                     <div className="sm:col-span-2">
                                         <InfoRow label="Alamat" value={pendaftaran.alamat} />

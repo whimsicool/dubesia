@@ -19,9 +19,9 @@ class LandingTest extends TestCase
             ->assertInertia(fn (Assert $page) => $page
                 ->component('Landing/Index')
                 ->has('programs', count(Pendaftaran::PROGRAMS))
-                ->where('programs.0.value', 'reguler')
-                ->where('programs.0.label', 'Reguler')
-                ->where('programs.0.biaya', Pendaftaran::biayaUntuk('reguler'))
+                ->where('programs.0.value', 'general_english')
+                ->where('programs.0.label', 'General English')
+                ->missing('programs.0.biaya')
                 ->has('programs.0.deskripsi'));
     }
 

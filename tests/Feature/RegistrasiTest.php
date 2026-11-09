@@ -23,7 +23,8 @@ class RegistrasiTest extends TestCase
             'no_whatsapp' => '081234567890',
             'alamat' => 'Jl. Melati No. 1, Pekanbaru',
             'asal_institusi' => 'Universitas Riau',
-            'program' => 'private',
+            'program' => 'general_english',
+            'jenis_kelas' => 'private',
             'setuju' => true,
         ], $overrides);
     }
@@ -42,8 +43,53 @@ class RegistrasiTest extends TestCase
         $pendaftaran = $user->pendaftaran;
 
         $this->assertSame(Pendaftaran::STATUS_MENUNGGU_PEMBAYARAN, $pendaftaran->status);
-        $this->assertSame(Pendaftaran::BIAYA_PER_PROGRAM['private'], $pendaftaran->biaya);
+        $this->assertSame('general_english', $pendaftaran->program);
+        $this->assertSame('private', $pendaftaran->jenis_kelas);
+        $this->assertSame(Pendaftaran::biayaUntukJenisKelas('private'), $pendaftaran->biaya);
         $this->assertNull($pendaftaran->bukti_pembayaran);
+    }
+
+    public function test_program_tidak_mengubah_biaya(): void
+    {
+        $this->post('/registrasi', $this->payload([
+            'email' => 'program.satu@gmail.com',
+            'program' => 'general_english',
+            'jenis_kelas' => 'regular',
+        ]))->assertRedirect(route('pembayaran.show'));
+
+        $this->post('/logout');
+
+        $this->post('/registrasi', $this->payload([
+            'email' => 'program.dua@gmail.com',
+            'program' => 'toefl_preparation',
+            'jenis_kelas' => 'regular',
+        ]))->assertRedirect(route('pembayaran.show'));
+
+        $biaya = Pendaftaran::query()
+            ->whereIn('program', ['general_english', 'toefl_preparation'])
+            ->pluck('biaya', 'program');
+
+        $this->assertSame(Pendaftaran::biayaUntukJenisKelas('regular'), $biaya['general_english']);
+        $this->assertSame($biaya['general_english'], $biaya['toefl_preparation']);
+    }
+
+    public function test_jenis_kelas_wajib_diisi(): void
+    {
+        $payload = $this->payload();
+        unset($payload['jenis_kelas']);
+
+        $this->post('/registrasi', $payload)
+            ->assertSessionHasErrors('jenis_kelas');
+
+        $this->assertDatabaseCount('pendaftarans', 0);
+    }
+
+    public function test_jenis_kelas_tidak_dikenal_ditolak(): void
+    {
+        $this->post('/registrasi', $this->payload(['jenis_kelas' => 'grup']))
+            ->assertSessionHasErrors('jenis_kelas');
+
+        $this->assertDatabaseCount('pendaftarans', 0);
     }
 
     public function test_email_non_gmail_diterima(): void

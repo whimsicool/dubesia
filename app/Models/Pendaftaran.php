@@ -38,29 +38,51 @@ class Pendaftaran extends Model
     ];
 
     public const PROGRAMS = [
-        'reguler' => 'Reguler',
-        'private' => 'Private',
-        'employee' => 'Employee',
+        'general_english' => 'General English',
+        'academic_english' => 'Academic English',
+        'public_speaking' => 'Public Speaking',
+        'esp' => 'ESP (English for Specific Purpose)',
+        'toefl_preparation' => 'TOEFL Preparation',
     ];
 
     /** Labels retained for registrations submitted before the package change. */
     public const PROGRAMS_LAMA = [
+        'reguler' => 'Reguler',
+        'private' => 'Private',
+        'employee' => 'Employee',
         'diplomatic_speech' => 'Diplomatic Speech & Rhetoric',
         'executive_english' => 'Executive English Fluency',
     ];
 
     public const PROGRAM_DESKRIPSI = [
-        'reguler' => 'Kelas reguler mengikuti jadwal belajar yang tersedia.',
-        'private' => 'Pembelajaran privat dengan pendampingan yang lebih personal.',
-        'employee' => 'Program untuk karyawan dengan jadwal yang lebih fleksibel.',
+        'general_english' => '30x pertemuan. Program menyeluruh untuk menguatkan kemampuan berbicara, menulis, membaca, dan mendengarkan.',
+        'academic_english' => '20x pertemuan. Fokus pada kemampuan bahasa Inggris untuk kebutuhan akademik dan studi lanjut.',
+        'public_speaking' => '20x pertemuan. Latihan berbicara di depan publik dengan teknik penyampaian dan kepercayaan diri.',
+        'esp' => '20x pertemuan. Bahasa Inggris yang disesuaikan dengan kebutuhan bidang kerja atau profesi Anda.',
+        'toefl_preparation' => '20x pertemuan. Persiapan tes TOEFL dengan latihan soal dan strategi mengerjakan setiap bagian.',
     ];
 
-    public const BIAYA_DEFAULT = 1000000;
+    public const JENIS_KELAS = [
+        'regular' => 'Regular',
+        'private' => 'Private',
+        'intensive' => 'Intensive',
+        'home_visit' => 'Home Visit',
+    ];
 
-    public const BIAYA_PER_PROGRAM = [
-        'reguler' => 1000000,
-        'private' => 1500000,
-        'employee' => 1700000,
+    public const JENIS_KELAS_DESKRIPSI = [
+        'regular' => 'Maksimal 15 orang. Kelas berkelompok dengan jadwal belajar tetap.',
+        'private' => 'Satu murid bersama satu tutor. Pembelajaran privat dengan pendampingan yang lebih personal.',
+        'intensive' => 'Maksimal 5 orang. Kelas intensif dengan pertemuan lebih sering dan latihan berbicara yang lebih banyak.',
+        'home_visit' => 'Tutor datang ke rumah Anda. Belajar dengan jadwal dan lokasi yang lebih fleksibel.',
+    ];
+
+    public const BIAYA_DEFAULT = 1800000;
+
+    public const BIAYA_PER_JENIS_KELAS = [
+        'regular' => 1800000,
+        'private' => 5000000,
+        'intensive' => 10000000,
+        'home_visit' => 7000000,
     ];
 
     public const REKENING = [
@@ -70,7 +92,7 @@ class Pendaftaran extends Model
 
     protected $fillable = [
         'user_id', 'nama_lengkap', 'tanggal_lahir', 'email', 'no_whatsapp',
-        'alamat', 'asal_institusi', 'program', 'pesan_motivasi',
+        'alamat', 'asal_institusi', 'program', 'jenis_kelas', 'pesan_motivasi',
         'bukti_pembayaran', 'biaya', 'status', 'catatan_verifikasi', 'verified_by',
         'verified_at', 'resubmitted_at',
     ];
@@ -81,14 +103,19 @@ class Pendaftaran extends Model
         'resubmitted_at' => 'datetime',
     ];
 
-    public static function biayaUntuk(string $program): int
+    public static function biayaUntukJenisKelas(?string $jenisKelas): int
     {
-        return self::BIAYA_PER_PROGRAM[$program] ?? self::BIAYA_DEFAULT;
+        return self::BIAYA_PER_JENIS_KELAS[$jenisKelas] ?? self::BIAYA_DEFAULT;
     }
 
     public static function labelProgram(?string $program): string
     {
         return self::PROGRAMS[$program] ?? self::PROGRAMS_LAMA[$program] ?? ($program ?: '-');
+    }
+
+    public static function labelJenisKelas(?string $jenisKelas): string
+    {
+        return self::JENIS_KELAS[$jenisKelas] ?? '-';
     }
 
     public function user(): BelongsTo

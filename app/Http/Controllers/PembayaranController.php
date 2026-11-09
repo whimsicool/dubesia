@@ -43,6 +43,7 @@ class PembayaranController extends Controller
                 'email' => $pendaftaran->email,
                 'program' => Pendaftaran::labelProgram($pendaftaran->program),
                 'program_deskripsi' => Pendaftaran::PROGRAM_DESKRIPSI[$pendaftaran->program] ?? '',
+                'jenis_kelas' => Pendaftaran::labelJenisKelas($pendaftaran->jenis_kelas),
                 'biaya' => $pendaftaran->biaya,
                 'status' => $pendaftaran->status,
                 'status_label' => Pendaftaran::STATUS_LABEL[$pendaftaran->status] ?? $pendaftaran->status,

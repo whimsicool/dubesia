@@ -19,14 +19,15 @@ class PembayaranTest extends TestCase
         $user = User::factory()->create(['is_active' => false]);
         $pendaftaran = Pendaftaran::factory()->for($user)->menungguPembayaran()->create([
             'email' => $user->email,
-            'program' => 'employee',
-            'biaya' => Pendaftaran::BIAYA_PER_PROGRAM['employee'],
+            'program' => 'toefl_preparation',
+            'jenis_kelas' => 'private',
+            'biaya' => Pendaftaran::biayaUntukJenisKelas('private'),
         ]);
 
         return [$user, $pendaftaran];
     }
 
-    public function test_halaman_pembayaran_menampilkan_tagihan_sesuai_program(): void
+    public function test_halaman_pembayaran_menampilkan_tagihan_sesuai_jenis_kelas(): void
     {
         [$user] = $this->calonMurid();
 
@@ -35,7 +36,9 @@ class PembayaranTest extends TestCase
             ->assertOk()
             ->assertInertia(fn (Assert $page) => $page
                 ->component('Registrasi/Pembayaran')
-                ->where('pendaftaran.biaya', Pendaftaran::BIAYA_PER_PROGRAM['employee'])
+                ->where('pendaftaran.program', 'TOEFL Preparation')
+                ->where('pendaftaran.jenis_kelas', 'Private')
+                ->where('pendaftaran.biaya', Pendaftaran::biayaUntukJenisKelas('private'))
                 ->where('pendaftaran.status', Pendaftaran::STATUS_MENUNGGU_PEMBAYARAN)
                 ->where('pendaftaran.has_bukti', false));
     }

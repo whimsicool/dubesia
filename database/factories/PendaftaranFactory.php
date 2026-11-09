@@ -23,8 +23,9 @@ class PendaftaranFactory extends Factory
             'no_whatsapp' => '81234567890',
             'alamat' => 'Jl. Taman Karya, Pekanbaru',
             'asal_institusi' => 'Universitas Riau',
-            'program' => 'reguler',
-            'biaya' => Pendaftaran::BIAYA_PER_PROGRAM['reguler'],
+            'program' => 'general_english',
+            'jenis_kelas' => 'regular',
+            'biaya' => Pendaftaran::biayaUntukJenisKelas('regular'),
             'status' => Pendaftaran::STATUS_MENUNGGU,
             'bukti_pembayaran' => 'bukti-pembayaran/contoh.pdf',
         ];

@@ -23,6 +23,7 @@ const DRAFT_FIELDS = [
   'alamat',
   'pesan_motivasi',
   'program',
+  'jenis_kelas',
   'setuju',
 ];
 
@@ -78,7 +79,8 @@ function SectionTitle({ title, description }) {
 
 export default function Create({
   programs = [],
-  biaya = 250000,
+  jenisKelas = [],
+  biaya = 1800000,
   editMode = false,
   pendaftaran = null,
 }) {
@@ -89,6 +91,9 @@ export default function Create({
         program: programs.some((item) => item.value === draft.program)
           ? draft.program
           : programs[0]?.value ?? '',
+        jenis_kelas: jenisKelas.some((item) => item.value === draft.jenis_kelas)
+          ? draft.jenis_kelas
+          : jenisKelas[0]?.value ?? '',
       }
     : {};
 
@@ -103,6 +108,9 @@ export default function Create({
     program: programs.some((item) => item.value === pendaftaran?.program)
       ? pendaftaran.program
       : programs[0]?.value ?? '',
+    jenis_kelas: jenisKelas.some((item) => item.value === pendaftaran?.jenis_kelas)
+      ? pendaftaran.jenis_kelas
+      : jenisKelas[0]?.value ?? '',
     setuju: editMode,
     ...restoredDraft,
   });
@@ -118,7 +126,8 @@ export default function Create({
   );
 
   const selectedProgram = programs.find((program) => program.value === data.program);
-  const selectedBiaya = selectedProgram?.biaya ?? biaya;
+  const selectedJenisKelas = jenisKelas.find((item) => item.value === data.jenis_kelas);
+  const selectedBiaya = selectedJenisKelas?.biaya ?? biaya;
 
   useEffect(() => {
     const firstInvalidField = Object.keys(errors).find((field) => field !== 'umum');
@@ -203,6 +212,7 @@ export default function Create({
     if (!data.asal_institusi.trim()) nextErrors.asal_institusi = 'Masukkan nama sekolah, universitas, perusahaan, atau institusi asal.';
     if (!data.alamat.trim()) nextErrors.alamat = 'Masukkan alamat lengkap, termasuk kota/kabupaten.';
     if (!data.program) nextErrors.program = 'Pilih salah satu program kursus.';
+    if (!data.jenis_kelas) nextErrors.jenis_kelas = 'Pilih salah satu jenis kelas.';
     if (!emailDikonfirmasi) nextErrors.konfirmasi = 'Centang pernyataan setelah memastikan data diri dan email sudah benar.';
     setClientErrors(nextErrors);
     if (Object.keys(nextErrors).length) {
@@ -397,7 +407,7 @@ export default function Create({
           <section className="mt-8 border-t border-slate-100 pt-6">
             <SectionTitle
               title="Program Kursus"
-              description="Pilih program yang ingin Anda ikuti."
+              description="Pilih program dan jenis kelas yang sesuai."
             />
 
             <Field id="field-program" label="Pilihan Program" required error={fieldError('program')}>
@@ -428,14 +438,50 @@ export default function Create({
                       <span className="mt-1 block text-xs leading-5 text-slate-500">
                         {program.deskripsi}
                       </span>
-                      <span className="mt-2 block text-sm font-bold text-blue-700">
-                        {rupiah(program.biaya)}
-                      </span>
                     </span>
                   </label>
                 ))}
               </div>
             </Field>
+
+            <div className="mt-4">
+              <Field id="field-jenis_kelas" label="Jenis Kelas" required error={fieldError('jenis_kelas')}>
+                <div className="grid gap-3 sm:grid-cols-2">
+                  {jenisKelas.map((item) => (
+                    <label
+                      key={item.value}
+                      className={`flex cursor-pointer gap-3 rounded-xl border p-4 transition ${
+                        data.jenis_kelas === item.value
+                          ? 'border-blue-500 bg-blue-50 ring-1 ring-blue-500'
+                          : 'border-slate-200 hover:border-blue-200'
+                      }`}
+                    >
+                      <input
+                        required
+                        type="radio"
+                        name="jenis_kelas"
+                        value={item.value}
+                        checked={data.jenis_kelas === item.value}
+                        onChange={() => updateField('jenis_kelas', item.value)}
+                        className="mt-1 accent-blue-600"
+                      />
+
+                      <span className="flex-1">
+                        <span className="block text-sm font-bold text-slate-900">
+                          {item.label}
+                        </span>
+                        <span className="mt-1 block text-xs leading-5 text-slate-500">
+                          {item.deskripsi}
+                        </span>
+                        <span className="mt-2 block text-sm font-bold text-blue-700">
+                          {rupiah(item.biaya)}
+                        </span>
+                      </span>
+                    </label>
+                  ))}
+                </div>
+              </Field>
+            </div>
 
             <div className="mt-4 rounded-xl bg-blue-50 p-4 sm:flex sm:items-center sm:justify-between">
               <div>
@@ -551,6 +597,11 @@ export default function Create({
               </div>
 
               <div className="flex items-start justify-between gap-3">
+                <dt className="text-slate-500">Jenis Kelas</dt>
+                <dd className="text-right font-semibold text-slate-900">{selectedJenisKelas?.label ?? '-'}</dd>
+              </div>
+
+              <div className="flex items-start justify-between gap-3">
                 <dt className="text-slate-500">Biaya kursus</dt>
                 <dd className="text-right font-semibold text-blue-700">{rupiah(selectedBiaya)}</dd>
               </div>
@@ -593,7 +644,7 @@ export default function Create({
                 <span>
                   <strong className="text-slate-800">{editMode ? 'Kirim ulang formulir' : 'Selesaikan pembayaran'}</strong>
                   <br />
-                  {editMode ? 'Data Anda dikirim kembali untuk diperiksa.' : 'Transfer sesuai biaya program di halaman berikutnya.'}
+                  {editMode ? 'Data Anda dikirim kembali untuk diperiksa.' : 'Transfer sesuai biaya jenis kelas di halaman berikutnya.'}
                 </span>
               </li>
 

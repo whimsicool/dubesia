@@ -39,6 +39,7 @@ class UpdateRegistrasiRequest extends FormRequest
             'asal_institusi' => ['required', 'string', 'max:255'],
             'pesan_motivasi' => ['nullable', 'string', 'max:1000'],
             'program' => ['required', Rule::in(array_keys(Pendaftaran::PROGRAMS))],
+            'jenis_kelas' => ['required', Rule::in(array_keys(Pendaftaran::JENIS_KELAS))],
             'setuju' => ['accepted'],
         ];
     }
@@ -55,9 +56,17 @@ class UpdateRegistrasiRequest extends FormRequest
             'asal_institusi.max' => 'Asal institusi maksimal 255 karakter.',
             'alamat.max' => 'Alamat maksimal 1.000 karakter.',
             'program.in' => 'Pilih salah satu program yang tersedia.',
+            'jenis_kelas.in' => 'Pilih salah satu jenis kelas yang tersedia.',
             'no_whatsapp.regex' => 'Nomor WhatsApp hanya boleh berisi angka. Hapus huruf atau simbol yang dimasukkan.',
             'email.unique' => 'Email sudah digunakan akun lain.',
             'setuju.accepted' => 'Persetujuan wajib dicentang.',
+        ];
+    }
+
+    public function attributes(): array
+    {
+        return [
+            'jenis_kelas' => 'Jenis kelas',
         ];
     }
 }
